@@ -1768,49 +1768,49 @@ window.verEstatisticasIA = async function() {
     }
 }
 
-// 📊 FUNÇÃO: Modal de Estatísticas Compacto
+// 📊 FUNÇÃO: Modal de Estatísticas Balanceado
 window.mostrarModalEstatisticas = function(data) {
-    // Remove modal existente se houver
     const modalExistente = document.getElementById('modalEstatisticas');
     if (modalExistente) modalExistente.remove();
 
     const modalHTML = `
         <div id="modalEstatisticas" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div class="glass-card rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto animate-fade-in">
+            <div class="glass-card rounded-xl p-4 w-full max-w-md mx-auto animate-fade-in" style="max-height: 85vh;">
+                <!-- Cabeçalho -->
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold">📊 Suas Estatísticas</h3>
+                    <h3 class="text-lg font-semibold">📊 Estatísticas</h3>
                     <button onclick="fecharModalEstatisticas()" class="text-gray-400 hover:text-white">
-                        <i data-feather="x" class="w-5 h-5"></i>
+                        <i data-feather="x" class="w-4 h-4"></i>
                     </button>
                 </div>
                 
-                <!-- Estatísticas em grid compacto -->
+                <!-- Estatísticas -->
                 <div class="grid grid-cols-2 gap-3 mb-4">
                     <div class="text-center p-3 bg-white/10 rounded-lg">
-                        <div class="text-lg font-bold text-cyan-400">${data.estatisticas.total}</div>
-                        <div class="text-xs text-gray-300">Total</div>
+                        <div class="text-base font-bold text-cyan-400">${data.estatisticas.total}</div>
+                        <div class="text-xs text-gray-300 mt-1">Total</div>
                     </div>
                     <div class="text-center p-3 bg-white/10 rounded-lg">
-                        <div class="text-lg font-bold text-green-400">${data.estatisticas.este_mes}</div>
-                        <div class="text-xs text-gray-300">Este Mês</div>
+                        <div class="text-base font-bold text-green-400">${data.estatisticas.este_mes}</div>
+                        <div class="text-xs text-gray-300 mt-1">Este Mês</div>
                     </div>
                     <div class="text-center p-3 bg-white/10 rounded-lg">
-                        <div class="text-lg font-bold text-blue-400">${data.estatisticas.confirmados}</div>
-                        <div class="text-xs text-gray-300">Confirmados</div>
+                        <div class="text-base font-bold text-blue-400">${data.estatisticas.confirmados}</div>
+                        <div class="text-xs text-gray-300 mt-1">Confirmados</div>
                     </div>
                     <div class="text-center p-3 bg-white/10 rounded-lg">
-                        <div class="text-lg font-bold text-yellow-400">${data.estatisticas.via_ia || 0}</div>
-                        <div class="text-xs text-gray-300">Via IA</div>
+                        <div class="text-base font-bold text-yellow-400">${data.estatisticas.via_ia || 0}</div>
+                        <div class="text-xs text-gray-300 mt-1">Via IA</div>
                     </div>
                 </div>
                 
-                <!-- Análise IA com scroll se necessário -->
-                <div class="analise-ia p-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-purple-500/30 max-h-[200px] overflow-y-auto">
-                    <h4 class="font-semibold mb-2 text-purple-400 text-sm">💡 Análise da IA</h4>
-                    <p class="text-xs leading-relaxed whitespace-pre-line">${data.analise_ia}</p>
+                <!-- Análise IA -->
+                <div class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-purple-500/30 p-3 mb-4" style="max-height: 200px; overflow-y: auto;">
+                    <h4 class="font-semibold text-purple-400 text-sm mb-2">💡 Análise da IA</h4>
+                    <p class="text-sm leading-relaxed whitespace-pre-line">${data.analise_ia}</p>
                 </div>
                 
-                <button onclick="fecharModalEstatisticas()" class="w-full mt-4 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-sm">
+                <button onclick="fecharModalEstatisticas()" class="w-full px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-sm font-medium">
                     Fechar
                 </button>
             </div>
@@ -1857,6 +1857,7 @@ document.addEventListener('DOMContentLoaded', function() {
         feather.replace();
         init();
     </script>
+
 
 
 
