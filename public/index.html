@@ -868,7 +868,7 @@ function renderAgendamentos() {
                     const dataAgendamento = new Date(`${a.data}T${a.horario}`);
                     const hoje = new Date();
                     
-                    if(diaSelecionado >= 1 && diaSelecionado <= 6) {
+                    if(diaSelecionado >= 0 && diaSelecionado <= 6) {
                         return dataAgendamento.getDay() === diaSelecionado && 
                                dataAgendamento >= new Date(hoje.setHours(0,0,0,0));
                     } else {
@@ -1859,6 +1859,7 @@ document.addEventListener('DOMContentLoaded', function() {
         feather.replace();
         init();
     </script>
+
 
 
 
