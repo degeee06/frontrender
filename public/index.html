@@ -292,11 +292,13 @@
         Agendar com IA
     </h3>
     
-    <div class="agendamento-rapido">
-        <input type="text" id="input-descricao-natural" 
-               placeholder="Ex: reunião com João amanhã às 14h sobre o projeto novo">
-        <button onclick="agendarComIA()">Agendar com IA</button>
-    </div>
+    <div class="sugestoes-horarios">
+    <h4>🎯 Sugerir Horários Livres</h4>
+    <button onclick="sugerirHorarios()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500">
+        📅 Encontrar Melhores Horários
+    </button>
+    <div id="sugestoes-horarios"></div>
+</div>
     
     <div id="resultado-agendamento-ia" class="mt-3">
         <!-- Resultado do agendamento IA aparece aqui -->
@@ -1604,71 +1606,78 @@ window.perguntarIA = async function() {
     }
 }
 
-// 📅 FUNÇÃO: Agendar com IA
-window.agendarComIA = async function() {
+// 🎯 FUNÇÃO: Sugerir Horários Livres
+window.sugerirHorarios = async function() {
     try {
-        const descricao = document.getElementById('input-descricao-natural').value;
-        if (!descricao) {
-            showToast("Descreva o agendamento para a IA", "warning");
-            return;
-        }
-
-        const resultadoDiv = document.getElementById('resultado-agendamento-ia');
-        resultadoDiv.innerHTML = '<div class="p-3 bg-blue-500/20 rounded-lg">⏳ IA criando agendamento...</div>';
+        const sugestoesDiv = document.getElementById('sugestoes-horarios');
+        sugestoesDiv.innerHTML = '<div class="p-3 bg-blue-500/20 rounded-lg">🔍 Analisando sua agenda para encontrar horários livres...</div>';
 
         const token = getToken();
         if (!token) {
-            showToast("Faça login para usar a IA", "error");
-            resultadoDiv.innerHTML = '';
+            showToast("Faça login para usar esta função", "error");
+            sugestoesDiv.innerHTML = '';
             return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/agendar-inteligente`, {
-            method: 'POST',
+        const response = await fetch(`${API_BASE_URL}/api/sugerir-horarios`, {
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ descricaoNatural: descricao })
+            }
         });
 
         const data = await response.json();
 
         if (data.success) {
-            resultadoDiv.innerHTML = `
-                <div class="p-4 bg-green-500/20 rounded-lg border border-green-500/30">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="text-green-400">✅</span>
-                        <strong class="text-green-400">${data.msg}</strong>
+            let html = `
+                <div class="p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-green-400">📅</span>
+                        <strong class="text-green-400">Horários Sugeridos</strong>
                     </div>
-                    <div class="space-y-1 text-sm">
-                        <p><strong>📝:</strong> ${data.agendamento.nome}</p>
-                        <p><strong>📅:</strong> ${formatData(data.agendamento.data)} às ${data.agendamento.horario}</p>
-                        <p><strong>📋:</strong> ${data.agendamento.descricao || 'Sem descrição'}</p>
+                    <div class="sugestoes-texto whitespace-pre-line text-sm leading-relaxed">
+                        ${data.sugestoes}
+                    </div>
+                    <div class="mt-4 flex gap-2">
+                        <button onclick="abrirFormAgendamento()" class="flex-1 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition-all text-white">
+                            📝 Criar Agendamento
+                        </button>
+                        <button onclick="sugerirHorarios()" class="px-4 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 transition-all text-white">
+                            🔄 Buscar Mais
+                        </button>
                     </div>
                 </div>
             `;
-            
-            // Limpa input
-            document.getElementById('input-descricao-natural').value = '';
-            
-            // Atualiza lista de agendamentos
-            setTimeout(() => listarAgendamentos(), 1000);
+            sugestoesDiv.innerHTML = html;
         } else {
-            resultadoDiv.innerHTML = `
-                <div class="p-3 bg-red-500/20 rounded-lg border border-red-500/30">
+            sugestoesDiv.innerHTML = `
+                <div class="p-3 bg-red-500/20 rounded-lg">
                     <p class="text-red-400">❌ ${data.msg}</p>
                 </div>
             `;
         }
 
     } catch (error) {
-        console.error('Erro no agendamento IA:', error);
-        document.getElementById('resultado-agendamento-ia').innerHTML = 
-            '<div class="p-3 bg-red-500/20 rounded-lg"><p class="text-red-400">❌ Erro ao criar agendamento com IA</p></div>';
+        console.error('Erro ao sugerir horários:', error);
+        document.getElementById('sugestoes-horarios').innerHTML = 
+            '<div class="p-3 bg-red-500/20 rounded-lg"><p class="text-red-400">❌ Erro ao buscar horários livres</p></div>';
     }
 }
 
+// 🔧 FUNÇÃO AUXILIAR: Abrir formulário de agendamento
+window.abrirFormAgendamento = function() {
+    // Foca no formulário principal
+    document.getElementById('agendamentoForm').scrollIntoView({ 
+        behavior: 'smooth' 
+    });
+    
+    // Destaca o formulário
+    const form = document.getElementById('agendamentoForm');
+    form.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
+    setTimeout(() => {
+        form.style.boxShadow = '';
+    }, 2000);
+}
+        
 // 💡 FUNÇÃO: Carregar Sugestões IA
 window.carregarSugestoesIA = async function() {
     try {
@@ -1836,6 +1845,7 @@ document.addEventListener('DOMContentLoaded', function() {
         feather.replace();
         init();
     </script>
+
 
 
 
