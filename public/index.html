@@ -1530,13 +1530,13 @@ function configurarEventListenersModal() {
 
 // ==================== FUNÇÕES IA (ADICIONAR NO SEU FRONTEND) ====================
 
-// 🔧 FUNÇÃO: Pegar token (que está faltando)
+// 🔧 FUNÇÃO: Pegar token
 function getToken() {
     return userToken || localStorage.getItem('userToken');
 }
 
 // 🧠 FUNÇÃO: Assistente IA
-async function perguntarIA() {
+window.perguntarIA = async function() {
     try {
         const pergunta = document.getElementById('input-pergunta-ia').value;
         if (!pergunta) {
@@ -1558,6 +1558,8 @@ async function perguntarIA() {
         const token = getToken();
         if (!token) {
             showToast("Faça login para usar a IA", "error");
+            // Remove loading
+            document.querySelector('.carregando')?.remove();
             return;
         }
 
@@ -1573,7 +1575,7 @@ async function perguntarIA() {
         const data = await response.json();
 
         // Remove loading e mostra resposta
-        document.querySelector('.carregando').remove();
+        document.querySelector('.carregando')?.remove();
         
         if (data.success) {
             historico.innerHTML += `
@@ -1598,13 +1600,12 @@ async function perguntarIA() {
         showToast("Erro ao conversar com a IA", "error");
         
         // Remove loading em caso de erro
-        const loading = document.querySelector('.carregando');
-        if (loading) loading.remove();
+        document.querySelector('.carregando')?.remove();
     }
 }
 
 // 📅 FUNÇÃO: Agendar com IA
-async function agendarComIA() {
+window.agendarComIA = async function() {
     try {
         const descricao = document.getElementById('input-descricao-natural').value;
         if (!descricao) {
@@ -1618,6 +1619,7 @@ async function agendarComIA() {
         const token = getToken();
         if (!token) {
             showToast("Faça login para usar a IA", "error");
+            resultadoDiv.innerHTML = '';
             return;
         }
 
@@ -1668,7 +1670,7 @@ async function agendarComIA() {
 }
 
 // 💡 FUNÇÃO: Carregar Sugestões IA
-async function carregarSugestoesIA() {
+window.carregarSugestoesIA = async function() {
     try {
         const sugestoesDiv = document.getElementById('sugestoes-conteudo');
         sugestoesDiv.innerHTML = '<div class="p-3 bg-blue-500/20 rounded-lg">⏳ IA analisando sua agenda...</div>';
@@ -1676,6 +1678,7 @@ async function carregarSugestoesIA() {
         const token = getToken();
         if (!token) {
             showToast("Faça login para usar a IA", "error");
+            sugestoesDiv.innerHTML = '';
             return;
         }
 
@@ -1718,7 +1721,7 @@ async function carregarSugestoesIA() {
 }
 
 // 📊 FUNÇÃO: Estatísticas com IA
-async function verEstatisticasIA() {
+window.verEstatisticasIA = async function() {
     try {
         const token = getToken();
         if (!token) {
@@ -1746,7 +1749,8 @@ async function verEstatisticasIA() {
     }
 }
 
-function mostrarModalEstatisticas(data) {
+// 🔥 ADICIONE: Funções do modal de estatísticas também precisam ser globais
+window.mostrarModalEstatisticas = function(data) {
     // Remove modal existente se houver
     const modalExistente = document.getElementById('modalEstatisticas');
     if (modalExistente) modalExistente.remove();
@@ -1796,10 +1800,33 @@ function mostrarModalEstatisticas(data) {
     feather.replace();
 }
 
-function fecharModalEstatisticas() {
+window.fecharModalEstatisticas = function() {
     const modal = document.getElementById('modalEstatisticas');
     if (modal) modal.remove();
 }
+
+// 🔥 ADICIONE: Permitir enviar com Enter no chat IA
+document.addEventListener('DOMContentLoaded', function() {
+    const inputPergunta = document.getElementById('input-pergunta-ia');
+    const inputDescricao = document.getElementById('input-descricao-natural');
+    
+    if (inputPergunta) {
+        inputPergunta.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                perguntarIA();
+            }
+        });
+    }
+    
+    if (inputDescricao) {
+        inputDescricao.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                agendarComIA();
+            }
+        });
+    }
+});
+
         // ---------------- INIT ----------------
         AOS.init({
             duration: 800,
@@ -1809,9 +1836,6 @@ function fecharModalEstatisticas() {
         feather.replace();
         init();
     </script>
-</body>
-
-</html>
 
 
 
