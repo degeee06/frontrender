@@ -1850,6 +1850,61 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
+        // ---------------- DETECTAR E REDIRECIONAR PARA O APP ----------------
+function isInApp() {
+    return /Android|iPhone|iPad/i.test(navigator.userAgent) && 
+           !/Chrome|Safari|Firefox/i.test(navigator.userAgent.split('Mobile/')[1]);
+}
+
+// Função para voltar para o app
+function voltarParaApp() {
+    console.log('🔄 Tentando voltar para o app...');
+    
+    // Tenta abrir via deep link
+    window.location.href = 'oubook://auth-callback';
+    
+    // Fallback: se não estiver no app, redireciona para página principal
+    setTimeout(() => {
+        if (!isInApp()) {
+            console.log('📱 Não está no app, redirecionando para página principal...');
+            window.location.href = '/';
+        }
+    }, 2000);
+}
+
+// Verifica se está na página de callback
+if (window.location.href.includes('/auth-callback.html')) {
+    console.log('🎯 Página de callback detectada');
+    
+    // Tenta voltar automaticamente
+    setTimeout(voltarParaApp, 1000);
+    
+    // Adiciona botão manual após 3 segundos
+    setTimeout(() => {
+        if (!document.getElementById('btnVoltarApp')) {
+            const btn = document.createElement('button');
+            btn.id = 'btnVoltarApp';
+            btn.textContent = '📱 Voltar para o App';
+            btn.style.cssText = `
+                position: fixed; 
+                top: 20px; 
+                right: 20px; 
+                padding: 12px 18px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                z-index: 10000;
+                font-size: 14px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            btn.onclick = voltarParaApp;
+            document.body.appendChild(btn);
+        }
+    }, 3000);
+}
         // ---------------- INIT ----------------
         AOS.init({
             duration: 800,
@@ -1859,6 +1914,7 @@ document.addEventListener('DOMContentLoaded', function() {
         feather.replace();
         init();
     </script>
+
 
 
 
