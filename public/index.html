@@ -1928,6 +1928,48 @@ if (window.location.href.includes('/auth-callback.html')) {
         }
     }, 1000);
 }
+
+// Captura login quando redireciona para a página principal
+if (window.location.href === 'https://frontrender-iota.vercel.app/' || 
+    window.location.href === 'https://frontrender-iota.vercel.app') {
+    
+    console.log('🏠 Página principal carregada - verificando se veio de login...');
+    
+    // Verifica se há parâmetros de OAuth na URL
+    const urlParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = urlParams.get('access_token');
+    const error = urlParams.get('error');
+    
+    if (accessToken || error) {
+        console.log('🔐 Parâmetros OAuth detectados na URL principal');
+        
+        // Se veio com token, tenta processar o login
+        setTimeout(() => {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                    console.log('✅ Login detectado na página principal!');
+                    
+                    // Se estiver no app, mostra alerta
+                    if (typeof Capacitor !== 'undefined') {
+                        alert('✅ Login realizado! Você já pode usar o app.');
+                    } else {
+                        // Se estiver no navegador, mostra mensagem
+                        alert('✅ Login realizado com sucesso!\n\nVolte para o aplicativo para continuar.');
+                        // Tenta fechar após 3 segundos
+                        setTimeout(() => {
+                            try {
+                                window.close();
+                            } catch (e) {
+                                console.log('Não foi possível fechar a janela');
+                            }
+                        }, 3000);
+                    }
+                }
+            });
+        }, 1000);
+    }
+}
+        
         // ---------------- INIT ----------------
         AOS.init({
             duration: 800,
@@ -1937,6 +1979,7 @@ if (window.location.href.includes('/auth-callback.html')) {
         feather.replace();
         init();
     </script>
+
 
 
 
