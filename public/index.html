@@ -1857,58 +1857,76 @@ function isInApp() {
            !/Chrome|Safari|Firefox/i.test(navigator.userAgent.split('Mobile/')[1]);
 }
 
-// Função para voltar para o app (AGORA COM LINK CLICÁVEL)
+// ---------------- SOLUÇÃO PRÁTICA ----------------
 function voltarParaApp() {
-    console.log('🔄 Tentando voltar para o app...');
+    console.log('🔄 Verificando ambiente...');
     
-    // Cria um link clicável (navegadores permitem isso)
-    const link = document.createElement('a');
-    link.href = 'oubook://auth-callback';
-    link.style.display = 'none';
-    document.body.appendChild(link);
+    // Se estiver no app Capacitor, usa verificação de sessão
+    if (typeof Capacitor !== 'undefined') {
+        console.log('📱 Está no app - verificando sessão...');
+        // O listener do Capacitor já vai capturar
+        return;
+    }
     
-    // Simula clique (isso funciona em navegadores)
-    link.click();
-    document.body.removeChild(link);
+    // Se estiver no navegador
+    console.log('🌐 Está no navegador - mostrando instruções...');
     
-    // Fallback: se não estiver no app, redireciona para página principal
+    // Mostra mensagem clara
+    alert('✅ Login realizado!\n\nVolte manualmente para o app.\n\nO app deve detectar automaticamente que você está logado.');
+    
+    // Opcional: tenta fechar a janela
     setTimeout(() => {
-        if (!isInApp()) {
-            console.log('📱 Não está no app, redirecionando para página principal...');
-            window.location.href = '/';
+        try {
+            window.close();
+        } catch (e) {
+            console.log('Não foi possível fechar a janela automaticamente');
         }
     }, 3000);
 }
 
-// Verifica se está na página de callback
+// Versão simplificada da página auth-callback.html
 if (window.location.href.includes('/auth-callback.html')) {
-    console.log('🎯 Página de callback detectada');
+    console.log('🎯 Página de callback - mostrando instruções simples');
     
-    // Tenta voltar automaticamente após 1 segundo
-    setTimeout(voltarParaApp, 1000);
+    // Substitui o conteúdo da página
+    document.body.innerHTML = `
+        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; text-align: center;">
+            <div style="background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; backdrop-filter: blur(10px); max-width: 400px;">
+                <h1 style="font-size: 24px; margin-bottom: 20px;">🎉 Login Concluído!</h1>
+                <p style="margin-bottom: 30px; line-height: 1.5;">
+                    ✅ Seu login foi realizado com sucesso!<br><br>
+                    📱 <strong>Volte para o aplicativo</strong><br><br>
+                    🔄 O app detectará automaticamente que você está logado.
+                </p>
+                <button onclick="fecharJanela()" style="background: white; color: #667eea; border: none; padding: 12px 24px; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                    Fechar Esta Janela
+                </button>
+                <p style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
+                    Esta janela fechará automaticamente em <span id="countdown">5</span>s
+                </p>
+            </div>
+        </div>
+    `;
     
-    // Adiciona botão manual imediatamente
-    if (!document.getElementById('btnVoltarApp')) {
-        const btn = document.createElement('button');
-        btn.id = 'btnVoltarApp';
-        btn.textContent = '📱 Voltar para o App';
-        btn.style.cssText = `
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            padding: 12px 18px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            z-index: 10000;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        `;
-        btn.onclick = voltarParaApp;
-        document.body.appendChild(btn);
+    function fecharJanela() {
+        try {
+            window.close();
+        } catch (e) {
+            window.location.href = 'https://frontrender-iota.vercel.app/';
+        }
     }
+    
+    // Contagem regressiva para fechar
+    let seconds = 5;
+    const countdownElement = document.getElementById('countdown');
+    const timer = setInterval(() => {
+        seconds--;
+        countdownElement.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(timer);
+            fecharJanela();
+        }
+    }, 1000);
 }
         // ---------------- INIT ----------------
         AOS.init({
@@ -1919,6 +1937,7 @@ if (window.location.href.includes('/auth-callback.html')) {
         feather.replace();
         init();
     </script>
+
 
 
 
