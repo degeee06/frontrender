@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Processando Login...</title>
+    <title>Login Concluído - Voltando para o App</title>
     <style>
         body {
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -27,71 +27,69 @@
             font-size: 48px;
             margin-bottom: 20px;
         }
+        .btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="loading">⏳</div>
-        <h1>Processando Login...</h1>
-        <p>Por favor, aguarde enquanto finalizamos seu acesso.</p>
-        <p>Esta janela fechará automaticamente.</p>
+        <div class="loading">✅</div>
+        <h1>Login Concluído!</h1>
+        <p>Seu login com Google foi realizado com sucesso.</p>
+        
+        <!-- 🔥 TENTA ABRIR O APP AUTOMATICAMENTE -->
+        <a href="oubook://auth-callback" class="btn" id="deepLinkBtn">
+            📱 Voltar para o App
+        </a>
+        
+        <p style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
+            Redirecionando automaticamente em <span id="countdown">5</span>s...
+        </p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Configuração do Supabase (igual ao seu app)
-        const SUPABASE_URL = "https://otyxjcxxqwjotnuyrvmc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk";
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // Processa o login automaticamente
-        async function processarLogin() {
-            try {
-                console.log('🔄 Processando callback OAuth...');
-                
-                // O Supabase automaticamente processa o token da URL
-                const { data: { session }, error } = await supabase.auth.getSession();
-                
-                if (error) {
-                    console.error('❌ Erro no callback:', error);
-                    return;
+        // 🔥 TENTA ABRIR O APP AUTOMATICAMENTE
+        function tentarAbrirApp() {
+            console.log('🔄 Tentando abrir o app...');
+            
+            // Método 1: Clique automático no link
+            setTimeout(() => {
+                document.getElementById('deepLinkBtn').click();
+            }, 1000);
+            
+            // Método 2: Fecha a janela após 5 segundos
+            setTimeout(() => {
+                try {
+                    window.close();
+                } catch (e) {
+                    console.log('Não foi possível fechar automaticamente');
                 }
-                
-                if (session) {
-                    console.log('✅ Login processado com sucesso:', session.user.email);
-                    
-                    // Fecha a janela após sucesso
-                    setTimeout(() => {
-                        try {
-                            window.close();
-                        } catch (e) {
-                            console.log('Não foi possível fechar automaticamente');
-                            // Se não conseguir fechar, mostra mensagem
-                            document.body.innerHTML = `
-                                <div class="container">
-                                    <div style="font-size: 48px;">✅</div>
-                                    <h1>Login Concluído!</h1>
-                                    <p>Você já pode fechar esta janela e voltar para o app.</p>
-                                    <button onclick="window.close()" style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 15px;">
-                                        Fechar Janela
-                                    </button>
-                                </div>
-                            `;
-                        }
-                    }, 2000);
-                    
-                } else {
-                    console.log('❌ Nenhuma sessão encontrada no callback');
-                }
-                
-            } catch (error) {
-                console.error('💥 Erro no processamento:', error);
-            }
+            }, 5000);
         }
-
-        // Executa ao carregar
-        document.addEventListener('DOMContentLoaded', processarLogin);
+        
+        // Contagem regressiva
+        let seconds = 5;
+        const countdownElement = document.getElementById('countdown');
+        const timer = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(timer);
+            }
+        }, 1000);
+        
+        // Inicia automaticamente
+        setTimeout(tentarAbrirApp, 1000);
     </script>
 </body>
 </html>
