@@ -15,23 +15,30 @@
 
         async function handleCallback() {
             try {
-                // Aguarda processamento
+                console.log('🔄 Processando callback...');
+                
+                // Aguarda o Supabase processar
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 
                 const { data: { session }, error } = await supabaseClient.auth.getSession();
                 
                 if (session) {
-                    // 🔥 SALVA TUDO
-                    localStorage.setItem('userToken', session.access_token);
-                    localStorage.setItem('supabase_session', JSON.stringify(session));
-                    localStorage.setItem('userEmail', session.user.email);
+                    console.log('✅ Sessão obtida:', session.user.email);
                     
-                    // 🔥 VOLTA PARA O APP
-                    window.location.href = 'https://frontrender-iota.vercel.app';
+                    // 🔥 PASSA O TOKEN VIA URL PARAMETERS
+                    const token = session.access_token;
+                    const email = session.user.email;
+                    
+                    // Redireciona com os dados na URL
+                    window.location.href = `https://frontrender-iota.vercel.app/?token=${token}&email=${encodeURIComponent(email)}&source=callback`;
+                    
+                } else {
+                    console.log('❌ Nenhuma sessão encontrada');
+                    window.location.href = 'https://frontrender-iota.vercel.app/?error=no_session';
                 }
             } catch (error) {
-                console.error('Error:', error);
-                window.location.href = 'https://frontrender-iota.vercel.app';
+                console.error('❌ Erro no callback:', error);
+                window.location.href = 'https://frontrender-iota.vercel.app/?error=callback_error';
             }
         }
 
