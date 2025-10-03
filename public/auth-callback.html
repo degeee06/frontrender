@@ -1,96 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Authentication Callback - Oubook</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: white;
+    <title>Redirecionando...</title>
+    <script>
+        // 🔥 SIMPLESMENTE VOLTA PARA O APP
+        // O login já foi feito via signInWithIdToken, não precisa processar nada
+        function voltarParaApp() {
+            // Tenta abrir o app
+            window.location.href = 'com.oubook.agendamento://';
+            
+            // Fallback para web
+            setTimeout(() => {
+                window.location.href = 'https://frontrender-iota.vercel.app';
+            }, 1000);
         }
-        .container {
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            padding: 2rem;
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
-        }
-    </style>
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔗 Redirecionando para o app...');
+            voltarParaApp();
+        });
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h2>✅ Login Concluído!</h2>
-        <p id="status">Preparando para voltar ao app...</p>
-        <button onclick="voltarParaAppComToken()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: white; color: #667eea; border: none; border-radius: 0.5rem; cursor: pointer;">
-            Voltar para o App
-        </button>
+    <div style="text-align: center; padding: 50px;">
+        <h2>✅ Redirecionando...</h2>
+        <p>Voltando para o aplicativo</p>
     </div>
-
-    <script>
-        const { createClient } = supabase;
-        
-        const supabaseClient = createClient(
-            "https://otyxjcxxqwjotnuyrvmc.supabase.co",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk"
-        );
-
-        let tokenParaApp = null;
-        let emailParaApp = null;
-
-        async function handleAuthCallback() {
-            try {
-                document.getElementById('status').textContent = 'Processando sessão...';
-                
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                const { data: { session }, error } = await supabaseClient.auth.getSession();
-                
-                if (session) {
-                    tokenParaApp = session.access_token;
-                    emailParaApp = session.user.email;
-                    
-                    document.getElementById('status').textContent = `Login de ${session.user.email} confirmado!`;
-                    
-                    // 🔥 SALVA TAMBÉM NO LOCALSTORAGE (para web)
-                    localStorage.setItem('userToken', tokenParaApp);
-                    localStorage.setItem('userEmail', emailParaApp);
-                    
-                } else {
-                    document.getElementById('status').textContent = 'Sessão não encontrada';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('status').textContent = 'Erro no processamento';
-            }
-        }
-
-        function voltarParaAppComToken() {
-    console.log('🔄 Voltando para o app...');
-    
-    if (tokenParaApp && emailParaApp) {
-        // 🔥🔥🔥 URL EXATA DO SEU APP COM TOKEN
-        const appURL = `https://frontrender-iota.vercel.app/?token=${tokenParaApp}&email=${encodeURIComponent(emailParaApp)}&source=auth_callback`;
-        console.log('🔗 Indo para:', appURL);
-        
-        // Tenta abrir no app primeiro
-        window.location.href = 'com.oubook.agendamento://';
-        
-        // Fallback: Se não abrir o app em 1 segundo, vai para web COM TOKEN
-        setTimeout(() => {
-            window.location.href = appURL;
-        }, 1000);
-    } else {
-        // Fallback sem token
-        window.location.href = 'https://frontrender-iota.vercel.app';
-    }
-}
-        document.addEventListener('DOMContentLoaded', handleAuthCallback);
-    </script>
 </body>
 </html>
