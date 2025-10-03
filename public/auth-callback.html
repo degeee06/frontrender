@@ -1,95 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Login Concluído - Voltando para o App</title>
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        .container {
-            background: rgba(255,255,255,0.1);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            max-width: 400px;
-        }
-        .loading {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-        .btn {
-            background: white;
-            color: #667eea;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px;
-            text-decoration: none;
-            display: inline-block;
-        }
-    </style>
+    <title>Authentication Callback</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="loading">✅</div>
-        <h1>Login Concluído!</h1>
-        <p>Seu login com Google foi realizado com sucesso.</p>
-        
-        <!-- 🔥 TENTA ABRIR O APP AUTOMATICAMENTE -->
-        <a href="oubook://auth-callback" class="btn" id="deepLinkBtn">
-            📱 Voltar para o App
-        </a>
-        
-        <p style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
-            Redirecionando automaticamente em <span id="countdown">5</span>s...
-        </p>
-    </div>
-
     <script>
-        // 🔥 TENTA ABRIR O APP AUTOMATICAMENTE
-        function tentarAbrirApp() {
-            console.log('🔄 Tentando abrir o app...');
-            
-            // Método 1: Clique automático no link
-            setTimeout(() => {
-                document.getElementById('deepLinkBtn').click();
-            }, 1000);
-            
-            // Método 2: Fecha a janela após 5 segundos
-            setTimeout(() => {
-                try {
-                    window.close();
-                } catch (e) {
-                    console.log('Não foi possível fechar automaticamente');
+        // Processa o callback de autenticação
+        async function handleAuthCallback() {
+            try {
+                const supabase = createClient(
+                    "https://otyxjcxxqwjotnuyrvmc.supabase.co",
+                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk"
+                );
+
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    throw error;
                 }
-            }, 5000);
-        }
-        
-        // Contagem regressiva
-        let seconds = 5;
-        const countdownElement = document.getElementById('countdown');
-        const timer = setInterval(() => {
-            seconds--;
-            countdownElement.textContent = seconds;
-            if (seconds <= 0) {
-                clearInterval(timer);
+
+                if (session) {
+                    // Redireciona de volta para o app
+                    window.location.href = '/';
+                } else {
+                    console.error('No session found');
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Error handling auth callback:', error);
+                window.location.href = '/';
             }
-        }, 1000);
-        
-        // Inicia automaticamente
-        setTimeout(tentarAbrirApp, 1000);
+        }
+
+        handleAuthCallback();
     </script>
 </body>
 </html>
