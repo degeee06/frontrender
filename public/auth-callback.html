@@ -1,30 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Redirecionando...</title>
-    <script>
-        // 🔥 SIMPLESMENTE VOLTA PARA O APP
-        // O login já foi feito via signInWithIdToken, não precisa processar nada
-        function voltarParaApp() {
-            // Tenta abrir o app
-            window.location.href = 'com.oubook.agendamento://';
-            
-            // Fallback para web
-            setTimeout(() => {
-                window.location.href = 'https://frontrender-iota.vercel.app';
-            }, 1000);
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔗 Redirecionando para o app...');
-            voltarParaApp();
-        });
-    </script>
+    <title>Processando Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div style="text-align: center; padding: 50px;">
-        <h2>✅ Redirecionando...</h2>
-        <p>Voltando para o aplicativo</p>
+    <script>
+        const { createClient } = supabase;
+        
+        const supabaseClient = createClient(
+            "https://otyxjcxxqwjotnuyrvmc.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk"
+        );
+
+        async function processarLogin() {
+            try {
+                console.log('🔄 Processando login...');
+                
+                // Aguarda o processamento
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                
+                if (session) {
+                    console.log('✅ Login realizado:', session.user.email);
+                    
+                    // 🔥 SALVA TUDO NO LOCALSTORAGE
+                    localStorage.setItem('userToken', session.access_token);
+                    localStorage.setItem('userEmail', session.user.email);
+                    localStorage.setItem('supabase_session', JSON.stringify(session));
+                    
+                    console.log('📦 Dados salvos no localStorage');
+                    
+                    // 🔥 VOLTA PARA O APP
+                    window.location.href = 'https://frontrender-iota.vercel.app';
+                    
+                } else {
+                    console.log('❌ Sessão não encontrada');
+                    window.location.href = 'https://frontrender-iota.vercel.app';
+                }
+            } catch (error) {
+                console.error('❌ Erro:', error);
+                window.location.href = 'https://frontrender-iota.vercel.app';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', processarLogin);
+    </script>
+    
+    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h2>🔄 Processando Login...</h2>
+        <p>Aguarde enquanto finalizamos seu acesso.</p>
     </div>
 </body>
 </html>
