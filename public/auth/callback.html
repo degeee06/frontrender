@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authentication Callback</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <script>
+        const supabase = createClient(
+            "https://otyxjcxxqwjotnuyrvmc.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk"
+        );
+
+        async function handleCallback() {
+            try {
+                // Aguarda o Supabase processar o token
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (session) {
+                    // Salva no localStorage
+                    localStorage.setItem('userToken', session.access_token);
+                    localStorage.setItem('supabase_session', JSON.stringify(session));
+                    
+                    // 🔥 REDIRECIONA DE VOLTA PARA O APP
+                    window.location.href = 'https://frontrender-iota.vercel.app';
+                } else {
+                    console.error('No session found');
+                    window.location.href = 'https://frontrender-iota.vercel.app';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = 'https://frontrender-iota.vercel.app';
+            }
+        }
+
+        handleCallback();
+    </script>
+</body>
+</html>
