@@ -3,35 +3,8 @@
 <head>
     <title>Authentication Callback</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: white;
-            text-align: center;
-        }
-        .container {
-            background: rgba(255,255,255,0.1);
-            padding: 2rem;
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>✅ Login Concluído!</h2>
-        <p id="status">Voltando para o aplicativo...</p>
-        <button onclick="voltarParaApp()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: white; color: #667eea; border: none; border-radius: 0.5rem; cursor: pointer;">
-            Clique aqui se não voltar automaticamente
-        </button>
-    </div>
-
     <script>
         const { createClient } = supabase;
         
@@ -43,41 +16,21 @@
         async function handleCallback() {
             try {
                 // Aguarda processamento
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 
                 const { data: { session }, error } = await supabaseClient.auth.getSession();
                 
                 if (session) {
-                    // 🔥 SALVA TUDO NO LOCALSTORAGE
+                    // 🔥 SALVA TUDO
                     localStorage.setItem('userToken', session.access_token);
                     localStorage.setItem('supabase_session', JSON.stringify(session));
                     localStorage.setItem('userEmail', session.user.email);
-                    localStorage.setItem('login_timestamp', Date.now().toString());
                     
-                    document.getElementById('status').textContent = 'Login salvo! Voltando para o app...';
-                    
-                    // 🔥 TENTA VOLTAR PARA O APP
-                    voltarParaApp();
+                    // 🔥 VOLTA PARA O APP
+                    window.location.href = 'https://frontrender-iota.vercel.app';
                 }
             } catch (error) {
                 console.error('Error:', error);
-                voltarParaApp();
-            }
-        }
-
-        function voltarParaApp() {
-            // 🔥 ESTRATÉGIAS PARA VOLTAR AO APP
-            try {
-                // 1. Tenta abrir o app via scheme
-                window.location.href = 'com.oubook.agendamento://';
-                
-                // 2. Fallback: volta para a web após 2 segundos
-                setTimeout(() => {
-                    window.location.href = 'https://frontrender-iota.vercel.app';
-                }, 2000);
-                
-            } catch (e) {
-                // 3. Fallback final
                 window.location.href = 'https://frontrender-iota.vercel.app';
             }
         }
