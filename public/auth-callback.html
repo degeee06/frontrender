@@ -1,77 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Authentication Callback - Oubook</title>
+    <title>Authentication Callback</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: white;
-        }
-        .container {
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            padding: 2rem;
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Login Concluído!</h2>
-        <p id="status">Salvando sessão...</p>
-        <button onclick="voltarParaApp()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: white; color: #667eea; border: none; border-radius: 0.5rem; cursor: pointer;">
-            Voltar para o App
-        </button>
-    </div>
-
     <script>
         const supabase = createClient(
             "https://otyxjcxxqwjotnuyrvmc.supabase.co",
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk"
         );
 
-        async function handleAuthCallback() {
+        async function handleCallback() {
             try {
-                document.getElementById('status').textContent = 'Processando login...';
-                
-                // 🔥 AGUARDA E FORÇA A SESSÃO
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
+                // Aguarda o Supabase processar o token
                 const { data: { session }, error } = await supabase.auth.getSession();
                 
                 if (session) {
-                    console.log('✅ Sessão encontrada!');
-                    
-                    // 🔥🔥🔥 SALVA A SESSÃO COMPLETA NO LOCALSTORAGE
-                    localStorage.setItem('supabase_session', JSON.stringify(session));
+                    // Salva no localStorage
                     localStorage.setItem('userToken', session.access_token);
-                    localStorage.setItem('userEmail', session.user.email);
+                    localStorage.setItem('supabase_session', JSON.stringify(session));
                     
-                    document.getElementById('status').textContent = 'Sessão salva! Clique em "Voltar para o App"';
-                    
+                    // 🔥 REDIRECIONA DE VOLTA PARA O APP
+                    window.location.href = 'https://frontrender-iota.vercel.app';
                 } else {
-                    document.getElementById('status').textContent = 'Sessão não encontrada. Clique para voltar.';
+                    console.error('No session found');
+                    window.location.href = 'https://frontrender-iota.vercel.app';
                 }
             } catch (error) {
-                document.getElementById('status').textContent = 'Erro: ' + error.message;
+                console.error('Error:', error);
+                window.location.href = 'https://frontrender-iota.vercel.app';
             }
         }
 
-        function voltarParaApp() {
-            // 🔥 VAI DIRETO PARA O APP
-            window.location.href = 'https://frontrender-iota.vercel.app';
-        }
-
-        // Inicia automaticamente
-        document.addEventListener('DOMContentLoaded', handleAuthCallback);
+        handleCallback();
     </script>
 </body>
 </html>
