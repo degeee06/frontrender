@@ -15,42 +15,41 @@
 
         async function processarLogin() {
             try {
-                console.log('🔄 Processando login...');
+                console.log('🔄 Processando login no callback...');
                 
-                // Aguarda o processamento
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                
+                // Aguarda o Supabase processar
                 const { data: { session }, error } = await supabaseClient.auth.getSession();
                 
                 if (session) {
-                    console.log('✅ Login realizado:', session.user.email);
+                    console.log('✅ Sessão criada no callback:', session.user.email);
                     
-                    // 🔥 SALVA TUDO NO LOCALSTORAGE
+                    // 🔥 SALVA NO LOCALSTORAGE
                     localStorage.setItem('userToken', session.access_token);
                     localStorage.setItem('userEmail', session.user.email);
-                    localStorage.setItem('supabase_session', JSON.stringify(session));
                     
-                    console.log('📦 Dados salvos no localStorage');
-                    
-                    // 🔥 VOLTA PARA O APP
-                    window.location.href = 'https://frontrender-iota.vercel.app';
-                    
+                    // 🔥 REDIRECIONA DE VOLTA PARA O APP
+                    if (window.history.length > 1) {
+                        window.history.back(); // Volta para o app
+                    } else {
+                        // Fallback: abre o app via deep link
+                        window.location.href = 'com.oubook.agendamento://login-success';
+                    }
                 } else {
-                    console.log('❌ Sessão não encontrada');
-                    window.location.href = 'https://frontrender-iota.vercel.app';
+                    console.log('❌ Nenhuma sessão encontrada no callback');
+                    window.location.href = 'com.oubook.agendamento://login-error';
                 }
             } catch (error) {
-                console.error('❌ Erro:', error);
-                window.location.href = 'https://frontrender-iota.vercel.app';
+                console.error('❌ Erro no callback:', error);
+                window.location.href = 'com.oubook.agendamento://login-error';
             }
         }
 
         document.addEventListener('DOMContentLoaded', processarLogin);
     </script>
     
-    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+    <div style="text-align: center; padding: 50px;">
         <h2>🔄 Processando Login...</h2>
-        <p>Aguarde enquanto finalizamos seu acesso.</p>
+        <p>Voltando para o aplicativo...</p>
     </div>
 </body>
 </html>
