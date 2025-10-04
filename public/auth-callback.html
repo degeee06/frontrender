@@ -17,39 +17,52 @@
             try {
                 console.log('🔄 Processando login no callback...');
                 
-                // Aguarda o Supabase processar
+                // Extrai tokens da URL se existirem
+                const urlParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = urlParams.get('access_token');
+                const refreshToken = urlParams.get('refresh_token');
+                
+                if (accessToken) {
+                    console.log('✅ Token encontrado na URL');
+                    // Salva no localStorage para o app principal pegar
+                    localStorage.setItem('userToken', accessToken);
+                    localStorage.setItem('supabase_refresh_token', refreshToken);
+                    localStorage.setItem('auth_source', 'callback');
+                    
+                    // Redireciona de volta para o app
+                    window.location.href = 'com.oubook.agendamento://auth-success?token=' + accessToken;
+                    return;
+                }
+                
+                // Se não tem token na URL, verifica a sessão
                 const { data: { session }, error } = await supabaseClient.auth.getSession();
                 
                 if (session) {
-                    console.log('✅ Sessão criada no callback:', session.user.email);
+                    console.log('✅ Sessão criada:', session.user.email);
                     
-                    // 🔥 SALVA NO LOCALSTORAGE
                     localStorage.setItem('userToken', session.access_token);
                     localStorage.setItem('userEmail', session.user.email);
+                    localStorage.setItem('auth_source', 'callback');
                     
-                    // 🔥 REDIRECIONA DE VOLTA PARA O APP
-                    if (window.history.length > 1) {
-                        window.history.back(); // Volta para o app
-                    } else {
-                        // Fallback: abre o app via deep link
-                        window.location.href = 'com.oubook.agendamento://login-success';
-                    }
+                    // Redireciona de volta para o app
+                    window.location.href = 'com.oubook.agendamento://auth-success?token=' + session.access_token;
                 } else {
-                    console.log('❌ Nenhuma sessão encontrada no callback');
-                    window.location.href = 'com.oubook.agendamento://login-error';
+                    console.log('❌ Nenhuma sessão encontrada');
+                    window.location.href = 'com.oubook.agendamento://auth-error';
                 }
             } catch (error) {
                 console.error('❌ Erro no callback:', error);
-                window.location.href = 'com.oubook.agendamento://login-error';
+                window.location.href = 'com.oubook.agendamento://auth-error';
             }
         }
 
-        document.addEventListener('DOMContentLoaded', processarLogin);
+        // Processa imediatamente ao carregar
+        processarLogin();
     </script>
     
-    <div style="text-align: center; padding: 50px;">
+    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
         <h2>🔄 Processando Login...</h2>
-        <p>Voltando para o aplicativo...</p>
+        <p>Aguarde enquanto finalizamos seu acesso.</p>
     </div>
 </body>
 </html>
