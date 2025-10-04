@@ -3,9 +3,54 @@
 <head>
     <title>Processando Login</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h2>🔄 Processando Login...</h2>
+        <p>Aguarde enquanto finalizamos seu acesso.</p>
+        <p id="status" style="font-size: 14px; opacity: 0.8;"></p>
+    </div>
+
     <script>
+        // 🔥 DEBUG: Mostrar informações da URL
+        console.log('🔗 URL completa:', window.location.href);
+        console.log('🔗 Hash:', window.location.hash);
+        console.log('🔗 Search:', window.location.search);
+
         const { createClient } = supabase;
         
         const supabaseClient = createClient(
@@ -15,54 +60,161 @@
 
         async function processarLogin() {
             try {
+                document.getElementById('status').textContent = 'Iniciando processamento...';
                 console.log('🔄 Processando login no callback...');
                 
-                // Extrai tokens da URL se existirem
-                const urlParams = new URLSearchParams(window.location.hash.substring(1));
-                const accessToken = urlParams.get('access_token');
-                const refreshToken = urlParams.get('refresh_token');
+                // 🔥 MÉTODO 1: Verificar se veio com tokens na URL (OAuth padrão)
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                const refreshToken = hashParams.get('refresh_token');
+                const error = hashParams.get('error');
                 
-                if (accessToken) {
-                    console.log('✅ Token encontrado na URL');
-                    // Salva no localStorage para o app principal pegar
-                    localStorage.setItem('userToken', accessToken);
-                    localStorage.setItem('supabase_refresh_token', refreshToken);
-                    localStorage.setItem('auth_source', 'callback');
-                    
-                    // Redireciona de volta para o app
-                    window.location.href = 'com.oubook.agendamento://auth-success?token=' + accessToken;
+                console.log('📋 Parâmetros do hash:', {
+                    accessToken: accessToken ? 'SIM' : 'NÃO',
+                    refreshToken: refreshToken ? 'SIM' : 'NÃO', 
+                    error: error || 'NÃO'
+                });
+
+                if (error) {
+                    document.getElementById('status').textContent = 'Erro: ' + error;
+                    console.error('❌ Erro no OAuth:', error);
+                    setTimeout(() => {
+                        window.location.href = 'com.oubook.agendamento://auth-error?error=' + error;
+                    }, 2000);
                     return;
                 }
+
+                if (accessToken) {
+                    document.getElementById('status').textContent = 'Token recebido, salvando...';
+                    console.log('✅ Token encontrado na URL');
+                    
+                    // Salva no localStorage
+                    localStorage.setItem('userToken', accessToken);
+                    if (refreshToken) {
+                        localStorage.setItem('supabase_refresh_token', refreshToken);
+                    }
+                    localStorage.setItem('auth_source', 'oauth_callback');
+                    
+                    // 🔥 Tenta voltar para o app
+                    document.getElementById('status').textContent = 'Redirecionando para o app...';
+                    console.log('🎯 Tentando voltar para o app...');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'com.oubook.agendamento://auth-success?token=' + accessToken;
+                    }, 1000);
+                    
+                    return;
+                }
+
+                // 🔥 MÉTODO 2: Verificar parâmetros de query (fallback)
+                const searchParams = new URLSearchParams(window.location.search);
+                const tokenFromQuery = searchParams.get('token');
+                const sourceFromQuery = searchParams.get('source');
                 
-                // Se não tem token na URL, verifica a sessão
-                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                console.log('📋 Parâmetros da query:', {
+                    token: tokenFromQuery ? 'SIM' : 'NÃO',
+                    source: sourceFromQuery || 'NÃO'
+                });
+
+                if (tokenFromQuery) {
+                    document.getElementById('status').textContent = 'Token recebido via query...';
+                    localStorage.setItem('userToken', tokenFromQuery);
+                    localStorage.setItem('auth_source', sourceFromQuery || 'query');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'com.oubook.agendamento://auth-success?token=' + tokenFromQuery;
+                    }, 1000);
+                    return;
+                }
+
+                // 🔥 MÉTODO 3: Tentar obter sessão do Supabase
+                document.getElementById('status').textContent = 'Verificando sessão Supabase...';
+                console.log('🔍 Tentando obter sessão do Supabase...');
                 
+                const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+                
+                if (sessionError) {
+                    console.error('❌ Erro ao obter sessão:', sessionError);
+                    document.getElementById('status').textContent = 'Erro na sessão: ' + sessionError.message;
+                    throw sessionError;
+                }
+
                 if (session) {
+                    document.getElementById('status').textContent = 'Sessão encontrada!';
                     console.log('✅ Sessão criada:', session.user.email);
                     
                     localStorage.setItem('userToken', session.access_token);
                     localStorage.setItem('userEmail', session.user.email);
-                    localStorage.setItem('auth_source', 'callback');
+                    localStorage.setItem('auth_source', 'supabase_session');
                     
-                    // Redireciona de volta para o app
-                    window.location.href = 'com.oubook.agendamento://auth-success?token=' + session.access_token;
+                    document.getElementById('status').textContent = 'Redirecionando...';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'com.oubook.agendamento://auth-success?token=' + session.access_token + '&email=' + encodeURIComponent(session.user.email);
+                    }, 1000);
                 } else {
+                    document.getElementById('status').textContent = 'Nenhuma sessão encontrada';
                     console.log('❌ Nenhuma sessão encontrada');
-                    window.location.href = 'com.oubook.agendamento://auth-error';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'com.oubook.agendamento://auth-error?reason=no_session';
+                    }, 2000);
                 }
+
             } catch (error) {
                 console.error('❌ Erro no callback:', error);
-                window.location.href = 'com.oubook.agendamento://auth-error';
+                document.getElementById('status').textContent = 'Erro: ' + error.message;
+                
+                setTimeout(() => {
+                    window.location.href = 'com.oubook.agendamento://auth-error?reason=' + encodeURIComponent(error.message);
+                }, 2000);
             }
         }
 
-        // Processa imediatamente ao carregar
-        processarLogin();
+        // 🔥 ADICIONAR FALLBACK SE O DEEP LINK FALHAR
+        let redirectAttempts = 0;
+        const maxRedirectAttempts = 3;
+
+        function checkIfStillOnPage() {
+            redirectAttempts++;
+            console.log(`🔄 Tentativa ${redirectAttempts} de redirecionamento`);
+            
+            if (redirectAttempts >= maxRedirectAttempts) {
+                document.getElementById('status').textContent = 'Redirecionamento falhou. Clique para voltar.';
+                console.log('❌ Redirecionamento falhou após', maxRedirectAttempts, 'tentativas');
+                
+                // Adiciona botão manual
+                const button = document.createElement('button');
+                button.textContent = '⬅️ Voltar para o App';
+                button.style.cssText = `
+                    margin-top: 20px;
+                    padding: 10px 20px;
+                    background: white;
+                    color: #667eea;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 16px;
+                `;
+                button.onclick = function() {
+                    window.location.href = 'com.oubook.agendamento://auth-fallback';
+                };
+                document.querySelector('.container').appendChild(button);
+            } else {
+                // Tenta novamente
+                setTimeout(checkIfStillOnPage, 2000);
+            }
+        }
+
+        // Inicia o processamento
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM carregado, iniciando processamento...');
+            processarLogin();
+            
+            // Inicia verificação de fallback
+            setTimeout(checkIfStillOnPage, 3000);
+        });
+
     </script>
-    
-    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
-        <h2>🔄 Processando Login...</h2>
-        <p>Aguarde enquanto finalizamos seu acesso.</p>
-    </div>
 </body>
 </html>
