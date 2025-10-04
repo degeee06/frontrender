@@ -40,34 +40,42 @@
     </div>
 
     <script>
-        // 🔥 REDIRECIONAMENTO INTELIGENTE PARA O APP
-        function redirectToApp() {
-            console.log('URL atual:', window.location.href);
+    // ✅ SOLUÇÃO SIMPLES E EFETIVA
+    async function processarAuthCallback() {
+        console.log('🔄 Processando callback OAuth...');
+        
+        // Verifica se está no Capacitor (app) ou navegador
+        const isCapacitor = window.Capacitor !== undefined;
+        
+        if (isCapacitor) {
+            // 🔥 ESTÁ NO APP - Fecha o browser e processa no app
+            console.log('📱 No app - fechando browser...');
             
-            // Se tem hash (token), redireciona para o app
+            if (window.Capacitor.Plugins?.Browser) {
+                await window.Capacitor.Plugins.Browser.close();
+            }
+            
+        } else {
+            // 🔥 ESTÁ NO NAVEGADOR - Redireciona para página principal
+            console.log('🌐 No navegador - redirecionando...');
+            
+            // Se tem tokens, redireciona para página principal
             if (window.location.hash) {
-                // Tenta abrir o app usando o scheme customizado
-                const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
-                window.location.href = appUrl;
-                
-                // Fallback: fecha a janela após 3 segundos
-                setTimeout(() => {
-                    console.log('Fechando janela...');
-                    window.close();
-                }, 3000);
+                const mainAppUrl = 'https://frontrender-iota.vercel.app/' + window.location.hash;
+                window.location.href = mainAppUrl;
             } else {
-                // Se não tem token, fecha imediatamente
-                window.close();
+                window.location.href = 'https://frontrender-iota.vercel.app/';
             }
         }
+    }
 
-        // Executa quando a página carrega
-        document.addEventListener('DOMContentLoaded', redirectToApp);
-        
-        // Também tenta se a página já estiver carregada
-        if (document.readyState === 'complete') {
-            redirectToApp();
-        }
-    </script>
+    // Executa imediatamente
+    document.addEventListener('DOMContentLoaded', processarAuthCallback);
+    
+    // Fallback se já estiver carregado
+    if (document.readyState === 'complete') {
+        processarAuthCallback();
+    }
+</script>
 </body>
 </html>
