@@ -31,7 +31,6 @@
             100% { transform: rotate(360deg); }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="container">
@@ -40,112 +39,114 @@
         <p>Redirecionando de volta para o app</p>
     </div>
 
-  <script>
-    // 🔥 CONFIGURAÇÃO DO SUPABASE (SUBSTITUA COM SUAS CREDENCIAIS!)
-    const SUPABASE_URL = 'https://otyxjcxxqwjotnuyrvmc.supabase.co'; // 🔥 SUBSTITUA
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk'; // 🔥 SUBSTITUA
-
-    async function processAuthentication() {
-        console.log('🚀 Iniciando processamento de autenticação...');
-        console.log('🔗 URL completa:', window.location.href);
-        
-        const isMobileApp = !!(window.Capacitor || window.cordova);
-        console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
-
-        if (isMobileApp) {
-            handleMobileAuth();
-        } else {
-            await handleWebAuth();
-        }
-    }
-
-    async function handleWebAuth() {
-        try {
-            console.log('🌐 Processando autenticação WEB...');
+    <script>
+        // 🔥 DETECÇÃO MAIS ROBUSTA DE AMBIENTE
+        function redirectToApp() {
+            console.log('🔍 URL atual:', window.location.href);
+            console.log('🔍 Hash:', window.location.hash);
+            console.log('🔍 User Agent:', navigator.userAgent);
             
-            // 🔥 INICIALIZA SUPABASE
-            const { createClient } = window.supabase;
-            const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            // 🔥 DETECTA SE ESTÁ NO WEB OU APP (VERSÃO MELHORADA)
+            const isWeb = !(window.Browser || window.cordova || 
+                           navigator.userAgent.includes('Capacitor') ||
+                           navigator.userAgent.includes('Cordova'));
+            console.log('🏁 Ambiente:', isWeb ? 'WEB' : 'APP');
             
-            // 🔥 IMPORTANTE: Verifica se tem parâmetros de autenticação
-            const hasAuthParams = window.location.hash.includes('access_token') || 
-                                 window.location.search.includes('access_token');
-            
-            if (!hasAuthParams) {
-                console.log('❌ Nenhum token encontrado - redirecionando...');
-                window.location.href = '/';
-                return;
-            }
-
-            console.log('✅ Tokens encontrados na URL...');
-
-            // 🔥🔥🔥 SOLUÇÃO CRÍTICA: Usa setSession para forçar a sessão
             if (window.location.hash) {
-                const hashParams = new URLSearchParams(window.location.hash.substring(1));
-                const access_token = hashParams.get('access_token');
-                const refresh_token = hashParams.get('refresh_token');
-                
-                if (access_token) {
-                    console.log('🔑 Configurando sessão manualmente...');
-                    const { data, error } = await supabase.auth.setSession({
-                        access_token,
-                        refresh_token
-                    });
+                if (isWeb) {
+                    // 🔥 WEB: Redireciona para a página principal com o token
+                    console.log('🌐 Processando autenticação web...');
+                    handleWebAuthentication();
+                } else {
+                    // 🔥 APP: Redireciona para o app nativo
+                    console.log('📱 Redirecionando para app...');
+                    const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
+                    console.log('🎯 App URL:', appUrl);
+                    window.location.href = appUrl;
                     
-                    if (error) {
-                        console.error('❌ Erro ao configurar sessão:', error);
-                    } else {
-                        console.log('✅ Sessão configurada com sucesso!');
-                        console.log('👤 Usuário:', data.session?.user?.email);
+                    setTimeout(() => {
+                        fecharBrowserCapacitor();
+                    }, 1000);
+                }
+            } else {
+                console.log('❌ Nenhum token encontrado, fechando...');
+                fecharBrowserCapacitor();
+            }
+        }
+
+        // 🔥 FUNÇÃO PARA AUTENTICAÇÃO WEB
+        function handleWebAuthentication() {
+            try {
+                console.log('🔑 Processando token para web...');
+                
+                // Extrai o token do hash
+                const hash = window.location.hash.substring(1);
+                const params = new URLSearchParams(hash);
+                
+                const accessToken = params.get('access_token');
+                const refreshToken = params.get('refresh_token');
+                
+                console.log('✅ Access Token:', accessToken ? 'Encontrado' : 'Não encontrado');
+                console.log('✅ Refresh Token:', refreshToken ? 'Encontrado' : 'Não encontrado');
+                
+                if (accessToken) {
+                    // 🔥 WEB: Armazena o token e redireciona para a página principal
+                    localStorage.setItem('access_token', accessToken);
+                    if (refreshToken) {
+                        localStorage.setItem('refresh_token', refreshToken);
                     }
+                    
+                    console.log('✅ Tokens armazenados no localStorage');
+                    
+                    // Redireciona para a página principal
+                    window.location.href = '/';
+                } else {
+                    console.log('❌ Token de acesso não encontrado');
+                    window.location.href = '/?error=auth_failed';
+                }
+            } catch (error) {
+                console.log('❌ Erro na autenticação web:', error);
+                window.location.href = '/?error=auth_error';
+            }
+        }
+
+        // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA FECHAR NO CAPACITOR
+        async function fecharBrowserCapacitor() {
+            console.log('🎯 Tentando fechar browser...');
+            
+            // PRIMEIRO: Tenta fechar com Capacitor Browser API
+            if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+                try {
+                    console.log('✅ Usando Capacitor Browser.close()');
+                    await window.Capacitor.Plugins.Browser.close();
+                    console.log('✅ Browser fechado via Capacitor!');
+                    return;
+                } catch (error) {
+                    console.log('❌ Capacitor Browser.close() falhou:', error);
                 }
             }
-
-            // 🔥 AGUARDA UM POUCO PARA O SUPABASE PROCESSAR
-            await new Promise(resolve => setTimeout(resolve, 2000));
             
-            // 🔥 VERIFICA SE A SESSÃO FOI CRIADA
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (session) {
-                console.log('🎉 AUTENTICAÇÃO BEM-SUCEDIDA!');
-                console.log('📧 Email:', session.user.email);
-                console.log('🔐 Token:', session.access_token ? '✅' : '❌');
+            // SEGUNDO: Fallback para window.close()
+            console.log('🔄 Tentando window.close()...');
+            try {
+                window.close();
+                console.log('✅ Janela fechada via window.close()');
+            } catch (error) {
+                console.log('❌ window.close() também falhou');
                 
-                // 🔥 SALVA CONFIRMAÇÃO NO LOCALSTORAGE
-                localStorage.setItem('auth_success', 'true');
-                localStorage.setItem('user_email', session.user.email);
-            } else {
-                console.log('⚠️ Sessão não criada - tentando fallback...');
+                // TERCEIRO: Última tentativa - redireciona para blank
+                console.log('🔧 Tentando redirecionar para about:blank...');
+                window.location.href = 'about:blank';
             }
-
-            // 🔥 REDIRECIONA PARA PÁGINA PRINCIPAL
-            console.log('🔄 Redirecionando para página principal...');
-            window.location.href = '/';
-
-        } catch (error) {
-            console.error('💥 Erro crítico:', error);
-            window.location.href = '/';
         }
-    }
 
-    function handleMobileAuth() {
-        console.log('📱 Processando autenticação MOBILE...');
-        const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash || window.location.search}`;
-        window.location.href = appUrl;
+        // Executa quando a página carrega
+        document.addEventListener('DOMContentLoaded', redirectToApp);
         
-        setTimeout(() => {
-            if (window.Capacitor?.Plugins?.Browser) {
-                window.Capacitor.Plugins.Browser.close();
-            }
-        }, 1000);
-    }
-
-    // 🔥 EXECUTA QUANDO A PÁGINA CARREGA
-    document.addEventListener('DOMContentLoaded', processAuthentication);
-    if (document.readyState === 'complete') {
-        processAuthentication();
-    }
-</script>
+        // Também tenta se a página já estiver carregada
+        if (document.readyState === 'complete') {
+            redirectToApp();
+        }
+    </script>
 </body>
 </html>
