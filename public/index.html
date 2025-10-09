@@ -11,62 +11,161 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.2/imask.min.js"></script>
     <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-/* 🔥 ADICIONE ESTE CSS PARA GARANTIR CENTRALIZAÇÃO */
-.dias-tabs-container {
-    display: flex;
-    justify-content: center;
-}
-
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        /* 🔥 ESTILOS EXCLUSIVOS PARA DESKTOP - ADICIONE ESTES */
 @media (min-width: 1024px) {
-    .dias-tabs-container > div {
-        justify-content: center !important;
-        align-items: center !important;
+    /* CONTAINER PRINCIPAL */
+    .container {
+        max-width: 1200px;
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
     
-    .dias-tabs-container > div > div:first-child,
-    .dias-tabs-container > div > div:last-child {
+    /* HEADER - Melhor espaçamento */
+    header {
+        margin-bottom: 3rem !important;
+    }
+    
+    /* FORMULÁRIO - Layout duas colunas */
+    .agendamentoForm .grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 2rem !important;
+    }
+    
+    /* TABS - Alinhamento correto */
+    .dias-tabs-container > div {
         display: flex;
-        justify-content: center;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+    }
+    
+    .dias-tabs-container > div > div:first-child {
+        flex: 1;
+        justify-content: flex-start !important;
+        max-width: 600px;
+    }
+    
+    .dias-tabs-container > div > div:last-child {
+        flex: none;
+        justify-content: flex-end !important;
+    }
+    
+    .tab-dia {
+        flex: 1;
+        min-width: 70px;
+        max-width: 90px;
+    }
+    
+    /* SEÇÕES IA - Melhor experiência desktop */
+    .assistente-ia-section,
+    .agendamento-ia-section,
+    .sugestoes-ia-section {
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .historico-chat {
+        height: 320px;
+    }
+    
+    .mensagem {
+        max-width: 70%;
+        font-size: 15px;
+        padding: 12px 16px;
+    }
+    
+    .input-chat {
+        flex-direction: row;
+        padding: 1rem;
+    }
+    
+    .input-chat button {
+        width: auto;
+        min-width: 120px;
+    }
+    
+    /* FILTROS - Layout horizontal completo */
+    #filtersSection .flex {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    #filtersSection .flex > div:first-child {
+        flex: 1;
+    }
+    
+    #filtersSection .flex > div:last-child {
+        width: auto;
+    }
+    
+    /* CARDS - Melhor hover effects */
+    .agendamento-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* 🔥 ESTILOS PARA TELAS MÉDIAS (Tablet Landscape) */
+@media (min-width: 769px) and (max-width: 1023px) {
+    .container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
+    .agendamentoForm .grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1.5rem !important;
+    }
+    
+    .dias-tabs-container > div {
+        flex-direction: row;
         align-items: center;
     }
 }
-/* ESTILO PARA TELA DE AUTENTICAÇÃO */
-.auth-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-.auth-container {
-    text-align: center;
-    padding: 20px;
-}
-.spinner {
-    border: 4px solid rgba(255,255,255,0.3);
-    border-radius: 50%;
-    border-top: 4px solid white;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-.hidden {
-    display: none !important;
-}
 
-/* ESTILOS PARA AS SEÇÕES IA */
+/* 🔥 Remove scroll desnecessário no desktop */
+@media (min-width: 768px) {
+    .dias-tabs-container > div > div {
+        overflow-x: visible;
+    }
+}
+         /* ESTILO PARA TELA DE AUTENTICAÇÃO */
+    .auth-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    .auth-container {
+        text-align: center;
+        padding: 20px;
+    }
+    .spinner {
+        border: 4px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top: 4px solid white;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .hidden {
+        display: none !important;
+    }
+    /* ESTILOS PARA AS SEÇÕES IA */
 .assistente-ia-section,
 .agendamento-ia-section,
 .sugestoes-ia-section {
@@ -132,7 +231,7 @@
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
-    font-size: 16px;
+    font-size: 16px; /* 🔥 EVITA ZOOM NO iOS */
 }
 
 .input-chat button {
@@ -157,7 +256,7 @@
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
-    font-size: 16px;
+    font-size: 16px; /* 🔥 EVITA ZOOM NO iOS */
 }
 
 .agendamento-rapido button {
@@ -178,506 +277,277 @@
     line-height: 1.6;
     font-size: 14px;
 }
-
-body {
-    font-family: 'Inter', sans-serif;
-}
-
-.glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-    width: 6px;
-}
-
-.scrollbar-hide::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-}
-
-.scrollbar-hide::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-}
-
-.scrollbar-hide::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.input-field {
-    transition: all 0.3s ease;
-    font-size: 16px;
-}
-
-.input-field:focus {
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
-}
-
-.status-pendente {
-    color: #fbbf24;
-    background-color: rgba(251, 191, 36, 0.15);
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-weight: 600;
-}
-
-.status-confirmado {
-    color: #34d399;
-    background-color: rgba(52, 211, 153, 0.15);
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-weight: 600;
-}
-
-.status-cancelado {
-    color: #f87171;
-    background-color: rgba(248, 113, 113, 0.15);
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-weight: 600;
-}
-
-.tab-dia.active {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.loading-spinner {
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top: 2px solid white;
-    width: 20px;
-    height: 20px;
-    animation: spin 1s linear infinite;
-}
-
-/* 🔥 ESTILOS ÚNICOS PARA CARDS DE AGENDAMENTO */
-.agendamento-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1.25rem;
-    transition: all 0.3s ease;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-}
-
-.agendamento-card:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-/* Layout interno do card */
-.agendamento-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-}
-
-.agendamento-horario {
-    font-size: 1.25rem;
-    font-weight: 600;
-}
-
-.agendamento-info {
-    flex: 1;
-    margin: 0 1rem;
-}
-
-.agendamento-nome {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.agendamento-email {
-    font-size: 0.875rem;
-    opacity: 0.8;
-    margin-bottom: 0.25rem;
-}
-
-.agendamento-telefone {
-    font-size: 0.875rem;
-    opacity: 0.8;
-}
-
-.agendamento-acoes {
-    display: flex;
-    gap: 0.5rem;
-}
-
-/* Botões de ação */
-.btn-acao {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-confirmar {
-    background: rgba(34, 197, 94, 0.2);
-    color: #22c55e;
-    border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-.btn-cancelar {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.btn-reagendar {
-    background: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-.btn-acao:hover {
-    transform: translateY(-1px);
-    opacity: 0.9;
-}
-
-/* 🔥 CORREÇÕES MOBILE CRÍTICAS */
-@media (max-width: 640px) {
-    .container {
-        padding-left: 12px;
-        padding-right: 12px;
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+  
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
     
-    .glass-card {
-        margin-left: -8px;
-        margin-right: -8px;
-        border-radius: 16px;
+    .scrollbar-hide::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
     .input-field {
-        font-size: 16px !important;
-        padding-top: 14px !important;
-        padding-bottom: 14px !important;
+        transition: all 0.3s ease;
+        font-size: 16px; /* 🔥 EVITA ZOOM NO iOS */
     }
     
-    .input-chat {
-        padding: 12px;
-        flex-direction: column;
-        gap: 8px;
+    .input-field:focus {
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
     }
     
-    .input-chat input {
-        margin-right: 0;
-        font-size: 16px;
+    .status-pendente {
+        color: #fbbf24;
+        background-color: rgba(251, 191, 36, 0.15);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .status-confirmado {
+        color: #34d399;
+        background-color: rgba(52, 211, 153, 0.15);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .status-cancelado {
+        color: #f87171;
+        background-color: rgba(248, 113, 113, 0.15);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-weight: 600;
     }
     
-    .input-chat button {
-        width: 100%;
+    .tab-dia.active {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
     
-    .mensagem {
-        max-width: 95% !important;
-        font-size: 14px;
-        padding: 8px;
-    }
-    
-    .historico-chat {
-        height: 250px;
-        padding: 10px;
-    }
-    
-    .assistente-ia-section,
-    .agendamento-ia-section,
-    .sugestoes-ia-section {
-        padding: 16px;
-        margin: 12px 0;
-        border-radius: 12px;
-    }
-    
-    .mobile-w-full {
-        width: 100%;
-    }
-    
-    .mobile-flex-col {
-        flex-direction: column;
-    }
-    
-    .dias-tabs-container {
-        margin-left: -8px;
-        margin-right: -8px;
-        padding-left: 8px;
-        padding-right: 8px;
-    }
-    
-    header h1 {
-        font-size: 1.75rem !important;
-    }
-    
-    header p {
-        font-size: 0.9rem;
-        padding: 0 8px;
-    }
-    
-    .agendamentoForm .grid {
-        gap: 12px !important;
-    }
-    
-    .agendamentoForm .space-y-5 {
-        gap: 16px !important;
-    }
-    
-    /* Cards mobile */
     .agendamento-card {
-        padding: 1rem;
-        max-width: 100%;
-    }
-    
-    .agendamento-header {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .agendamento-info {
-        margin: 0;
-        text-align: center;
-    }
-    
-    .agendamento-acoes {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .btn-acao {
-        flex: 1;
-        text-align: center;
-    }
-}
-
-/* 🔥 Breakpoint extra pequeno */
-@media (max-width: 380px) {
-    .text-2xl {
-        font-size: 1.4rem !important;
-    }
-    
-    .text-xl {
-        font-size: 1.2rem !important;
-    }
-    
-    .text-lg {
-        font-size: 1rem !important;
-    }
-    
-    .tab-dia, .tab-semana {
-        font-size: 11px !important;
-        padding-left: 8px !important;
-        padding-right: 8px !important;
-    }
-    
-    .glass-card {
-        padding: 16px !important;
-    }
-    
-    .historico-chat {
-        height: 200px;
-    }
-    
-    .mensagem {
-        font-size: 13px;
-    }
-}
-
-/* 🔥 Breakpoint tablets */
-@media (min-width: 641px) and (max-width: 768px) {
-    .container {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-    
-    .mensagem {
-        max-width: 75%;
-    }
-    
-    .input-chat {
-        flex-direction: row;
-    }
-    
-    .input-chat button {
-        width: auto;
-    }
-}
-
-/* 🔥 ESTILOS EXCLUSIVOS PARA DESKTOP */
-@media (min-width: 1024px) {
-    .dias-tabs-container > div {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 3rem;
-        width: 100%;
-    }
-    .dias-tabs-container > div > div {
-        flex: none !important;
-    }
-}
-    header {
-        margin-bottom: 3rem !important;
-    }
-    
-    .agendamentoForm .grid {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 2rem !important;
-    }
-    
-    .dias-tabs-container > div {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 3rem;
-    }
-    
-    .dias-tabs-container > div > div:first-child {
-        flex: none;
-        justify-content: center !important;
-        max-width: none;
-    }
-    
-    .dias-tabs-container > div > div:last-child {
-        flex: none;
-        justify-content: center !important;
-    }
-    
-    .tab-dia {
-        flex: none;
-        min-width: 70px;
-    }
-    
-    .assistente-ia-section,
-    .agendamento-ia-section,
-    .sugestoes-ia-section {
-        padding: 2rem;
-        margin: 2rem 0;
-    }
-    
-    .historico-chat {
-        height: 320px;
-    }
-    
-    .mensagem {
-        max-width: 70%;
-        font-size: 15px;
-        padding: 12px 16px;
-    }
-    
-    .input-chat {
-        flex-direction: row;
-        padding: 1rem;
-    }
-    
-    .input-chat button {
-        width: auto;
-        min-width: 120px;
-    }
-    
-    #filtersSection .flex {
-        flex-direction: row;
-        align-items: center;
-        gap: 1rem;
-    }
-    
-    #filtersSection .flex > div:first-child {
-        flex: 1;
-    }
-    
-    #filtersSection .flex > div:last-child {
-        width: auto;
+        transition: all 0.3s ease;
     }
     
     .agendamento-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
     
-    /* Cards desktop */
-    #meusAgendamentos {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-        gap: 1.5rem;
-        max-height: none !important;
-        padding: 1.5rem;
+    .loading-spinner {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 2px solid white;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
     }
     
-    .agendamento-card {
-        max-width: none;
-        margin: 0;
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
-}
 
-/* 🔥 ESTILOS PARA TELAS MÉDIAS */
-@media (min-width: 769px) and (max-width: 1023px) {
-    .container {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
+    /* 🔥 CORREÇÕES MOBILE CRÍTICAS */
+    @media (max-width: 640px) {
+        .container {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        
+        .glass-card {
+            margin-left: -8px;
+            margin-right: -8px;
+            border-radius: 16px;
+        }
+        
+        /* Inputs mobile */
+        .input-field {
+            font-size: 16px !important;
+            padding-top: 14px !important;
+            padding-bottom: 14px !important;
+        }
+        
+        /* Chat IA mobile */
+        .input-chat {
+            padding: 12px;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-chat input {
+            margin-right: 0;
+            font-size: 16px;
+        }
+        
+        .input-chat button {
+            width: 100%;
+        }
+        
+        /* Mensagens mobile */
+        .mensagem {
+            max-width: 95% !important;
+            font-size: 14px;
+            padding: 8px;
+        }
+        
+        .historico-chat {
+            height: 250px;
+            padding: 10px;
+        }
+        
+        /* Seções IA mobile */
+        .assistente-ia-section,
+        .agendamento-ia-section,
+        .sugestoes-ia-section {
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 12px;
+        }
+        
+        /* Botões mobile */
+        .mobile-w-full {
+            width: 100%;
+        }
+        
+        .mobile-flex-col {
+            flex-direction: column;
+        }
+        
+        /* Tabs scroll */
+        .dias-tabs-container {
+            margin-left: -8px;
+            margin-right: -8px;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+        
+        /* Header mobile */
+        header h1 {
+            font-size: 1.75rem !important;
+        }
+        
+        header p {
+            font-size: 0.9rem;
+            padding: 0 8px;
+        }
+        
+        /* Form mobile */
+        .agendamentoForm .grid {
+            gap: 12px !important;
+        }
+        
+        .agendamentoForm .space-y-5 {
+            gap: 16px !important;
+        }
     }
-    
-    .agendamentoForm .grid {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 1.5rem !important;
+
+    /* 🔥 Breakpoint extra pequeno */
+    @media (max-width: 380px) {
+        .text-2xl {
+            font-size: 1.4rem !important;
+        }
+        
+        .text-xl {
+            font-size: 1.2rem !important;
+        }
+        
+        .text-lg {
+            font-size: 1rem !important;
+        }
+        
+        .tab-dia, .tab-semana {
+            font-size: 11px !important;
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+        }
+        
+        .glass-card {
+            padding: 16px !important;
+        }
+        
+        .historico-chat {
+            height: 200px;
+        }
+        
+        .mensagem {
+            font-size: 13px;
+        }
     }
-    
-    .dias-tabs-container > div {
-        flex-direction: row;
-        align-items: center;
+
+    /* 🔥 Breakpoint tablets */
+    @media (min-width: 641px) and (max-width: 768px) {
+        .container {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .mensagem {
+            max-width: 75%;
+        }
+        
+        .input-chat {
+            flex-direction: row;
+        }
+        
+        .input-chat button {
+            width: auto;
+        }
     }
-}
 
-/* 🔥 Remove scroll desnecessário no desktop */
-@media (min-width: 768px) {
-    .dias-tabs-container > div > div {
-        overflow-x: visible;
+    /* 🔥 Estados de loading para IA */
+    .btn-ia-loading {
+        opacity: 0.7;
+        cursor: not-allowed;
     }
-}
 
-/* 🔥 Estados de loading para IA */
-.btn-ia-loading {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.input-chat input:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.mensagem.carregando {
-    opacity: 0.7;
-    font-style: italic;
-}
-
-/* 🔥 Melhorias de acessibilidade */
-@media (prefers-reduced-motion: reduce) {
-    .animate-fade-in,
-    .agendamento-card,
-    .input-field {
-        animation: none;
-        transition: none;
+    .input-chat input:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
-}
+
+    .mensagem.carregando {
+        opacity: 0.7;
+        font-style: italic;
+    }
+
+    /* 🔥 Melhorias de acessibilidade */
+    @media (prefers-reduced-motion: reduce) {
+        .animate-fade-in,
+        .agendamento-card,
+        .input-field {
+            animation: none;
+            transition: none;
+        }
+    }
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -692,8 +562,7 @@ body {
 
     <!-- 🎯🎯🎯 ENVOLVA TODO O SEU CONTEÚDO ATUAL NESTA DIV 🎯🎯🎯 -->
     <div id="mainAppContent">
-    <!-- 🔥 CORREÇÃO: Remova max-w-6xl conflitante -->
-<div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
       
         <!-- Header with animated gradient -->
         <header class="text-center mb-8 md:mb-12" data-aos="fade-down">
@@ -829,22 +698,22 @@ body {
             <div class="grid grid-cols-1 gap-4 sm:gap-5 max-w-4xl mx-auto">
                 <div class="space-y-4 sm:space-y-5">
                     <div>
-                        <label for="nomeInput" class="block mb-2 text-sm font-medium opacity-80">Nome Completo</label>
+                        <label for="Nome" class="block mb-2 text-sm font-medium opacity-80">Nome Completo</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-feather="user" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
                             </div>
-                            <input type="text" id="nomeInput" name="Nome" placeholder="Seu nome" required>
+                            <input type="text" name="Nome" placeholder="Seu nome" required 
                                    class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
                         </div>
                     </div>
                     <div>
-                        <label for="emailInput" class="block mb-2 text-sm font-medium opacity-80">Email</label>
+                        <label for="Email" class="block mb-2 text-sm font-medium opacity-80">Email</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-feather="mail" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
                             </div>
-                            <input type="email" id="emailInput" name="Email" placeholder="seu@email.com" required>
+                            <input type="email" name="Email" placeholder="seu@email.com" required 
                                    class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
                         </div>
                     </div>
@@ -934,48 +803,34 @@ body {
     </div>
 </body>
 
-      <!-- SUBSTITUA as tabs por esta versão: -->
-<div id="diasTabs" style="display:none;" class="dias-tabs-container w-full mb-6" data-aos="fade-up">
-    
-    <!-- Container Principal - CENTRALIZADO -->
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-4 w-full">
-        
-        <!-- Linha 1: Dias da Semana -->
-        <div class="flex gap-1 sm:gap-2 overflow-x-auto pb-2 scrollbar-hide justify-center">
-            <button data-dia="0" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Dom</button>
-            <button data-dia="1" class="tab-dia active px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-medium whitespace-nowrap text-sm sm:text-base">Seg</button>
-            <button data-dia="2" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Ter</button>
-            <button data-dia="3" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Qua</button>
-            <button data-dia="4" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Qui</button>
-            <button data-dia="5" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sex</button>
-            <button data-dia="6" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sáb</button>
-        </div>
-        
-        <!-- Linha 2: Períodos - CENTRALIZADO -->
-        <div class="flex gap-1 sm:gap-2 overflow-x-auto pb-2 scrollbar-hide justify-center">
-            <button data-semana="-1" class="tab-semana whitespace-nowrap px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium text-sm sm:text-base">Sem Passada</button>
-            <button data-semana="-2" class="tab-semana whitespace-nowrap px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium text-sm sm:text-base">2 Semanas</button>
-            <button data-semana="-4" class="tab-semana whitespace-nowrap px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium text-sm sm:text-base">1 Mês</button>
-        </div>
+        <!-- Tabs Dias da Semana -->
+<div id="diasTabs" style="display:none;" class="dias-tabs-container flex flex-col gap-3 md:gap-4 mb-4 md:mb-6" data-aos="fade-up">
+    <div class="flex gap-1 sm:gap-2 overflow-x-auto pb-2 -mx-2 px-2">
+        <button data-dia="0" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Dom</button>
+        <button data-dia="1" class="tab-dia active px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-medium whitespace-nowrap text-sm sm:text-base">Seg</button>
+        <button data-dia="2" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Ter</button>
+        <button data-dia="3" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Qua</button>
+        <button data-dia="4" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Qui</button>
+        <button data-dia="5" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sex</button>
+        <button data-dia="6" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sáb</button>
+    </div>
+    <div class="flex gap-1 sm:gap-2 overflow-x-auto pb-2 -mx-2 px-2 md:ml-4 md:pl-4 md:border-l border-white/20">
+        <button data-semana="-1" class="tab-semana px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sem Passada</button>
+        <button data-semana="-2" class="tab-semana px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap text-sm sm:text-base">2 Semanas</button>
+        <button data-semana="-4" class="tab-semana px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap text-sm sm:text-base">1 Mês</button>
     </div>
 </div>
 
-       <!-- SUBSTITUA a lista de agendamentos por esta versão: -->
-<div id="meusAgendamentos" class="glass-card rounded-2xl p-6 shadow-xl overflow-y-auto scrollbar-hide" style="display:none;" data-aos="fade-up">
-    
-    <!-- Estado vazio -->
-    <div id="agendamentosVazio" class="text-center py-8">
-        <div class="p-4 rounded-full bg-white/10 inline-block mb-4">
-            <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
+        <!-- Appointments List -->
+        <div id="meusAgendamentos" class="glass-card rounded-2xl p-6 shadow-xl max-h-[500px] overflow-y-auto scrollbar-hide" style="display:none;" data-aos="fade-up">
+            <div class="text-center py-8">
+                <div class="p-4 rounded-full bg-white/10 inline-block mb-4">
+                    <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
+                </div>
+                <p class="text-gray-300">Nenhum agendamento encontrado</p>
+            </div>
         </div>
-        <p class="text-gray-300">Nenhum agendamento encontrado</p>
     </div>
-    
-    <!-- Container dos cards (aparece quando tem agendamentos) -->
-    <div id="agendamentosLista" class="space-y-4 hidden">
-        <!-- Os cards serão inseridos aqui via JavaScript -->
-    </div>
-</div>
 
     <!-- Modal de Configuração do Google Sheets -->
 <div id="configSheetsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
@@ -2947,11 +2802,6 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
-
-
-
-
-
 
 
 
