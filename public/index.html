@@ -609,8 +609,8 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-feather="mail" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
                             </div>
-                            <input type="email" name="Email" placeholder="seu@email.com" required 
-                                   class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
+                            <input type="email" name="Email" placeholder="Email (opcional)" 
+       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
                         </div>
                     </div>
                 </div>
@@ -1795,11 +1795,16 @@ logoutBtn.addEventListener('click', async () => {
             const dataToSend={};
             formData.forEach((v,k)=>dataToSend[k]=v);
 
-            // Verifica campos obrigatórios
-            if(!dataToSend.Nome || !dataToSend.Email || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
-                showToast("Preencha todos os campos", "warning");
-                return;
-            }
+            // ✅ NOVO - Email opcional:
+if(!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
+    showToast("Preencha todos os campos obrigatórios", "warning");
+    return;
+}
+
+// 🔥 Se email estiver vazio, define um valor padrão
+if(!dataToSend.Email || dataToSend.Email.trim() === '') {
+    dataToSend.Email = 'Não informado';
+}
 
             // Mostrar loading
             agendarText.classList.add('hidden');
@@ -2731,6 +2736,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
