@@ -40,26 +40,36 @@
     </div>
 
     <script>
-    // 🔥 REDIRECIONAMENTO INTELIGENTE PARA O APP
-    function redirectToApp() {
-        console.log('URL atual:', window.location.href);
-        
-        // Se tem hash (token), redireciona para o app
-        if (window.location.hash) {
-            // Tenta abrir o app usando o scheme customizado
+   // 🔥 DETECÇÃO MAIS ROBUSTA DE AMBIENTE
+function redirectToApp() {
+    console.log('URL atual:', window.location.href);
+    
+    // 🔥 DETECTA SE ESTÁ NO WEB OU APP (VERSÃO MELHORADA)
+    const isWeb = !(window.Browser || window.cordova || 
+                   navigator.userAgent.includes('Capacitor') ||
+                   navigator.userAgent.includes('Cordova'));
+    console.log('Ambiente:', isWeb ? 'WEB' : 'APP');
+    
+    if (window.location.hash) {
+        if (isWeb) {
+            // 🔥 WEB: Faz a autenticação normal
+            console.log('Processando autenticação web...');
+            handleWebAuthentication();
+        } else {
+            // 🔥 APP: Redireciona para o app nativo
+            console.log('Redirecionando para app...');
             const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
             window.location.href = appUrl;
             
-            // 🔥 AGORA USA A NOVA FUNÇÃO PARA FECHAR
             setTimeout(() => {
-                console.log('Fechando janela...');
                 fecharBrowserCapacitor();
-            }, 3000);
-        } else {
-            // Se não tem token, fecha imediatamente
-            fecharBrowserCapacitor();
+            }, 1000);
         }
+    } else {
+        console.log('Nenhum token encontrado, fechando...');
+        fecharBrowserCapacitor();
     }
+}
 
     // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA FECHAR NO CAPACITOR
     async function fecharBrowserCapacitor() {
@@ -129,3 +139,4 @@
 </script>
 </body>
 </html>
+
