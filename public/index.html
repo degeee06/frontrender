@@ -439,6 +439,35 @@ body {
         padding-right: 2rem;
     }
     
+    /* 🔥 LISTA DE AGENDAMENTOS - VERSÃO CORRIGIDA */
+    #meusAgendamentos {
+        max-height: 350px !important;
+        padding: 1rem !important; /* 16px */
+        border-radius: 1rem !important;
+    }
+    
+    /* Estado vazio da lista */
+    #meusAgendamentos > .text-center {
+        padding-top: 1.25rem !important; /* 20px */
+        padding-bottom: 1.25rem !important;
+    }
+    
+    /* Ícone do estado vazio */
+    #meusAgendamentos > .text-center > .p-4 {
+        padding: 0.625rem !important; /* 10px */
+    }
+    
+    /* Tamanho do ícone feather */
+    #meusAgendamentos > .text-center > .p-4 > [data-feather] {
+        width: 1.125rem !important;  /* 18px */
+        height: 1.125rem !important; /* 18px */
+    }
+    
+    /* Texto do estado vazio */
+    #meusAgendamentos > .text-center > .text-gray-300 {
+        font-size: 0.875rem !important; /* 14px */
+    }
+}
     /* HEADER - Melhor espaçamento */
     header {
         margin-bottom: 3rem !important;
@@ -2808,6 +2837,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
