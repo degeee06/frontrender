@@ -1,4 +1,3 @@
-// vercel.json na RAIZ do projeto (não na pasta public)
 {
   "routes": [
     {
