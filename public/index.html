@@ -2492,6 +2492,50 @@ function detectarAmbiente() {
     return { isCapacitor, isMobileApp };
 }
 
+
+if (window.location.href.includes('/auth-callback.html')) {
+    console.log('🎯 Página de callback - mostrando instruções simples');
+    
+    // Substitui o conteúdo da página
+    document.body.innerHTML = `
+        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; text-align: center;">
+            <div style="background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; backdrop-filter: blur(10px); max-width: 400px;">
+                <h1 style="font-size: 24px; margin-bottom: 20px;">🎉 Login Concluído!</h1>
+                <p style="margin-bottom: 30px; line-height: 1.5;">
+                    ✅ Seu login foi realizado com sucesso!<br><br>
+                    📱 <strong>Volte para o aplicativo</strong><br><br>
+                    🔄 O app detectará automaticamente que você está logado.
+                </p>
+                <button onclick="fecharJanela()" style="background: white; color: #667eea; border: none; padding: 12px 24px; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                    Fechar Esta Janela
+                </button>
+                <p style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
+                    Esta janela fechará automaticamente em <span id="countdown">5</span>s
+                </p>
+            </div>
+        </div>
+    `;
+    
+    function fecharJanela() {
+        try {
+            window.close();
+        } catch (e) {
+            window.location.href = 'https://frontrender-iota.vercel.app/';
+        }
+    }
+    
+    // Contagem regressiva para fechar
+    let seconds = 5;
+    const countdownElement = document.getElementById('countdown');
+    const timer = setInterval(() => {
+        seconds--;
+        countdownElement.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(timer);
+            fecharJanela();
+        }
+    }, 1000);
+}
 // 🔥 PROCESSAMENTO OAUTH UNIFICADO
 function processarOAuthUnificado() {
     const { isMobileApp } = detectarAmbiente();
@@ -2633,6 +2677,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
