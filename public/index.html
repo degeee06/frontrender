@@ -1537,7 +1537,7 @@ async function logoutSilencioso() {
         meusAgendamentos.style.display = 'none';
         document.getElementById('filtersSection').style.display = 'none';
         document.getElementById('diasTabs').style.display = 'none';
-        logoutBtn.style.display = 'none';
+         atualizarInterfacePosLogin();
         document.getElementById('secoesIA').style.display = 'none';
         
     } catch (error) {
@@ -2731,6 +2731,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
