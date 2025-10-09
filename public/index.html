@@ -12,7 +12,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.2/imask.min.js"></script>
     <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* 🔥 ADICIONE ESTE CSS PARA GARANTIR CENTRALIZAÇÃO */
+.dias-tabs-container {
+    display: flex;
+    justify-content: center;
+}
 
+@media (min-width: 1024px) {
+    .dias-tabs-container > div {
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    .dias-tabs-container > div > div:first-child,
+    .dias-tabs-container > div > div:last-child {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
 /* ESTILO PARA TELA DE AUTENTICAÇÃO */
 .auth-screen {
     position: fixed;
@@ -2929,6 +2947,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
