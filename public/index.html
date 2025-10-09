@@ -1661,7 +1661,7 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
     try {
         console.log('🔐 Iniciando autenticação Google...');
         
-        const redirectUrl = 'https://frontrender-iota.vercel.app/auth-callback.html';
+        const redirectUrl = 'https://frontrender-iota.vercel.app/';
         
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
@@ -2666,6 +2666,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
