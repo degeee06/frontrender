@@ -822,41 +822,80 @@
     }
 
     // 🔥 PROCESSAMENTO PARA WEB
-    async function processarOAuthWeb() {
-        try {
-            // Aguarda um pouco para processar a sessão
-            await new Promise(resolve => setTimeout(resolve, 1000));
+   async function processarOAuthWeb() {
+    try {
+        console.log('🔑 Iniciando processamento OAuth para WEB...');
+        
+        // 🔥 CONFIGURAÇÃO DO SUPABASE (USE SUAS CREDENCIAIS)
+        const supabaseUrl = 'https://seu-projeto.supabase.co'; // 🔥 SUBSTITUA
+        const supabaseKey = 'sua-anon-key'; // 🔥 SUBSTITUA
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        console.log('📋 Parâmetros da URL:', {
+            hash: window.location.hash,
+            search: window.location.search
+        });
+        
+        // 🔥 SOLUÇÃO 1: Tenta processar com setSession (mais confiável)
+        if (window.location.hash) {
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const access_token = hashParams.get('access_token');
+            const refresh_token = hashParams.get('refresh_token');
             
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (session) {
-                console.log('✅ Sessão OAuth restaurada no web!');
+            if (access_token) {
+                console.log('🎯 Configurando sessão manualmente...');
+                const { data, error } = await supabase.auth.setSession({
+                    access_token,
+                    refresh_token
+                });
                 
-                // Salva o token
-                userToken = session.access_token;
-                localStorage.setItem('userToken', userToken);
-                
-                // Limpa a URL
-                window.history.replaceState(null, '', window.location.pathname);
-                
-                // Mostra app normal
-                document.getElementById('authCallbackScreen').classList.add('hidden');
-                document.getElementById('mainAppContent').classList.remove('hidden');
-                
-                // Atualiza interface
-                loginSection.style.display = 'none';
-                form.style.display = 'block';
-                logoutBtn.style.display = 'flex';
-                document.getElementById('secoesIA').style.display = 'block';
-                
-                listarAgendamentos();
-                showToast("Login realizado com sucesso!", "success");
+                if (error) {
+                    console.error('❌ Erro setSession:', error);
+                } else {
+                    console.log('✅ Sessão configurada!');
+                    console.log('👤 Usuário:', data.session?.user?.email);
+                }
             }
-        } catch (error) {
-            console.error('❌ Erro OAuth web:', error);
-            window.location.href = '/';
         }
+        
+        // 🔥 SOLUÇÃO 2: Aguarda e verifica a sessão
+        console.log('⏳ Aguardando processamento da sessão...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+            console.error('❌ Erro ao obter sessão:', error);
+        }
+        
+        if (session) {
+            console.log('🎉 SESSÃO CRIADA COM SUCESSO!');
+            console.log('📧 Email:', session.user.email);
+            console.log('🔐 Token:', session.access_token.substring(0, 20) + '...');
+            
+            // 🔥 SALVA CONFIRMAÇÃO
+            localStorage.setItem('oauth_success', 'true');
+            localStorage.setItem('user_email', session.user.email);
+            
+            // 🔥 LIMPA A URL (remove o hash)
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+        } else {
+            console.log('⚠️ Nenhuma sessão criada');
+        }
+        
+        // 🔥 REDIRECIONA PARA APP (mesmo sem sessão)
+        console.log('🔄 Redirecionando para app principal...');
+        setTimeout(() => {
+            window.location.href = window.location.origin;
+        }, 1000);
+        
+    } catch (error) {
+        console.error('💥 Erro crítico no processarOAuthWeb:', error);
+        // Fallback: redireciona mesmo com erro
+        window.location.href = window.location.origin;
     }
+}
 
     // 🔥 PROCESSAMENTO PARA APP
     function processarOAuthApp() {
@@ -2677,6 +2716,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
