@@ -1556,7 +1556,10 @@ async function logoutSilencioso() {
 async function listarAgendamentos(){
     try {
         console.log('🔄 Frontend: Iniciando listarAgendamentos...'); // 🔥 ADICIONE
-        
+        // No início do listarAgendamentos()
+console.log('🔄 Frontend: Iniciando listarAgendamentos...');
+console.log('🔑 Token:', userToken ? 'Presente' : 'Faltando');
+console.log('🌐 API URL:', `${API_BASE_URL}/agendamentos`);
         // 🔥 VERIFICA TOKEN ANTES DE FAZER REQUISIÇÃO
         const tokenValido = await verificarToken();
         if (!tokenValido) {
@@ -2754,6 +2757,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
