@@ -71,6 +71,35 @@ function redirectToApp() {
     }
 }
 
+// 🔥 FUNÇÃO PARA AUTENTICAÇÃO WEB
+function handleWebAuthentication() {
+    try {
+        // Extrai o token do hash
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        
+        if (accessToken) {
+            console.log('Token encontrado, processando autenticação web...');
+            
+            // 🔥 SALVA NO LOCALSTORAGE
+            localStorage.setItem('supabase.auth.token', accessToken);
+            
+            // 🔥 REDIRECIONA PARA A PÁGINA PRINCIPAL DO WEB
+            window.location.href = 'https://frontrender-iota.vercel.app/';
+            
+        } else {
+            console.log('Token não encontrado no hash');
+            window.location.href = 'https://frontrender-iota.vercel.app/';
+        }
+    } catch (error) {
+        console.error('Erro na autenticação web:', error);
+        window.location.href = 'https://frontrender-iota.vercel.app/';
+    }
+}
+
     // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA FECHAR NO CAPACITOR
     async function fecharBrowserCapacitor() {
         console.log('🎯 Tentando fechar browser...');
@@ -101,40 +130,12 @@ function redirectToApp() {
         }
     }
 
-    // 🔥🔥🔥 FUNÇÃO SIMPLIFICADA PARA FECHAR APÓS LOGIN
-    function fecharAposLogin() {
-        console.log('✅ Login detectado - fechando em 1 segundo...');
-        
-        // 🔥 FECHA APÓS 1 SEGUNDO (MAIS RÁPIDO)
-        setTimeout(() => {
-            fecharBrowserCapacitor();
-        }, 1000);
-        
-        // 🔥 BACKUP: Fecha após 3 segundos
-        setTimeout(() => {
-            console.log('🔄 Backup: Fechando novamente...');
-            fecharBrowserCapacitor();
-        }, 3000);
-    }
-
     // Executa quando a página carrega
     document.addEventListener('DOMContentLoaded', redirectToApp);
     
     // Também tenta se a página já estiver carregada
     if (document.readyState === 'complete') {
         redirectToApp();
-    }
-
-    // 🔥 EXECUTA QUANDO DETECTA QUE O LOGIN FOI BEM-SUCEDIDO
-    if (window.location.hash && window.location.hash.includes('access_token')) {
-        console.log('🎯 Token de acesso detectado - login bem-sucedido!');
-        fecharAposLogin();
-    } else {
-        console.log('⚠️ Token não encontrado - fechando mesmo assim');
-        // Fecha mesmo sem token (caso de erro)
-        setTimeout(() => {
-            fecharBrowserCapacitor();
-        }, 3000);
     }
 </script>
 </body>
