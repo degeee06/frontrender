@@ -40,26 +40,21 @@
         <p>Redirecionando de volta para o app</p>
     </div>
 
-   <script>
-    // 🔥 CONFIGURAÇÃO DO SUPABASE (SUBSTITUA COM SUAS CREDENCIAIS REAIS)
+  <script>
+    // 🔥 CONFIGURAÇÃO DO SUPABASE (SUBSTITUA COM SUAS CREDENCIAIS!)
     const SUPABASE_URL = 'https://otyxjcxxqwjotnuyrvmc.supabase.co'; // 🔥 SUBSTITUA
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk'; // 🔦 SUBSTITUA
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk'; // 🔥 SUBSTITUA
 
-    async function init() {
-        console.log('🚀 Iniciando callback de autenticação...');
-        console.log('🔍 URL completa:', window.location.href);
-        console.log('🔍 Hash:', window.location.hash);
-        console.log('🔍 Search:', window.location.search);
+    async function processAuthentication() {
+        console.log('🚀 Iniciando processamento de autenticação...');
+        console.log('🔗 URL completa:', window.location.href);
         
-        // 🔥 DETECTA AMBIENTE
         const isMobileApp = !!(window.Capacitor || window.cordova);
         console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
-        
+
         if (isMobileApp) {
-            // 🔥 APP: Redireciona para scheme customizado
             handleMobileAuth();
         } else {
-            // 🔥 WEB: Processa autenticação com Supabase
             await handleWebAuth();
         }
     }
@@ -72,92 +67,84 @@
             const { createClient } = window.supabase;
             const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             
-            // 🔥 VERIFICA SE TEM TOKENS NA URL
-            const hasHash = window.location.hash.includes('access_token');
-            const hasSearch = window.location.search.includes('access_token');
+            // 🔥 IMPORTANTE: Verifica se tem parâmetros de autenticação
+            const hasAuthParams = window.location.hash.includes('access_token') || 
+                                 window.location.search.includes('access_token');
             
-            console.log('📋 Parâmetros URL - Hash:', hasHash, 'Search:', hasSearch);
-            
-            if (hasHash || hasSearch) {
-                console.log('✅ Tokens detectados na URL, processando...');
-                
-                // 🔥 DEIXA O SUPABASE PROCESSAR OS TOKENS
-                const { data: { session }, error } = await supabase.auth.getSession();
-                
-                if (error) {
-                    console.error('❌ Erro ao obter sessão:', error);
-                } else if (session) {
-                    console.log('🎉 Sessão criada com sucesso!');
-                    console.log('👤 Usuário:', session.user?.email);
-                    console.log('🔐 Token:', session.access_token ? '✅' : '❌');
-                    
-                    // 🔥 SALVA NO LOCALSTORAGE PARA CONFIRMAR
-                    localStorage.setItem('supabase.auth.token', session.access_token);
-                    console.log('💾 Token salvo no localStorage');
-                } else {
-                    console.log('⚠️ Sessão vazia, tentando fallback...');
-                }
-                
-                // 🔥 REDIRECIONA APÓS PROCESSAR
-                console.log('🔄 Redirecionando para app em 1s...');
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 1000);
-                
-            } else {
-                console.log('❌ Nenhum token encontrado na URL');
-                window.location.href = '/?error=no_tokens';
+            if (!hasAuthParams) {
+                console.log('❌ Nenhum token encontrado - redirecionando...');
+                window.location.href = '/';
+                return;
             }
+
+            console.log('✅ Tokens encontrados na URL...');
+
+            // 🔥🔥🔥 SOLUÇÃO CRÍTICA: Usa setSession para forçar a sessão
+            if (window.location.hash) {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const access_token = hashParams.get('access_token');
+                const refresh_token = hashParams.get('refresh_token');
+                
+                if (access_token) {
+                    console.log('🔑 Configurando sessão manualmente...');
+                    const { data, error } = await supabase.auth.setSession({
+                        access_token,
+                        refresh_token
+                    });
+                    
+                    if (error) {
+                        console.error('❌ Erro ao configurar sessão:', error);
+                    } else {
+                        console.log('✅ Sessão configurada com sucesso!');
+                        console.log('👤 Usuário:', data.session?.user?.email);
+                    }
+                }
+            }
+
+            // 🔥 AGUARDA UM POUCO PARA O SUPABASE PROCESSAR
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
+            // 🔥 VERIFICA SE A SESSÃO FOI CRIADA
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                console.log('🎉 AUTENTICAÇÃO BEM-SUCEDIDA!');
+                console.log('📧 Email:', session.user.email);
+                console.log('🔐 Token:', session.access_token ? '✅' : '❌');
+                
+                // 🔥 SALVA CONFIRMAÇÃO NO LOCALSTORAGE
+                localStorage.setItem('auth_success', 'true');
+                localStorage.setItem('user_email', session.user.email);
+            } else {
+                console.log('⚠️ Sessão não criada - tentando fallback...');
+            }
+
+            // 🔥 REDIRECIONA PARA PÁGINA PRINCIPAL
+            console.log('🔄 Redirecionando para página principal...');
+            window.location.href = '/';
+
         } catch (error) {
             console.error('💥 Erro crítico:', error);
-            // Fallback: redireciona mesmo com erro
             window.location.href = '/';
         }
     }
 
     function handleMobileAuth() {
         console.log('📱 Processando autenticação MOBILE...');
+        const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash || window.location.search}`;
+        window.location.href = appUrl;
         
-        if (window.location.hash || window.location.search) {
-            console.log('✅ Tokens detectados, redirecionando para app...');
-            const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash || window.location.search}`;
-            console.log('🎯 App URL:', appUrl);
-            
-            window.location.href = appUrl;
-            
-            // Tenta fechar o browser
-            setTimeout(() => {
-                closeBrowser();
-            }, 1500);
-        } else {
-            console.log('❌ Nenhum token encontrado');
-            closeBrowser();
-        }
-    }
-
-    async function closeBrowser() {
-        console.log('🎯 Tentando fechar browser...');
-        
-        if (window.Capacitor?.Plugins?.Browser) {
-            try {
-                await window.Capacitor.Plugins.Browser.close();
-                console.log('✅ Browser fechado via Capacitor');
-            } catch (error) {
-                console.log('❌ Erro ao fechar browser:', error);
+        setTimeout(() => {
+            if (window.Capacitor?.Plugins?.Browser) {
+                window.Capacitor.Plugins.Browser.close();
             }
-        } else {
-            console.log('🔧 Fallback: redirecionando para about:blank');
-            window.location.href = 'about:blank';
-        }
+        }, 1000);
     }
 
     // 🔥 EXECUTA QUANDO A PÁGINA CARREGA
-    document.addEventListener('DOMContentLoaded', init);
-    
-    // Backup se já estiver carregado
+    document.addEventListener('DOMContentLoaded', processAuthentication);
     if (document.readyState === 'complete') {
-        init();
+        processAuthentication();
     }
 </script>
 </body>
