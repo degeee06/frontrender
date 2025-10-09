@@ -12,6 +12,40 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.2/imask.min.js"></script>
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+         /* ESTILO PARA TELA DE AUTENTICAÇÃO */
+    .auth-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    .auth-container {
+        text-align: center;
+        padding: 20px;
+    }
+    .spinner {
+        border: 4px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top: 4px solid white;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .hidden {
+        display: none !important;
+    }
     /* ESTILOS PARA AS SEÇÕES IA */
 .assistente-ia-section,
 .agendamento-ia-section,
@@ -398,6 +432,17 @@
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+      <!-- 🎯🎯🎯 ADICIONE ESTA TELA DE AUTENTICAÇÃO AQUI 🎯🎯🎯 -->
+    <div id="authCallbackScreen" class="auth-screen hidden">
+        <div class="auth-container">
+            <div class="spinner"></div>
+            <h2>Autenticando...</h2>
+            <p>Redirecionando de volta para o app</p>
+        </div>
+    </div>
+
+    <!-- 🎯🎯🎯 ENVOLVA TODO O SEU CONTEÚDO ATUAL NESTA DIV 🎯🎯🎯 -->
+    <div id="mainAppContent">
     <div class="container mx-auto px-4 py-8 max-w-6xl">
       
         <!-- Header with animated gradient -->
@@ -738,6 +783,115 @@
 
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+ // 🔥 VERIFICAÇÃO DE CALLBACK OAUTH - EXECUTA PRIMEIRO
+    function verificarCallbackOAuth() {
+        console.log('🔄 Verificando se é callback OAuth...');
+        console.log('📍 URL:', window.location.href);
+        console.log('🔑 Hash:', window.location.hash);
+        
+        const isCallback = window.location.hash.includes('access_token') || 
+                           window.location.hash.includes('error');
+        
+        if (isCallback) {
+            console.log('🎯 Detectado callback OAuth - processando...');
+            
+            // MOSTRA TELA DE AUTENTICAÇÃO
+            document.getElementById('authCallbackScreen').classList.remove('hidden');
+            document.getElementById('mainAppContent').classList.add('hidden');
+            
+            // 🔥 DETECTA AMBIENTE
+            const isWeb = !(window.Browser || window.cordova || 
+                           navigator.userAgent.includes('Capacitor') ||
+                           navigator.userAgent.includes('Cordova'));
+            console.log('Ambiente:', isWeb ? 'WEB' : 'APP');
+            
+            if (isWeb) {
+                // 💻 WEB: Processa e redireciona
+                console.log('🌐 Processando para web...');
+                processarOAuthWeb();
+            } else {
+                // 📱 APP: Redireciona para app e fecha
+                console.log('📱 Processando para app...');
+                processarOAuthApp();
+            }
+            
+            return true; // É um callback, para a execução normal
+        }
+        
+        return false; // Não é callback, continua normal
+    }
+
+    // 🔥 PROCESSAMENTO PARA WEB
+    async function processarOAuthWeb() {
+        try {
+            // Aguarda um pouco para processar a sessão
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                console.log('✅ Sessão OAuth restaurada no web!');
+                
+                // Salva o token
+                userToken = session.access_token;
+                localStorage.setItem('userToken', userToken);
+                
+                // Limpa a URL
+                window.history.replaceState(null, '', window.location.pathname);
+                
+                // Mostra app normal
+                document.getElementById('authCallbackScreen').classList.add('hidden');
+                document.getElementById('mainAppContent').classList.remove('hidden');
+                
+                // Atualiza interface
+                loginSection.style.display = 'none';
+                form.style.display = 'block';
+                logoutBtn.style.display = 'flex';
+                document.getElementById('secoesIA').style.display = 'block';
+                
+                listarAgendamentos();
+                showToast("Login realizado com sucesso!", "success");
+            }
+        } catch (error) {
+            console.error('❌ Erro OAuth web:', error);
+            window.location.href = '/';
+        }
+    }
+
+    // 🔥 PROCESSAMENTO PARA APP
+    function processarOAuthApp() {
+        console.log('📱 Redirecionando para app...');
+        
+        // 1. Tenta redirecionar para o app
+        const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
+        window.location.href = appUrl;
+        
+        // 2. Fecha o browser após 1 segundo
+        setTimeout(() => {
+            fecharBrowserCapacitor();
+        }, 1000);
+    }
+
+    // 🔥 FUNÇÃO PARA FECHAR BROWSER
+    async function fecharBrowserCapacitor() {
+        console.log('🎯 Tentando fechar browser...');
+        
+        if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+            try {
+                console.log('✅ Usando Capacitor Browser.close()');
+                await window.Capacitor.Plugins.Browser.close();
+                return;
+            } catch (error) {
+                console.log('❌ Capacitor Browser.close() falhou:', error);
+            }
+        }
+        
+        try {
+            window.close();
+        } catch (error) {
+            window.location.href = 'about:blank';
+        }
+    }
 
         // ---------------- CONFIGURAÇÃO BACKEND ----------------
         const API_BASE_URL = 'https://agendamento-ynxr.onrender.com'; // SEU BACKEND NO RENDER
@@ -774,37 +928,7 @@ function mostrarToast(message, type = "success") {
 
         function formatData(data){ const [y,m,d] = data.split("-"); return `${d}/${m}/${y}`; }
 
-// 🔥 NO INÍCIO DO SEU SCRIPT NO index.html - VERIFICAÇÃO OAUTH
-if (window.location.hash && window.location.hash.includes('access_token')) {
-    console.log('🎯 Token OAuth detectado na página principal - processando...');
-    
-    // Processa o token e salva a sessão
-    supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-            console.log('✅ Sessão OAuth restaurada!');
-            
-            // Salva o token
-            userToken = session.access_token;
-            localStorage.setItem('userToken', userToken);
-            
-            // Atualiza interface
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            logoutBtn.style.display = 'flex';
-            document.getElementById('secoesIA').style.display = 'block';
-            
-            // Limpa a URL (remove tokens)
-            window.history.replaceState(null, '', window.location.pathname);
-            
-            // Carrega dados
-            listarAgendamentos();
-            showToast("Login realizado com sucesso!", "success");
-            
-            // Verifica configuração
-            setTimeout(() => verificarConfiguracaoSheets(), 1500);
-        }
-    });
-}
+
         // Verifica se está voltando de OAuth e pega a sessão
 // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA - EVITA "CONECTANDO"
 const token = localStorage.getItem('userToken');
@@ -845,6 +969,15 @@ if (token) {
 // ✅ FUNÇÃO INIT SUPER SIMPLIFICADA (SUBSTITUA TUDO)
 async function init() {
     console.log('🚀 Iniciando app...');
+    
+    // 🎯🎯🎯 ADICIONE ESTA VERIFICAÇÃO NO INÍCIO DA INIT 🎯🎯🎯
+    if (verificarCallbackOAuth()) {
+        console.log('⏸️ Parando init - é callback OAuth');
+        return; // Para aqui se for callback
+    }
+    
+    // 🔥 SE NÃO FOR CALLBACK, CONTINUA NORMAL
+    console.log('▶️ Continuando init normal...');
     
     // Configurar máscara de telefone
     if (telefoneInput) {
@@ -2507,93 +2640,8 @@ function voltarParaApp() {
     }, 3000);
 }
 
-// Versão simplificada da página auth-callback.html
-if (window.location.href.includes('/auth-callback.html')) {
-    console.log('🎯 Página de callback - mostrando instruções simples');
-    
-    // Substitui o conteúdo da página
-    document.body.innerHTML = `
-        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; text-align: center;">
-            <div style="background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; backdrop-filter: blur(10px); max-width: 400px;">
-                <h1 style="font-size: 24px; margin-bottom: 20px;">🎉 Login Concluído!</h1>
-                <p style="margin-bottom: 30px; line-height: 1.5;">
-                    ✅ Seu login foi realizado com sucesso!<br><br>
-                    📱 <strong>Volte para o aplicativo</strong><br><br>
-                    🔄 O app detectará automaticamente que você está logado.
-                </p>
-                <button onclick="fecharJanela()" style="background: white; color: #667eea; border: none; padding: 12px 24px; border-radius: 10px; font-size: 16px; cursor: pointer;">
-                    Fechar Esta Janela
-                </button>
-                <p style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
-                    Esta janela fechará automaticamente em <span id="countdown">5</span>s
-                </p>
-            </div>
-        </div>
-    `;
-    
-    function fecharJanela() {
-        try {
-            window.close();
-        } catch (e) {
-            window.location.href = 'https://frontrender-iota.vercel.app/';
-        }
-    }
-    
-    // Contagem regressiva para fechar
-    let seconds = 5;
-    const countdownElement = document.getElementById('countdown');
-    const timer = setInterval(() => {
-        seconds--;
-        countdownElement.textContent = seconds;
-        if (seconds <= 0) {
-            clearInterval(timer);
-            fecharJanela();
-        }
-    }, 1000);
-}
 
-// ✅ VERIFICAÇÃO CORRIGIDA - PROCESSAMENTO OAUTH NA PÁGINA PRINCIPAL
-if (window.location.href === 'https://frontrender-iota.vercel.app/' || 
-    window.location.href === 'https://frontrender-iota.vercel.app') {
-    
-    console.log('🏠 Página principal - verificando redirecionamento OAuth...');
-    
-    // Verifica se veio de OAuth (tem tokens na hash)
-    if (window.location.hash.includes('access_token') || window.location.hash.includes('error')) {
-        console.log('🔐 Processando retorno OAuth...');
-        
-        // 🔥 CORREÇÃO: Processa o OAuth e ATUALIZA a interface
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                console.log('✅ Login OAuth realizado com sucesso!');
-                
-                // 🔥 SALVA O TOKEN
-                userToken = session.access_token;
-                localStorage.setItem('userToken', userToken);
-                
-                // 🔥 ATUALIZA A INTERFACE
-                loginSection.style.display = 'none';
-                form.style.display = 'block';
-                logoutBtn.style.display = 'flex';
-                document.getElementById('secoesIA').style.display = 'block';
-                
-                // 🔥 LIMPA A URL (remove tokens)
-                window.history.replaceState(null, '', window.location.pathname);
-                
-                // 🔥 CARREGA OS DADOS
-                listarAgendamentos();
-                showToast("Login com Google realizado!", "success");
-                
-                // 🔥 VERIFICA CONFIGURAÇÃO
-                setTimeout(() => verificarConfiguracaoSheets(), 1500);
-                
-            } else {
-                console.log('❌ Falha no login OAuth');
-                showToast("Erro no login com Google", "error");
-            }
-        });
-    }
-}
+
         
 // 🔥 ADICIONAR: Debounce simples para melhorar performance
 function debounce(func, wait) {
