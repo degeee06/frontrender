@@ -849,9 +849,9 @@
                 document.getElementById('mainAppContent').classList.remove('hidden');
                 
                 // Atualiza interface
-                loginSection.style.display = 'none';
-                form.style.display = 'block';
-                logoutBtn.style.display = 'flex';
+               loginSection.style.display = 'none';
+form.style.display = 'block';
+atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
                 document.getElementById('secoesIA').style.display = 'block';
                 
                 listarAgendamentos();
@@ -947,7 +947,7 @@ if (token) {
             userToken = session.access_token;
             loginSection.style.display = 'none';
             form.style.display = 'block';
-            logoutBtn.style.display = 'flex';
+            atualizarInterfacePosLogin();
             document.getElementById('secoesIA').style.display = 'block';
             listarAgendamentos();
             setTimeout(() => verificarConfiguracaoSheets(), 1000);
@@ -1030,9 +1030,9 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
     if (token) {
         userToken = token;
         // Usuário JÁ logado - mostra dashboard
-        loginSection.style.display = 'none';
-        form.style.display = 'block';
-        logoutBtn.style.display = 'flex';
+      loginSection.style.display = 'none';
+form.style.display = 'block';
+atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
         document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos();
         setTimeout(() => verificarConfiguracaoSheets(), 1000);
@@ -1615,7 +1615,7 @@ loginBtn.addEventListener('click', async () => {
         
         loginSection.style.display = 'none';
         form.style.display = 'block';
-        logoutBtn.style.display = 'flex';
+        atualizarInterfacePosLogin();
 // 🔥 ADICIONE ESTA LINHA:
 document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos().then(() => {
@@ -2684,7 +2684,7 @@ function atualizarInterfacePosLogin() {
     const settingsBtn = document.getElementById('settingsBtn');
     
     if (userToken) {
-        logoutBtn.style.display = 'flex';
+        atualizarInterfacePosLogin();
         settingsBtn.style.display = 'flex';
     } else {
         logoutBtn.style.display = 'none';
@@ -2716,6 +2716,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
