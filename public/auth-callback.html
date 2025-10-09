@@ -74,41 +74,35 @@
             }
         }
 
-        // 🔥 FUNÇÃO PARA AUTENTICAÇÃO WEB
-        function handleWebAuthentication() {
-            try {
-                console.log('🔑 Processando token para web...');
-                
-                // Extrai o token do hash
-                const hash = window.location.hash.substring(1);
-                const params = new URLSearchParams(hash);
-                
-                const accessToken = params.get('access_token');
-                const refreshToken = params.get('refresh_token');
-                
-                console.log('✅ Access Token:', accessToken ? 'Encontrado' : 'Não encontrado');
-                console.log('✅ Refresh Token:', refreshToken ? 'Encontrado' : 'Não encontrado');
-                
-                if (accessToken) {
-                    // 🔥 WEB: Armazena o token e redireciona para a página principal
-                    localStorage.setItem('access_token', accessToken);
-                    if (refreshToken) {
-                        localStorage.setItem('refresh_token', refreshToken);
-                    }
-                    
-                    console.log('✅ Tokens armazenados no localStorage');
-                    
-                    // Redireciona para a página principal
-                    window.location.href = '/';
-                } else {
-                    console.log('❌ Token de acesso não encontrado');
-                    window.location.href = '/?error=auth_failed';
-                }
-            } catch (error) {
-                console.log('❌ Erro na autenticação web:', error);
-                window.location.href = '/?error=auth_error';
-            }
+       // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA AUTENTICAÇÃO WEB COM SUPABASE
+async function handleWebAuthentication() {
+    try {
+        console.log('🔑 Processando autenticação web com Supabase...');
+        
+        // Verifica se temos um hash com tokens
+        if (window.location.hash.includes('access_token') || 
+            window.location.hash.includes('error')) {
+            
+            console.log('🔄 Processando resposta do OAuth...');
+            
+            // 🔥 AGUARDA O SUPABASE PROCESSAR A SESSÃO
+            // Isso é crucial para o Supabase detectar a sessão
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // 🔥 REDIRECIONA PARA A PÁGINA PRINCIPAL
+            // O Supabase vai automaticamente detectar a sessão na página principal
+            console.log('✅ Redirecionando para página principal...');
+            window.location.href = '/';
+            
+        } else {
+            console.log('❌ Nenhum token ou erro encontrado na URL');
+            window.location.href = '/?error=no_token';
         }
+    } catch (error) {
+        console.log('❌ Erro na autenticação web:', error);
+        window.location.href = '/?error=auth_error';
+    }
+}
 
         // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA FECHAR NO CAPACITOR
         async function fecharBrowserCapacitor() {
