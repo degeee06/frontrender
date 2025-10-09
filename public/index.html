@@ -698,22 +698,22 @@
             <div class="grid grid-cols-1 gap-4 sm:gap-5 max-w-4xl mx-auto">
                 <div class="space-y-4 sm:space-y-5">
                     <div>
-                        <label for="Nome" class="block mb-2 text-sm font-medium opacity-80">Nome Completo</label>
+                       <label for="nomeInput" class="block mb-2 text-sm font-medium opacity-80">Nome Completo</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-feather="user" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
                             </div>
-                            <input type="text" name="Nome" placeholder="Seu nome" required 
+                            <input type="text" id="nomeInput" name="Nome" placeholder="Seu nome" required>
                                    class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
                         </div>
                     </div>
                     <div>
-                        <label for="Email" class="block mb-2 text-sm font-medium opacity-80">Email</label>
+                        <label for="emailInput" class="block mb-2 text-sm font-medium opacity-80">Email</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-feather="mail" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
                             </div>
-                            <input type="email" name="Email" placeholder="seu@email.com" required 
+                            <input type="email" id="emailInput" name="Email" placeholder="seu@email.com" required>
                                    class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
                         </div>
                     </div>
@@ -2809,6 +2809,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
