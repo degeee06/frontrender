@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Autenticando no Oubook...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h2>Autenticando...</h2>
+        <p>Redirecionando de volta para o app</p>
+    </div>
+
+    <script>
+        // 🔥 DETECÇÃO MAIS ROBUSTA DE AMBIENTE
+        function redirectToApp() {
+            console.log('🔍 URL atual:', window.location.href);
+            console.log('🔍 Hash:', window.location.hash);
+            console.log('🔍 User Agent:', navigator.userAgent);
+            
+            // 🔥 DETECTA SE ESTÁ NO WEB OU APP (VERSÃO MELHORADA)
+            const isWeb = !(window.Browser || window.cordova || 
+                           navigator.userAgent.includes('Capacitor') ||
+                           navigator.userAgent.includes('Cordova'));
+            console.log('🏁 Ambiente:', isWeb ? 'WEB' : 'APP');
+            
+            if (window.location.hash) {
+                if (isWeb) {
+                    // 🔥 WEB: Redireciona para a página principal com o token
+                    console.log('🌐 Processando autenticação web...');
+                    handleWebAuthentication();
+                } else {
+                    // 🔥 APP: Redireciona para o app nativo
+                    console.log('📱 Redirecionando para app...');
+                    const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
+                    console.log('🎯 App URL:', appUrl);
+                    window.location.href = appUrl;
+                    
+                    setTimeout(() => {
+                        fecharBrowserCapacitor();
+                    }, 1000);
+                }
+            } else {
+                console.log('❌ Nenhum token encontrado, fechando...');
+                fecharBrowserCapacitor();
+            }
+        }
+
+        // 🔥 FUNÇÃO PARA AUTENTICAÇÃO WEB
+        function handleWebAuthentication() {
+            try {
+                console.log('🔑 Processando token para web...');
+                
+                // Extrai o token do hash
+                const hash = window.location.hash.substring(1);
+                const params = new URLSearchParams(hash);
+                
+                const accessToken = params.get('access_token');
+                const refreshToken = params.get('refresh_token');
+                
+                console.log('✅ Access Token:', accessToken ? 'Encontrado' : 'Não encontrado');
+                console.log('✅ Refresh Token:', refreshToken ? 'Encontrado' : 'Não encontrado');
+                
+                if (accessToken) {
+                    // 🔥 WEB: Armazena o token e redireciona para a página principal
+                    localStorage.setItem('access_token', accessToken);
+                    if (refreshToken) {
+                        localStorage.setItem('refresh_token', refreshToken);
+                    }
+                    
+                    console.log('✅ Tokens armazenados no localStorage');
+                    
+                    // Redireciona para a página principal
+                    window.location.href = '/';
+                } else {
+                    console.log('❌ Token de acesso não encontrado');
+                    window.location.href = '/?error=auth_failed';
+                }
+            } catch (error) {
+                console.log('❌ Erro na autenticação web:', error);
+                window.location.href = '/?error=auth_error';
+            }
+        }
+
+        // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA FECHAR NO CAPACITOR
+        async function fecharBrowserCapacitor() {
+            console.log('🎯 Tentando fechar browser...');
+            
+            // PRIMEIRO: Tenta fechar com Capacitor Browser API
+            if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+                try {
+                    console.log('✅ Usando Capacitor Browser.close()');
+                    await window.Capacitor.Plugins.Browser.close();
+                    console.log('✅ Browser fechado via Capacitor!');
+                    return;
+                } catch (error) {
+                    console.log('❌ Capacitor Browser.close() falhou:', error);
+                }
+            }
+            
+            // SEGUNDO: Fallback para window.close()
+            console.log('🔄 Tentando window.close()...');
+            try {
+                window.close();
+                console.log('✅ Janela fechada via window.close()');
+            } catch (error) {
+                console.log('❌ window.close() também falhou');
+                
+                // TERCEIRO: Última tentativa - redireciona para blank
+                console.log('🔧 Tentando redirecionar para about:blank...');
+                window.location.href = 'about:blank';
+            }
+        }
+
+        // Executa quando a página carrega
+        document.addEventListener('DOMContentLoaded', redirectToApp);
+        
+        // Também tenta se a página já estiver carregada
+        if (document.readyState === 'complete') {
+            redirectToApp();
+        }
+    </script>
+</body>
+</html>
