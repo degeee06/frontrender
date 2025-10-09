@@ -1664,7 +1664,7 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         // No seu serviço de autenticação
 const REDIRECT_URI = isMobile 
   ? 'com.oubook.agendamento://auth-callback'
-  : 'https://frontrender-iota.vercel.app/'; // Ou sua URL de produção
+  : 'https://frontrender-iota.vercel.app/auth-callback.html';
         
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
@@ -2669,6 +2669,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
