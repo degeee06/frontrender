@@ -940,6 +940,19 @@ function mostrarToast(message, type = "success") {
         const dataInput = document.getElementById("Data");
         const horarioInput = document.getElementById("Horario");
 
+        
+    function atualizarInterfacePosLogin() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    
+    if (userToken) {
+        logoutBtn.style.display = 'flex';
+        settingsBtn.style.display = 'flex';
+    } else {
+        logoutBtn.style.display = 'none';
+        settingsBtn.style.display = 'none';
+    }
+}
         function formatData(data){ const [y,m,d] = data.split("-"); return `${d}/${m}/${y}`; }
 
 
@@ -2686,19 +2699,7 @@ document.getElementById('settingsBtn').addEventListener('click', function() {
     mostrarModalConfiguracao();
 });
 
-// Mostrar/ocultar botão de configurações junto com o logout
-function atualizarInterfacePosLogin() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    
-    if (userToken) {
-        atualizarInterfacePosLogin();
-        settingsBtn.style.display = 'flex';
-    } else {
-        logoutBtn.style.display = 'none';
-        settingsBtn.style.display = 'none';
-    }
-}
+
 
 // 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
 function fecharConfiguracao() {
@@ -2724,6 +2725,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
