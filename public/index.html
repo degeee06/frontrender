@@ -1007,11 +1007,26 @@ async function init() {
     console.log('▶️ Continuando init normal...');
     
     // Configurar máscara de telefone
-    if (telefoneInput) {
-        telefoneMask = IMask(telefoneInput, {
-            mask: '(00) 00000-0000'
-        });
-    }
+   // 🔥 SOLUÇÃO SIMPLES E EFETIVA
+if (telefoneInput) {
+    telefoneMask = IMask(telefoneInput, {
+        mask: '(00) 00000-0000',
+        lazy: false,
+        overwrite: true,    // 🔥 IMPEDE digitar além do limite
+        autofix: true       // 🔥 CORRIGE automaticamente
+    });
+    
+    // 🔥 VALIDAÇÃO EXTRA NO SUBMIT
+    form.addEventListener('submit', function(e) {
+        const telefoneLimpo = telefoneInput.value.replace(/\D/g, '');
+        if (telefoneLimpo.length !== 11) {
+            e.preventDefault();
+            showToast("Telefone deve ter 11 dígitos", "error");
+            telefoneInput.focus();
+            return;
+        }
+    });
+}
     
     // Permitir selecionar a partir de hoje
     const hoje = new Date();
@@ -2757,6 +2772,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
