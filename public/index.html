@@ -872,26 +872,33 @@
         }, 1000);
     }
 
-    // 🔥 FUNÇÃO PARA FECHAR BROWSER
-    async function fecharBrowserCapacitor() {
-        console.log('🎯 Tentando fechar browser...');
-        
-        if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-            try {
-                console.log('✅ Usando Capacitor Browser.close()');
-                await window.Capacitor.Plugins.Browser.close();
-                return;
-            } catch (error) {
-                console.log('❌ Capacitor Browser.close() falhou:', error);
-            }
-        }
-        
+    // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA FECHAR NO CAPACITOR
+async function fecharBrowserCapacitor() {
+    console.log('🎯 Tentando fechar browser...');
+    
+    // PRIMEIRO: Tenta fechar com Capacitor Browser API
+    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
         try {
-            window.close();
+            console.log('✅ Usando Capacitor Browser.close()');
+            await window.Capacitor.Plugins.Browser.close();
+            console.log('✅ Browser fechado via Capacitor!');
+            return;
         } catch (error) {
-            window.location.href = 'about:blank';
+            console.log('❌ Capacitor Browser.close() falhou:', error);
         }
     }
+    
+    // SEGUNDO: Fallback para window.close() com timeout
+    console.log('🔄 Tentando window.close()...');
+    setTimeout(() => {
+        try {
+            window.close();
+            console.log('✅ Janela fechada via window.close()');
+        } catch (error) {
+            console.log('❌ window.close() falhou');
+        }
+    }, 300);
+}
 
         // ---------------- CONFIGURAÇÃO BACKEND ----------------
         const API_BASE_URL = 'https://agendamento-ynxr.onrender.com'; // SEU BACKEND NO RENDER
@@ -2676,6 +2683,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
