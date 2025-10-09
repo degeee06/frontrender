@@ -429,6 +429,37 @@
             transition: none;
         }
     }
+        /* ADICIONE ESTES ESTILOS */
+@media (min-width: 1024px) {
+    .dias-tabs-container {
+        align-items: center;
+        padding: 0 1rem;
+    }
+    
+    .dias-tabs-container > div:first-child {
+        flex: 1;
+    }
+    
+    .dias-tabs-container > div:last-child {
+        justify-content: flex-end;
+        min-width: max-content;
+    }
+    
+    .tab-dia, .tab-semana {
+        transition: all 0.2s ease;
+    }
+    
+    .tab-dia:hover, .tab-semana:hover {
+        transform: translateY(-1px);
+    }
+}
+
+/* Remove scroll desnecessário no desktop */
+@media (min-width: 768px) {
+    .dias-tabs-container > div {
+        overflow-x: visible;
+    }
+}
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -2687,6 +2718,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
