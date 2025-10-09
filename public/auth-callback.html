@@ -31,6 +31,7 @@
             100% { transform: rotate(360deg); }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="container">
@@ -53,10 +54,14 @@
             console.log('🏁 Ambiente:', isWeb ? 'WEB' : 'APP');
             
             if (window.location.hash) {
-                if (isWeb) {
-                    // 🔥 WEB: Redireciona para a página principal com o token
-                    console.log('🌐 Processando autenticação web...');
-                    handleWebAuthentication();
+    if (isWeb) {
+        // 🔥 WEB: Processa autenticação com Supabase
+        console.log('🌐 Processando autenticação web...');
+        // 🔥 Torna a função assíncrona e espera
+        handleWebAuthentication().catch(error => {
+            console.error('❌ Erro no handleWebAuthentication:', error);
+            window.location.href = '/?error=auth_failed';
+        });
                 } else {
                     // 🔥 APP: Redireciona para o app nativo
                     console.log('📱 Redirecionando para app...');
@@ -75,32 +80,46 @@
         }
 
        // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA AUTENTICAÇÃO WEB COM SUPABASE
+// 🔥🔥🔥 FUNÇÃO COMPLETA CORRIGIDA PARA WEB COM SUPABASE
 async function handleWebAuthentication() {
     try {
-        console.log('🔑 Processando autenticação web com Supabase...');
+        console.log('🔑 Iniciando autenticação web com Supabase...');
         
-        // Verifica se temos um hash com tokens
-        if (window.location.hash.includes('access_token') || 
-            window.location.hash.includes('error')) {
-            
-            console.log('🔄 Processando resposta do OAuth...');
-            
-            // 🔥 AGUARDA O SUPABASE PROCESSAR A SESSÃO
-            // Isso é crucial para o Supabase detectar a sessão
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // 🔥 REDIRECIONA PARA A PÁGINA PRINCIPAL
-            // O Supabase vai automaticamente detectar a sessão na página principal
-            console.log('✅ Redirecionando para página principal...');
-            window.location.href = '/';
-            
-        } else {
-            console.log('❌ Nenhum token ou erro encontrado na URL');
-            window.location.href = '/?error=no_token';
+        // 🔥 CONFIGURAÇÃO DO SUPABASE (SUBSTITUA COM SUAS CREDENCIAIS)
+        const supabaseUrl = 'https://seu-projeto.supabase.co'; // 🔥 SUBSTITUA
+        const supabaseKey = 'sua-chave-publica'; // 🔥 SUBSTITUA
+        
+        console.log('🔧 Configurando Supabase...');
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // 🔥 PROCESSA A SESSÃO COM SUPABASE
+        console.log('🔄 Processando sessão...');
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+            console.error('❌ Erro ao processar sessão:', error);
+            window.location.href = '/?error=session_error';
+            return;
         }
+        
+        if (data.session) {
+            console.log('✅ Sessão criada com sucesso!');
+            console.log('👤 Usuário:', data.session.user?.email);
+            console.log('🔐 Access Token:', data.session.access_token ? 'Sim' : 'Não');
+        } else {
+            console.log('⚠️ Nenhuma sessão encontrada, tentando fallback...');
+        }
+        
+        // 🔥 REDIRECIONA PARA PÁGINA PRINCIPAL
+        console.log('🎯 Redirecionando para página principal...');
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+        
     } catch (error) {
-        console.log('❌ Erro na autenticação web:', error);
-        window.location.href = '/?error=auth_error';
+        console.error('❌ Erro crítico na autenticação:', error);
+        // Fallback: redireciona mesmo com erro
+        window.location.href = '/';
     }
 }
 
