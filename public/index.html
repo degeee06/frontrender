@@ -548,35 +548,17 @@ body {
         overflow-x: visible;
     }
 }
-        /* 🔥 LIMITA LARGURA DOS CARDS DE AGENDAMENTO */
-.agendamento-card {
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-}
-
-/* Para desktop - cards lado a lado quando houver espaço */
-@media (min-width: 1024px) {
-    #meusAgendamentos {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-        gap: 1.5rem;
-        max-height: none !important;
-    }
-    
-    .agendamento-card {
-        max-width: none;
-        margin: 0;
-    }
-}
-        /* 🔥 ESTILOS PARA CARDS COMPACTOS */
+      /* 🔥 ESTILOS ÚNICOS PARA CARDS DE AGENDAMENTO - SUBSTITUA TUDO */
 .agendamento-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 1.25rem;
     transition: all 0.3s ease;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
 }
 
 .agendamento-card:hover {
@@ -622,6 +604,45 @@ body {
 .agendamento-acoes {
     display: flex;
     gap: 0.5rem;
+}
+
+/* Para desktop - cards lado a lado quando houver espaço */
+@media (min-width: 1024px) {
+    #meusAgendamentos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 1.5rem;
+        max-height: none !important;
+        padding: 1.5rem;
+    }
+    
+    .agendamento-card {
+        max-width: none;
+        margin: 0;
+    }
+}
+
+/* 🔥 RESPONSIVIDADE */
+@media (max-width: 640px) {
+    .agendamento-card {
+        padding: 1rem;
+        max-width: 100%;
+    }
+    
+    .agendamento-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .agendamento-info {
+        margin: 0;
+        text-align: center;
+    }
+    
+    .agendamento-acoes {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Botões de ação */
@@ -2962,6 +2983,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
