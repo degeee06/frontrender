@@ -429,15 +429,6 @@
             transition: none;
         }
     }
-        /* Adicione ao seu CSS */
-.settings-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.settings-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -454,7 +445,7 @@
     <div id="mainAppContent">
     <div class="container mx-auto px-4 py-8 max-w-6xl">
       
-        <!-- Header atualizado -->
+       <!-- Header atualizado -->
 <header class="text-center mb-8 md:mb-12" data-aos="fade-down">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
         <h1 class="text-2xl sm:text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
@@ -699,7 +690,7 @@
     </div>
 </body>
 
-     <!-- Tabs Dias da Semana -->
+   <!-- Tabs Dias da Semana -->
 <div id="diasTabs" style="display:none;" class="dias-tabs-container flex flex-col gap-3 md:gap-4 mb-4 md:mb-6" data-aos="fade-up">
     <div class="flex justify-center gap-1 sm:gap-2 overflow-x-auto pb-2 px-2">
         <button data-dia="0" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Dom</button>
@@ -1093,7 +1084,7 @@ async function processarRetornoOAuth(url) {
                     // Atualiza interface
                     loginSection.style.display = 'none';
                     form.style.display = 'block';
-                    logoutBtn.style.display = 'flex';
+                    atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
                     document.getElementById('secoesIA').style.display = 'block';
                     
                     listarAgendamentos();
@@ -1755,7 +1746,7 @@ logoutBtn.addEventListener('click', async () => {
         meusAgendamentos.style.display = 'none';
         document.getElementById('filtersSection').style.display = 'none';
         document.getElementById('diasTabs').style.display = 'none';
-        logoutBtn.style.display = 'none';
+        atualizarInterfacePosLogin();
         document.getElementById('secoesIA').style.display = 'none';
         
         // 🔥 LIMPA OS CAMPOS
@@ -1855,40 +1846,7 @@ function initTabsDias(){
         });
     });
 }
-// 🔧 CONFIGURAÇÕES - BOTÃO ENGRENAGEM
-document.getElementById('settingsBtn').addEventListener('click', function() {
-    mostrarModalConfiguracao();
-});
 
-// Mostrar/ocultar botão de configurações junto com o logout
-function atualizarInterfacePosLogin() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    
-    if (userToken) {
-        logoutBtn.style.display = 'flex';
-        settingsBtn.style.display = 'flex';
-    } else {
-        logoutBtn.style.display = 'none';
-        settingsBtn.style.display = 'none';
-        atualizarInterfacePosLogin();
-    }
-}
-
-// 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
-function fecharConfiguracao() {
-    console.log('🎯 Usuário pulou configuração');
-    fecharModalConfiguracao();
-    mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
-}
-
-// 🔧 ATUALIZAR: No login, chame a função para mostrar os botões
-// Substitua esta parte no seu login:
-loginSection.style.display = 'none';
-form.style.display = 'block';
-// logoutBtn.style.display = 'flex'; // REMOVA ESTA LINHA
-atualizarInterfacePosLogin(); // ADICIONE ESTA
-document.getElementById('secoesIA').style.display = 'block';
 // ---------------- FUNÇÃO AUXILIAR: Converter blob para base64 ----------------
 function blobToBase64(blob) {
     return new Promise((resolve, reject) => {
@@ -2714,6 +2672,41 @@ function debounce(func, wait) {
 }
 
 
+
+        // 🔧 CONFIGURAÇÕES - BOTÃO ENGRENAGEM
+document.getElementById('settingsBtn').addEventListener('click', function() {
+    mostrarModalConfiguracao();
+});
+
+// Mostrar/ocultar botão de configurações junto com o logout
+function atualizarInterfacePosLogin() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    
+    if (userToken) {
+        logoutBtn.style.display = 'flex';
+        settingsBtn.style.display = 'flex';
+    } else {
+        logoutBtn.style.display = 'none';
+        settingsBtn.style.display = 'none';
+    }
+}
+
+// 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
+function fecharConfiguracao() {
+    console.log('🎯 Usuário pulou configuração');
+    fecharModalConfiguracao();
+    mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
+}
+
+// 🔧 ATUALIZAR: No login, chame a função para mostrar os botões
+// Substitua esta parte no seu login:
+loginSection.style.display = 'none';
+form.style.display = 'block';
+// logoutBtn.style.display = 'flex'; // REMOVA ESTA LINHA
+atualizarInterfacePosLogin(); // ADICIONE ESTA
+document.getElementById('secoesIA').style.display = 'block';
+
         // ---------------- INIT ----------------
         AOS.init({
             duration: 800,
@@ -2723,7 +2716,6 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
-
 
 
 
