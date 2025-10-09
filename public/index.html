@@ -1307,13 +1307,18 @@ async function usarPlanilhaExistente() {
             },3000);
         }
 
-       // ---------------- RENDER AGENDAMENTOS ----------------
-function renderAgendamentos() {
+    function renderAgendamentos() {
+    console.log('🎨 Frontend: Renderizando agendamentos...'); // 🔥 ADICIONE
+    console.log('📊 Frontend: agendamentosCache:', agendamentosCache); // 🔥 ADICIONE
+    console.log('📊 Frontend: diaSelecionado:', diaSelecionado); // 🔥 ADICIONE
+    
     // 🔥 CORREÇÃO URGENTE: Garantir que agendamentosCache sempre seja array
     const agendamentos = agendamentosCache || [];
     
     const filtroNome = searchInput.value.toLowerCase();
     const filtroStatus = statusFilter.value;
+
+    console.log('🔍 Frontend: Filtros - nome:', filtroNome, 'status:', filtroStatus); // 🔥 ADICIONE
 
     const filtrados = agendamentos.filter(a => {
     // 🔥 CORREÇÃO: Aplica filtro de status PRIMEIRO
@@ -1348,18 +1353,21 @@ function renderAgendamentos() {
                     return dateA - dateB;
                 });
 
-            if (filtrados.length === 0) {
-                meusAgendamentos.innerHTML = `
-                    <div class='text-center py-8'>
-                        <div class="p-4 rounded-full bg-white/10 inline-block mb-4">
-                            <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
-                        </div>
-                        <p class="text-gray-300">Nenhum agendamento encontrado</p>
-                    </div>
-                `;
-                feather.replace();
-                return;
-            }
+    console.log('✅ Frontend: Agendamentos filtrados:', filtrados.length); // 🔥 ADICIONE
+
+    if (filtrados.length === 0) {
+        console.log('❌ Frontend: Nenhum agendamento após filtros'); // 🔥 ADICIONE
+        meusAgendamentos.innerHTML = `
+            <div class='text-center py-8'>
+                <div class="p-4 rounded-full bg-white/10 inline-block mb-4">
+                    <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
+                </div>
+                <p class="text-gray-300">Nenhum agendamento encontrado</p>
+            </div>
+        `;
+        feather.replace();
+        return;
+    }
 
             meusAgendamentos.innerHTML = "";
 
@@ -1545,9 +1553,10 @@ async function logoutSilencioso() {
     }
 }
 
-// ---------------- ATUALIZE A função listarAgendamentos ----------------
 async function listarAgendamentos(){
     try {
+        console.log('🔄 Frontend: Iniciando listarAgendamentos...'); // 🔥 ADICIONE
+        
         // 🔥 VERIFICA TOKEN ANTES DE FAZER REQUISIÇÃO
         const tokenValido = await verificarToken();
         if (!tokenValido) {
@@ -1555,12 +1564,16 @@ async function listarAgendamentos(){
             return;
         }
 
+        console.log('📡 Frontend: Fazendo requisição para API...'); // 🔥 ADICIONE
         const res = await fetch(`${API_BASE_URL}/agendamentos`, {
             headers: { "Authorization": `Bearer ${userToken}` }
         });
         
+        console.log('✅ Frontend: Resposta recebida - Status:', res.status); // 🔥 ADICIONE
+        
         if (!res.ok) {
             if (res.status === 401) {
+                console.log('🔐 Frontend: Token expirado, renovando...'); // 🔥 ADICIONE
                 // Token expirado - renova automaticamente
                 await renovarToken();
                 return listarAgendamentos(); // Tenta novamente
@@ -1569,11 +1582,14 @@ async function listarAgendamentos(){
         }
         
         const data = await res.json();
+        console.log('📦 Frontend: Dados recebidos:', data); // 🔥 ADICIONE
         
         if (data && data.agendamentos) {
             agendamentosCache = data.agendamentos;
+            console.log('✅ Frontend: Agendamentos carregados:', agendamentosCache.length); // 🔥 ADICIONE
         } else {
             agendamentosCache = [];
+            console.log('❌ Frontend: Nenhum agendamento recebido'); // 🔥 ADICIONE
         }
         
         meusAgendamentos.style.display = 'block';
@@ -1581,8 +1597,10 @@ async function listarAgendamentos(){
         document.getElementById('diasTabs').style.display = 'flex';
         initTabsDias();
         renderAgendamentos(); 
+        
+        console.log('🎯 Frontend: Interface atualizada'); // 🔥 ADICIONE
     } catch(e){
-        console.error("Erro ao listar agendamentos:", e);
+        console.error("❌ Frontend: Erro ao listar agendamentos:", e);
         showToast("Erro ao carregar agendamentos","error");
         agendamentosCache = [];
         renderAgendamentos();
@@ -2736,6 +2754,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
