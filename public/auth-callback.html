@@ -40,79 +40,102 @@
     </div>
 
     <script>
-    // ✅ FECHAMENTO AGGRESSIVO PARA O CAPACITOR BROWSER
-    async function fecharBrowserCompletamente() {
-        console.log('🚀 Iniciando fechamento total...');
+   // 🔥 DETECÇÃO MAIS ROBUSTA DE AMBIENTE
+function redirectToApp() {
+    console.log('URL atual:', window.location.href);
+    
+    // 🔥 DETECTA SE ESTÁ NO WEB OU APP (VERSÃO MELHORADA)
+    const isWeb = !(window.Browser || window.cordova || 
+                   navigator.userAgent.includes('Capacitor') ||
+                   navigator.userAgent.includes('Cordova'));
+    console.log('Ambiente:', isWeb ? 'WEB' : 'APP');
+    
+    if (window.location.hash) {
+        if (isWeb) {
+            // 🔥 WEB: Faz a autenticação normal
+            console.log('Processando autenticação web...');
+            handleWebAuthentication();
+        } else {
+            // 🔥 APP: Redireciona para o app nativo
+            console.log('Redirecionando para app...');
+            const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
+            window.location.href = appUrl;
+            
+            setTimeout(() => {
+                fecharBrowserCapacitor();
+            }, 1000);
+        }
+    } else {
+        console.log('Nenhum token encontrado, fechando...');
+        fecharBrowserCapacitor();
+    }
+}
+
+    // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA FECHAR NO CAPACITOR
+    async function fecharBrowserCapacitor() {
+        console.log('🎯 Tentando fechar browser...');
         
-        // Método 1: Fechamento normal do Capacitor
-        if (window.Capacitor?.Plugins?.Browser) {
+        // PRIMEIRO: Tenta fechar com Capacitor Browser API
+        if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
             try {
-                console.log('📱 Fechando via Capacitor Browser...');
+                console.log('✅ Usando Capacitor Browser.close()');
                 await window.Capacitor.Plugins.Browser.close();
-                console.log('✅ Browser fechado com sucesso!');
+                console.log('✅ Browser fechado via Capacitor!');
                 return;
             } catch (error) {
-                console.log('❌ Erro no fechamento normal:', error);
+                console.log('❌ Capacitor Browser.close() falhou:', error);
             }
         }
         
-        // Método 2: Tentativa de redirecionar para blank
+        // SEGUNDO: Fallback para window.close()
+        console.log('🔄 Tentando window.close()...');
         try {
+            window.close();
+            console.log('✅ Janela fechada via window.close()');
+        } catch (error) {
+            console.log('❌ window.close() também falhou');
+            
+            // TERCEIRO: Última tentativa - redireciona para blank
+            console.log('🔧 Tentando redirecionar para about:blank...');
             window.location.href = 'about:blank';
-        } catch (e) {}
-        
-        // Método 3: Fechamento forçado
-        setTimeout(() => {
-            if (!window.closed) {
-                console.log('🔄 Tentando window.close()...');
-                window.close();
-            }
-        }, 500);
-        
-        // Método 4: Última tentativa após 2 segundos
-        setTimeout(() => {
-            if (!window.closed) {
-                console.log('💥 Forçando fechamento...');
-                // Tenta métodos extremos
-                try {
-                    window.open('', '_self', '');
-                    window.close();
-                } catch (e) {
-                    // Ignora erros
-                }
-            }
-        }, 2000);
+        }
     }
 
-    // 🔥 EXECUTA IMEDIATAMENTE - SEM DELAY
-    if (window.Capacitor) {
-        console.log('🎯 Capacitor detectado - fechando browser COMPLETAMENTE');
-        fecharBrowserCompletamente();
+    // 🔥🔥🔥 FUNÇÃO SIMPLIFICADA PARA FECHAR APÓS LOGIN
+    function fecharAposLogin() {
+        console.log('✅ Login detectado - fechando em 1 segundo...');
+        
+        // 🔥 FECHA APÓS 1 SEGUNDO (MAIS RÁPIDO)
+        setTimeout(() => {
+            fecharBrowserCapacitor();
+        }, 1000);
+        
+        // 🔥 BACKUP: Fecha após 3 segundos
+        setTimeout(() => {
+            console.log('🔄 Backup: Fechando novamente...');
+            fecharBrowserCapacitor();
+        }, 3000);
+    }
+
+    // Executa quando a página carrega
+    document.addEventListener('DOMContentLoaded', redirectToApp);
+    
+    // Também tenta se a página já estiver carregada
+    if (document.readyState === 'complete') {
+        redirectToApp();
+    }
+
+    // 🔥 EXECUTA QUANDO DETECTA QUE O LOGIN FOI BEM-SUCEDIDO
+    if (window.location.hash && window.location.hash.includes('access_token')) {
+        console.log('🎯 Token de acesso detectado - login bem-sucedido!');
+        fecharAposLogin();
     } else {
-        console.log('🌐 Navegador web - redirecionando para app...');
-        // Para web normal, só redireciona
-        if (window.location.hash) {
-            window.location.href = 'https://frontrender-iota.vercel.app/' + window.location.hash;
-        } else {
-            window.location.href = 'https://frontrender-iota.vercel.app/';
-        }
+        console.log('⚠️ Token não encontrado - fechando mesmo assim');
+        // Fecha mesmo sem token (caso de erro)
+        setTimeout(() => {
+            fecharBrowserCapacitor();
+        }, 3000);
     }
-
-    // 🔥 SE AINDA ESTIVER ABERTO APÓS 3 SEGUNDOS, MOSTRA BOTÃO
-    setTimeout(() => {
-        if (!window.closed && document.body) {
-            document.body.innerHTML = `
-                <div style="text-align: center; padding: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center;">
-                    <h1>✅ Login Concluído!</h1>
-                    <p>Esta janela pode ser fechada.</p>
-                    <button onclick="window.close()" 
-                            style="padding: 12px 24px; background: white; color: #667eea; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 20px;">
-                        Fechar Janela
-                    </button>
-                </div>
-            `;
-        }
-    }, 3000);
 </script>
 </body>
 </html>
