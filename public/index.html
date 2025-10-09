@@ -430,42 +430,69 @@ body {
     }
 }
 
-/* 🔥 ESTILOS EXCLUSIVOS PARA DESKTOP */
+/* 🔥 CARDS INDIVIDUAIS DE AGENDAMENTO - COMPACTOS */
 @media (min-width: 1024px) {
-    /* CONTAINER PRINCIPAL */
-    .container {
-        max-width: 1200px;
-        padding-left: 2rem;
-        padding-right: 2rem;
+    /* Estilo para cada card de agendamento */
+    .agendamento-card {
+        padding: 0.75rem !important; /* 12px - reduzido */
+        margin-bottom: 0.5rem !important; /* Espaço entre cards */
+        border-radius: 0.75rem !important;
     }
     
-    /* 🔥 LISTA DE AGENDAMENTOS - VERSÃO CORRIGIDA */
-    #meusAgendamentos {
-        max-height: 350px !important;
-        padding: 1rem !important; /* 16px */
-        border-radius: 1rem !important;
+    /* Linha do horário e status */
+    .agendamento-card > div:first-child {
+        margin-bottom: 0.5rem !important;
     }
     
-    /* Estado vazio da lista */
-    #meusAgendamentos > .text-center {
-        padding-top: 1.25rem !important; /* 20px */
-        padding-bottom: 1.25rem !important;
-    }
-    
-    /* Ícone do estado vazio */
-    #meusAgendamentos > .text-center > .p-4 {
-        padding: 0.625rem !important; /* 10px */
-    }
-    
-    /* Tamanho do ícone feather */
-    #meusAgendamentos > .text-center > .p-4 > [data-feather] {
-        width: 1.125rem !important;  /* 18px */
-        height: 1.125rem !important; /* 18px */
-    }
-    
-    /* Texto do estado vazio */
-    #meusAgendamentos > .text-center > .text-gray-300 {
+    /* Texto do horário (12:00:00) */
+    .agendamento-card .text-lg {
         font-size: 0.875rem !important; /* 14px */
+        font-weight: 600;
+    }
+    
+    /* Status (pendente/confirmado/cancelado) */
+    .status-pendente,
+    .status-confirmado, 
+    .status-cancelado {
+        font-size: 0.75rem !important; /* 12px */
+        padding: 0.25rem 0.5rem !important;
+    }
+    
+    /* Nome do cliente */
+    .agendamento-card .font-semibold {
+        font-size: 0.875rem !important; /* 14px */
+        margin-bottom: 0.25rem !important;
+    }
+    
+    /* Data (09/10/2025) */
+    .agendamento-card .text-sm {
+        font-size: 0.75rem !important; /* 12px */
+        opacity: 0.8;
+    }
+    
+    /* Email e telefone */
+    .agendamento-card .text-gray-300 {
+        font-size: 0.75rem !important; /* 12px */
+        margin-bottom: 0.125rem !important;
+    }
+    
+    /* Container dos botões */
+    .agendamento-card > div:last-child {
+        margin-top: 0.75rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* Botões (Confirmar, Cancelar, Reagendar) */
+    .agendamento-card button {
+        padding: 0.375rem 0.75rem !important; /* 6px 12px */
+        font-size: 0.75rem !important; /* 12px */
+        border-radius: 0.5rem !important;
+    }
+    
+    /* Ícones dentro dos botões */
+    .agendamento-card button i {
+        width: 0.875rem !important;  /* 14px */
+        height: 0.875rem !important; /* 14px */
     }
 }
     /* HEADER - Melhor espaçamento */
@@ -2837,6 +2864,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
