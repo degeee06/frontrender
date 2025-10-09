@@ -2477,22 +2477,7 @@ function voltarParaApp() {
     }, 3000);
 }
 
-
-// 🔥 DETECÇÃO DE AMBIENTE UNIFICADA (WEB + CAPACITOR)
-function detectarAmbiente() {
-    const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform;
-    const isMobileApp = isCapacitor || /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
-    
-    console.log('🌍 Ambiente detectado:', {
-        isCapacitor,
-        isMobileApp,
-        userAgent: navigator.userAgent
-    });
-    
-    return { isCapacitor, isMobileApp };
-}
-
-
+// Versão simplificada da página auth-callback.html
 if (window.location.href.includes('/auth-callback.html')) {
     console.log('🎯 Página de callback - mostrando instruções simples');
     
@@ -2536,122 +2521,48 @@ if (window.location.href.includes('/auth-callback.html')) {
         }
     }, 1000);
 }
-// 🔥 PROCESSAMENTO OAUTH UNIFICADO
-function processarOAuthUnificado() {
-    const { isMobileApp } = detectarAmbiente();
+
+// ✅ VERIFICAÇÃO CORRIGIDA - PROCESSAMENTO OAUTH NA PÁGINA PRINCIPAL
+if (window.location.href === 'https://frontrender-iota.vercel.app/' || 
+    window.location.href === 'https://frontrender-iota.vercel.app') {
     
-    console.log('🔄 Processando OAuth unificado...');
-    console.log('📍 URL atual:', window.location.href);
-    console.log('🔑 Hash presente:', !!window.location.hash);
+    console.log('🏠 Página principal - verificando redirecionamento OAuth...');
     
-    // Verifica se tem tokens de OAuth na URL
+    // Verifica se veio de OAuth (tem tokens na hash)
     if (window.location.hash.includes('access_token') || window.location.hash.includes('error')) {
-        console.log('🎯 Token OAuth detectado - processando...');
+        console.log('🔐 Processando retorno OAuth...');
         
+        // 🔥 CORREÇÃO: Processa o OAuth e ATUALIZA a interface
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
-                console.log('✅ Login OAuth bem-sucedido!');
+                console.log('✅ Login OAuth realizado com sucesso!');
                 
-                // Salva o token
+                // 🔥 SALVA O TOKEN
                 userToken = session.access_token;
                 localStorage.setItem('userToken', userToken);
                 
-                // Atualiza interface
+                // 🔥 ATUALIZA A INTERFACE
                 loginSection.style.display = 'none';
                 form.style.display = 'block';
                 logoutBtn.style.display = 'flex';
                 document.getElementById('secoesIA').style.display = 'block';
                 
-                // Limpa a URL (remove tokens da barra de endereço)
+                // 🔥 LIMPA A URL (remove tokens)
                 window.history.replaceState(null, '', window.location.pathname);
                 
-                // Carrega dados
+                // 🔥 CARREGA OS DADOS
                 listarAgendamentos();
-                showToast("Login realizado com sucesso!", "success");
+                showToast("Login com Google realizado!", "success");
                 
-                // Verifica configuração do Google Sheets
+                // 🔥 VERIFICA CONFIGURAÇÃO
                 setTimeout(() => verificarConfiguracaoSheets(), 1500);
-                
-                // 🔥 SE ESTIVER NO CAPACITOR, FECHA O BROWSER
-                if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
-                    setTimeout(() => {
-                        console.log('📱 Fechando browser do Capacitor...');
-                        window.Capacitor.Plugins.Browser.close();
-                    }, 2000);
-                }
                 
             } else {
                 console.log('❌ Falha no login OAuth');
-                showToast("Erro no login", "error");
-            }
-        }).catch(error => {
-            console.error('❌ Erro no processamento OAuth:', error);
-            showToast("Erro ao processar login", "error");
-        });
-    }
-}
-
-// 🔥 LOGIN GOOGLE UNIFICADO
-function loginGoogleUnificado() {
-    const { isMobileApp } = detectarAmbiente();
-    
-    const btn = document.getElementById('googleLoginBtn');
-    const originalText = btn.innerHTML;
-    
-    btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
-    btn.disabled = true;
-    
-    try {
-        console.log('🔐 Iniciando autenticação Google unificada...');
-        
-        // URL de redirecionamento única para ambos
-        const redirectUrl = isMobileApp 
-            ? 'https://frontrender-iota.vercel.app/'  // ✅ MESMA URL PARA AMBOS
-            : 'https://frontrender-iota.vercel.app/';
-        
-        supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: redirectUrl,
-                skipBrowserRedirect: false
-            }
-        }).then(({ data, error }) => {
-            if (error) throw error;
-            
-            console.log('🌐 Redirecionando para autenticação Google...');
-            
-            if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
-                // 📱 CAPACITOR: Abre no browser nativo
-                window.Capacitor.Plugins.Browser.open({ 
-                    url: data.url,
-                    windowName: '_self'
-                });
-            } else {
-                // 💻 WEB: Redireciona normal
-                window.location.href = data.url;
+                showToast("Erro no login com Google", "error");
             }
         });
-        
-    } catch (error) {
-        console.error('❌ Erro no login Google:', error);
-        showToast("Erro ao conectar com Google", "error");
-        btn.innerHTML = originalText;
-        btn.disabled = false;
     }
-}
-
-// 🔥 ATUALIZAR O EVENT LISTENER DO BOTÃO GOOGLE
-document.getElementById('googleLoginBtn').addEventListener('click', loginGoogleUnificado);
-
-// 🔥 EXECUTAR PROCESSAMENTO OAUTH AO INICIAR
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Iniciando aplicação unificada...');
-    processarOAuthUnificado();
-});
-
-// Também executa quando a página já estiver carregada
-if (document.readyState === 'complete') {
-    processarOAuthUnificado();
 }
         
 // 🔥 ADICIONAR: Debounce simples para melhorar performance
@@ -2677,7 +2588,6 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
-
 
 
 
