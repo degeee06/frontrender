@@ -774,7 +774,37 @@ function mostrarToast(message, type = "success") {
 
         function formatData(data){ const [y,m,d] = data.split("-"); return `${d}/${m}/${y}`; }
 
-
+// 🔥 NO INÍCIO DO SEU SCRIPT NO index.html - VERIFICAÇÃO OAUTH
+if (window.location.hash && window.location.hash.includes('access_token')) {
+    console.log('🎯 Token OAuth detectado na página principal - processando...');
+    
+    // Processa o token e salva a sessão
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+            console.log('✅ Sessão OAuth restaurada!');
+            
+            // Salva o token
+            userToken = session.access_token;
+            localStorage.setItem('userToken', userToken);
+            
+            // Atualiza interface
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            logoutBtn.style.display = 'flex';
+            document.getElementById('secoesIA').style.display = 'block';
+            
+            // Limpa a URL (remove tokens)
+            window.history.replaceState(null, '', window.location.pathname);
+            
+            // Carrega dados
+            listarAgendamentos();
+            showToast("Login realizado com sucesso!", "success");
+            
+            // Verifica configuração
+            setTimeout(() => verificarConfiguracaoSheets(), 1500);
+        }
+    });
+}
         // Verifica se está voltando de OAuth e pega a sessão
 // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA - EVITA "CONECTANDO"
 const token = localStorage.getItem('userToken');
@@ -2588,6 +2618,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
