@@ -1,9 +1,13 @@
+// vercel.json na RAIZ do projeto (não na pasta public)
 {
-  "redirects": [
+  "routes": [
     {
-      "source": "/auth-callback",
-      "destination": "/auth-callback.html",
-      "permanent": false
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/auth/callback", 
+      "dest": "/auth-callback.html"
     }
   ]
 }
