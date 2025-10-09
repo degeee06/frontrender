@@ -541,66 +541,47 @@ body {
     }
 }
         /* 🔥 CARDS DE AGENDAMENTO - COMPACTOS APENAS NO DESKTOP */
+/* 🔥 CORREÇÃO DEFINITIVA - CARDS DINÂMICOS */
 @media (min-width: 1024px) {
-    /* Target em QUALQUER card dentro da lista de agendamentos */
-    #meusAgendamentos > div:not(.text-center) {
-        padding: 0.75rem !important;        /* 12px - reduz padding */
-        margin-bottom: 0.5rem !important;   /* 8px - reduz espaço entre cards */
-        border-radius: 0.75rem !important;  /* 12px - bordas suaves */
+    /* 🎯 SELETOR UNIVERSAL - pega QUALQUER card dentro da lista */
+    #meusAgendamentos > div {
+        padding: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+        border-radius: 0.75rem !important;
     }
     
-    /* Texto do horário (12:00:00) */
+    /* 🎯 EXCEÇÃO - não mexe no estado vazio */
+    #meusAgendamentos > .text-center {
+        padding: 2rem !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* 🎯 DIMINUI TUDO dentro dos cards */
+    #meusAgendamentos > div:not(.text-center) * {
+        font-size: 0.875rem !important; /* 14px para tudo */
+    }
+    
+    /* 🎯 TEXTO DO HORÁRIO menor */
     #meusAgendamentos > div:not(.text-center) .text-lg {
-        font-size: 0.875rem !important; /* 14px */
+        font-size: 0.875rem !important;
         font-weight: 600;
     }
     
-    /* Status (pendente/confirmado/cancelado) */
+    /* 🎯 STATUS menor */
     #meusAgendamentos > div:not(.text-center) .status-pendente,
-    #meusAgendamentos > div:not(.text-center) .status-confirmado, 
+    #meusAgendamentos > div:not(.text-center) .status-confirmado,
     #meusAgendamentos > div:not(.text-center) .status-cancelado {
-        font-size: 0.75rem !important;  /* 12px */
+        font-size: 0.75rem !important;
         padding: 0.25rem 0.5rem !important;
     }
     
-    /* Nome do cliente */
-    #meusAgendamentos > div:not(.text-center) .font-semibold {
-        font-size: 0.875rem !important; /* 14px */
-        margin-bottom: 0.25rem !important;
-    }
-    
-    /* Data (09/10/2025) */
-    #meusAgendamentos > div:not(.text-center) .text-sm {
-        font-size: 0.75rem !important; /* 12px */
-        opacity: 0.8;
-    }
-    
-    /* Email e telefone */
-    #meusAgendamentos > div:not(.text-center) .text-gray-300 {
-        font-size: 0.75rem !important; /* 12px */
-        margin-bottom: 0.125rem !important;
-    }
-    
-    /* Container dos botões */
-    #meusAgendamentos > div:not(.text-center) > div:last-child {
-        margin-top: 0.75rem !important;
-        gap: 0.5rem !important;
-    }
-    
-    /* Botões (Confirmar, Cancelar, Reagendar) */
+    /* 🎯 BOTÕES menores */
     #meusAgendamentos > div:not(.text-center) button {
-        padding: 0.375rem 0.75rem !important; /* 6px 12px */
-        font-size: 0.75rem !important;        /* 12px */
+        padding: 0.375rem 0.75rem !important;
+        font-size: 0.75rem !important;
         border-radius: 0.5rem !important;
     }
-    
-    /* Ícones dentro dos botões */
-    #meusAgendamentos > div:not(.text-center) button i {
-        width: 0.875rem !important;  /* 14px */
-        height: 0.875rem !important; /* 14px */
-    }
 }
-
 /* 🔥 VERSÃO AINDA MAIS COMPACTA PARA TELAS GRANDES */
 @media (min-width: 1440px) {
     #meusAgendamentos > div:not(.text-center) {
@@ -2872,6 +2853,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
