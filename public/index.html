@@ -430,7 +430,15 @@ body {
     }
 }
 
-
+/* 🔥 ESTILOS EXCLUSIVOS PARA DESKTOP */
+@media (min-width: 1024px) {
+    /* CONTAINER PRINCIPAL */
+    .container {
+        max-width: 1200px;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+    
     /* HEADER - Melhor espaçamento */
     header {
         margin-bottom: 3rem !important;
@@ -540,57 +548,47 @@ body {
         overflow-x: visible;
     }
 }
-        /* 🔥 CARDS DE AGENDAMENTO - COMPACTOS APENAS NO DESKTOP */
-/* 🔥 CORREÇÃO DEFINITIVA - CARDS DINÂMICOS */
+        /* 🔥 SOLUÇÃO RÁPIDA - DIMINUIR QUADRADO DOS AGENDAMENTOS */
 @media (min-width: 1024px) {
-    /* 🎯 SELETOR UNIVERSAL - pega QUALQUER card dentro da lista */
-    #meusAgendamentos > div {
+    /* Container principal menor */
+    #meusAgendamentos {
+        max-height: 350px !important;
+        padding: 1rem !important;
+    }
+    
+    /* Estado "Nenhum agendamento encontrado" menor */
+    #meusAgendamentos .text-center {
+        padding: 1.5rem !important;
+    }
+    
+    #meusAgendamentos .text-center .p-4 {
+        padding: 0.75rem !important;
+    }
+    
+    #meusAgendamentos .text-center .w-8 {
+        width: 1.25rem !important;
+        height: 1.25rem !important;
+    }
+    
+    #meusAgendamentos .text-center .text-gray-300 {
+        font-size: 0.875rem !important;
+    }
+    
+    /* Cards individuais menores */
+    #meusAgendamentos > div:not(.text-center) {
         padding: 0.75rem !important;
         margin-bottom: 0.5rem !important;
-        border-radius: 0.75rem !important;
     }
     
-    /* 🎯 EXCEÇÃO - não mexe no estado vazio */
-    #meusAgendamentos > .text-center {
-        padding: 2rem !important;
-        margin-bottom: 0 !important;
-    }
-    
-    /* 🎯 DIMINUI TUDO dentro dos cards */
+    /* Textos dentro dos cards menores */
     #meusAgendamentos > div:not(.text-center) * {
-        font-size: 0.875rem !important; /* 14px para tudo */
-    }
-    
-    /* 🎯 TEXTO DO HORÁRIO menor */
-    #meusAgendamentos > div:not(.text-center) .text-lg {
         font-size: 0.875rem !important;
-        font-weight: 600;
     }
     
-    /* 🎯 STATUS menor */
-    #meusAgendamentos > div:not(.text-center) .status-pendente,
-    #meusAgendamentos > div:not(.text-center) .status-confirmado,
-    #meusAgendamentos > div:not(.text-center) .status-cancelado {
-        font-size: 0.75rem !important;
-        padding: 0.25rem 0.5rem !important;
-    }
-    
-    /* 🎯 BOTÕES menores */
+    /* Botões menores */
     #meusAgendamentos > div:not(.text-center) button {
         padding: 0.375rem 0.75rem !important;
         font-size: 0.75rem !important;
-        border-radius: 0.5rem !important;
-    }
-}
-/* 🔥 VERSÃO AINDA MAIS COMPACTA PARA TELAS GRANDES */
-@media (min-width: 1440px) {
-    #meusAgendamentos > div:not(.text-center) {
-        padding: 0.625rem !important; /* 10px */
-    }
-    
-    #meusAgendamentos > div:not(.text-center) button {
-        padding: 0.25rem 0.5rem !important; /* 4px 8px */
-        font-size: 0.6875rem !important;    /* 11px */
     }
 }
 </style>
@@ -2853,6 +2851,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
