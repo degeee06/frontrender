@@ -703,15 +703,14 @@
 </div>
 
         <!-- Appointments List -->
-        <div id="meusAgendamentos" class="glass-card rounded-2xl p-6 shadow-xl max-h-[500px] overflow-y-auto scrollbar-hide" style="display:none;" data-aos="fade-up">
-            <div class="text-center py-8">
-                <div class="p-4 rounded-full bg-white/10 inline-block mb-4">
-                    <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
-                </div>
-                <p class="text-gray-300">Nenhum agendamento encontrado</p>
-            </div>
+<div id="meusAgendamentos" class="glass-card rounded-2xl p-6 shadow-xl max-h-[500px] overflow-y-auto scrollbar-hide mx-auto max-w-4xl" style="display:none;" data-aos="fade-up">
+    <div class="text-center py-8">
+        <div class="p-4 rounded-full bg-white/10 inline-block mb-4">
+            <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
         </div>
+        <p class="text-gray-300">Nenhum agendamento encontrado</p>
     </div>
+</div>
 
     <!-- Modal de Configuração do Google Sheets -->
 <div id="configSheetsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
@@ -2683,6 +2682,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
