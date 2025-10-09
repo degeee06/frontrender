@@ -604,6 +604,78 @@ body {
         overflow-x: visible;
     }
 }
+        /* 🔥 CARDS DE AGENDAMENTO - COMPACTOS APENAS NO DESKTOP */
+@media (min-width: 1024px) {
+    /* Target em QUALQUER card dentro da lista de agendamentos */
+    #meusAgendamentos > div:not(.text-center) {
+        padding: 0.75rem !important;        /* 12px - reduz padding */
+        margin-bottom: 0.5rem !important;   /* 8px - reduz espaço entre cards */
+        border-radius: 0.75rem !important;  /* 12px - bordas suaves */
+    }
+    
+    /* Texto do horário (12:00:00) */
+    #meusAgendamentos > div:not(.text-center) .text-lg {
+        font-size: 0.875rem !important; /* 14px */
+        font-weight: 600;
+    }
+    
+    /* Status (pendente/confirmado/cancelado) */
+    #meusAgendamentos > div:not(.text-center) .status-pendente,
+    #meusAgendamentos > div:not(.text-center) .status-confirmado, 
+    #meusAgendamentos > div:not(.text-center) .status-cancelado {
+        font-size: 0.75rem !important;  /* 12px */
+        padding: 0.25rem 0.5rem !important;
+    }
+    
+    /* Nome do cliente */
+    #meusAgendamentos > div:not(.text-center) .font-semibold {
+        font-size: 0.875rem !important; /* 14px */
+        margin-bottom: 0.25rem !important;
+    }
+    
+    /* Data (09/10/2025) */
+    #meusAgendamentos > div:not(.text-center) .text-sm {
+        font-size: 0.75rem !important; /* 12px */
+        opacity: 0.8;
+    }
+    
+    /* Email e telefone */
+    #meusAgendamentos > div:not(.text-center) .text-gray-300 {
+        font-size: 0.75rem !important; /* 12px */
+        margin-bottom: 0.125rem !important;
+    }
+    
+    /* Container dos botões */
+    #meusAgendamentos > div:not(.text-center) > div:last-child {
+        margin-top: 0.75rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* Botões (Confirmar, Cancelar, Reagendar) */
+    #meusAgendamentos > div:not(.text-center) button {
+        padding: 0.375rem 0.75rem !important; /* 6px 12px */
+        font-size: 0.75rem !important;        /* 12px */
+        border-radius: 0.5rem !important;
+    }
+    
+    /* Ícones dentro dos botões */
+    #meusAgendamentos > div:not(.text-center) button i {
+        width: 0.875rem !important;  /* 14px */
+        height: 0.875rem !important; /* 14px */
+    }
+}
+
+/* 🔥 VERSÃO AINDA MAIS COMPACTA PARA TELAS GRANDES */
+@media (min-width: 1440px) {
+    #meusAgendamentos > div:not(.text-center) {
+        padding: 0.625rem !important; /* 10px */
+    }
+    
+    #meusAgendamentos > div:not(.text-center) button {
+        padding: 0.25rem 0.5rem !important; /* 4px 8px */
+        font-size: 0.6875rem !important;    /* 11px */
+    }
+}
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -2864,6 +2936,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
