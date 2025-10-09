@@ -1871,6 +1871,7 @@ function atualizarInterfacePosLogin() {
     } else {
         logoutBtn.style.display = 'none';
         settingsBtn.style.display = 'none';
+        atualizarInterfacePosLogin();
     }
 }
 
@@ -2722,6 +2723,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
