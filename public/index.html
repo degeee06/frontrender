@@ -1053,7 +1053,7 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
             
             if (hash) {
                 // 🔥 CONVERTE PARA URL DO NAVEGADOR PARA PROCESSAR
-                const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
+                const webUrl = `https://oubook.vercel.app/auth-callback.html${hash}`;
                 processarRetornoOAuth(webUrl);
             }
         }
@@ -1735,7 +1735,7 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         // 🔥 URL DE REDIRECT CORRETA
         const redirectUrl = isMobileApp 
             ? 'com.oubook.agendamento://auth-callback'
-            : 'https://frontrender-iota.vercel.app/';
+            : 'https://oubook.vercel.app/';
         
         console.log('🎯 Redirect URL:', redirectUrl);
         
@@ -2772,6 +2772,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
