@@ -548,6 +548,152 @@ body {
         overflow-x: visible;
     }
 }
+        /* 🔥 LIMITA LARGURA DOS CARDS DE AGENDAMENTO */
+.agendamento-card {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+/* Para desktop - cards lado a lado quando houver espaço */
+@media (min-width: 1024px) {
+    #meusAgendamentos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 1.5rem;
+        max-height: none !important;
+    }
+    
+    .agendamento-card {
+        max-width: none;
+        margin: 0;
+    }
+}
+        /* 🔥 ESTILOS PARA CARDS COMPACTOS */
+.agendamento-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.agendamento-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Layout interno do card */
+.agendamento-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.agendamento-horario {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.agendamento-info {
+    flex: 1;
+    margin: 0 1rem;
+}
+
+.agendamento-nome {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.agendamento-email {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+}
+
+.agendamento-telefone {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+.agendamento-acoes {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Botões de ação */
+.btn-acao {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-confirmar {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.btn-cancelar {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-reagendar {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.btn-acao:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* 🔥 RESPONSIVIDADE */
+@media (max-width: 640px) {
+    .agendamento-card {
+        padding: 1rem;
+        max-width: 100%;
+    }
+    
+    .agendamento-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .agendamento-info {
+        margin: 0;
+        text-align: center;
+    }
+    
+    .agendamento-acoes {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-acao {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+@media (min-width: 1024px) {
+    #meusAgendamentos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+}
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -829,13 +975,20 @@ body {
     </div>
 </div>
 
-        <!-- Appointments List -->
-        <div id="meusAgendamentos" class="glass-card rounded-2xl p-6 shadow-xl overflow-y-auto scrollbar-hide" style="display:none;" data-aos="fade-up">
-    <div class="text-center py-8">
+       <!-- SUBSTITUA a lista de agendamentos por esta versão: -->
+<div id="meusAgendamentos" class="glass-card rounded-2xl p-6 shadow-xl overflow-y-auto scrollbar-hide" style="display:none;" data-aos="fade-up">
+    
+    <!-- Estado vazio -->
+    <div id="agendamentosVazio" class="text-center py-8">
         <div class="p-4 rounded-full bg-white/10 inline-block mb-4">
             <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
         </div>
         <p class="text-gray-300">Nenhum agendamento encontrado</p>
+    </div>
+    
+    <!-- Container dos cards (aparece quando tem agendamentos) -->
+    <div id="agendamentosLista" class="space-y-4 hidden">
+        <!-- Os cards serão inseridos aqui via JavaScript -->
     </div>
 </div>
 
@@ -2809,6 +2962,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
