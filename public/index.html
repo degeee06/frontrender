@@ -1650,7 +1650,7 @@ document.getElementById('secoesIA').style.display = 'block';
 
 
 
-      // ✅ LOGIN GOOGLE SIMPLIFICADO
+     // ✅ LOGIN GOOGLE CORRIGIDO
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const btn = document.getElementById('googleLoginBtn');
     const originalText = btn.innerHTML;
@@ -1661,30 +1661,38 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
     try {
         console.log('🔐 Iniciando autenticação Google...');
         
-        // No seu serviço de autenticação
-const REDIRECT_URI = isMobile 
-  ? 'com.oubook.agendamento://auth-callback'
-  : 'https://frontrender-iota.vercel.app/auth-callback.html';
+        // 🔥 DETECÇÃO CORRETA DE AMBIENTE
+        const isMobileApp = !!(window.Capacitor || window.cordova);
+        console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
+        
+        // 🔥 URL DE REDIRECT CORRETA
+        const redirectUrl = isMobileApp 
+            ? 'com.oubook.agendamento://auth-callback'
+            : 'https://frontrender-iota.vercel.app/auth-callback.html';
+        
+        console.log('🎯 Redirect URL:', redirectUrl);
         
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: redirectUrl,
+                redirectTo: redirectUrl, // ✅ CORRIGIDO
                 skipBrowserRedirect: false
             }
         });
         
         if (error) throw error;
         
-        console.log('🌐 Abrindo URL de autenticação...');
+        console.log('🌐 URL de autenticação:', data.url);
         
-        // Abre no Capacitor Browser ou fallback para web
-        if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+        // 🔥 ABRE O BROWSER CORRETAMENTE
+        if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
+            console.log('📱 Abrindo no Capacitor Browser...');
             await window.Capacitor.Plugins.Browser.open({ 
                 url: data.url,
                 windowName: '_self'
             });
         } else {
+            console.log('🌐 Redirecionando para URL...');
             window.location.href = data.url;
         }
         
@@ -2669,6 +2677,7 @@ function debounce(func, wait) {
         feather.replace();
         init();
     </script>
+
 
 
 
