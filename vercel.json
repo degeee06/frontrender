@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/auth-callback",
+      "destination": "/auth-callback.html",
+      "permanent": false
+    }
+  ]
+}
