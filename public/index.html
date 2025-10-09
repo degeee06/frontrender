@@ -429,6 +429,15 @@
             transition: none;
         }
     }
+        /* Adicione ao seu CSS */
+.settings-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.settings-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -1206,8 +1215,7 @@ function fecharConfiguracao() {
 
 
 
-      // 🔥 ADICIONE ESTE DEBUG NO SEU FRONTEND
-async function verificarConfiguracaoSheets() {
+     async function verificarConfiguracaoSheets() {
     try {
         console.log('🔍 [DEBUG] Iniciando verificação Sheets...');
         console.log('🔍 [DEBUG] Token presente:', !!userToken);
@@ -1226,21 +1234,27 @@ async function verificarConfiguracaoSheets() {
             const data = await response.json();
             console.log('🔍 [DEBUG] Dados recebidos:', data);
             
+            // 🔥 CORREÇÃO: Só abre modal se NÃO tiver configurado
             if (!data.temSheetsConfigurado) {
-                console.log('🔍 [DEBUG] Mostrando modal em 2 segundos...');
+                console.log('🔍 [DEBUG] Usuário NÃO tem Sheets configurado - mostrando modal em 2 segundos...');
                 setTimeout(() => {
                     console.log('🔍 [DEBUG] Exibindo modal agora!');
                     mostrarModalConfiguracao();
                 }, 2000);
             } else {
-                console.log('🔍 [DEBUG] Usuário já tem Sheets configurado');
+                console.log('🔍 [DEBUG] Usuário JÁ tem Sheets configurado - NÃO mostra modal');
             }
         } else {
             const errorText = await response.text();
             console.error('🔍 [DEBUG] Erro na resposta:', response.status, errorText);
+            
+            // 🔥 EM CASO DE ERRO, NÃO ABRE O MODAL (seguro)
+            console.log('🔍 [DEBUG] Erro na verificação - NÃO abrindo modal por segurança');
         }
     } catch (error) {
         console.error('🔍 [DEBUG] Erro catch:', error);
+        // 🔥 EM CASO DE ERRO, NÃO ABRE O MODAL (seguro)
+        console.log('🔍 [DEBUG] Erro total - NÃO abrindo modal por segurança');
     }
 }
         // ---------------- TOASTS ----------------
@@ -2716,6 +2730,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
