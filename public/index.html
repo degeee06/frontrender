@@ -3040,18 +3040,6 @@ if (data.success) {
 });
 
         
-function abrirGerarLinkModal() {
-    const modal = document.getElementById('gerarLinkModal');
-    const hoje = new Date();
-    const dataInput = document.getElementById('linkData');
-    
-    // Define data mínima como hoje
-    dataInput.min = hoje.toISOString().split('T')[0];
-    
-    modal.classList.remove('hidden');
-    feather.replace();
-}
-
 
 
 // 🔥 ATUALIZAR: Função de gerar link (já existente) - adicionar verificação
@@ -3170,6 +3158,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
