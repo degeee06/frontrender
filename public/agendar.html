@@ -156,7 +156,7 @@
                 console.log('🔄 Buscando dados do link...', { username, token });
                 
                 // 🔥 ATUALIZE AQUI COM SEU BACKEND URL REAL
-                const BACKEND_URL = 'https://seu-backend.onrender.com';
+                const BACKEND_URL = 'https://agendamento-ynxr.onrender.com';
                 const response = await fetch(`${BACKEND_URL}/api/agendar-convidado/${username}/${token}`);
                 const data = await response.json();
                 
@@ -231,7 +231,7 @@
                 console.log('🔄 Confirmando agendamento...', dadosAgendamento);
                 
                 // 🔥 ATUALIZE AQUI COM SEU BACKEND URL REAL
-                const BACKEND_URL = 'https://seu-backend.onrender.com';
+                const BACKEND_URL = 'https://agendamento-ynxr.onrender.com';
                 const response = await fetch(`${BACKEND_URL}/api/confirmar-agendamento-link`, {
                     method: 'POST',
                     headers: {
