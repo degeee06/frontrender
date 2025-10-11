@@ -2886,15 +2886,7 @@ document.getElementById('gerarLinkBtn').addEventListener('click', async function
     }
 });
 
-     // ✅ ADICIONAR: Função para fechar modal do link
-function fecharGerarLinkModal() {
-    const modal = document.getElementById('gerarLinkModal');
-    modal.classList.add('hidden');
-    
-    // Limpa o formulário
-    document.getElementById('formGerarLink').reset();
-    document.getElementById('linkResultado').classList.add('hidden');
-}
+  
         
 // 🔥 ADICIONAR: Função para gerar link automaticamente
 async function gerarLinkAutomatico() {
@@ -3178,6 +3170,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
