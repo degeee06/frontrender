@@ -26,7 +26,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input, button {
+        input, select, button {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -42,6 +42,10 @@
         }
         button:hover {
             background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         .loading {
             text-align: center;
@@ -67,6 +71,20 @@
             padding: 15px;
             border-radius: 5px;
             margin-bottom: 20px;
+        }
+        .horario-option {
+            padding: 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+        }
+        .horario-disponivel {
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+        }
+        .horario-indisponivel {
+            background-color: #ffebee;
+            border: 1px solid #f44336;
+            color: #666;
         }
     </style>
 </head>
@@ -98,28 +116,37 @@
                 <input type="tel" id="telefone" required>
             </div>
             
+            <!-- 🎯 NOVO: Cliente ESCOLHE data -->
             <div class="form-group">
-                <label for="data">Data:</label>
-                <input type="date" id="data" required>
+                <label for="data">Escolha a Data:</label>
+                <input type="date" id="data" required min="<?= date('Y-m-d') ?>">
             </div>
             
+            <!-- 🎯 NOVO: Cliente ESCOLHE horário -->
             <div class="form-group">
-                <label for="horario">Horário:</label>
-                <input type="time" id="horario" required>
+                <label for="horario">Escolha o Horário:</label>
+                <select id="horario" required disabled>
+                    <option value="">Primeiro selecione uma data</option>
+                </select>
+                <div id="loading-horarios" style="display: none; color: #666; font-size: 12px; margin-top: 5px;">
+                    🔄 Buscando horários disponíveis...
+                </div>
             </div>
             
-            <button type="submit">✅ Confirmar Agendamento</button>
+            <button type="submit" id="submit-btn">✅ Confirmar Agendamento</button>
         </form>
     </div>
 
     <script>
-        // ✅ DETECTA TODOS OS TIPOS DE URL
+        const BACKEND_URL = 'https://agendamento-ynxr.onrender.com';
+        
+        // ✅ DETECTA PARÂMETROS DA URL
         function getUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
             let username = urlParams.get('username');
             let token = urlParams.get('token');
             
-            // Se não encontrou nos query params, tenta na hash
+            // Também tenta na hash para compatibilidade
             if (!username || !token) {
                 const hash = window.location.hash.substring(1);
                 const parts = hash.split('/');
@@ -129,20 +156,11 @@
                 }
             }
             
-            // Se ainda não encontrou, tenta no path (para compatibilidade)
-            if (!username || !token) {
-                const path = window.location.pathname.split('/');
-                if (path.length >= 4 && path[1] === 'agendar') {
-                    username = path[2];
-                    token = path[3];
-                }
-            }
-            
             console.log('🔧 Parâmetros detectados:', { username, token });
             return { username, token };
         }
         
-        // ✅ CARREGA DADOS DO LINK
+        // ✅ CARREGA DADOS DO LINK (apenas informações prévias)
         async function carregarDadosLink() {
             const { username, token } = getUrlParams();
             
@@ -155,8 +173,6 @@
             try {
                 console.log('🔄 Buscando dados do link...', { username, token });
                 
-                // 🔥 ATUALIZE AQUI COM SEU BACKEND URL REAL
-                const BACKEND_URL = 'https://agendamento-ynxr.onrender.com';
                 const response = await fetch(`${BACKEND_URL}/api/agendar-convidado/${username}/${token}`);
                 const data = await response.json();
                 
@@ -166,10 +182,16 @@
                     throw new Error(data.msg || 'Erro ao carregar dados do link');
                 }
                 
-                if (data.success && data.dados_predefinidos) {
-                    preencherFormulario(data.dados_predefinidos, data.personalizacao);
+                if (data.success) {
+                    preencherInformacoesPrevias(data.dados_predefinidos, data.personalizacao);
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('agendamento-form').style.display = 'block';
+                    
+                    // Configurar evento para buscar horários quando data for selecionada
+                    document.getElementById('data').addEventListener('change', function() {
+                        buscarHorariosDisponiveis(username, this.value);
+                    });
+                    
                 } else {
                     throw new Error(data.msg || 'Dados do link não encontrados');
                 }
@@ -181,19 +203,91 @@
             }
         }
         
-        function preencherFormulario(dados, personalizacao = {}) {
+        // ✅ PREENCHE INFORMAÇÕES PRÉVIAS (nome, email, telefone)
+        function preencherInformacoesPrevias(dados, personalizacao = {}) {
             document.getElementById('nome').value = dados.nome || '';
             document.getElementById('email').value = dados.email || '';
             document.getElementById('telefone').value = dados.telefone || '';
-            document.getElementById('data').value = dados.data || '';
-            document.getElementById('horario').value = dados.horario || '';
             
             // Mostra info da empresa se disponível
             if (personalizacao.nome_empresa) {
                 document.getElementById('empresa-info').innerHTML = `
-                    <strong>Empresa:</strong> ${personalizacao.nome_empresa}
+                    <strong>Agendamento com:</strong> ${personalizacao.nome_empresa}
                 `;
             }
+            
+            // Configura data mínima como hoje
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('data').min = hoje;
+        }
+        
+        // ✅ BUSCA HORÁRIOS DISPONÍVEIS
+        async function buscarHorariosDisponiveis(username, data) {
+            const horarioSelect = document.getElementById('horario');
+            const loadingDiv = document.getElementById('loading-horarios');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            if (!data) {
+                horarioSelect.innerHTML = '<option value="">Primeiro selecione uma data</option>';
+                horarioSelect.disabled = true;
+                submitBtn.disabled = true;
+                return;
+            }
+            
+            try {
+                horarioSelect.disabled = true;
+                submitBtn.disabled = true;
+                loadingDiv.style.display = 'block';
+                horarioSelect.innerHTML = '<option value="">Buscando horários...</option>';
+                
+                console.log('🔄 Buscando horários para:', { username, data });
+                
+                const response = await fetch(`${BACKEND_URL}/api/horarios-disponiveis/${username}?data=${data}`);
+                const result = await response.json();
+                
+                console.log('📦 Horários disponíveis:', result);
+                
+                if (!response.ok) {
+                    throw new Error(result.msg || 'Erro ao buscar horários');
+                }
+                
+                if (result.success) {
+                    preencherHorariosDisponiveis(result.horarios_disponiveis);
+                } else {
+                    throw new Error(result.msg || 'Erro ao carregar horários');
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar horários:', error);
+                horarioSelect.innerHTML = '<option value="">Erro ao carregar horários</option>';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+        
+        // ✅ PREENCHE SELECT COM HORÁRIOS DISPONÍVEIS
+        function preencherHorariosDisponiveis(horariosDisponiveis) {
+            const horarioSelect = document.getElementById('horario');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            if (horariosDisponiveis.length === 0) {
+                horarioSelect.innerHTML = '<option value="">Nenhum horário disponível nesta data</option>';
+                horarioSelect.disabled = true;
+                submitBtn.disabled = true;
+                return;
+            }
+            
+            horarioSelect.innerHTML = '<option value="">Selecione um horário</option>';
+            
+            horariosDisponiveis.forEach(horario => {
+                const option = document.createElement('option');
+                option.value = horario;
+                option.textContent = horario;
+                horarioSelect.appendChild(option);
+            });
+            
+            horarioSelect.disabled = false;
+            submitBtn.disabled = false;
         }
         
         function mostrarErro(mensagem) {
@@ -214,24 +308,36 @@
             infoDiv.style.display = 'block';
         }
         
-        // ✅ CONFIRMAR AGENDAMENTO
+        // ✅ CONFIRMAR AGENDAMENTO COM DATA/HORÁRIO ESCOLHIDOS
         document.getElementById('agendamento-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const { token } = getUrlParams();
+            const data = document.getElementById('data').value;
+            const horario = document.getElementById('horario').value;
+            
+            if (!data || !horario) {
+                mostrarErro('Por favor, selecione uma data e horário.');
+                return;
+            }
             
             const dadosAgendamento = {
                 token: token,
                 nome: document.getElementById('nome').value,
                 email: document.getElementById('email').value,
-                telefone: document.getElementById('telefone').value
+                telefone: document.getElementById('telefone').value,
+                data: data, // 🎯 DATA escolhida
+                horario: horario // 🎯 HORÁRIO escolhido
             };
             
             try {
                 console.log('🔄 Confirmando agendamento...', dadosAgendamento);
                 
-                // 🔥 ATUALIZE AQUI COM SEU BACKEND URL REAL
-                const BACKEND_URL = 'https://agendamento-ynxr.onrender.com';
+                // Desabilitar botão
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = '🔄 Confirmando...';
+                
                 const response = await fetch(`${BACKEND_URL}/api/confirmar-agendamento-link`, {
                     method: 'POST',
                     headers: {
@@ -249,7 +355,12 @@
                     
                     // Mostra detalhes do agendamento
                     if (data.agendamento) {
-                        mostrarInfo(`📅 Agendamento confirmado para: ${data.agendamento.data} às ${data.agendamento.horario}`);
+                        mostrarInfo(`
+                            📅 Agendamento confirmado!<br>
+                            <strong>Data:</strong> ${formatarData(data.agendamento.data)}<br>
+                            <strong>Horário:</strong> ${data.agendamento.horario}<br>
+                            <strong>Profissional:</strong> ${document.getElementById('empresa-info').textContent || ''}
+                        `);
                     }
                 } else {
                     throw new Error(data.msg || 'Erro ao confirmar agendamento');
@@ -258,8 +369,18 @@
             } catch (error) {
                 console.error('❌ Erro ao confirmar:', error);
                 mostrarErro(error.message);
+                
+                // Reabilitar botão em caso de erro
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Confirmar Agendamento';
             }
         });
+        
+        function formatarData(dataISO) {
+            const data = new Date(dataISO + 'T00:00:00');
+            return data.toLocaleDateString('pt-BR');
+        }
         
         // ✅ INICIALIZAÇÃO
         document.addEventListener('DOMContentLoaded', function() {
