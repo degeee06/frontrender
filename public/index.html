@@ -2874,7 +2874,7 @@ function atualizarInterfacePosLogin() {
     }
 }
 
-// 🔥 ATUALIZAR: Função de gerar link para verificar perfil primeiro
+// ✅ CORREÇÃO: Botão gera link automático
 document.getElementById('gerarLinkBtn').addEventListener('click', async function() {
     const perfil = await verificarPerfil();
     
@@ -2882,11 +2882,10 @@ document.getElementById('gerarLinkBtn').addEventListener('click', async function
         // Não tem perfil - pedir para criar
         abrirCriarPerfilModal();
     } else {
-        // Tem perfil - pode gerar link
-        abrirGerarLinkModal();
+        // ✅ TEM perfil - gera link AUTOMÁTICO (não abre modal)
+        gerarLinkAutomatico();
     }
 });
-
 // 🔥 ADICIONAR: Função para gerar link automaticamente
 async function gerarLinkAutomatico() {
     try {
@@ -3160,6 +3159,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
