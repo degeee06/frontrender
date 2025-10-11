@@ -517,6 +517,44 @@
                     </div>
                 </div>
             </div>
+            <!-- Modal Criar Perfil -->
+<div id="criarPerfilModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="glass-card rounded-2xl p-6 max-w-md w-full mx-4 animate-fade-in">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold">👤 Criar Seu Perfil</h3>
+            <button onclick="fecharCriarPerfilModal()" class="text-gray-400 hover:text-white">
+                <i data-feather="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <p class="text-sm text-gray-300 mb-4">
+            Crie seu perfil para gerar links personalizados de agendamento
+        </p>
+        
+        <form id="formCriarPerfil" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-2">Nome de Usuário (único)</label>
+                <input type="text" id="perfilUsername" required 
+                       placeholder="ex: joaosilva" 
+                       class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none">
+                <p class="text-xs text-gray-400 mt-1">Este será usado na sua URL: oubook.vercel.app/agendar/<strong>seuusername</strong>/token</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium mb-2">Nome da Empresa/Pessoa</label>
+                <input type="text" id="perfilEmpresa" 
+                       placeholder="ex: João Silva Consultoria" 
+                       class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none">
+            </div>
+            
+            <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 text-white py-3 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                <i data-feather="user-plus" class="w-4 h-4"></i>
+                <span id="criarPerfilText">Criar Perfil</span>
+                <div id="criarPerfilSpinner" class="loading-spinner hidden"></div>
+            </button>
+        </form>
+    </div>
+</div>
 <!-- Modal para Gerar Link -->
 <div id="gerarLinkModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
     <div class="glass-card rounded-2xl p-6 max-w-md w-full mx-4 animate-fade-in">
@@ -2808,11 +2846,104 @@ function atualizarInterfacePosLogin() {
     }
 }
 
-// 🔥 ADICIONAR: Abrir modal para gerar link
-document.getElementById('gerarLinkBtn').addEventListener('click', function() {
-    abrirGerarLinkModal();
+// 🔥 ATUALIZAR: Função de gerar link para verificar perfil primeiro
+document.getElementById('gerarLinkBtn').addEventListener('click', async function() {
+    const perfil = await verificarPerfil();
+    
+    if (!perfil) {
+        // Não tem perfil - pedir para criar
+        abrirCriarPerfilModal();
+    } else {
+        // Tem perfil - pode gerar link
+        abrirGerarLinkModal();
+    }
 });
 
+
+// 🔥 ADICIONAR: Verificar e criar perfil
+async function verificarPerfil() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+            headers: {
+                'Authorization': `Bearer ${userToken}`
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            return data.perfil; // Retorna o perfil se existir
+        }
+        return null; // Não tem perfil
+    } catch (error) {
+        console.error('Erro ao verificar perfil:', error);
+        return null;
+    }
+}
+
+// 🔥 ADICIONAR: Abrir modal de criar perfil
+function abrirCriarPerfilModal() {
+    const modal = document.getElementById('criarPerfilModal');
+    modal.classList.remove('hidden');
+    feather.replace();
+}
+
+function fecharCriarPerfilModal() {
+    const modal = document.getElementById('criarPerfilModal');
+    modal.classList.add('hidden');
+}
+
+// 🔥 ADICIONAR: Criar perfil
+document.getElementById('formCriarPerfil').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btnText = document.getElementById('criarPerfilText');
+    const btnSpinner = document.getElementById('criarPerfilSpinner');
+    
+    try {
+        btnText.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+        
+        const dados = {
+            username: document.getElementById('perfilUsername').value.toLowerCase().trim(),
+            nome_empresa: document.getElementById('perfilEmpresa').value.trim()
+        };
+        
+        if (!dados.username) {
+            throw new Error('Nome de usuário é obrigatório');
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/api/criar-perfil`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userToken}`
+            },
+            body: JSON.stringify(dados)
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.msg || 'Erro ao criar perfil');
+        }
+        
+        if (data.success) {
+            showToast('✅ Perfil criado com sucesso!', 'success');
+            fecharCriarPerfilModal();
+            // Agora pode gerar links
+            abrirGerarLinkModal();
+        }
+        
+    } catch (error) {
+        console.error('Erro ao criar perfil:', error);
+        showToast('❌ ' + error.message, 'error');
+    } finally {
+        btnText.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+    }
+});
+
+        
 function abrirGerarLinkModal() {
     const modal = document.getElementById('gerarLinkModal');
     const hoje = new Date();
@@ -2834,9 +2965,17 @@ function fecharGerarLinkModal() {
     document.getElementById('linkResultado').classList.add('hidden');
 }
 
-// 🔥 ADICIONAR: Gerar link
+// 🔥 ATUALIZAR: Função de gerar link (já existente) - adicionar verificação
 document.getElementById('formGerarLink').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    // Verificar se tem perfil antes de continuar
+    const perfil = await verificarPerfil();
+    if (!perfil) {
+        showToast('❌ Crie um perfil antes de gerar links', 'error');
+        abrirCriarPerfilModal();
+        return;
+    }
     
     const btnText = document.getElementById('gerarLinkText');
     const btnSpinner = document.getElementById('gerarLinkSpinner');
@@ -2958,6 +3097,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
