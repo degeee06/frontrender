@@ -2888,26 +2888,21 @@ document.getElementById('gerarLinkBtn').addEventListener('click', async function
 
   
         
-// 🔥 ADICIONAR: Função para gerar link automaticamente
+// ✅ CORREÇÃO: Função para gerar link automático
 async function gerarLinkAutomatico() {
     try {
-        console.log('🔧 Gerando link automaticamente após criar perfil...');
+        console.log('🔧 Gerando link automaticamente...');
         
-        // Usa os dados que já estavam no form de gerar link
+        // ✅ DADOS PRÉ-DEFINIDOS - NÃO tenta pegar do form
         const dados = {
-            nome: document.getElementById('linkNome').value,
-            email: document.getElementById('linkEmail').value || '',
-            telefone: document.getElementById('linkTelefone').value,
+            nome: "Cliente via Link",
+            email: "",
+            telefone: "11999999999", // Telefone padrão
+            // ❌ NÃO incluir data e horário - o cliente escolhe depois
         };
         
-        // Verifica se tem dados
-        if (!dados.nome || !dados.telefone || !dados.data || !dados.horario) {
-            // Se não tem dados, só abre o modal vazio
-            abrirGerarLinkModal();
-            return;
-        }
+        console.log('📤 Enviando dados para gerar link:', dados);
         
-        // Se tem dados, gera o link automaticamente
         const response = await fetch(`${API_BASE_URL}/gerar-link-agendamento`, {
             method: 'POST',
             headers: {
@@ -2920,18 +2915,27 @@ async function gerarLinkAutomatico() {
         const data = await response.json();
         
         if (data.success) {
-            // Mostra o link gerado diretamente
-            document.getElementById('linkGerado').value = data.link;
-            document.getElementById('linkResultado').classList.remove('hidden');
-            copiarLink();
-            showToast('✅ Link gerado e copiado automaticamente!', 'success');
+            // ✅ Mostra o link gerado em um toast/alert, NÃO no modal
+            showToast(`✅ Link gerado: ${data.link}`, 'success');
+            
+            // ✅ Copia automaticamente para a área de transferência
+            navigator.clipboard.writeText(data.link)
+                .then(() => {
+                    showToast('📋 Link copiado para a área de transferência!', 'success');
+                })
+                .catch(err => {
+                    console.error('Erro ao copiar:', err);
+                });
+                
         } else {
             throw new Error(data.msg || 'Erro ao gerar link');
         }
         
     } catch (error) {
         console.error('Erro ao gerar link automaticamente:', error);
-        // Se der erro, abre o modal normal
+        showToast('❌ Erro ao gerar link: ' + error.message, 'error');
+        
+        // ✅ Como fallback, abre o modal apenas se der erro
         abrirGerarLinkModal();
     }
 }
@@ -3158,6 +3162,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
