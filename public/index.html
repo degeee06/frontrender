@@ -3062,22 +3062,6 @@ document.getElementById('formGerarLink').addEventListener('submit', async functi
     }
 });
 
-// 🔥 ADICIONAR: Copiar link
-function copiarLink() {
-    const linkInput = document.getElementById('linkGerado');
-    linkInput.select();
-    linkInput.setSelectionRange(0, 99999); // Para mobile
-    
-    navigator.clipboard.writeText(linkInput.value)
-        .then(() => {
-            showToast('📋 Link copiado!', 'success');
-        })
-        .catch(err => {
-            console.error('Erro ao copiar:', err);
-            showToast('❌ Erro ao copiar link', 'error');
-        });
-}
-
         
 // 🔥 ADICIONAR: Debounce simples para melhorar performance
 function debounce(func, wait) {
@@ -3125,6 +3109,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
