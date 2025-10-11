@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 // 🔥 AJUSTE: URL do seu backend
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://seu-backend.onrender.com';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://agendamento-ynxr.onrender.com';
 
 export default function AgendamentoConvidado() {
   const router = useRouter();
@@ -100,4 +100,5 @@ export default function AgendamentoConvidado() {
       </form>
     </div>
   );
+
 }
