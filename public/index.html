@@ -1019,18 +1019,8 @@ function mostrarToast(message, type = "success") {
         const horarioInput = document.getElementById("Horario");
 
         
-    function atualizarInterfacePosLogin() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
+
     
-    if (userToken) {
-        logoutBtn.style.display = 'flex';
-        settingsBtn.style.display = 'flex';
-    } else {
-        logoutBtn.style.display = 'none';
-        settingsBtn.style.display = 'none';
-    }
-}
         function formatData(data){ const [y,m,d] = data.split("-"); return `${d}/${m}/${y}`; }
 
 
@@ -2968,6 +2958,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
