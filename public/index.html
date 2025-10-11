@@ -2964,11 +2964,27 @@ async function verificarPerfil() {
     }
 }
 
-// 🔥 ADICIONAR: Abrir modal de criar perfil
-function abrirCriarPerfilModal() {
-    const modal = document.getElementById('criarPerfilModal');
+// 🔥 ADICIONE ESTAS FUNÇÕES:
+
+function abrirGerarLinkModal() {
+    const modal = document.getElementById('gerarLinkModal');
+    const hoje = new Date();
+    const dataInput = document.getElementById('linkData');
+    
+    // Define data mínima como hoje
+    dataInput.min = hoje.toISOString().split('T')[0];
+    
     modal.classList.remove('hidden');
     feather.replace();
+}
+
+function fecharGerarLinkModal() {
+    const modal = document.getElementById('gerarLinkModal');
+    modal.classList.add('hidden');
+    
+    // Limpa o formulário
+    document.getElementById('formGerarLink').reset();
+    document.getElementById('linkResultado').classList.add('hidden');
 }
 
 function fecharCriarPerfilModal() {
@@ -3044,14 +3060,7 @@ function abrirGerarLinkModal() {
     feather.replace();
 }
 
-function fecharGerarLinkModal() {
-    const modal = document.getElementById('gerarLinkModal');
-    modal.classList.add('hidden');
-    
-    // Limpa o formulário
-    document.getElementById('formGerarLink').reset();
-    document.getElementById('linkResultado').classList.add('hidden');
-}
+
 
 // 🔥 ATUALIZAR: Função de gerar link (já existente) - adicionar verificação
 document.getElementById('formGerarLink').addEventListener('submit', async function(e) {
@@ -3169,6 +3178,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
