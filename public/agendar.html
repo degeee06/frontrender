@@ -118,7 +118,7 @@
             
             try {
                 console.log('🔄 Buscando dados do link...');
-                const response = await fetch(`https://seu-backend.onrender.com/api/agendar-convidado/${username}/${token}`);
+                const response = await fetch(`https://agendamento-ynxr.onrender.com/api/agendar-convidado/${username}/${token}`);
                 const data = await response.json();
                 
                 console.log('📦 Resposta do backend:', data);
@@ -179,7 +179,7 @@
             try {
                 console.log('🔄 Confirmando agendamento...', dadosAgendamento);
                 
-                const response = await fetch('https://seu-backend.onrender.com/api/confirmar-agendamento-link', {
+                const response = await fetch('https://agendamento-ynxr.onrender.com/api/confirmar-agendamento-link', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
