@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agendar</title>
+    <style>
+        body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; }
+        .container { border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Confirmar Agendamento</h1>
+        <div id="dados"></div>
+        <form id="formAgendamento">
+            <input type="text" id="nome" placeholder="Seu nome" required>
+            <input type="email" id="email" placeholder="Seu email">
+            <input type="tel" id="telefone" placeholder="Seu telefone" required>
+            <button type="submit">Confirmar Agendamento</button>
+        </form>
+    </div>
+
+    <script>
+        // Pega username e token da URL
+        const path = window.location.pathname.split('/');
+        const username = path[2];
+        const token = path[3];
+        
+        const BACKEND_URL = 'https://agendamento-ynxr.onrender.com';
+        
+        async function carregarDados() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/agendar-convidado/${username}/${token}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('dados').innerHTML = `
+                        <p><strong>Data:</strong> ${data.dados_predefinidos.data}</p>
+                        <p><strong>Horário:</strong> ${data.dados_predefinidos.horario}</p>
+                    `;
+                } else {
+                    document.getElementById('dados').innerHTML = '<p>Link inválido ou expirado</p>';
+                }
+            } catch (error) {
+                document.getElementById('dados').innerHTML = '<p>Erro ao carregar dados</p>';
+            }
+        }
+        
+        document.getElementById('formAgendamento').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                nome: document.getElementById('nome').value,
+                email: document.getElementById('email').value,
+                telefone: document.getElementById('telefone').value,
+                token: token
+            };
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/confirmar-agendamento-link`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Agendamento confirmado!');
+                } else {
+                    alert('Erro: ' + data.msg);
+                }
+            } catch (error) {
+                alert('Erro de conexão');
+            }
+        });
+        
+        carregarDados();
+    </script>
+</body>
+</html>
