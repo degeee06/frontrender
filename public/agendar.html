@@ -61,17 +61,28 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Agendar Compromisso</h1>
-        <div id="loading" class="loading">Carregando seus dados...</div>
+        <h1>📅 Agendar Compromisso</h1>
+        
+        <div id="loading" class="loading">🔄 Carregando seus dados...</div>
         
         <div id="error-message" class="error" style="display: none;"></div>
         <div id="success-message" class="success" style="display: none;"></div>
+        <div id="info-message" class="info" style="display: none;"></div>
         
         <form id="agendamento-form" style="display: none;">
+            <div id="empresa-info" style="margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px;"></div>
+            
             <div class="form-group">
                 <label for="nome">Nome:</label>
                 <input type="text" id="nome" required>
@@ -97,18 +108,43 @@
                 <input type="time" id="horario" required>
             </div>
             
-            <button type="submit">Confirmar Agendamento</button>
+            <button type="submit">✅ Confirmar Agendamento</button>
         </form>
     </div>
 
     <script>
-        // ✅ DETECTA SE É ACESSO VIA LINK PERSONALIZADO
-        async function carregarDadosLink() {
+        // ✅ DETECTA TODOS OS TIPOS DE URL
+        function getUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
-            const username = urlParams.get('username');
-            const token = urlParams.get('token');
+            let username = urlParams.get('username');
+            let token = urlParams.get('token');
             
-            console.log('🔧 Parâmetros da URL:', { username, token });
+            // Se não encontrou nos query params, tenta na hash
+            if (!username || !token) {
+                const hash = window.location.hash.substring(1);
+                const parts = hash.split('/');
+                if (parts.length >= 2) {
+                    username = parts[0];
+                    token = parts[1];
+                }
+            }
+            
+            // Se ainda não encontrou, tenta no path (para compatibilidade)
+            if (!username || !token) {
+                const path = window.location.pathname.split('/');
+                if (path.length >= 4 && path[1] === 'agendar') {
+                    username = path[2];
+                    token = path[3];
+                }
+            }
+            
+            console.log('🔧 Parâmetros detectados:', { username, token });
+            return { username, token };
+        }
+        
+        // ✅ CARREGA DADOS DO LINK
+        async function carregarDadosLink() {
+            const { username, token } = getUrlParams();
             
             if (!username || !token) {
                 mostrarErro('Link inválido. Verifique se o link está completo.');
@@ -117,8 +153,11 @@
             }
             
             try {
-                console.log('🔄 Buscando dados do link...');
-                const response = await fetch(`https://agendamento-ynxr.onrender.com/api/agendar-convidado/${username}/${token}`);
+                console.log('🔄 Buscando dados do link...', { username, token });
+                
+                // 🔥 ATUALIZE AQUI COM SEU BACKEND URL REAL
+                const BACKEND_URL = 'https://seu-backend.onrender.com';
+                const response = await fetch(`${BACKEND_URL}/api/agendar-convidado/${username}/${token}`);
                 const data = await response.json();
                 
                 console.log('📦 Resposta do backend:', data);
@@ -128,7 +167,7 @@
                 }
                 
                 if (data.success && data.dados_predefinidos) {
-                    preencherFormulario(data.dados_predefinidos);
+                    preencherFormulario(data.dados_predefinidos, data.personalizacao);
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('agendamento-form').style.display = 'block';
                 } else {
@@ -142,12 +181,19 @@
             }
         }
         
-        function preencherFormulario(dados) {
+        function preencherFormulario(dados, personalizacao = {}) {
             document.getElementById('nome').value = dados.nome || '';
             document.getElementById('email').value = dados.email || '';
             document.getElementById('telefone').value = dados.telefone || '';
             document.getElementById('data').value = dados.data || '';
             document.getElementById('horario').value = dados.horario || '';
+            
+            // Mostra info da empresa se disponível
+            if (personalizacao.nome_empresa) {
+                document.getElementById('empresa-info').innerHTML = `
+                    <strong>Empresa:</strong> ${personalizacao.nome_empresa}
+                `;
+            }
         }
         
         function mostrarErro(mensagem) {
@@ -162,12 +208,17 @@
             successDiv.style.display = 'block';
         }
         
+        function mostrarInfo(mensagem) {
+            const infoDiv = document.getElementById('info-message');
+            infoDiv.textContent = mensagem;
+            infoDiv.style.display = 'block';
+        }
+        
         // ✅ CONFIRMAR AGENDAMENTO
         document.getElementById('agendamento-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
+            const { token } = getUrlParams();
             
             const dadosAgendamento = {
                 token: token,
@@ -179,7 +230,9 @@
             try {
                 console.log('🔄 Confirmando agendamento...', dadosAgendamento);
                 
-                const response = await fetch('https://agendamento-ynxr.onrender.com/api/confirmar-agendamento-link', {
+                // 🔥 ATUALIZE AQUI COM SEU BACKEND URL REAL
+                const BACKEND_URL = 'https://seu-backend.onrender.com';
+                const response = await fetch(`${BACKEND_URL}/api/confirmar-agendamento-link`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -193,6 +246,11 @@
                 if (data.success) {
                     mostrarSucesso('✅ ' + data.msg);
                     document.getElementById('agendamento-form').style.display = 'none';
+                    
+                    // Mostra detalhes do agendamento
+                    if (data.agendamento) {
+                        mostrarInfo(`📅 Agendamento confirmado para: ${data.agendamento.data} às ${data.agendamento.horario}`);
+                    }
                 } else {
                     throw new Error(data.msg || 'Erro ao confirmar agendamento');
                 }
@@ -206,6 +264,7 @@
         // ✅ INICIALIZAÇÃO
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Página de agendamento carregada');
+            console.log('📍 URL atual:', window.location.href);
             carregarDadosLink();
         });
     </script>
