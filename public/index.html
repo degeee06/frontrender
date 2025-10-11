@@ -2955,12 +2955,16 @@ document.getElementById('formCriarPerfil').addEventListener('submit', async func
             throw new Error(data.msg || 'Erro ao criar perfil');
         }
         
-        if (data.success) {
-            showToast('✅ Perfil criado com sucesso!', 'success');
-            fecharCriarPerfilModal();
-            // Agora pode gerar links
-            abrirGerarLinkModal();
-        }
+       // ✅ CORREÇÃO (gera link automático):
+if (data.success) {
+    showToast('✅ Perfil criado com sucesso!', 'success');
+    fecharCriarPerfilModal();
+    
+    // 🔥 AGORA GERA O LINK AUTOMATICAMENTE com os dados que já tinha
+    setTimeout(() => {
+        gerarLinkAutomatico();
+    }, 500);
+}
         
     } catch (error) {
         console.error('Erro ao criar perfil:', error);
@@ -3109,6 +3113,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
