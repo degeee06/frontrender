@@ -2892,12 +2892,12 @@ document.getElementById('gerarLinkBtn').addEventListener('click', async function
 async function gerarLinkAutomatico() {
     try {
         console.log('🔧 Gerando link automaticamente...');
-        
-        // ✅ DADOS PRÉ-DEFINIDOS - NÃO tenta pegar do form
+
+         // ✅ DADOS COM AVISOS - para o cliente preencher depois
         const dados = {
-            nome: "Cliente via Link",
+            nome: "[NOME DO CLIENTE]",
             email: "",
-            telefone: "11999999999", // Telefone padrão
+            telefone: "[TELEFONE DO CLIENTE]",
             // ❌ NÃO incluir data e horário - o cliente escolhe depois
         };
         
@@ -3162,6 +3162,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
