@@ -1079,7 +1079,8 @@ if (token) {
             document.getElementById('secoesIA').style.display = 'block';
             listarAgendamentos();
             setTimeout(() => verificarConfiguracaoSheets(), 1000);
-            setTimeout(() => iniciarAtualizacaoPeriodica(), 5000);
+            setTimeout(() => atualizadorAgendamentos.iniciar(), 2000);
+
         } else {
             // 🔥 Sessão inválida - limpa tudo para evitar "conectando"
             console.log('❌ Sessão inválida - fazendo limpeza');
@@ -1789,7 +1790,7 @@ loginBtn.addEventListener('click', async () => {
 // 🔥 ADICIONE ESTA LINHA:
 document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos().then(() => {
-            setTimeout(() => iniciarAtualizacaoPeriodica(), 5000);
+             setTimeout(() => atualizadorAgendamentos.iniciar(), 2000);
             // Seleciona o dia atual
             let hoje = new Date().getDay();
             if (hoje === 0) {
@@ -1882,6 +1883,7 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
        // ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
+    atualizadorAgendamentos.parar();
 
      if (window.atualizacaoInterval) {
         clearInterval(window.atualizacaoInterval);
@@ -3136,28 +3138,6 @@ function debounce(func, wait) {
 }
 
 
-        // 🔄 ATUALIZAÇÃO PERIÓDICA PARA NOVOS AGENDAMENTOS
-function iniciarAtualizacaoPeriodica() {
-    // Só inicia se estiver logado
-    if (!userToken) {
-        console.log('🔐 Usuário não logado - parando atualização periódica');
-        return;
-    }
-    
-    console.log('🔄 Iniciando atualização periódica (30s)...');
-    
-    // Atualiza a cada 30 segundos
-    return setInterval(() => {
-        if (userToken) {
-            console.log('⏰ Atualização periódica - verificando novos agendamentos...');
-            listarAgendamentos();
-        } else {
-            console.log('🔐 Usuário deslogado - parando atualização');
-            clearInterval(window.atualizacaoInterval);
-        }
-    }, 30000); // 30 segundos
-}
-
         
 
 // ✅ INSTÂNCIA GLOBAL
@@ -3181,6 +3161,48 @@ logoutBtn.addEventListener('click', async () => {
 document.getElementById('settingsBtn').addEventListener('click', function() {
     mostrarModalConfiguracao();
 });
+
+// ✅ CLASSE ATUALIZADOR - ADICIONE ISSO NO FINAL
+class AtualizadorAgendamentos {
+    constructor() {
+        this.intervalId = null;
+        this.ativo = false;
+    }
+
+    iniciar() {
+        if (this.ativo) return;
+        
+        console.log('🔔 Iniciando atualizador automático (15s)...');
+        this.ativo = true;
+        
+        // Atualiza a cada 15 segundos
+        this.intervalId = setInterval(() => {
+            if (userToken) {
+                console.log('⏰ Atualização automática...');
+                listarAgendamentos();
+            } else {
+                this.parar();
+            }
+        }, 15000);
+        
+        // Atualiza quando a página fica visível
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && userToken) {
+                console.log('📱 Página visível - atualizando...');
+                setTimeout(() => listarAgendamentos(), 1000);
+            }
+        });
+    }
+
+    parar() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+        this.ativo = false;
+        console.log('🔕 Atualizador parado');
+    }
+}
 
 
 
@@ -3208,6 +3230,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
