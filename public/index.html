@@ -3197,50 +3197,7 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
-async function atualizarListaAgendamentos() {
-    const btn = document.getElementById('btnAtualizarLista');
-    if (!btn) return;
-    
-    btn.classList.add('btn-loading');
-    btn.disabled = true;
-    
-    try {
-        console.log('🔄 Buscando agendamentos DIRETO do Supabase...');
-        
-        // 🔥 BUSCA DIRETA DO SUPABASE - SEM CACHE
-        const { data: agendamentos, error } = await supabase
-            .from('agendamentos')
-            .select('*')
-            .order('data', { ascending: true })
-            .order('horario', { ascending: true });
 
-        if (error) {
-            throw error;
-        }
-
-        console.log('✅ Agendamentos encontrados:', agendamentos.length);
-        
-        // 🔥 ATUALIZA A LISTA NA TELA
-        renderAgendamentos(agendamentos); // Ou sua função de renderização
-        
-        // 🔥 FEEDBACK DE SUCESSO
-        btn.classList.remove('btn-loading');
-        btn.classList.add('btn-success');
-        showToast(`✅ ${agendamentos.length} agendamentos carregados!`, "success");
-        
-    } catch (error) {
-        console.error('❌ Erro ao buscar do Supabase:', error);
-        
-        btn.classList.remove('btn-loading');
-        btn.classList.add('btn-error');
-        showToast("❌ Erro ao atualizar lista", "error");
-    } finally {
-        setTimeout(() => {
-            btn.disabled = false;
-            btn.classList.remove('btn-loading', 'btn-success', 'btn-error');
-        }, 2000);
-    }
-}
 // 🔥 EVENT LISTENER para o botão
 document.addEventListener('DOMContentLoaded', function() {
     const btnAtualizar = document.getElementById('btnAtualizarLista');
@@ -3283,6 +3240,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
