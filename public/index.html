@@ -2070,6 +2070,7 @@ if(!dataToSend.Email || dataToSend.Email.trim() === '') {
         statusFilter.addEventListener("change", renderAgendamentos);
 
         // ---------------- TABS ----------------
+// 🔥 SUA FUNÇÃO ORIGINAL + BOTÃO ATUALIZAR
 function initTabsDias(){
     const tabsDia = document.querySelectorAll(".tab-dia");
     const tabsSemana = document.querySelectorAll(".tab-semana");
@@ -2103,11 +2104,14 @@ function initTabsDias(){
             // 🔥 CORREÇÃO CRÍTICA: Lógica de datas corrigida
             diaSelecionado = semanas; 
             renderAgendamentos();
-            const btnAtualizar = document.getElementById('btnAtualizarLista');
-    if (btnAtualizar) {
-        btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
         });
     });
+    
+    // 🔥🔥🔥 ADICIONE APENAS ESTAS 4 LINHAS NO FINAL:
+    const btnAtualizar = document.getElementById('btnAtualizarLista');
+    if (btnAtualizar) {
+        btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
+    }
 }
 
 // ---------------- FUNÇÃO AUXILIAR: Converter blob para base64 ----------------
@@ -3181,6 +3185,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
