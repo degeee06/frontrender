@@ -951,6 +951,50 @@
         return false; // Não é callback, continua normal
     }
 
+// ✅ CLASSE ATUALIZADOR - ADICIONE ISSO NO FINAL
+class AtualizadorAgendamentos {
+    constructor() {
+        this.intervalId = null;
+        this.ativo = false;
+    }
+
+    iniciar() {
+        if (this.ativo) return;
+        
+        console.log('🔔 Iniciando atualizador automático (15s)...');
+        this.ativo = true;
+        
+        // Atualiza a cada 15 segundos
+        this.intervalId = setInterval(() => {
+            if (userToken) {
+                console.log('⏰ Atualização automática...');
+                listarAgendamentos();
+            } else {
+                this.parar();
+            }
+        }, 15000);
+        
+        // Atualiza quando a página fica visível
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && userToken) {
+                console.log('📱 Página visível - atualizando...');
+                setTimeout(() => listarAgendamentos(), 1000);
+            }
+        });
+    }
+
+    parar() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+        this.ativo = false;
+        console.log('🔕 Atualizador parado');
+    }
+}
+
+
+        
     // 🔥 PROCESSAMENTO PARA WEB
     async function processarOAuthWeb() {
         try {
@@ -3162,47 +3206,6 @@ document.getElementById('settingsBtn').addEventListener('click', function() {
     mostrarModalConfiguracao();
 });
 
-// ✅ CLASSE ATUALIZADOR - ADICIONE ISSO NO FINAL
-class AtualizadorAgendamentos {
-    constructor() {
-        this.intervalId = null;
-        this.ativo = false;
-    }
-
-    iniciar() {
-        if (this.ativo) return;
-        
-        console.log('🔔 Iniciando atualizador automático (15s)...');
-        this.ativo = true;
-        
-        // Atualiza a cada 15 segundos
-        this.intervalId = setInterval(() => {
-            if (userToken) {
-                console.log('⏰ Atualização automática...');
-                listarAgendamentos();
-            } else {
-                this.parar();
-            }
-        }, 15000);
-        
-        // Atualiza quando a página fica visível
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && userToken) {
-                console.log('📱 Página visível - atualizando...');
-                setTimeout(() => listarAgendamentos(), 1000);
-            }
-        });
-    }
-
-    parar() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
-        this.ativo = false;
-        console.log('🔕 Atualizador parado');
-    }
-}
 
 
 
@@ -3230,6 +3233,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
