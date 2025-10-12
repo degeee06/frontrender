@@ -1243,12 +1243,6 @@ async function processarRetornoOAuth(url) {
 }
 
     
-        
-        function fecharModalConfiguracao() {
-            const modal = document.getElementById('configSheetsModal');
-            modal.classList.add('hidden');
-        }
-        
        // 🔥 CORREÇÃO: Funções atualizadas para o modal
 async function criarPlanilhaAutomatica() {
     console.log('🎯 Botão Criar Planilha clicado!');
@@ -2907,7 +2901,66 @@ async function verificarPerfil() {
     }
 }
 
-// 🔥 CORREÇÃO: Adicionar função para abrir modal de criar perfil
+
+
+
+// 🔥 ADICIONAR: Criar perfil
+document.getElementById('formCriarPerfil').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btnText = document.getElementById('criarPerfilText');
+    const btnSpinner = document.getElementById('criarPerfilSpinner');
+    
+    try {
+        btnText.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+        
+        const dados = {
+            username: document.getElementById('perfilUsername').value.toLowerCase().trim(),
+            nome_empresa: document.getElementById('perfilEmpresa').value.trim()
+        };
+        
+        if (!dados.username) {
+            throw new Error('Nome de usuário é obrigatório');
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/api/criar-perfil`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userToken}`
+            },
+            body: JSON.stringify(dados)
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.msg || 'Erro ao criar perfil');
+        }
+        
+       // ✅ CORREÇÃO (gera link automático):
+if (data.success) {
+    showToast('✅ Perfil criado com sucesso!', 'success');
+    fecharCriarPerfilModal();
+    
+    // 🔥 AGORA GERA O LINK AUTOMATICAMENTE com os dados que já tinha
+    setTimeout(() => {
+        gerarLinkAutomatico();
+    }, 500);
+}
+        
+    } catch (error) {
+        console.error('Erro ao criar perfil:', error);
+        showToast('❌ ' + error.message, 'error');
+    } finally {
+        btnText.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+    }
+});
+
+
+    // 🔥 CORREÇÃO: Adicionar função para abrir modal de criar perfil
 function abrirCriarPerfilModal() {
     const modal = document.getElementById('criarPerfilModal');
     modal.classList.remove('hidden');
@@ -2981,7 +3034,6 @@ function debounce(func, wait) {
     };
 }
 
-
 // 🔥 CORREÇÃO: Função para atualizar interface pós-login
 function atualizarInterfacePosLogin() {
     const logoutBtn = document.getElementById('logoutBtn');
@@ -3018,62 +3070,6 @@ function fecharConfiguracao() {
     fecharModalConfiguracao();
     showToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
 }
-// 🔥 ADICIONAR: Criar perfil
-document.getElementById('formCriarPerfil').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const btnText = document.getElementById('criarPerfilText');
-    const btnSpinner = document.getElementById('criarPerfilSpinner');
-    
-    try {
-        btnText.classList.add('hidden');
-        btnSpinner.classList.remove('hidden');
-        
-        const dados = {
-            username: document.getElementById('perfilUsername').value.toLowerCase().trim(),
-            nome_empresa: document.getElementById('perfilEmpresa').value.trim()
-        };
-        
-        if (!dados.username) {
-            throw new Error('Nome de usuário é obrigatório');
-        }
-        
-        const response = await fetch(`${API_BASE_URL}/api/criar-perfil`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${userToken}`
-            },
-            body: JSON.stringify(dados)
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.msg || 'Erro ao criar perfil');
-        }
-        
-       // ✅ CORREÇÃO (gera link automático):
-if (data.success) {
-    showToast('✅ Perfil criado com sucesso!', 'success');
-    fecharCriarPerfilModal();
-    
-    // 🔥 AGORA GERA O LINK AUTOMATICAMENTE com os dados que já tinha
-    setTimeout(() => {
-        gerarLinkAutomatico();
-    }, 500);
-}
-        
-    } catch (error) {
-        console.error('Erro ao criar perfil:', error);
-        showToast('❌ ' + error.message, 'error');
-    } finally {
-        btnText.classList.remove('hidden');
-        btnSpinner.classList.add('hidden');
-    }
-});
-
-        
 
 
 // 🔥 ATUALIZAR: Função de gerar link (já existente) - adicionar verificação
@@ -3146,19 +3142,6 @@ document.getElementById('formGerarLink').addEventListener('submit', async functi
 });
 
         
-// 🔥 ADICIONAR: Debounce simples para melhorar performance
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
 
 
         // 🔧 CONFIGURAÇÕES - BOTÃO ENGRENAGEM
@@ -3185,6 +3168,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
