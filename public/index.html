@@ -980,7 +980,6 @@ atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
                 document.getElementById('secoesIA').style.display = 'block';
                 
                 listarAgendamentos();
-                iniciarAtualizacaoAutomatica();
                 showToast("Login realizado com sucesso!", "success");
             }
         } catch (error) {
@@ -1079,7 +1078,6 @@ if (token) {
             atualizarInterfacePosLogin();
             document.getElementById('secoesIA').style.display = 'block';
             listarAgendamentos();
-            iniciarAtualizacaoAutomatica();
             setTimeout(() => verificarConfiguracaoSheets(), 1000);
         } else {
             // 🔥 Sessão inválida - limpa tudo para evitar "conectando"
@@ -1167,18 +1165,6 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
         }
     });
 }
-
-// ✅ ADICIONE ISSO NO index.html - função MUITO simples
-function iniciarAtualizacaoAutomatica() {
-    // Atualiza a cada 15 segundos quando o usuário está logado
-    setInterval(() => {
-        if (userToken && document.visibilityState === 'visible') {
-            console.log('🔄 Atualização automática dos agendamentos...');
-            listarAgendamentos(); // 🔥 ISSO JÁ EXISTE E FUNCIONA
-        }
-    }, 15000); // 15 segundos
-}
-    
     
     // ✅ VERIFICAÇÃO MUITO SIMPLES DE LOGIN
     const token = localStorage.getItem('userToken');
@@ -1192,7 +1178,6 @@ form.style.display = 'block';
 atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
         document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos();
-        iniciarAtualizacaoAutomatica();
         setTimeout(() => verificarConfiguracaoSheets(), 1000);
     } else {
         // Usuário NÃO logado - mostra login
@@ -1207,8 +1192,6 @@ atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
     feather.replace();
 }
 
-
-        
 // ✅ FUNÇÃO PARA PROCESSAR RETORNO DO OAUTH
 async function processarRetornoOAuth(url) {
     try {
@@ -1248,7 +1231,6 @@ async function processarRetornoOAuth(url) {
                     document.getElementById('secoesIA').style.display = 'block';
                     
                     listarAgendamentos();
-                    iniciarAtualizacaoAutomatica();
                     showToast("Login com Google realizado!", "success");
                     setTimeout(() => verificarConfiguracaoSheets(), 1500);
                 }
@@ -1806,7 +1788,6 @@ loginBtn.addEventListener('click', async () => {
 // 🔥 ADICIONE ESTA LINHA:
 document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos().then(() => {
-            iniciarAtualizacaoAutomatica();
             // Seleciona o dia atual
             let hoje = new Date().getDay();
             if (hoje === 0) {
@@ -1822,6 +1803,7 @@ document.getElementById('secoesIA').style.display = 'block';
         });
 
         showToast("Login realizado com sucesso!", "success");
+
         // 🔥 ADICIONE AQUI - Verificar configuração do Google Sheets
         await verificarConfiguracaoSheets();
 
@@ -2892,35 +2874,39 @@ function atualizarInterfacePosLogin() {
     }
 }
 
-// ✅ CORREÇÃO: Botão gera link automático
+// 🔥 ATUALIZAR: Função de gerar link para verificar perfil primeiro
 document.getElementById('gerarLinkBtn').addEventListener('click', async function() {
     const perfil = await verificarPerfil();
     
     if (!perfil) {
+        // Não tem perfil - pedir para criar
         abrirCriarPerfilModal();
     } else {
-        // ✅ SÓ ISSE - gera automático, NÃO abre modal
-        gerarLinkAutomatico();
+        // Tem perfil - pode gerar link
+        abrirGerarLinkModal();
     }
 });
 
-  
-        
-// ✅ CORREÇÃO: Função para gerar link automático
+// 🔥 ADICIONAR: Função para gerar link automaticamente
 async function gerarLinkAutomatico() {
     try {
-        console.log('🔧 Gerando link automaticamente...');
+        console.log('🔧 Gerando link automaticamente após criar perfil...');
         
-        // ✅ DADOS PRÉ-DEFINIDOS - NÃO tenta pegar do form
+        // Usa os dados que já estavam no form de gerar link
         const dados = {
-            nome: "Cliente via Link",
-            email: "",
-            telefone: "11999999999", // Telefone padrão
-            // ❌ NÃO incluir data e horário - o cliente escolhe depois
+            nome: document.getElementById('linkNome').value,
+            email: document.getElementById('linkEmail').value || '',
+            telefone: document.getElementById('linkTelefone').value,
         };
         
-        console.log('📤 Enviando dados para gerar link:', dados);
+        // Verifica se tem dados
+        if (!dados.nome || !dados.telefone || !dados.data || !dados.horario) {
+            // Se não tem dados, só abre o modal vazio
+            abrirGerarLinkModal();
+            return;
+        }
         
+        // Se tem dados, gera o link automaticamente
         const response = await fetch(`${API_BASE_URL}/gerar-link-agendamento`, {
             method: 'POST',
             headers: {
@@ -2933,27 +2919,18 @@ async function gerarLinkAutomatico() {
         const data = await response.json();
         
         if (data.success) {
-            // ✅ Mostra o link gerado em um toast/alert, NÃO no modal
-            showToast(`✅ Link gerado: ${data.link}`, 'success');
-            
-            // ✅ Copia automaticamente para a área de transferência
-            navigator.clipboard.writeText(data.link)
-                .then(() => {
-                    showToast('📋 Link copiado para a área de transferência!', 'success');
-                })
-                .catch(err => {
-                    console.error('Erro ao copiar:', err);
-                });
-                
+            // Mostra o link gerado diretamente
+            document.getElementById('linkGerado').value = data.link;
+            document.getElementById('linkResultado').classList.remove('hidden');
+            copiarLink();
+            showToast('✅ Link gerado e copiado automaticamente!', 'success');
         } else {
             throw new Error(data.msg || 'Erro ao gerar link');
         }
         
     } catch (error) {
         console.error('Erro ao gerar link automaticamente:', error);
-        showToast('❌ Erro ao gerar link: ' + error.message, 'error');
-        
-        // ✅ Como fallback, abre o modal apenas se der erro
+        // Se der erro, abre o modal normal
         abrirGerarLinkModal();
     }
 }
@@ -2978,27 +2955,11 @@ async function verificarPerfil() {
     }
 }
 
-// 🔥 ADICIONE ESTAS FUNÇÕES:
-
-function abrirGerarLinkModal() {
-    const modal = document.getElementById('gerarLinkModal');
-    const hoje = new Date();
-    const dataInput = document.getElementById('linkData');
-    
-    // Define data mínima como hoje
-    dataInput.min = hoje.toISOString().split('T')[0];
-    
+// 🔥 ADICIONAR: Abrir modal de criar perfil
+function abrirCriarPerfilModal() {
+    const modal = document.getElementById('criarPerfilModal');
     modal.classList.remove('hidden');
     feather.replace();
-}
-
-function fecharGerarLinkModal() {
-    const modal = document.getElementById('gerarLinkModal');
-    modal.classList.add('hidden');
-    
-    // Limpa o formulário
-    document.getElementById('formGerarLink').reset();
-    document.getElementById('linkResultado').classList.add('hidden');
 }
 
 function fecharCriarPerfilModal() {
@@ -3062,7 +3023,26 @@ if (data.success) {
 });
 
         
+function abrirGerarLinkModal() {
+    const modal = document.getElementById('gerarLinkModal');
+    const hoje = new Date();
+    const dataInput = document.getElementById('linkData');
+    
+    // Define data mínima como hoje
+    dataInput.min = hoje.toISOString().split('T')[0];
+    
+    modal.classList.remove('hidden');
+    feather.replace();
+}
 
+function fecharGerarLinkModal() {
+    const modal = document.getElementById('gerarLinkModal');
+    modal.classList.add('hidden');
+    
+    // Limpa o formulário
+    document.getElementById('formGerarLink').reset();
+    document.getElementById('linkResultado').classList.add('hidden');
+}
 
 // 🔥 ATUALIZAR: Função de gerar link (já existente) - adicionar verificação
 document.getElementById('formGerarLink').addEventListener('submit', async function(e) {
@@ -3180,14 +3160,6 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
-
-
-
-
-
-
-
-
 
 
 
