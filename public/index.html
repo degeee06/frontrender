@@ -980,6 +980,7 @@ atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
                 document.getElementById('secoesIA').style.display = 'block';
                 
                 listarAgendamentos();
+                iniciarAtualizacaoAutomatica();
                 showToast("Login realizado com sucesso!", "success");
             }
         } catch (error) {
@@ -1078,6 +1079,7 @@ if (token) {
             atualizarInterfacePosLogin();
             document.getElementById('secoesIA').style.display = 'block';
             listarAgendamentos();
+            iniciarAtualizacaoAutomatica();
             setTimeout(() => verificarConfiguracaoSheets(), 1000);
         } else {
             // 🔥 Sessão inválida - limpa tudo para evitar "conectando"
@@ -1165,6 +1167,18 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
         }
     });
 }
+
+// ✅ ADICIONE ISSO NO index.html - função MUITO simples
+function iniciarAtualizacaoAutomatica() {
+    // Atualiza a cada 15 segundos quando o usuário está logado
+    setInterval(() => {
+        if (userToken && document.visibilityState === 'visible') {
+            console.log('🔄 Atualização automática dos agendamentos...');
+            listarAgendamentos(); // 🔥 ISSO JÁ EXISTE E FUNCIONA
+        }
+    }, 15000); // 15 segundos
+}
+    
     
     // ✅ VERIFICAÇÃO MUITO SIMPLES DE LOGIN
     const token = localStorage.getItem('userToken');
@@ -1178,6 +1192,7 @@ form.style.display = 'block';
 atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
         document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos();
+        iniciarAtualizacaoAutomatica();
         setTimeout(() => verificarConfiguracaoSheets(), 1000);
     } else {
         // Usuário NÃO logado - mostra login
@@ -1192,26 +1207,6 @@ atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
     feather.replace();
 }
 
-// ✅ ADICIONE ISSO NO index.html - em algum lugar após o init()
-function configurarListenerAgendamentos() {
-    console.log('👂 Configurando listener para novos agendamentos...');
-    
-    // Escuta mensagens do agendar.html
-    window.addEventListener('message', function(event) {
-        if (event.data && event.data.type === 'AGENDAMENTO_CONFIRMADO') {
-            console.log('📢 Novo agendamento detectado!');
-            showToast("🎉 Novo agendamento recebido!", "success");
-            listarAgendamentos(); // 🔥 ATUALIZA A LISTA
-        }
-    });
-    
-    // Verificação periódica (fallback)
-    setInterval(() => {
-        if (userToken) {
-            listarAgendamentos();
-        }
-    }, 30000); // A cada 30 segundos
-}
 
         
 // ✅ FUNÇÃO PARA PROCESSAR RETORNO DO OAUTH
@@ -1253,6 +1248,7 @@ async function processarRetornoOAuth(url) {
                     document.getElementById('secoesIA').style.display = 'block';
                     
                     listarAgendamentos();
+                    iniciarAtualizacaoAutomatica();
                     showToast("Login com Google realizado!", "success");
                     setTimeout(() => verificarConfiguracaoSheets(), 1500);
                 }
@@ -1810,6 +1806,7 @@ loginBtn.addEventListener('click', async () => {
 // 🔥 ADICIONE ESTA LINHA:
 document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos().then(() => {
+            iniciarAtualizacaoAutomatica();
             // Seleciona o dia atual
             let hoje = new Date().getDay();
             if (hoje === 0) {
@@ -1825,7 +1822,6 @@ document.getElementById('secoesIA').style.display = 'block';
         });
 
         showToast("Login realizado com sucesso!", "success");
-        configurarListenerAgendamentos(); // 👈 NOVA LINHA
         // 🔥 ADICIONE AQUI - Verificar configuração do Google Sheets
         await verificarConfiguracaoSheets();
 
@@ -3184,6 +3180,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
