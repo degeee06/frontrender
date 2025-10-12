@@ -1139,19 +1139,18 @@ async function gerarLinkAgendamento() {
     }
 }
 
-// 🔥 ATUALIZE esta função - Adicione o botão X
 function mostrarModalLinkAgendamento(link, qrCodeUrl) {
     const modalExistente = document.getElementById('modalLinkAgendamento');
     if (modalExistente) modalExistente.remove();
 
     const modalHTML = `
         <div id="modalLinkAgendamento" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div class="glass-card rounded-xl p-6 w-full max-w-md mx-auto animate-fade-in relative"> <!-- 🔥 ADICIONE relative -->
+            <div class="glass-card rounded-xl p-6 w-full max-w-md mx-auto animate-fade-in relative">
                 
-                <!-- 🔥 BOTÃO X PARA FECHAR -->
-                <button onclick="fecharModalLinkAgendamento()" 
-                        class="absolute top-4 right-4 text-gray-400 hover:text-white z-50">
-                    <i data-feather="x" class="w-5 h-5"></i>
+                <!-- 🔥 BOTÃO X COM ID ESPECÍFICO -->
+                <button id="fecharModalLinkBtn" 
+                        class="absolute top-4 right-4 text-gray-400 hover:text-white z-50 bg-black/50 rounded-full p-1 w-8 h-8 flex items-center justify-center">
+                    ×
                 </button>
                 
                 <!-- Cabeçalho -->
@@ -1159,7 +1158,7 @@ function mostrarModalLinkAgendamento(link, qrCodeUrl) {
                     <h3 class="text-lg font-semibold">🔗 Link de Agendamento</h3>
                 </div>
                 
-                <!-- Conteúdo (mantenha igual) -->
+                <!-- Conteúdo -->
                 <div class="space-y-4">
                     <div class="text-center">
                         <p class="text-sm text-gray-300 mb-3">Compartilhe este link com seus clientes:</p>
@@ -1168,10 +1167,10 @@ function mostrarModalLinkAgendamento(link, qrCodeUrl) {
                             <code class="text-xs break-all text-cyan-300">${link}</code>
                         </div>
                         
-                        <button onclick="copiarLink('${link}')" 
-                                class="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 transition-all text-sm font-medium flex items-center justify-center gap-2">
-                            <i data-feather="copy" class="w-4 h-4"></i>
-                            Copiar Link
+                        <!-- 🔥 BOTÃO COPIAR COM ID ESPECÍFICO -->
+                        <button id="copiarLinkBtn" 
+                                class="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 transition-all text-sm font-medium">
+                            📋 Copiar Link
                         </button>
                     </div>
                     
@@ -1186,7 +1185,7 @@ function mostrarModalLinkAgendamento(link, qrCodeUrl) {
                 
                 <div class="mt-4 text-center">
                     <p class="text-xs text-gray-400">
-                        💡 Seus clientes poderão agendar diretamente por este link, sem precisar fazer login!
+                        💡 Seus clientes poderão agendar diretamente por este link!
                     </p>
                 </div>
             </div>
@@ -1194,7 +1193,24 @@ function mostrarModalLinkAgendamento(link, qrCodeUrl) {
     `;
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    feather.replace();
+    
+    // 🔥 ADICIONE: Event listeners DEPOIS que o modal é criado
+    setTimeout(() => {
+        // Botão Fechar
+        document.getElementById('fecharModalLinkBtn').addEventListener('click', fecharModalLinkAgendamento);
+        
+        // Botão Copiar
+        document.getElementById('copiarLinkBtn').addEventListener('click', function() {
+            copiarLink(link);
+        });
+        
+        // Fechar clicando fora
+        document.getElementById('modalLinkAgendamento').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharModalLinkAgendamento();
+            }
+        });
+    }, 100);
 }
 
 // 🔥 FUNÇÃO PARA FECHAR (já deve existir)
@@ -1203,20 +1219,23 @@ function fecharModalLinkAgendamento() {
     if (modal) modal.remove();
 }
 
-// 🔥 ADICIONE: Função para copiar link
+// 🔥 FUNÇÃO COPIAR LINK CORRIGIDA
 function copiarLink(link) {
-    navigator.clipboard.writeText(link).then(() => {
-        showToast("✅ Link copiado para a área de transferência!", "success");
-    }).catch(() => {
+    console.log('📋 Tentando copiar:', link);
+    
+    // Método moderno
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(() => {
+            showToast("✅ Link copiado para a área de transferência!", "success");
+            console.log('✅ Link copiado com sucesso!');
+        }).catch(err => {
+            console.error('❌ Erro ao copiar:', err);
+            copiarLinkFallback(link);
+        });
+    } else {
         // Fallback para navegadores antigos
-        const textArea = document.createElement("textarea");
-        textArea.value = link;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-        showToast("✅ Link copiado!", "success");
-    });
+        copiarLinkFallback(link);
+    }
 }
 
 
@@ -2916,6 +2935,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
