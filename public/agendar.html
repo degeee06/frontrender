@@ -308,74 +308,96 @@
             infoDiv.style.display = 'block';
         }
         
-        // ✅ CONFIRMAR AGENDAMENTO COM DATA/HORÁRIO ESCOLHIDOS
-        document.getElementById('agendamento-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const { token } = getUrlParams();
-            const data = document.getElementById('data').value;
-            const horario = document.getElementById('horario').value;
-            
-            if (!data || !horario) {
-                mostrarErro('Por favor, selecione uma data e horário.');
-                return;
-            }
-            
-            const dadosAgendamento = {
-                token: token,
-                nome: document.getElementById('nome').value,
-                email: document.getElementById('email').value,
-                telefone: document.getElementById('telefone').value,
-                data: data, // 🎯 DATA escolhida
-                horario: horario // 🎯 HORÁRIO escolhido
-            };
-            
-            try {
-                console.log('🔄 Confirmando agendamento...', dadosAgendamento);
-                
-                // Desabilitar botão
-                const submitBtn = document.getElementById('submit-btn');
-                submitBtn.disabled = true;
-                submitBtn.textContent = '🔄 Confirmando...';
-                
-                const response = await fetch(`${BACKEND_URL}/api/confirmar-agendamento-link`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dadosAgendamento)
-                });
-                
-                const data = await response.json();
-                console.log('📦 Resposta da confirmação:', data);
-                
-                if (data.success) {
-                    mostrarSucesso('✅ ' + data.msg);
-                    document.getElementById('agendamento-form').style.display = 'none';
-                    
-                    // Mostra detalhes do agendamento
-                    if (data.agendamento) {
-                        mostrarInfo(`
-                            📅 Agendamento confirmado!<br>
-                            <strong>Data:</strong> ${formatarData(data.agendamento.data)}<br>
-                            <strong>Horário:</strong> ${data.agendamento.horario}<br>
-                            <strong>Profissional:</strong> ${document.getElementById('empresa-info').textContent || ''}
-                        `);
-                    }
-                } else {
-                    throw new Error(data.msg || 'Erro ao confirmar agendamento');
-                }
-                
-            } catch (error) {
-                console.error('❌ Erro ao confirmar:', error);
-                mostrarErro(error.message);
-                
-                // Reabilitar botão em caso de erro
-                const submitBtn = document.getElementById('submit-btn');
-                submitBtn.disabled = false;
-                submitBtn.textContent = '✅ Confirmar Agendamento';
-            }
+       // ✅ ADICIONE ISSO NO agendar.html - dentro da função de submit
+document.getElementById('agendamento-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const { token } = getUrlParams();
+    const data = document.getElementById('data').value;
+    const horario = document.getElementById('horario').value;
+    
+    if (!data || !horario) {
+        mostrarErro('Por favor, selecione uma data e horário.');
+        return;
+    }
+    
+    const dadosAgendamento = {
+        token: token,
+        nome: document.getElementById('nome').value,
+        email: document.getElementById('email').value,
+        telefone: document.getElementById('telefone').value,
+        data: data,
+        horario: horario
+    };
+    
+    try {
+        console.log('🔄 Confirmando agendamento...', dadosAgendamento);
+        
+        // Desabilitar botão
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '🔄 Confirmando...';
+        
+        const response = await fetch(`${BACKEND_URL}/api/confirmar-agendamento-link`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dadosAgendamento)
         });
+        
+        const data = await response.json();
+        console.log('📦 Resposta da confirmação:', data);
+        
+        if (data.success) {
+            mostrarSucesso('✅ ' + data.msg);
+            document.getElementById('agendamento-form').style.display = 'none';
+            
+            // Mostra detalhes do agendamento
+            if (data.agendamento) {
+                mostrarInfo(`
+                    📅 Agendamento confirmado!<br>
+                    <strong>Data:</strong> ${formatarData(data.agendamento.data)}<br>
+                    <strong>Horário:</strong> ${data.agendamento.horario}<br>
+                    <strong>Profissional:</strong> ${document.getElementById('empresa-info').textContent || ''}
+                `);
+            }
+            
+            // 🔥🔥🔥 SOLUÇÃO: AVISA A PÁGINA PRINCIPAL
+            setTimeout(() => {
+                try {
+                    // Tenta avisar a janela/aba do profissional
+                    if (window.opener) {
+                        // Se abriu em nova janela
+                        window.opener.postMessage({ 
+                            type: 'AGENDAMENTO_CONFIRMADO',
+                            agendamento: data.agendamento 
+                        }, '*');
+                    }
+                    
+                    // Tenta avisar através do localStorage
+                    localStorage.setItem('ultimo_agendamento', Date.now().toString());
+                    
+                    console.log('📢 Aviso enviado para página principal');
+                } catch (error) {
+                    console.log('⚠️ Não foi possível avisar a página principal');
+                }
+            }, 1000);
+            
+        } else {
+            throw new Error(data.msg || 'Erro ao confirmar agendamento');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao confirmar:', error);
+        mostrarErro(error.message);
+        
+        // Reabilitar botão em caso de erro
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✅ Confirmar Agendamento';
+    }
+});
         
         function formatarData(dataISO) {
             const data = new Date(dataISO + 'T00:00:00');
