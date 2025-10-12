@@ -3112,7 +3112,42 @@ document.getElementById('formGerarLink').addEventListener('submit', async functi
         btnSpinner.classList.add('hidden');
     }
 });
+// ==================== FUNÇÕES GLOBAIS DOS MODAIS ====================
 
+// Modal Gerar Link
+window.fecharGerarLinkModal = function() {
+    const modal = document.getElementById('gerarLinkModal');
+    modal?.classList.add('hidden');
+    document.getElementById('formGerarLink')?.reset();
+    document.getElementById('linkResultado')?.classList.add('hidden');
+}
+
+window.abrirGerarLinkModal = function() {
+    const modal = document.getElementById('gerarLinkModal');
+    const dataInput = document.getElementById('linkData');
+    
+    dataInput.min = new Date().toISOString().split('T')[0];
+    modal?.classList.remove('hidden');
+    feather.replace();
+}
+
+// Modal Criar Perfil  
+window.fecharCriarPerfilModal = function() {
+    document.getElementById('criarPerfilModal')?.classList.add('hidden');
+}
+
+window.abrirCriarPerfilModal = function() {
+    document.getElementById('criarPerfilModal')?.classList.remove('hidden');
+    feather.replace();
+}
+
+// ✅ Fechar modais com ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        window.fecharGerarLinkModal();
+        window.fecharCriarPerfilModal();
+    }
+});
         
 // 🔥 ADICIONAR: Debounce simples para melhorar performance
 function debounce(func, wait) {
@@ -3160,6 +3195,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
