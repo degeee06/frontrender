@@ -1192,6 +1192,28 @@ atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
     feather.replace();
 }
 
+// ✅ ADICIONE ISSO NO index.html - em algum lugar após o init()
+function configurarListenerAgendamentos() {
+    console.log('👂 Configurando listener para novos agendamentos...');
+    
+    // Escuta mensagens do agendar.html
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'AGENDAMENTO_CONFIRMADO') {
+            console.log('📢 Novo agendamento detectado!');
+            showToast("🎉 Novo agendamento recebido!", "success");
+            listarAgendamentos(); // 🔥 ATUALIZA A LISTA
+        }
+    });
+    
+    // Verificação periódica (fallback)
+    setInterval(() => {
+        if (userToken) {
+            listarAgendamentos();
+        }
+    }, 30000); // A cada 30 segundos
+}
+
+        
 // ✅ FUNÇÃO PARA PROCESSAR RETORNO DO OAUTH
 async function processarRetornoOAuth(url) {
     try {
@@ -3162,6 +3184,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
