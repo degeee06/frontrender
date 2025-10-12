@@ -3147,7 +3147,7 @@ document.getElementById('formGerarLink').addEventListener('submit', async functi
     }
 });
 
-    // 🔥🔥🔥 NOVA FUNÇÃO: Inicialização completa pós-login
+// 🔥🔥🔥 NOVA FUNÇÃO: Inicialização completa pós-login
 function inicializarSistemaPosLogin() {
     console.log('🚀 Inicializando sistema pós-login...');
     
@@ -3235,26 +3235,8 @@ function mostrarNotificacaoAgendamento(agendamento) {
     // Também pode mostrar um modal mais detalhado se quiser
     console.log('🎉 Novo agendamento recebido:', agendamento);
 }
-    
-    // 3. Ouvir mensagens postMessage (para popups)
-    window.addEventListener('message', function(event) {
-        if (event.data.type === 'AGENDAMENTO_CONFIRMADO') {
-            console.log('📢 Novo agendamento detectado via postMessage:', event.data);
-            mostrarNotificacaoAgendamento(event.data.agendamento);
-            listarAgendamentos(); // Atualiza a lista
-        }
-    });
-}
 
-// 🔥 FUNÇÃO: Mostrar notificação de novo agendamento
-function mostrarNotificacaoAgendamento(agendamento) {
-    if (!agendamento) return;
-    
-    showToast(`📅 Novo agendamento: ${agendamento.nome} - ${formatarData(agendamento.data)} ${agendamento.horario}`, 'success');
-    
-    // Também pode mostrar um modal mais detalhado se quiser
-    console.log('🎉 Novo agendamento recebido:', agendamento);
-}
+
 
 
         // 🔧 CONFIGURAÇÕES - BOTÃO ENGRENAGEM
@@ -3281,6 +3263,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
