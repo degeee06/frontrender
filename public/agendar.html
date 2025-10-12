@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agendar Compromisso</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, button { width: 100%; padding: 10px; margin-bottom: 10px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h2>Agendar Compromisso</h2>
+    
+    <form id="agendarForm">
+        <div class="form-group">
+            <label>Nome:</label>
+            <input type="text" id="nome" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Telefone:</label>
+            <input type="tel" id="telefone" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Data:</label>
+            <input type="date" id="data" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Horário:</label>
+            <input type="time" id="horario" required>
+        </div>
+        
+        <button type="submit">Agendar</button>
+    </form>
+    
+    <div id="resultado"></div>
+
+    <script>
+        // Pega user_id da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const user_id = urlParams.get('user_id');
+
+        if (!user_id) {
+            document.getElementById('resultado').innerHTML = 
+                '<p class="error">Link inválido ou expirado</p>';
+            document.getElementById('agendarForm').style.display = 'none';
+        }
+
+        document.getElementById('agendarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const agendamento = {
+                nome: document.getElementById('nome').value,
+                email: document.getElementById('email').value,
+                telefone: document.getElementById('telefone').value,
+                data: document.getElementById('data').value,
+                horario: document.getElementById('horario').value,
+                user_id: user_id
+            };
+
+            try {
+                const response = await fetch('https://agendamento-ynxr.onrender.com/agendamento-publico', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(agendamento)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('resultado').innerHTML = 
+                        `<p class="success">${result.msg}</p>`;
+                    document.getElementById('agendarForm').reset();
+                } else {
+                    document.getElementById('resultado').innerHTML = 
+                        `<p class="error">${result.msg}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('resultado').innerHTML = 
+                    '<p class="error">Erro ao agendar. Tente novamente.</p>';
+            }
+        });
+
+        // Define data mínima como hoje
+        document.getElementById('data').min = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>
