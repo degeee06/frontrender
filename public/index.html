@@ -2829,22 +2829,7 @@ function voltarParaApp() {
     }, 3000);
 }
 
-// 🔥 ADICIONAR: Mostrar botão quando usuário estiver logado
-function atualizarInterfacePosLogin() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const gerarLinkBtn = document.getElementById('gerarLinkBtn'); // 🔥 NOVO
-    
-    if (userToken) {
-        logoutBtn.style.display = 'flex';
-        settingsBtn.style.display = 'flex';
-        gerarLinkBtn.style.display = 'flex'; // 🔥 NOVO
-    } else {
-        logoutBtn.style.display = 'none';
-        settingsBtn.style.display = 'none';
-        gerarLinkBtn.style.display = 'none'; // 🔥 NOVO
-    }
-}
+
 
 // ✅ CORREÇÃO: Botão gera link automático
 document.getElementById('gerarLinkBtn').addEventListener('click', async function() {
@@ -3210,6 +3195,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
