@@ -438,6 +438,29 @@
 .settings-btn:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+        /* 🔥 ANIMAÇÃO DE LOADING PARA O BOTÃO */
+.btn-loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 🔥 FEEDBACK VISUAL */
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+}
+
+.btn-error {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+}
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -715,6 +738,13 @@
         <button data-dia="4" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Qui</button>
         <button data-dia="5" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sex</button>
         <button data-dia="6" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sáb</button>
+   <!-- 🔥 BOTÃO ATUALIZAR -->
+        <button id="btnAtualizarLista" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 transition-all font-medium whitespace-nowrap text-sm sm:text-base flex items-center gap-2">
+            <i data-feather="refresh-cw" class="w-4 h-4"></i>
+            <span>Atualizar</span>
+        </button>
+    </div>
+        
     </div>
     <div class="flex justify-center gap-1 sm:gap-2 overflow-x-auto pb-2 px-2">
         <button data-semana="-1" class="tab-semana px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sem Passada</button>
@@ -3064,7 +3094,88 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
+// 🔥 FUNÇÃO: Atualizar lista com loading
+async function atualizarListaAgendamentos() {
+    const btn = document.getElementById('btnAtualizarLista');
+    if (!btn) return;
+    
+    // 🔥 MOSTRA LOADING
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+    
+    try {
+        console.log('🔄 Atualizando lista de agendamentos...');
+        
+        // 🔥 LIMPA CACHE FORÇADAMENTE
+        const cacheKey = `agendamentos_${req.userId || 'user'}`;
+        cacheManager.delete(cacheKey);
+        
+        // 🔥 RECARREGA OS AGENDAMENTOS
+        await listarAgendamentos();
+        
+        // 🔥 FEEDBACK DE SUCESSO
+        btn.classList.remove('btn-loading');
+        btn.classList.add('btn-success');
+        setTimeout(() => {
+            btn.classList.remove('btn-success');
+        }, 2000);
+        
+        showToast("✅ Lista atualizada com sucesso!", "success");
+        
+    } catch (error) {
+        console.error('❌ Erro ao atualizar lista:', error);
+        
+        // 🔥 FEEDBACK DE ERRO
+        btn.classList.remove('btn-loading');
+        btn.classList.add('btn-error');
+        setTimeout(() => {
+            btn.classList.remove('btn-error');
+        }, 2000);
+        
+        showToast("❌ Erro ao atualizar lista", "error");
+    } finally {
+        // 🔥 RESTAURA BOTÃO
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.classList.remove('btn-loading', 'btn-success', 'btn-error');
+        }, 2000);
+    }
+}
 
+// 🔥 EVENT LISTENER para o botão
+document.addEventListener('DOMContentLoaded', function() {
+    const btnAtualizar = document.getElementById('btnAtualizarLista');
+    if (btnAtualizar) {
+        btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
+    }
+});
+
+// 🔥 ATUALIZE a função initTabsDias para incluir o botão
+function initTabsDias(){
+    const tabsDia = document.querySelectorAll(".tab-dia");
+    const tabsSemana = document.querySelectorAll(".tab-semana");
+    
+    tabsDia.forEach(btn => {
+        btn.addEventListener("click", () => {
+            // ... código existente ...
+            renderAgendamentos();
+        });
+    });
+
+    tabsSemana.forEach(btn => {
+        btn.addEventListener("click", () => {
+            // ... código existente ...
+            renderAgendamentos();
+        });
+    });
+    
+    // 🔥 BOTÃO ATUALIZAR (se não foi adicionado via HTML)
+    const btnAtualizar = document.getElementById('btnAtualizarLista');
+    if (btnAtualizar && !btnAtualizar.hasEventListener) {
+        btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
+        btnAtualizar.hasEventListener = true;
+    }
+}
 
 
         // 🔧 CONFIGURAÇÕES - BOTÃO ENGRENAGEM
@@ -3098,6 +3209,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
