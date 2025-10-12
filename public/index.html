@@ -1674,13 +1674,13 @@ async function logoutSilencioso() {
     }
 }
 
+// ✅ SUBSTITUA COMPLETAMENTE esta função:
 async function listarAgendamentos(){
     try {
-        console.log('🔄 Frontend: Iniciando listarAgendamentos...'); // 🔥 ADICIONE
-        // No início do listarAgendamentos()
-console.log('🔄 Frontend: Iniciando listarAgendamentos...');
-console.log('🔑 Token:', userToken ? 'Presente' : 'Faltando');
-console.log('🌐 API URL:', `${API_BASE_URL}/agendamentos`);
+        console.log('🔄 Buscando agendamentos EM TEMPO REAL...');
+        console.log('🔑 Token:', userToken ? 'Presente' : 'Faltando');
+        console.log('🌐 API URL:', `${API_BASE_URL}/agendamentos`);
+        
         // 🔥 VERIFICA TOKEN ANTES DE FAZER REQUISIÇÃO
         const tokenValido = await verificarToken();
         if (!tokenValido) {
@@ -1688,17 +1688,22 @@ console.log('🌐 API URL:', `${API_BASE_URL}/agendamentos`);
             return;
         }
 
-        console.log('📡 Frontend: Fazendo requisição para API...'); // 🔥 ADICIONE
+        console.log('📡 Fazendo requisição DIRETA para API (SEM CACHE)...');
+        
+        // 🔥 REQUISIÇÃO SEM CACHE - headers para evitar cache
         const res = await fetch(`${API_BASE_URL}/agendamentos`, {
-            headers: { "Authorization": `Bearer ${userToken}` }
+            headers: { 
+                "Authorization": `Bearer ${userToken}`,
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache"
+            }
         });
         
-        console.log('✅ Frontend: Resposta recebida - Status:', res.status); // 🔥 ADICIONE
+        console.log('✅ Resposta recebida - Status:', res.status);
         
         if (!res.ok) {
             if (res.status === 401) {
-                console.log('🔐 Frontend: Token expirado, renovando...'); // 🔥 ADICIONE
-                // Token expirado - renova automaticamente
+                console.log('🔐 Token expirado, renovando...');
                 await renovarToken();
                 return listarAgendamentos(); // Tenta novamente
             }
@@ -1706,14 +1711,20 @@ console.log('🌐 API URL:', `${API_BASE_URL}/agendamentos`);
         }
         
         const data = await res.json();
-        console.log('📦 Frontend: Dados recebidos:', data); // 🔥 ADICIONE
+        console.log('📦 Dados recebidos:', data);
         
+        // 🔥 SEM CACHE - sempre usa dados frescos da API
         if (data && data.agendamentos) {
             agendamentosCache = data.agendamentos;
-            console.log('✅ Frontend: Agendamentos carregados:', agendamentosCache.length); // 🔥 ADICIONE
+            console.log('✅ Agendamentos carregados:', agendamentosCache.length);
+            
+            // 🔥 DEBUG: Mostra todos os agendamentos no console
+            agendamentosCache.forEach((ag, index) => {
+                console.log(`📅 ${index + 1}. ${ag.nome} - ${ag.data} ${ag.horario} (${ag.status})`);
+            });
         } else {
             agendamentosCache = [];
-            console.log('❌ Frontend: Nenhum agendamento recebido'); // 🔥 ADICIONE
+            console.log('❌ Nenhum agendamento recebido');
         }
         
         meusAgendamentos.style.display = 'block';
@@ -1722,14 +1733,13 @@ console.log('🌐 API URL:', `${API_BASE_URL}/agendamentos`);
         initTabsDias();
         renderAgendamentos(); 
         
-        console.log('🎯 Frontend: Interface atualizada'); // 🔥 ADICIONE
+        console.log('🎯 Interface atualizada com dados em tempo real');
+        
     } catch(e){
-        console.error("❌ Frontend: Erro ao listar agendamentos:", e);
+        console.error("❌ Erro ao listar agendamentos:", e);
         showToast("Erro ao carregar agendamentos","error");
         agendamentosCache = [];
         renderAgendamentos();
-    } finally {
-        limparCacheEstatisticas();
     }
 }
 
@@ -3195,6 +3205,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
