@@ -870,6 +870,10 @@ atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
                 document.getElementById('secoesIA').style.display = 'block';
                 
                 listarAgendamentos();
+                // 🔥 ADICIONE: Conectar SSE após login
+setTimeout(() => {
+    conectarSSE();
+}, 1000);
                 showToast("Login realizado com sucesso!", "success");
             }
         } catch (error) {
@@ -1840,6 +1844,7 @@ loginBtn.addEventListener('click', async () => {
 // 🔥 ADICIONE ESTA LINHA:
 document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos().then(() => {
+            
             // Seleciona o dia atual
             let hoje = new Date().getDay();
             if (hoje === 0) {
@@ -1931,6 +1936,7 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
 });
        // ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
+     desconectarSSE();
     console.log('🚪 Iniciando logout...');
     
     try {
@@ -3044,6 +3050,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
