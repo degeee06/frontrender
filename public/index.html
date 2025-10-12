@@ -2795,35 +2795,7 @@ function debounceIA() {
     }, 100);
 }
 
-// 🔥 ADICIONAR AQUI:
-function copiarLink() {
-    const linkInput = document.getElementById('linkGerado');
-    
-    if (!linkInput) {
-        console.error('❌ Elemento linkGerado não encontrado');
-        showToast('❌ Erro ao copiar link', 'error');
-        return;
-    }
-    
-    linkInput.select();
-    linkInput.setSelectionRange(0, 99999);
-    
-    navigator.clipboard.writeText(linkInput.value)
-        .then(() => {
-            showToast('📋 Link copiado para a área de transferência!', 'success');
-        })
-        .catch(err => {
-            console.error('❌ Erro ao copiar:', err);
-            try {
-                linkInput.select();
-                document.execCommand('copy');
-                showToast('📋 Link copiado!', 'success');
-            } catch (fallbackError) {
-                console.error('❌ Fallback também falhou:', fallbackError);
-                showToast('❌ Erro ao copiar link', 'error');
-            }
-        });
-}
+
         // ---------------- DETECTAR E REDIRECIONAR PARA O APP ----------------
 function isInApp() {
     return /Android|iPhone|iPad/i.test(navigator.userAgent) && 
@@ -3238,6 +3210,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
