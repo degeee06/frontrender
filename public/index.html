@@ -1242,17 +1242,7 @@ async function processarRetornoOAuth(url) {
     }
 }
 
-       function mostrarModalConfiguracao() {
-    const modal = document.getElementById('configSheetsModal');
-    modal.classList.remove('hidden');
     
-    // 🔥 ADICIONE ESTA LINHA - Configura os event listeners quando o modal abre
-    setTimeout(() => {
-        configurarEventListenersModal();
-    }, 100);
-    
-    feather.replace();
-}
         
         function fecharModalConfiguracao() {
             const modal = document.getElementById('configSheetsModal');
@@ -3195,6 +3185,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
