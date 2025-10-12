@@ -1213,10 +1213,14 @@ function mostrarModalLinkAgendamento(link, qrCodeUrl) {
     }, 100);
 }
 
-// 🔥 FUNÇÃO PARA FECHAR (já deve existir)
+// 🔥 FUNÇÃO FECHAR
 function fecharModalLinkAgendamento() {
+    console.log('🎯 Fechando modal...');
     const modal = document.getElementById('modalLinkAgendamento');
-    if (modal) modal.remove();
+    if (modal) {
+        modal.remove();
+        console.log('✅ Modal removido!');
+    }
 }
 
 // 🔥 FUNÇÃO COPIAR LINK CORRIGIDA
@@ -2935,6 +2939,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
