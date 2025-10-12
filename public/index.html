@@ -3104,11 +3104,7 @@ async function atualizarListaAgendamentos() {
     try {
         console.log('🔄 Atualizando lista de agendamentos...');
         
-        // 🔥 LIMPA CACHE FORÇADAMENTE
-        const cacheKey = `agendamentos_${req.userId || 'user'}`;
-        cacheManager.delete(cacheKey);
-        
-        // 🔥 RECARREGA OS AGENDAMENTOS
+        // 🔥 SIMPLESMENTE RECARREGA OS AGENDAMENTOS
         await listarAgendamentos();
         
         // 🔥 FEEDBACK DE SUCESSO
@@ -3139,6 +3135,14 @@ async function atualizarListaAgendamentos() {
         }, 2000);
     }
 }
+
+// 🔥 EVENT LISTENER para o botão
+document.addEventListener('DOMContentLoaded', function() {
+    const btnAtualizar = document.getElementById('btnAtualizarLista');
+    if (btnAtualizar) {
+        btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
+    }
+});
 
 // 🔥 EVENT LISTENER para o botão
 document.addEventListener('DOMContentLoaded', function() {
@@ -3207,6 +3211,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
