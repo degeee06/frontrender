@@ -2103,6 +2103,9 @@ function initTabsDias(){
             // 🔥 CORREÇÃO CRÍTICA: Lógica de datas corrigida
             diaSelecionado = semanas; 
             renderAgendamentos();
+            const btnAtualizar = document.getElementById('btnAtualizarLista');
+    if (btnAtualizar) {
+        btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
         });
     });
 }
@@ -3152,39 +3155,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// 🔥 ATUALIZE a função initTabsDias para incluir o botão
-function initTabsDias(){
-    const tabsDia = document.querySelectorAll(".tab-dia");
-    const tabsSemana = document.querySelectorAll(".tab-semana");
-    
-    tabsDia.forEach(btn => {
-        btn.addEventListener("click", () => {
-            // ... código existente ...
-            renderAgendamentos();
-        });
-    });
-
-    tabsSemana.forEach(btn => {
-        btn.addEventListener("click", () => {
-            // ... código existente ...
-            renderAgendamentos();
-        });
-    });
-    
-    // 🔥 BOTÃO ATUALIZAR (se não foi adicionado via HTML)
-    const btnAtualizar = document.getElementById('btnAtualizarLista');
-    if (btnAtualizar && !btnAtualizar.hasEventListener) {
-        btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
-        btnAtualizar.hasEventListener = true;
-    }
-}
-
-
-        // 🔧 CONFIGURAÇÕES - BOTÃO ENGRENAGEM
-document.getElementById('settingsBtn').addEventListener('click', function() {
-    mostrarModalConfiguracao();
-});
-
 
 
 // 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
@@ -3211,6 +3181,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
