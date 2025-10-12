@@ -1674,13 +1674,13 @@ async function logoutSilencioso() {
     }
 }
 
-// ✅ SUBSTITUA COMPLETAMENTE esta função:
 async function listarAgendamentos(){
     try {
-        console.log('🔄 Buscando agendamentos EM TEMPO REAL...');
-        console.log('🔑 Token:', userToken ? 'Presente' : 'Faltando');
-        console.log('🌐 API URL:', `${API_BASE_URL}/agendamentos`);
-        
+        console.log('🔄 Frontend: Iniciando listarAgendamentos...'); // 🔥 ADICIONE
+        // No início do listarAgendamentos()
+console.log('🔄 Frontend: Iniciando listarAgendamentos...');
+console.log('🔑 Token:', userToken ? 'Presente' : 'Faltando');
+console.log('🌐 API URL:', `${API_BASE_URL}/agendamentos`);
         // 🔥 VERIFICA TOKEN ANTES DE FAZER REQUISIÇÃO
         const tokenValido = await verificarToken();
         if (!tokenValido) {
@@ -1688,22 +1688,17 @@ async function listarAgendamentos(){
             return;
         }
 
-        console.log('📡 Fazendo requisição DIRETA para API (SEM CACHE)...');
-        
-        // 🔥 REQUISIÇÃO SEM CACHE - headers para evitar cache
+        console.log('📡 Frontend: Fazendo requisição para API...'); // 🔥 ADICIONE
         const res = await fetch(`${API_BASE_URL}/agendamentos`, {
-            headers: { 
-                "Authorization": `Bearer ${userToken}`,
-                "Cache-Control": "no-cache",
-                "Pragma": "no-cache"
-            }
+            headers: { "Authorization": `Bearer ${userToken}` }
         });
         
-        console.log('✅ Resposta recebida - Status:', res.status);
+        console.log('✅ Frontend: Resposta recebida - Status:', res.status); // 🔥 ADICIONE
         
         if (!res.ok) {
             if (res.status === 401) {
-                console.log('🔐 Token expirado, renovando...');
+                console.log('🔐 Frontend: Token expirado, renovando...'); // 🔥 ADICIONE
+                // Token expirado - renova automaticamente
                 await renovarToken();
                 return listarAgendamentos(); // Tenta novamente
             }
@@ -1711,20 +1706,14 @@ async function listarAgendamentos(){
         }
         
         const data = await res.json();
-        console.log('📦 Dados recebidos:', data);
+        console.log('📦 Frontend: Dados recebidos:', data); // 🔥 ADICIONE
         
-        // 🔥 SEM CACHE - sempre usa dados frescos da API
         if (data && data.agendamentos) {
             agendamentosCache = data.agendamentos;
-            console.log('✅ Agendamentos carregados:', agendamentosCache.length);
-            
-            // 🔥 DEBUG: Mostra todos os agendamentos no console
-            agendamentosCache.forEach((ag, index) => {
-                console.log(`📅 ${index + 1}. ${ag.nome} - ${ag.data} ${ag.horario} (${ag.status})`);
-            });
+            console.log('✅ Frontend: Agendamentos carregados:', agendamentosCache.length); // 🔥 ADICIONE
         } else {
             agendamentosCache = [];
-            console.log('❌ Nenhum agendamento recebido');
+            console.log('❌ Frontend: Nenhum agendamento recebido'); // 🔥 ADICIONE
         }
         
         meusAgendamentos.style.display = 'block';
@@ -1733,13 +1722,14 @@ async function listarAgendamentos(){
         initTabsDias();
         renderAgendamentos(); 
         
-        console.log('🎯 Interface atualizada com dados em tempo real');
-        
+        console.log('🎯 Frontend: Interface atualizada'); // 🔥 ADICIONE
     } catch(e){
-        console.error("❌ Erro ao listar agendamentos:", e);
+        console.error("❌ Frontend: Erro ao listar agendamentos:", e);
         showToast("Erro ao carregar agendamentos","error");
         agendamentosCache = [];
         renderAgendamentos();
+    } finally {
+        limparCacheEstatisticas();
     }
 }
 
@@ -3122,42 +3112,7 @@ document.getElementById('formGerarLink').addEventListener('submit', async functi
         btnSpinner.classList.add('hidden');
     }
 });
-// ==================== FUNÇÕES GLOBAIS DOS MODAIS ====================
 
-// Modal Gerar Link
-window.fecharGerarLinkModal = function() {
-    const modal = document.getElementById('gerarLinkModal');
-    modal?.classList.add('hidden');
-    document.getElementById('formGerarLink')?.reset();
-    document.getElementById('linkResultado')?.classList.add('hidden');
-}
-
-window.abrirGerarLinkModal = function() {
-    const modal = document.getElementById('gerarLinkModal');
-    const dataInput = document.getElementById('linkData');
-    
-    dataInput.min = new Date().toISOString().split('T')[0];
-    modal?.classList.remove('hidden');
-    feather.replace();
-}
-
-// Modal Criar Perfil  
-window.fecharCriarPerfilModal = function() {
-    document.getElementById('criarPerfilModal')?.classList.add('hidden');
-}
-
-window.abrirCriarPerfilModal = function() {
-    document.getElementById('criarPerfilModal')?.classList.remove('hidden');
-    feather.replace();
-}
-
-// ✅ Fechar modais com ESC
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        window.fecharGerarLinkModal();
-        window.fecharCriarPerfilModal();
-    }
-});
         
 // 🔥 ADICIONAR: Debounce simples para melhorar performance
 function debounce(func, wait) {
@@ -3205,8 +3160,6 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
-
-
 
 
 
