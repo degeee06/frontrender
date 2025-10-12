@@ -2656,7 +2656,112 @@ window.sugerirHorarios = async function() {
         }
     }
 }
+// ==================== SSE NO FRONTEND ====================
+let eventSource = null;
 
+// 🔥 FUNÇÃO: Conectar ao SSE
+function conectarSSE() {
+    if (!userToken) return;
+    
+    try {
+        // Fecha conexão anterior se existir
+        if (eventSource) {
+            eventSource.close();
+        }
+        
+        console.log('🔗 Conectando ao SSE...');
+        
+        // Conecta ao endpoint SSE
+        eventSource = new EventSource(`${API_BASE_URL}/api/updates`, {
+            headers: {
+                'Authorization': `Bearer ${userToken}`
+            }
+        });
+        
+        eventSource.onopen = () => {
+            console.log('✅ Conectado ao SSE - atualizações em tempo real ativas!');
+        };
+        
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                console.log('🔔 Evento SSE recebido:', data);
+                
+                // Processa diferentes tipos de eventos
+                switch (data.type) {
+                    case 'connected':
+                        console.log('🔔 SSE: Conectado com sucesso');
+                        break;
+                        
+                    case 'novo_agendamento':
+                        console.log('🔔 SSE: Novo agendamento recebido!', data.agendamento);
+                        
+                        // 🔥 ATUALIZA A LISTA IMEDIATAMENTE
+                        mostrarNotificacaoAgendamento(data.agendamento);
+                        listarAgendamentos(); // Recarrega a lista
+                        
+                        showToast("🎉 Novo agendamento recebido em tempo real!", "success");
+                        break;
+                        
+                    default:
+                        console.log('🔔 SSE: Evento desconhecido:', data);
+                }
+            } catch (error) {
+                console.error('❌ Erro ao processar evento SSE:', error);
+            }
+        };
+        
+        eventSource.onerror = (error) => {
+            console.error('❌ Erro na conexão SSE:', error);
+            
+            // Tenta reconectar após 5 segundos
+            setTimeout(() => {
+                console.log('🔄 Tentando reconectar SSE...');
+                conectarSSE();
+            }, 5000);
+        };
+        
+    } catch (error) {
+        console.error('❌ Erro ao conectar SSE:', error);
+    }
+}
+
+// 🔥 FUNÇÃO: Mostrar notificação do novo agendamento
+function mostrarNotificacaoAgendamento(agendamento) {
+    // Cria uma notificação flutuante
+    const notificacao = document.createElement('div');
+    notificacao.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm animate-fade-in';
+    notificacao.innerHTML = `
+        <div class="flex items-center gap-3">
+            <div class="text-2xl">🎉</div>
+            <div>
+                <p class="font-semibold">Novo Agendamento!</p>
+                <p class="text-sm opacity-90">${agendamento.nome} - ${formatData(agendamento.data)} ${agendamento.horario}</p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-gray-200">
+                ×
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notificacao);
+    
+    // Remove automaticamente após 5 segundos
+    setTimeout(() => {
+        if (notificacao.parentElement) {
+            notificacao.remove();
+        }
+    }, 5000);
+}
+
+// 🔥 FUNÇÃO: Desconectar SSE (no logout)
+function desconectarSSE() {
+    if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+        console.log('🔗 Conexão SSE fechada');
+    }
+}
 // 🔧 FUNÇÃO AUXILIAR: Abrir formulário de agendamento
 window.abrirFormAgendamento = function() {
     // Foca no formulário principal
@@ -2939,6 +3044,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
