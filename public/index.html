@@ -951,50 +951,6 @@
         return false; // Não é callback, continua normal
     }
 
-// ✅ CLASSE ATUALIZADOR - ADICIONE ISSO NO FINAL
-class AtualizadorAgendamentos {
-    constructor() {
-        this.intervalId = null;
-        this.ativo = false;
-    }
-
-    iniciar() {
-        if (this.ativo) return;
-        
-        console.log('🔔 Iniciando atualizador automático (15s)...');
-        this.ativo = true;
-        
-        // Atualiza a cada 15 segundos
-        this.intervalId = setInterval(() => {
-            if (userToken) {
-                console.log('⏰ Atualização automática...');
-                listarAgendamentos();
-            } else {
-                this.parar();
-            }
-        }, 15000);
-        
-        // Atualiza quando a página fica visível
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && userToken) {
-                console.log('📱 Página visível - atualizando...');
-                setTimeout(() => listarAgendamentos(), 1000);
-            }
-        });
-    }
-
-    parar() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
-        this.ativo = false;
-        console.log('🔕 Atualizador parado');
-    }
-}
-
-
-        
     // 🔥 PROCESSAMENTO PARA WEB
     async function processarOAuthWeb() {
         try {
@@ -1123,8 +1079,6 @@ if (token) {
             document.getElementById('secoesIA').style.display = 'block';
             listarAgendamentos();
             setTimeout(() => verificarConfiguracaoSheets(), 1000);
-            setTimeout(() => atualizadorAgendamentos.iniciar(), 2000);
-
         } else {
             // 🔥 Sessão inválida - limpa tudo para evitar "conectando"
             console.log('❌ Sessão inválida - fazendo limpeza');
@@ -1834,7 +1788,6 @@ loginBtn.addEventListener('click', async () => {
 // 🔥 ADICIONE ESTA LINHA:
 document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos().then(() => {
-             setTimeout(() => atualizadorAgendamentos.iniciar(), 2000);
             // Seleciona o dia atual
             let hoje = new Date().getDay();
             if (hoje === 0) {
@@ -1853,7 +1806,7 @@ document.getElementById('secoesIA').style.display = 'block';
 
         // 🔥 ADICIONE AQUI - Verificar configuração do Google Sheets
         await verificarConfiguracaoSheets();
-        
+
         // Esconder loading
         loginText.classList.remove('hidden');
         loginSpinner.classList.add('hidden');
@@ -1927,12 +1880,7 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
        // ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
-    atualizadorAgendamentos.parar();
-
-     if (window.atualizacaoInterval) {
-        clearInterval(window.atualizacaoInterval);
-        console.log('🔕 Atualização periódica parada');
-    }
+    
     try {
         // 🔥 CORREÇÃO: Remove event listeners específicos
         if (searchInput && typeof renderAgendamentos === 'function') {
@@ -2944,12 +2892,12 @@ document.getElementById('gerarLinkBtn').addEventListener('click', async function
 async function gerarLinkAutomatico() {
     try {
         console.log('🔧 Gerando link automaticamente...');
-
-         // ✅ DADOS COM AVISOS - para o cliente preencher depois
+        
+        // ✅ DADOS PRÉ-DEFINIDOS - NÃO tenta pegar do form
         const dados = {
-            nome: "Seu nome aqui",
+            nome: "Cliente via Link",
             email: "",
-            telefone: "Adicione seu telefone",
+            telefone: "11999999999", // Telefone padrão
             // ❌ NÃO incluir data e horário - o cliente escolhe depois
         };
         
@@ -3182,30 +3130,11 @@ function debounce(func, wait) {
 }
 
 
-        
-
-// ✅ INSTÂNCIA GLOBAL
-const atualizadorAgendamentos = new AtualizadorAgendamentos();
-
-// ✅ INICIAR NO LOGIN - Substitua no seu código de login
-// No login bem-sucedido, adicione:
-atualizadorAgendamentos.iniciar();
-
-// ✅ PARAR NO LOGOUT - Adicione no logout
-logoutBtn.addEventListener('click', async () => {
-    console.log('🚪 Iniciando logout...');
-    
-    // Para o atualizador
-    atualizadorAgendamentos.parar();
-    
-    // ... resto do código do logout
-});
 
         // 🔧 CONFIGURAÇÕES - BOTÃO ENGRENAGEM
 document.getElementById('settingsBtn').addEventListener('click', function() {
     mostrarModalConfiguracao();
 });
-
 
 
 
@@ -3233,12 +3162,6 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
-
-
-
-
-
-
 
 
 
