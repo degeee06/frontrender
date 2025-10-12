@@ -899,9 +899,7 @@ atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
                 
                 listarAgendamentos();
                 // 🔥 ADICIONE: Conectar SSE após login
-setTimeout(() => {
-    conectarSSE();
-}, 1000);
+                setTimeout(() => iniciarSistemaAtualizacao(), 1000);
                 showToast("Login realizado com sucesso!", "success");
             }
         } catch (error) {
@@ -2069,8 +2067,111 @@ if(!dataToSend.Email || dataToSend.Email.trim() === '') {
         searchInput.addEventListener("input", debounce(renderAgendamentos, 300));
         statusFilter.addEventListener("change", renderAgendamentos);
 
+// 1. Buscar agendamentos do Supabase
+async function buscarAgendamentosDoSupabase() {
+    try {
+        console.log('🔄 Buscando agendamentos do Supabase...');
+        
+        const { data: agendamentos, error } = await supabase
+            .from('agendamentos')
+            .select('*')
+            .order('data', { ascending: true })
+            .order('horario', { ascending: true });
+
+        if (error) throw error;
+
+        console.log(`✅ ${agendamentos.length} agendamentos encontrados`);
+        return agendamentos;
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar agendamentos:', error);
+        return [];
+    }
+}
+
+// 2. Atualizar a lista na tela
+async function atualizarListaAutomaticamente() {
+    const agendamentos = await buscarAgendamentosDoSupabase();
+    
+    if (agendamentos.length > 0 && typeof renderAgendamentos === 'function') {
+        // 🔥 ATUALIZA O CACHE E RENDERIZA
+        agendamentosCache = agendamentos;
+        renderAgendamentos();
+        console.log('🎯 Lista atualizada automaticamente');
+    }
+}
+
+// 3. ATUALIZAÇÃO AUTOMÁTICA (a cada 30 segundos)
+let intervaloAtualizacao;
+
+function iniciarAtualizacaoAutomatica() {
+    // Atualiza imediatamente ao carregar
+    atualizarListaAutomaticamente();
+    
+    // E a cada 30 segundos
+    intervaloAtualizacao = setInterval(atualizarListaAutomaticamente, 30000);
+    
+    console.log('🔔 Atualização automática ativada (30 segundos)');
+}
+
+// 4. BOTÃO MANUAL ATUALIZADO
+async function atualizarListaAgendamentos() {
+    const btn = document.getElementById('btnAtualizarLista');
+    if (!btn) return;
+    
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+    
+    try {
+        console.log('🔄 Atualização manual acionada...');
+        
+        // Força atualização
+        await atualizarListaAutomaticamente();
+        
+        // Feedback visual
+        btn.classList.remove('btn-loading');
+        btn.classList.add('btn-success');
+        showToast(`✅ Lista atualizada!`, "success");
+        
+    } catch (error) {
+        console.error('❌ Erro na atualização manual:', error);
+        btn.classList.remove('btn-loading');
+        btn.classList.add('btn-error');
+        showToast("❌ Erro ao atualizar", "error");
+    } finally {
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.classList.remove('btn-loading', 'btn-success', 'btn-error');
+        }, 2000);
+    }
+}
+
+// 5. Parar atualização automática quando página não está visível
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        // Página não visível - para de atualizar
+        if (intervaloAtualizacao) {
+            clearInterval(intervaloAtualizacao);
+            console.log('⏸️ Atualização automática pausada');
+        }
+    } else {
+        // Página visível - retorna a atualizar
+        iniciarAtualizacaoAutomatica();
+    }
+});
+
+// 🔥 INICIALIZAR QUANDO USUÁRIO ESTIVER LOGADO
+function iniciarSistemaAtualizacao() {
+    if (userToken) {
+        console.log('🚀 Iniciando sistema de atualização automática...');
+        iniciarAtualizacaoAutomatica();
+    }
+}
+
+
+        
         // ---------------- TABS ----------------
-// 🔥 SUA FUNÇÃO ORIGINAL + BOTÃO ATUALIZAR
+// 🔥 ATUALIZE SUA FUNÇÃO initTabsDias PARA USAR A NOVA FUNÇÃO:
 function initTabsDias(){
     const tabsDia = document.querySelectorAll(".tab-dia");
     const tabsSemana = document.querySelectorAll(".tab-semana");
@@ -2100,20 +2201,17 @@ function initTabsDias(){
             btn.classList.add("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active");
             
             const semanas = parseInt(btn.dataset.semana);
-            
-            // 🔥 CORREÇÃO CRÍTICA: Lógica de datas corrigida
             diaSelecionado = semanas; 
             renderAgendamentos();
         });
     });
     
-    // 🔥🔥🔥 ADICIONE APENAS ESTAS 4 LINHAS NO FINAL:
+    // 🔥 BOTÃO ATUALIZAR - USA A NOVA FUNÇÃO
     const btnAtualizar = document.getElementById('btnAtualizarLista');
     if (btnAtualizar) {
         btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
     }
 }
-
 // ---------------- FUNÇÃO AUXILIAR: Converter blob para base64 ----------------
 function blobToBase64(blob) {
     return new Promise((resolve, reject) => {
@@ -3185,6 +3283,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
