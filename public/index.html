@@ -2853,7 +2853,20 @@ function voltarParaApp() {
 }
 
 
+// 🔥 ADICIONE: Fechar modal clicando fora dele
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('modalLinkAgendamento');
+    if (modal && e.target === modal) {
+        fecharModalLinkAgendamento();
+    }
+});
 
+// 🔥 ADICIONE: Fechar com ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        fecharModalLinkAgendamento();
+    }
+});
         
 // 🔥 ADICIONAR: Debounce simples para melhorar performance
 function debounce(func, wait) {
@@ -2901,6 +2914,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
