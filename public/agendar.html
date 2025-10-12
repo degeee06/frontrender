@@ -160,48 +160,79 @@
             return { username, token };
         }
         
-        // ✅ CARREGA DADOS DO LINK (apenas informações prévias)
-        async function carregarDadosLink() {
-            const { username, token } = getUrlParams();
-            
-            if (!username || !token) {
-                mostrarErro('Link inválido. Verifique se o link está completo.');
-                document.getElementById('loading').style.display = 'none';
-                return;
-            }
-            
-            try {
-                console.log('🔄 Buscando dados do link...', { username, token });
-                
-                const response = await fetch(`${BACKEND_URL}/api/agendar-convidado/${username}/${token}`);
-                const data = await response.json();
-                
-                console.log('📦 Resposta do backend:', data);
-                
-                if (!response.ok) {
-                    throw new Error(data.msg || 'Erro ao carregar dados do link');
-                }
-                
-                if (data.success) {
-                    preencherInformacoesPrevias(data.dados_predefinidos, data.personalizacao);
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('agendamento-form').style.display = 'block';
-                    
-                    // Configurar evento para buscar horários quando data for selecionada
-                    document.getElementById('data').addEventListener('change', function() {
-                        buscarHorariosDisponiveis(username, this.value);
-                    });
-                    
-                } else {
-                    throw new Error(data.msg || 'Dados do link não encontrados');
-                }
-                
-            } catch (error) {
-                console.error('❌ Erro:', error);
-                mostrarErro(error.message);
-                document.getElementById('loading').style.display = 'none';
-            }
+       // 🔥 CORREÇÃO: Melhorar função de carregamento de dados
+async function carregarDadosLink() {
+    const { username, token } = getUrlParams();
+    
+    if (!username || !token) {
+        mostrarErro('Link inválido. Verifique se o link está completo.');
+        document.getElementById('loading').style.display = 'none';
+        return;
+    }
+    
+    try {
+        console.log('🔄 Buscando dados do link...', { username, token });
+        
+        const response = await fetch(`${BACKEND_URL}/api/agendar-convidado/${username}/${token}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.msg || `Erro ${response.status}: ${response.statusText}`);
         }
+        
+        const data = await response.json();
+        console.log('📦 Resposta do backend:', data);
+        
+        if (data.success) {
+            preencherInformacoesPrevias(data.dados_predefinidos, data.personalizacao);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('agendamento-form').style.display = 'block';
+            
+            // Configurar evento para buscar horários
+            document.getElementById('data').addEventListener('change', function() {
+                buscarHorariosDisponiveis(username, this.value);
+            });
+            
+        } else {
+            throw new Error(data.msg || 'Dados do link não encontrados');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        mostrarErro(error.message);
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+        // 🔥 MELHORIA: Cache inteligente para horários
+const horariosCache = new Map();
+
+// 🔥 MELHORIA: Função para limpar cache seletivamente
+function limparCacheSeletivo(userId) {
+    const keysToDelete = [];
+    for (let key of cache.keys()) {
+        if (key.includes(userId)) {
+            keysToDelete.push(key);
+        }
+    }
+    keysToDelete.forEach(key => cache.delete(key));
+}
+
+// 🔥 MELHORIA: Função para validar telefone
+function validarTelefone(telefone) {
+    const telefoneLimpo = telefone.replace(/\D/g, '');
+    return telefoneLimpo.length === 11;
+}
+
+// 🔥 MELHORIA: Função para formatar data de forma segura
+function formatarDataSegura(dataString) {
+    try {
+        const data = new Date(dataString + 'T00:00:00');
+        return data.toLocaleDateString('pt-BR');
+    } catch (error) {
+        console.error('Erro ao formatar data:', error);
+        return dataString;
+    }
+}
         
         // ✅ PREENCHE INFORMAÇÕES PRÉVIAS (nome, email, telefone)
         function preencherInformacoesPrevias(dados, personalizacao = {}) {
