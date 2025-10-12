@@ -3099,50 +3099,50 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
-// 🔥 FUNÇÃO: Atualizar lista com loading
 async function atualizarListaAgendamentos() {
     const btn = document.getElementById('btnAtualizarLista');
     if (!btn) return;
     
-    // 🔥 MOSTRA LOADING
     btn.classList.add('btn-loading');
     btn.disabled = true;
     
     try {
-        console.log('🔄 Atualizando lista de agendamentos...');
+        console.log('🔄 Buscando agendamentos DIRETO do Supabase...');
         
-        // 🔥 SIMPLESMENTE RECARREGA OS AGENDAMENTOS
-        await listarAgendamentos();
+        // 🔥 BUSCA DIRETA DO SUPABASE - SEM CACHE
+        const { data: agendamentos, error } = await supabase
+            .from('agendamentos')
+            .select('*')
+            .order('data', { ascending: true })
+            .order('horario', { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        console.log('✅ Agendamentos encontrados:', agendamentos.length);
+        
+        // 🔥 ATUALIZA A LISTA NA TELA
+        renderAgendamentos(agendamentos); // Ou sua função de renderização
         
         // 🔥 FEEDBACK DE SUCESSO
         btn.classList.remove('btn-loading');
         btn.classList.add('btn-success');
-        setTimeout(() => {
-            btn.classList.remove('btn-success');
-        }, 2000);
-        
-        showToast("✅ Lista atualizada com sucesso!", "success");
+        showToast(`✅ ${agendamentos.length} agendamentos carregados!`, "success");
         
     } catch (error) {
-        console.error('❌ Erro ao atualizar lista:', error);
+        console.error('❌ Erro ao buscar do Supabase:', error);
         
-        // 🔥 FEEDBACK DE ERRO
         btn.classList.remove('btn-loading');
         btn.classList.add('btn-error');
-        setTimeout(() => {
-            btn.classList.remove('btn-error');
-        }, 2000);
-        
         showToast("❌ Erro ao atualizar lista", "error");
     } finally {
-        // 🔥 RESTAURA BOTÃO
         setTimeout(() => {
             btn.disabled = false;
             btn.classList.remove('btn-loading', 'btn-success', 'btn-error');
         }, 2000);
     }
 }
-
 // 🔥 EVENT LISTENER para o botão
 document.addEventListener('DOMContentLoaded', function() {
     const btnAtualizar = document.getElementById('btnAtualizarLista');
@@ -3185,6 +3185,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
