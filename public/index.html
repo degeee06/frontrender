@@ -1139,28 +1139,31 @@ async function gerarLinkAgendamento() {
     }
 }
 
-// 🔥 ADICIONE: Modal para mostrar o link e QR code
+// 🔥 ATUALIZE esta função - Adicione o botão X
 function mostrarModalLinkAgendamento(link, qrCodeUrl) {
     const modalExistente = document.getElementById('modalLinkAgendamento');
     if (modalExistente) modalExistente.remove();
 
     const modalHTML = `
         <div id="modalLinkAgendamento" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div class="glass-card rounded-xl p-6 w-full max-w-md mx-auto animate-fade-in">
+            <div class="glass-card rounded-xl p-6 w-full max-w-md mx-auto animate-fade-in relative"> <!-- 🔥 ADICIONE relative -->
+                
+                <!-- 🔥 BOTÃO X PARA FECHAR -->
+                <button onclick="fecharModalLinkAgendamento()" 
+                        class="absolute top-4 right-4 text-gray-400 hover:text-white z-50">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+                
                 <!-- Cabeçalho -->
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">🔗 Link de Agendamento</h3>
-                    <button onclick="fecharModalLinkAgendamento()" class="text-gray-400 hover:text-white">
-                        <i data-feather="x" class="w-4 h-4"></i>
-                    </button>
                 </div>
                 
-                <!-- Conteúdo -->
+                <!-- Conteúdo (mantenha igual) -->
                 <div class="space-y-4">
                     <div class="text-center">
                         <p class="text-sm text-gray-300 mb-3">Compartilhe este link com seus clientes:</p>
                         
-                        <!-- Link copiável -->
                         <div class="bg-white/10 rounded-lg p-3 mb-3">
                             <code class="text-xs break-all text-cyan-300">${link}</code>
                         </div>
@@ -1172,7 +1175,6 @@ function mostrarModalLinkAgendamento(link, qrCodeUrl) {
                         </button>
                     </div>
                     
-                    <!-- QR Code -->
                     ${qrCodeUrl ? `
                     <div class="text-center border-t border-white/10 pt-4">
                         <p class="text-sm text-gray-300 mb-2">Ou escaneie o QR Code:</p>
@@ -1182,7 +1184,6 @@ function mostrarModalLinkAgendamento(link, qrCodeUrl) {
                     ` : ''}
                 </div>
                 
-                <!-- Rodapé -->
                 <div class="mt-4 text-center">
                     <p class="text-xs text-gray-400">
                         💡 Seus clientes poderão agendar diretamente por este link, sem precisar fazer login!
@@ -1194,6 +1195,12 @@ function mostrarModalLinkAgendamento(link, qrCodeUrl) {
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     feather.replace();
+}
+
+// 🔥 FUNÇÃO PARA FECHAR (já deve existir)
+function fecharModalLinkAgendamento() {
+    const modal = document.getElementById('modalLinkAgendamento');
+    if (modal) modal.remove();
 }
 
 // 🔥 ADICIONE: Função para copiar link
@@ -1212,11 +1219,6 @@ function copiarLink(link) {
     });
 }
 
-// 🔥 ADICIONE: Função para fechar modal
-function fecharModalLinkAgendamento() {
-    const modal = document.getElementById('modalLinkAgendamento');
-    if (modal) modal.remove();
-}
 
         
 // ✅ FUNÇÃO PARA PROCESSAR RETORNO DO OAUTH
@@ -2914,6 +2916,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
