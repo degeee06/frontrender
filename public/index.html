@@ -2960,34 +2960,117 @@ async function verificarPerfil() {
     }
 }
 
-// 🔥 ADICIONE ESTAS FUNÇÕES:
-
-function abrirGerarLinkModal() {
-    const modal = document.getElementById('gerarLinkModal');
-    const hoje = new Date();
-    const dataInput = document.getElementById('linkData');
-    
-    // Define data mínima como hoje
-    dataInput.min = hoje.toISOString().split('T')[0];
-    
+// 🔥 CORREÇÃO: Adicionar função para abrir modal de criar perfil
+function abrirCriarPerfilModal() {
+    const modal = document.getElementById('criarPerfilModal');
     modal.classList.remove('hidden');
     feather.replace();
 }
 
-function fecharGerarLinkModal() {
-    const modal = document.getElementById('gerarLinkModal');
-    modal.classList.add('hidden');
-    
-    // Limpa o formulário
-    document.getElementById('formGerarLink').reset();
-    document.getElementById('linkResultado').classList.add('hidden');
-}
-
+// 🔥 CORREÇÃO: Adicionar função para fechar modal de criar perfil  
 function fecharCriarPerfilModal() {
     const modal = document.getElementById('criarPerfilModal');
     modal.classList.add('hidden');
 }
 
+// 🔥 CORREÇÃO: Adicionar função para abrir modal de gerar link
+function abrirGerarLinkModal() {
+    const modal = document.getElementById('gerarLinkModal');
+    const hoje = new Date();
+    const dataInput = document.getElementById('linkData');
+    
+    dataInput.min = hoje.toISOString().split('T')[0];
+    modal.classList.remove('hidden');
+    feather.replace();
+}
+
+// 🔥 CORREÇÃO: Adicionar função para fechar modal de gerar link
+function fecharGerarLinkModal() {
+    const modal = document.getElementById('gerarLinkModal');
+    modal.classList.add('hidden');
+    document.getElementById('formGerarLink').reset();
+    document.getElementById('linkResultado').classList.add('hidden');
+}
+
+// 🔥 CORREÇÃO: Adicionar função para copiar link
+function copiarLink() {
+    const linkInput = document.getElementById('linkGerado');
+    
+    if (!linkInput) {
+        console.error('❌ Elemento linkGerado não encontrado');
+        showToast('❌ Erro ao copiar link', 'error');
+        return;
+    }
+    
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999);
+    
+    navigator.clipboard.writeText(linkInput.value)
+        .then(() => {
+            showToast('📋 Link copiado para a área de transferência!', 'success');
+        })
+        .catch(err => {
+            console.error('❌ Erro ao copiar:', err);
+            try {
+                document.execCommand('copy');
+                showToast('📋 Link copiado!', 'success');
+            } catch (fallbackError) {
+                console.error('❌ Fallback também falhou:', fallbackError);
+                showToast('❌ Erro ao copiar link', 'error');
+            }
+        });
+}
+
+// 🔥 CORREÇÃO: Adicionar debounce function faltante
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+
+// 🔥 CORREÇÃO: Função para atualizar interface pós-login
+function atualizarInterfacePosLogin() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
+    
+    if (userToken) {
+        if (logoutBtn) logoutBtn.style.display = 'flex';
+        if (settingsBtn) settingsBtn.style.display = 'flex';
+        if (gerarLinkBtn) gerarLinkBtn.style.display = 'flex';
+    } else {
+        if (logoutBtn) logoutBtn.style.display = 'none';
+        if (settingsBtn) settingsBtn.style.display = 'none';
+        if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
+    }
+}
+
+// 🔥 CORREÇÃO: Adicionar função para mostrar modal de configuração
+function mostrarModalConfiguracao() {
+    const modal = document.getElementById('configSheetsModal');
+    modal.classList.remove('hidden');
+    feather.replace();
+}
+
+// 🔥 CORREÇÃO: Adicionar função para fechar modal de configuração
+function fecharModalConfiguracao() {
+    const modal = document.getElementById('configSheetsModal');
+    modal.classList.add('hidden');
+}
+
+// 🔥 CORREÇÃO: Adicionar função para pular configuração
+function fecharConfiguracao() {
+    console.log('🎯 Usuário pulou configuração');
+    fecharModalConfiguracao();
+    showToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
+}
 // 🔥 ADICIONAR: Criar perfil
 document.getElementById('formCriarPerfil').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -3138,13 +3221,6 @@ document.getElementById('settingsBtn').addEventListener('click', function() {
 
 
 
-// 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
-function fecharConfiguracao() {
-    console.log('🎯 Usuário pulou configuração');
-    fecharModalConfiguracao();
-    mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
-}
-
 // 🔧 ATUALIZAR: No login, chame a função para mostrar os botões
 // Substitua esta parte no seu login:
 loginSection.style.display = 'none';
@@ -3162,6 +3238,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
