@@ -1803,7 +1803,7 @@ document.getElementById('secoesIA').style.display = 'block';
         });
 
         showToast("Login realizado com sucesso!", "success");
-
+        configurarListenerAgendamentos(); // 👈 NOVA LINHA
         // 🔥 ADICIONE AQUI - Verificar configuração do Google Sheets
         await verificarConfiguracaoSheets();
 
@@ -3162,6 +3162,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
