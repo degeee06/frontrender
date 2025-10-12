@@ -979,7 +979,7 @@ form.style.display = 'block';
 atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
                 document.getElementById('secoesIA').style.display = 'block';
                 
-                listarAgendamentos();
+                 inicializarSistemaPosLogin();
                 showToast("Login realizado com sucesso!", "success");
             }
         } catch (error) {
@@ -1175,9 +1175,9 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
         // Usuário JÁ logado - mostra dashboard
       loginSection.style.display = 'none';
 form.style.display = 'block';
-atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
+
         document.getElementById('secoesIA').style.display = 'block';
-        listarAgendamentos();
+        inicializarSistemaPosLogin(); // 🔥 NOVA FUNÇÃO
         setTimeout(() => verificarConfiguracaoSheets(), 1000);
     } else {
         // Usuário NÃO logado - mostra login
@@ -1771,6 +1771,8 @@ loginBtn.addEventListener('click', async () => {
         atualizarInterfacePosLogin();
 // 🔥 ADICIONE ESTA LINHA:
 document.getElementById('secoesIA').style.display = 'block';
+        // 🔥🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧
+        // SUBSTITUA ESTA PARTE:
         listarAgendamentos().then(() => {
             // Seleciona o dia atual
             let hoje = new Date().getDay();
@@ -1785,7 +1787,11 @@ document.getElementById('secoesIA').style.display = 'block';
                 document.querySelector(`.tab-dia[data-dia="1"]`)?.click();
             }
         });
+        // 🔥🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧
 
+        // POR ESTA:
+        inicializarSistemaPosLogin(); // 🔥 NOVA FUNÇÃO
+        
         showToast("Login realizado com sucesso!", "success");
 
         // 🔥 ADICIONE AQUI - Verificar configuração do Google Sheets
@@ -3141,7 +3147,114 @@ document.getElementById('formGerarLink').addEventListener('submit', async functi
     }
 });
 
-        
+    // 🔥🔥🔥 NOVA FUNÇÃO: Inicialização completa pós-login
+function inicializarSistemaPosLogin() {
+    console.log('🚀 Inicializando sistema pós-login...');
+    
+    // 1. Carrega os agendamentos
+    listarAgendamentos().then(() => {
+        // Seleciona o dia atual
+        let hoje = new Date().getDay();
+        if (hoje === 0) {
+            hoje = 1;
+        }
+
+        const btnHoje = document.querySelector(`.tab-dia[data-dia="${hoje}"]`);
+        if (btnHoje) {
+            btnHoje.click();
+        } else {
+            document.querySelector(`.tab-dia[data-dia="1"]`)?.click();
+        }
+    });
+    
+    // 2. Configura o detector de novos agendamentos
+    configurarDetectorAgendamentos();
+    
+    // 3. Verifica configuração do Google Sheets
+    setTimeout(() => verificarConfiguracaoSheets(), 1000);
+    
+    console.log('✅ Sistema pós-login inicializado com sucesso!');
+}
+
+// 🔥🔥🔥 DETECTOR DE NOVOS AGENDAMENTOS
+function configurarDetectorAgendamentos() {
+    console.log('🎯 Configurando detector de agendamentos...');
+    
+    // 1. Ouvir mensagens do BroadcastChannel
+    try {
+        const broadcast = new BroadcastChannel('agendamentos_channel');
+        broadcast.onmessage = function(event) {
+            if (event.data.type === 'NOVO_AGENDAMENTO') {
+                console.log('📢 Novo agendamento detectado via BroadcastChannel:', event.data);
+                mostrarNotificacaoAgendamento(event.data.agendamento);
+                listarAgendamentos(); // Atualiza a lista
+            }
+        };
+    } catch (error) {
+        console.log('❌ BroadcastChannel não suportado');
+    }
+    
+    // 2. Verificar localStorage periodicamente
+    setInterval(function() {
+        try {
+            const ultimoAgendamento = localStorage.getItem('ultimo_agendamento_link');
+            if (ultimoAgendamento) {
+                const agendamentoData = localStorage.getItem('agendamento_data');
+                if (agendamentoData) {
+                    const dados = JSON.parse(agendamentoData);
+                    console.log('📢 Novo agendamento detectado via localStorage:', dados);
+                    mostrarNotificacaoAgendamento(dados.agendamento);
+                    listarAgendamentos(); // Atualiza a lista
+                    
+                    // Limpa o flag para não detectar repetidamente
+                    localStorage.removeItem('ultimo_agendamento_link');
+                    localStorage.removeItem('agendamento_data');
+                }
+            }
+        } catch (error) {
+            console.log('❌ Erro ao verificar localStorage:', error);
+        }
+    }, 2000); // Verifica a cada 2 segundos
+    
+    // 3. Ouvir mensagens postMessage (para popups)
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'AGENDAMENTO_CONFIRMADO') {
+            console.log('📢 Novo agendamento detectado via postMessage:', event.data);
+            mostrarNotificacaoAgendamento(event.data.agendamento);
+            listarAgendamentos(); // Atualiza a lista
+        }
+    });
+}
+
+// 🔥 FUNÇÃO: Mostrar notificação de novo agendamento
+function mostrarNotificacaoAgendamento(agendamento) {
+    if (!agendamento) return;
+    
+    showToast(`📅 Novo agendamento: ${agendamento.nome} - ${formatarData(agendamento.data)} ${agendamento.horario}`, 'success');
+    
+    // Também pode mostrar um modal mais detalhado se quiser
+    console.log('🎉 Novo agendamento recebido:', agendamento);
+}
+    
+    // 3. Ouvir mensagens postMessage (para popups)
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'AGENDAMENTO_CONFIRMADO') {
+            console.log('📢 Novo agendamento detectado via postMessage:', event.data);
+            mostrarNotificacaoAgendamento(event.data.agendamento);
+            listarAgendamentos(); // Atualiza a lista
+        }
+    });
+}
+
+// 🔥 FUNÇÃO: Mostrar notificação de novo agendamento
+function mostrarNotificacaoAgendamento(agendamento) {
+    if (!agendamento) return;
+    
+    showToast(`📅 Novo agendamento: ${agendamento.nome} - ${formatarData(agendamento.data)} ${agendamento.horario}`, 'success');
+    
+    // Também pode mostrar um modal mais detalhado se quiser
+    console.log('🎉 Novo agendamento recebido:', agendamento);
+}
 
 
         // 🔧 CONFIGURAÇÕES - BOTÃO ENGRENAGEM
@@ -3168,6 +3281,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
