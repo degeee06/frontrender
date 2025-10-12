@@ -1079,6 +1079,7 @@ if (token) {
             document.getElementById('secoesIA').style.display = 'block';
             listarAgendamentos();
             setTimeout(() => verificarConfiguracaoSheets(), 1000);
+            setTimeout(() => iniciarAtualizacaoPeriodica(), 5000);
         } else {
             // 🔥 Sessão inválida - limpa tudo para evitar "conectando"
             console.log('❌ Sessão inválida - fazendo limpeza');
@@ -1788,6 +1789,7 @@ loginBtn.addEventListener('click', async () => {
 // 🔥 ADICIONE ESTA LINHA:
 document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos().then(() => {
+            setTimeout(() => iniciarAtualizacaoPeriodica(), 5000);
             // Seleciona o dia atual
             let hoje = new Date().getDay();
             if (hoje === 0) {
@@ -1806,7 +1808,7 @@ document.getElementById('secoesIA').style.display = 'block';
 
         // 🔥 ADICIONE AQUI - Verificar configuração do Google Sheets
         await verificarConfiguracaoSheets();
-
+        
         // Esconder loading
         loginText.classList.remove('hidden');
         loginSpinner.classList.add('hidden');
@@ -1880,7 +1882,11 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
        // ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
-    
+
+     if (window.atualizacaoInterval) {
+        clearInterval(window.atualizacaoInterval);
+        console.log('🔕 Atualização periódica parada');
+    }
     try {
         // 🔥 CORREÇÃO: Remove event listeners específicos
         if (searchInput && typeof renderAgendamentos === 'function') {
@@ -3130,6 +3136,46 @@ function debounce(func, wait) {
 }
 
 
+        // 🔄 ATUALIZAÇÃO PERIÓDICA PARA NOVOS AGENDAMENTOS
+function iniciarAtualizacaoPeriodica() {
+    // Só inicia se estiver logado
+    if (!userToken) {
+        console.log('🔐 Usuário não logado - parando atualização periódica');
+        return;
+    }
+    
+    console.log('🔄 Iniciando atualização periódica (30s)...');
+    
+    // Atualiza a cada 30 segundos
+    return setInterval(() => {
+        if (userToken) {
+            console.log('⏰ Atualização periódica - verificando novos agendamentos...');
+            listarAgendamentos();
+        } else {
+            console.log('🔐 Usuário deslogado - parando atualização');
+            clearInterval(window.atualizacaoInterval);
+        }
+    }, 30000); // 30 segundos
+}
+
+        
+
+// ✅ INSTÂNCIA GLOBAL
+const atualizadorAgendamentos = new AtualizadorAgendamentos();
+
+// ✅ INICIAR NO LOGIN - Substitua no seu código de login
+// No login bem-sucedido, adicione:
+atualizadorAgendamentos.iniciar();
+
+// ✅ PARAR NO LOGOUT - Adicione no logout
+logoutBtn.addEventListener('click', async () => {
+    console.log('🚪 Iniciando logout...');
+    
+    // Para o atualizador
+    atualizadorAgendamentos.parar();
+    
+    // ... resto do código do logout
+});
 
         // 🔧 CONFIGURAÇÕES - BOTÃO ENGRENAGEM
 document.getElementById('settingsBtn').addEventListener('click', function() {
@@ -3162,6 +3208,7 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
+
 
 
 
