@@ -979,7 +979,7 @@ form.style.display = 'block';
 atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
                 document.getElementById('secoesIA').style.display = 'block';
                 
-                 inicializarSistemaPosLogin();
+                listarAgendamentos();
                 showToast("Login realizado com sucesso!", "success");
             }
         } catch (error) {
@@ -1175,9 +1175,9 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
         // Usuário JÁ logado - mostra dashboard
       loginSection.style.display = 'none';
 form.style.display = 'block';
-
+atualizarInterfacePosLogin();  // 🔥 ADICIONE ESTA
         document.getElementById('secoesIA').style.display = 'block';
-        inicializarSistemaPosLogin(); // 🔥 NOVA FUNÇÃO
+        listarAgendamentos();
         setTimeout(() => verificarConfiguracaoSheets(), 1000);
     } else {
         // Usuário NÃO logado - mostra login
@@ -1242,7 +1242,23 @@ async function processarRetornoOAuth(url) {
     }
 }
 
+       function mostrarModalConfiguracao() {
+    const modal = document.getElementById('configSheetsModal');
+    modal.classList.remove('hidden');
     
+    // 🔥 ADICIONE ESTA LINHA - Configura os event listeners quando o modal abre
+    setTimeout(() => {
+        configurarEventListenersModal();
+    }, 100);
+    
+    feather.replace();
+}
+        
+        function fecharModalConfiguracao() {
+            const modal = document.getElementById('configSheetsModal');
+            modal.classList.add('hidden');
+        }
+        
        // 🔥 CORREÇÃO: Funções atualizadas para o modal
 async function criarPlanilhaAutomatica() {
     console.log('🎯 Botão Criar Planilha clicado!');
@@ -1771,8 +1787,6 @@ loginBtn.addEventListener('click', async () => {
         atualizarInterfacePosLogin();
 // 🔥 ADICIONE ESTA LINHA:
 document.getElementById('secoesIA').style.display = 'block';
-        // 🔥🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧
-        // SUBSTITUA ESTA PARTE:
         listarAgendamentos().then(() => {
             // Seleciona o dia atual
             let hoje = new Date().getDay();
@@ -1787,11 +1801,7 @@ document.getElementById('secoesIA').style.display = 'block';
                 document.querySelector(`.tab-dia[data-dia="1"]`)?.click();
             }
         });
-        // 🔥🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧🔧
 
-        // POR ESTA:
-        inicializarSistemaPosLogin(); // 🔥 NOVA FUNÇÃO
-        
         showToast("Login realizado com sucesso!", "success");
 
         // 🔥 ADICIONE AQUI - Verificar configuração do Google Sheets
@@ -2785,7 +2795,35 @@ function debounceIA() {
     }, 100);
 }
 
-
+// 🔥 ADICIONAR AQUI:
+function copiarLink() {
+    const linkInput = document.getElementById('linkGerado');
+    
+    if (!linkInput) {
+        console.error('❌ Elemento linkGerado não encontrado');
+        showToast('❌ Erro ao copiar link', 'error');
+        return;
+    }
+    
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999);
+    
+    navigator.clipboard.writeText(linkInput.value)
+        .then(() => {
+            showToast('📋 Link copiado para a área de transferência!', 'success');
+        })
+        .catch(err => {
+            console.error('❌ Erro ao copiar:', err);
+            try {
+                linkInput.select();
+                document.execCommand('copy');
+                showToast('📋 Link copiado!', 'success');
+            } catch (fallbackError) {
+                console.error('❌ Fallback também falhou:', fallbackError);
+                showToast('❌ Erro ao copiar link', 'error');
+            }
+        });
+}
         // ---------------- DETECTAR E REDIRECIONAR PARA O APP ----------------
 function isInApp() {
     return /Android|iPhone|iPad/i.test(navigator.userAgent) && 
@@ -2819,37 +2857,56 @@ function voltarParaApp() {
     }, 3000);
 }
 
+// 🔥 ADICIONAR: Mostrar botão quando usuário estiver logado
+function atualizarInterfacePosLogin() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const gerarLinkBtn = document.getElementById('gerarLinkBtn'); // 🔥 NOVO
+    
+    if (userToken) {
+        logoutBtn.style.display = 'flex';
+        settingsBtn.style.display = 'flex';
+        gerarLinkBtn.style.display = 'flex'; // 🔥 NOVO
+    } else {
+        logoutBtn.style.display = 'none';
+        settingsBtn.style.display = 'none';
+        gerarLinkBtn.style.display = 'none'; // 🔥 NOVO
+    }
+}
 
-
-// ✅ CORREÇÃO: Botão gera link automático
+// 🔥 ATUALIZAR: Função de gerar link para verificar perfil primeiro
 document.getElementById('gerarLinkBtn').addEventListener('click', async function() {
     const perfil = await verificarPerfil();
     
     if (!perfil) {
+        // Não tem perfil - pedir para criar
         abrirCriarPerfilModal();
     } else {
-        // ✅ SÓ ISSE - gera automático, NÃO abre modal
-        gerarLinkAutomatico();
+        // Tem perfil - pode gerar link
+        abrirGerarLinkModal();
     }
 });
 
-  
-        
-// ✅ CORREÇÃO: Função para gerar link automático
+// 🔥 ADICIONAR: Função para gerar link automaticamente
 async function gerarLinkAutomatico() {
     try {
-        console.log('🔧 Gerando link automaticamente...');
+        console.log('🔧 Gerando link automaticamente após criar perfil...');
         
-        // ✅ DADOS PRÉ-DEFINIDOS - NÃO tenta pegar do form
+        // Usa os dados que já estavam no form de gerar link
         const dados = {
-            nome: "Cliente via Link",
-            email: "",
-            telefone: "11999999999", // Telefone padrão
-            // ❌ NÃO incluir data e horário - o cliente escolhe depois
+            nome: document.getElementById('linkNome').value,
+            email: document.getElementById('linkEmail').value || '',
+            telefone: document.getElementById('linkTelefone').value,
         };
         
-        console.log('📤 Enviando dados para gerar link:', dados);
+        // Verifica se tem dados
+        if (!dados.nome || !dados.telefone || !dados.data || !dados.horario) {
+            // Se não tem dados, só abre o modal vazio
+            abrirGerarLinkModal();
+            return;
+        }
         
+        // Se tem dados, gera o link automaticamente
         const response = await fetch(`${API_BASE_URL}/gerar-link-agendamento`, {
             method: 'POST',
             headers: {
@@ -2862,27 +2919,18 @@ async function gerarLinkAutomatico() {
         const data = await response.json();
         
         if (data.success) {
-            // ✅ Mostra o link gerado em um toast/alert, NÃO no modal
-            showToast(`✅ Link gerado: ${data.link}`, 'success');
-            
-            // ✅ Copia automaticamente para a área de transferência
-            navigator.clipboard.writeText(data.link)
-                .then(() => {
-                    showToast('📋 Link copiado para a área de transferência!', 'success');
-                })
-                .catch(err => {
-                    console.error('Erro ao copiar:', err);
-                });
-                
+            // Mostra o link gerado diretamente
+            document.getElementById('linkGerado').value = data.link;
+            document.getElementById('linkResultado').classList.remove('hidden');
+            copiarLink();
+            showToast('✅ Link gerado e copiado automaticamente!', 'success');
         } else {
             throw new Error(data.msg || 'Erro ao gerar link');
         }
         
     } catch (error) {
         console.error('Erro ao gerar link automaticamente:', error);
-        showToast('❌ Erro ao gerar link: ' + error.message, 'error');
-        
-        // ✅ Como fallback, abre o modal apenas se der erro
+        // Se der erro, abre o modal normal
         abrirGerarLinkModal();
     }
 }
@@ -2907,8 +2955,17 @@ async function verificarPerfil() {
     }
 }
 
+// 🔥 ADICIONAR: Abrir modal de criar perfil
+function abrirCriarPerfilModal() {
+    const modal = document.getElementById('criarPerfilModal');
+    modal.classList.remove('hidden');
+    feather.replace();
+}
 
-
+function fecharCriarPerfilModal() {
+    const modal = document.getElementById('criarPerfilModal');
+    modal.classList.add('hidden');
+}
 
 // 🔥 ADICIONAR: Criar perfil
 document.getElementById('formCriarPerfil').addEventListener('submit', async function(e) {
@@ -2965,118 +3022,27 @@ if (data.success) {
     }
 });
 
-
-    // 🔥 CORREÇÃO: Adicionar função para abrir modal de criar perfil
-function abrirCriarPerfilModal() {
-    const modal = document.getElementById('criarPerfilModal');
-    modal.classList.remove('hidden');
-    feather.replace();
-}
-
-// 🔥 CORREÇÃO: Adicionar função para fechar modal de criar perfil  
-function fecharCriarPerfilModal() {
-    const modal = document.getElementById('criarPerfilModal');
-    modal.classList.add('hidden');
-}
-
-// 🔥 CORREÇÃO: Adicionar função para abrir modal de gerar link
+        
 function abrirGerarLinkModal() {
     const modal = document.getElementById('gerarLinkModal');
     const hoje = new Date();
     const dataInput = document.getElementById('linkData');
     
+    // Define data mínima como hoje
     dataInput.min = hoje.toISOString().split('T')[0];
+    
     modal.classList.remove('hidden');
     feather.replace();
 }
 
-// 🔥 CORREÇÃO: Adicionar função para fechar modal de gerar link
 function fecharGerarLinkModal() {
     const modal = document.getElementById('gerarLinkModal');
     modal.classList.add('hidden');
+    
+    // Limpa o formulário
     document.getElementById('formGerarLink').reset();
     document.getElementById('linkResultado').classList.add('hidden');
 }
-
-// 🔥 CORREÇÃO: Adicionar função para copiar link
-function copiarLink() {
-    const linkInput = document.getElementById('linkGerado');
-    
-    if (!linkInput) {
-        console.error('❌ Elemento linkGerado não encontrado');
-        showToast('❌ Erro ao copiar link', 'error');
-        return;
-    }
-    
-    linkInput.select();
-    linkInput.setSelectionRange(0, 99999);
-    
-    navigator.clipboard.writeText(linkInput.value)
-        .then(() => {
-            showToast('📋 Link copiado para a área de transferência!', 'success');
-        })
-        .catch(err => {
-            console.error('❌ Erro ao copiar:', err);
-            try {
-                document.execCommand('copy');
-                showToast('📋 Link copiado!', 'success');
-            } catch (fallbackError) {
-                console.error('❌ Fallback também falhou:', fallbackError);
-                showToast('❌ Erro ao copiar link', 'error');
-            }
-        });
-}
-
-// 🔥 CORREÇÃO: Adicionar debounce function faltante
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// 🔥 CORREÇÃO: Função para atualizar interface pós-login
-function atualizarInterfacePosLogin() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
-    
-    if (userToken) {
-        if (logoutBtn) logoutBtn.style.display = 'flex';
-        if (settingsBtn) settingsBtn.style.display = 'flex';
-        if (gerarLinkBtn) gerarLinkBtn.style.display = 'flex';
-    } else {
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        if (settingsBtn) settingsBtn.style.display = 'none';
-        if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
-    }
-}
-
-// 🔥 CORREÇÃO: Adicionar função para mostrar modal de configuração
-function mostrarModalConfiguracao() {
-    const modal = document.getElementById('configSheetsModal');
-    modal.classList.remove('hidden');
-    feather.replace();
-}
-
-// 🔥 CORREÇÃO: Adicionar função para fechar modal de configuração
-function fecharModalConfiguracao() {
-    const modal = document.getElementById('configSheetsModal');
-    modal.classList.add('hidden');
-}
-
-// 🔥 CORREÇÃO: Adicionar função para pular configuração
-function fecharConfiguracao() {
-    console.log('🎯 Usuário pulou configuração');
-    fecharModalConfiguracao();
-    showToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
-}
-
 
 // 🔥 ATUALIZAR: Função de gerar link (já existente) - adicionar verificação
 document.getElementById('formGerarLink').addEventListener('submit', async function(e) {
@@ -3147,95 +3113,19 @@ document.getElementById('formGerarLink').addEventListener('submit', async functi
     }
 });
 
-// 🔥🔥🔥 NOVA FUNÇÃO: Inicialização completa pós-login
-function inicializarSistemaPosLogin() {
-    console.log('🚀 Inicializando sistema pós-login...');
-    
-    // 1. Carrega os agendamentos
-    listarAgendamentos().then(() => {
-        // Seleciona o dia atual
-        let hoje = new Date().getDay();
-        if (hoje === 0) {
-            hoje = 1;
-        }
-
-        const btnHoje = document.querySelector(`.tab-dia[data-dia="${hoje}"]`);
-        if (btnHoje) {
-            btnHoje.click();
-        } else {
-            document.querySelector(`.tab-dia[data-dia="1"]`)?.click();
-        }
-    });
-    
-    // 2. Configura o detector de novos agendamentos
-    configurarDetectorAgendamentos();
-    
-    // 3. Verifica configuração do Google Sheets
-    setTimeout(() => verificarConfiguracaoSheets(), 1000);
-    
-    console.log('✅ Sistema pós-login inicializado com sucesso!');
-}
-
-// 🔥🔥🔥 DETECTOR DE NOVOS AGENDAMENTOS
-function configurarDetectorAgendamentos() {
-    console.log('🎯 Configurando detector de agendamentos...');
-    
-    // 1. Ouvir mensagens do BroadcastChannel
-    try {
-        const broadcast = new BroadcastChannel('agendamentos_channel');
-        broadcast.onmessage = function(event) {
-            if (event.data.type === 'NOVO_AGENDAMENTO') {
-                console.log('📢 Novo agendamento detectado via BroadcastChannel:', event.data);
-                mostrarNotificacaoAgendamento(event.data.agendamento);
-                listarAgendamentos(); // Atualiza a lista
-            }
+        
+// 🔥 ADICIONAR: Debounce simples para melhorar performance
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
         };
-    } catch (error) {
-        console.log('❌ BroadcastChannel não suportado');
-    }
-    
-    // 2. Verificar localStorage periodicamente
-    setInterval(function() {
-        try {
-            const ultimoAgendamento = localStorage.getItem('ultimo_agendamento_link');
-            if (ultimoAgendamento) {
-                const agendamentoData = localStorage.getItem('agendamento_data');
-                if (agendamentoData) {
-                    const dados = JSON.parse(agendamentoData);
-                    console.log('📢 Novo agendamento detectado via localStorage:', dados);
-                    mostrarNotificacaoAgendamento(dados.agendamento);
-                    listarAgendamentos(); // Atualiza a lista
-                    
-                    // Limpa o flag para não detectar repetidamente
-                    localStorage.removeItem('ultimo_agendamento_link');
-                    localStorage.removeItem('agendamento_data');
-                }
-            }
-        } catch (error) {
-            console.log('❌ Erro ao verificar localStorage:', error);
-        }
-    }, 2000); // Verifica a cada 2 segundos
-    
-    // 3. Ouvir mensagens postMessage (para popups)
-    window.addEventListener('message', function(event) {
-        if (event.data.type === 'AGENDAMENTO_CONFIRMADO') {
-            console.log('📢 Novo agendamento detectado via postMessage:', event.data);
-            mostrarNotificacaoAgendamento(event.data.agendamento);
-            listarAgendamentos(); // Atualiza a lista
-        }
-    });
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
-
-// 🔥 FUNÇÃO: Mostrar notificação de novo agendamento
-function mostrarNotificacaoAgendamento(agendamento) {
-    if (!agendamento) return;
-    
-    showToast(`📅 Novo agendamento: ${agendamento.nome} - ${formatarData(agendamento.data)} ${agendamento.horario}`, 'success');
-    
-    // Também pode mostrar um modal mais detalhado se quiser
-    console.log('🎉 Novo agendamento recebido:', agendamento);
-}
-
 
 
 
@@ -3245,6 +3135,13 @@ document.getElementById('settingsBtn').addEventListener('click', function() {
 });
 
 
+
+// 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
+function fecharConfiguracao() {
+    console.log('🎯 Usuário pulou configuração');
+    fecharModalConfiguracao();
+    mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
+}
 
 // 🔧 ATUALIZAR: No login, chame a função para mostrar os botões
 // Substitua esta parte no seu login:
@@ -3263,19 +3160,6 @@ document.getElementById('secoesIA').style.display = 'block';
         feather.replace();
         init();
     </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
