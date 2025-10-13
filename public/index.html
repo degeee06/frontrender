@@ -2445,7 +2445,7 @@
         }
 
         // ---------------- CONFIRMAR AGENDAMENTO ----------------
-      async function confirmarAgendamento(id) {
+    async function confirmarAgendamento(id) {
     if (!userToken) {
         showToast("Faça login para confirmar um agendamento.", "warning");
         return;
@@ -2454,37 +2454,58 @@
     try {
         console.log('✅ Confirmando agendamento ID:', id);
         
-        const res = await fetch(`${API_BASE_URL}/agendamentos/confirmar/${id}`, {
+        // 🔥 PRIMEIRO: Pega o email do usuário logado
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !user.email) {
+            showToast("Erro: usuário não encontrado", "error");
+            return;
+        }
+
+        const userEmail = user.email;
+        console.log('📧 Usuário:', userEmail);
+        
+        // 🔥 CORREÇÃO: Endpoint com email na URL
+        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/confirmar/${id}`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${userToken}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ 
-                status: "confirmado", 
+                status: "confirmado",
                 confirmado: true 
             })
         });
 
+        console.log('📨 Status resposta:', res.status);
+        
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('❌ Erro HTTP:', res.status, errorText);
+            throw new Error(`Erro ${res.status}: ${errorText}`);
+        }
+
         const data = await res.json();
         console.log('📨 Resposta confirmação:', data);
 
-        if (res.ok) {
-            showToast("Agendamento confirmado com sucesso!", "success");
+        if (data.msg) {
+            showToast(data.msg, "success");
             listarAgendamentos();
             limparCacheEstatisticas();
         } else {
-            showToast("Erro ao confirmar: " + (data.msg || data.message), "error");
+            showToast("Agendamento confirmado com sucesso!", "success");
+            listarAgendamentos();
+            limparCacheEstatisticas();
         }
 
     } catch (e) {
         console.error('❌ Erro confirmar:', e);
-        showToast("Erro de conexão ao confirmar.", "error");
+        showToast("Erro ao confirmar agendamento", "error");
     }
 }
 
         // ---------------- CANCELAR AGENDamento ----------------
-       async function cancelarAgendamento(id) {
+     async function cancelarAgendamento(id) {
     if (!userToken) {
         showToast("Faça login para cancelar um agendamento.", "warning");
         return;
@@ -2493,31 +2514,50 @@
     try {
         console.log('❌ Cancelando agendamento ID:', id);
         
-        const res = await fetch(`${API_BASE_URL}/agendamentos/cancelar/${id}`, {
+        // 🔥 PRIMEIRO: Pega o email do usuário logado
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !user.email) {
+            showToast("Erro: usuário não encontrado", "error");
+            return;
+        }
+
+        const userEmail = user.email;
+        console.log('📧 Usuário:', userEmail);
+        
+        // 🔥 CORREÇÃO: Endpoint com email na URL
+        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/cancelar/${id}`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${userToken}`,
                 "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ 
-                status: "cancelado" 
-            })
+            }
+            // 🔥 NOTA: Seu backend não espera body no cancelar
         });
+
+        console.log('📨 Status resposta:', res.status);
+        
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('❌ Erro HTTP:', res.status, errorText);
+            throw new Error(`Erro ${res.status}: ${errorText}`);
+        }
 
         const data = await res.json();
         console.log('📨 Resposta cancelamento:', data);
 
-        if (res.ok) {
-            showToast("Agendamento cancelado com sucesso!", "success");
+        if (data.msg) {
+            showToast(data.msg, "success");
             listarAgendamentos();
             limparCacheEstatisticas();
         } else {
-            showToast("Erro ao cancelar: " + (data.msg || data.message), "error");
+            showToast("Agendamento cancelado com sucesso!", "success");
+            listarAgendamentos();
+            limparCacheEstatisticas();
         }
 
     } catch (e) {
         console.error('❌ Erro cancelar:', e);
-        showToast("Erro de conexão ao cancelar.", "error");
+        showToast("Erro ao cancelar agendamento", "error");
     }
 }
 
@@ -3218,4 +3258,5 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
