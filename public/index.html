@@ -1085,7 +1085,21 @@
             // Garante que feather icons são carregados
             feather.replace();
         }
+// 🔥 ADICIONE ESTA FUNÇÃO NO SEU FRONTEND (em qualquer lugar, mas preferencialmente perto das outras funções de cache)
 
+// ---------------- LIMPAR CACHE DE ESTATÍSTICAS ----------------
+function limparCacheEstatisticas() {
+    try {
+        if (userToken) {
+            const cacheKey = `estatisticas_${userToken}`;
+            localStorage.removeItem(cacheKey);
+            localStorage.removeItem(`${cacheKey}_timestamp`);
+            console.log('🗑️ Cache de estatísticas limpo');
+        }
+    } catch (error) {
+        console.log('⚠️ Erro ao limpar cache de estatísticas:', error);
+    }
+}
         // 🔥 ADICIONE: Função para mostrar/ocultar botões corretamente
       function atualizarInterfacePosLogin() {
     const logoutBtn = document.getElementById('logoutBtn');
@@ -3288,6 +3302,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
