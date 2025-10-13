@@ -1,65 +1,242 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendar Compromisso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.2/imask.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, button { width: 100%; padding: 10px; margin-bottom: 10px; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; }
-        .success { color: green; }
-        .error { color: red; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+  
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .input-field {
+        transition: all 0.3s ease;
+        font-size: 16px; /* 🔥 EVITA ZOOM NO iOS */
+    }
+    
+    .input-field:focus {
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+    }
+    
+    .loading-spinner {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 2px solid white;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* 🔥 CORREÇÕES MOBILE CRÍTICAS */
+    @media (max-width: 640px) {
+        .container {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        
+        .glass-card {
+            margin-left: -8px;
+            margin-right: -8px;
+            border-radius: 16px;
+        }
+        
+        .input-field {
+            font-size: 16px !important;
+            padding-top: 14px !important;
+            padding-bottom: 14px !important;
+        }
+        
+        .mobile-w-full {
+            width: 100%;
+        }
+        
+        .mobile-flex-col {
+            flex-direction: column;
+        }
+    }
+
+    .success-message {
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid rgba(34, 197, 94, 0.5);
+        color: #4ade80;
+    }
+
+    .error-message {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.5);
+        color: #f87171;
+    }
     </style>
 </head>
-<body>
-    <h2>Agendar Compromisso</h2>
-    
-    <form id="agendarForm">
-        <div class="form-group">
-            <label>Nome:</label>
-            <input type="text" id="nome" required>
+<body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+    <!-- 🎯 CONTEÚDO PRINCIPAL 🎯 -->
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <!-- Header -->
+        <header class="text-center mb-8" data-aos="fade-down">
+            <div class="flex justify-center mb-3">
+                <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
+                    Agendar Compromisso
+                </h1>
+            </div>
+            <p class="text-lg opacity-90">
+                Preencha os dados para agendar seu compromisso
+            </p>
+        </header>
+
+        <!-- Formulário de Agendamento -->
+        <form id="agendarForm" class="glass-card rounded-2xl p-6 md:p-8 mb-6" data-aos="fade-up">
+            <div class="flex items-center justify-center mb-6">
+                <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
+                    <i data-feather="calendar" class="w-6 h-6 text-white"></i>
+                </div>
+            </div>
+            
+            <div class="space-y-5">
+                <!-- Nome -->
+                <div>
+                    <label for="nome" class="block mb-2 text-sm font-medium opacity-80">Nome Completo</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="user" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                        <input type="text" id="nome" placeholder="Seu nome completo" required 
+                               class="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field">
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block mb-2 text-sm font-medium opacity-80">Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="mail" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                        <input type="email" id="email" placeholder="seu@email.com" required 
+                               class="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field">
+                    </div>
+                </div>
+
+                <!-- Telefone -->
+                <div>
+                    <label for="telefone" class="block mb-2 text-sm font-medium opacity-80">Telefone</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="phone" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                        <input type="tel" id="telefone" placeholder="(00) 00000-0000" required 
+                               class="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field">
+                    </div>
+                </div>
+
+                <!-- Data e Horário -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="data" class="block mb-2 text-sm font-medium opacity-80">Data</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-feather="calendar" class="w-5 h-5 text-gray-400"></i>
+                            </div>
+                            <input type="date" id="data" placeholder="Data do Agendamento" required 
+                                   class="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="horario" class="block mb-2 text-sm font-medium opacity-80">Horário</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-feather="clock" class="w-5 h-5 text-gray-400"></i>
+                            </div>
+                            <input type="time" id="horario" placeholder="Horário" required 
+                                   class="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão Agendar -->
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 text-white py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg mt-4">
+                    <i data-feather="plus" class="w-5 h-5"></i>
+                    <span id="agendarText">Agendar Compromisso</span>
+                    <div id="agendarSpinner" class="loading-spinner hidden"></div>
+                </button>
+            </div>
+        </form>
+
+        <!-- Resultado -->
+        <div id="resultado" class="glass-card rounded-2xl p-6 text-center" data-aos="fade-up" style="display: none;">
+            <!-- Mensagens aparecem aqui -->
         </div>
-        
-        <div class="form-group">
-            <label>Email:</label>
-            <input type="email" id="email" required>
-        </div>
-        
-        <div class="form-group">
-            <label>Telefone:</label>
-            <input type="tel" id="telefone" required>
-        </div>
-        
-        <div class="form-group">
-            <label>Data:</label>
-            <input type="date" id="data" required>
-        </div>
-        
-        <div class="form-group">
-            <label>Horário:</label>
-            <input type="time" id="horario" required>
-        </div>
-        
-        <button type="submit">Agendar</button>
-    </form>
-    
-    <div id="resultado"></div>
+    </div>
 
     <script>
+        // Inicializa Feather Icons
+        feather.replace();
+        
+        // Inicializa AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
         // Pega user_id da URL
         const urlParams = new URLSearchParams(window.location.search);
         const user_id = urlParams.get('user_id');
 
+        // Verifica se o link é válido
         if (!user_id) {
-            document.getElementById('resultado').innerHTML = 
-                '<p class="error">Link inválido ou expirado</p>';
             document.getElementById('agendarForm').style.display = 'none';
+            document.getElementById('resultado').style.display = 'block';
+            document.getElementById('resultado').innerHTML = `
+                <div class="p-4 rounded-lg error-message">
+                    <i data-feather="alert-triangle" class="w-8 h-8 mx-auto mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-2">Link Inválido</h3>
+                    <p>Este link de agendamento é inválido ou expirado.</p>
+                    <p class="text-sm opacity-80 mt-2">Entre em contato com quem enviou este link.</p>
+                </div>
+            `;
+            feather.replace();
         }
 
+        // Máscara para telefone
+        const phoneMask = IMask(document.getElementById('telefone'), {
+            mask: '(00) 00000-0000'
+        });
+
+        // Define data mínima como hoje
+        document.getElementById('data').min = new Date().toISOString().split('T')[0];
+
+        // Submit do formulário
         document.getElementById('agendarForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const submitBtn = document.querySelector('#agendarForm button[type="submit"]');
+            const agendarText = document.getElementById('agendarText');
+            const agendarSpinner = document.getElementById('agendarSpinner');
+            
+            // Mostra loading
+            agendarText.textContent = 'Agendando...';
+            agendarSpinner.classList.remove('hidden');
+            submitBtn.disabled = true;
+
             const agendamento = {
                 nome: document.getElementById('nome').value,
                 email: document.getElementById('email').value,
@@ -78,22 +255,63 @@
 
                 const result = await response.json();
                 
+                // Mostra resultado
+                document.getElementById('resultado').style.display = 'block';
+                
                 if (result.success) {
-                    document.getElementById('resultado').innerHTML = 
-                        `<p class="success">${result.msg}</p>`;
+                    document.getElementById('resultado').innerHTML = `
+                        <div class="p-6 rounded-lg success-message">
+                            <i data-feather="check-circle" class="w-12 h-12 mx-auto mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-2">Agendamento Confirmado!</h3>
+                            <p class="mb-4">${result.msg}</p>
+                            <div class="bg-white/10 rounded-lg p-4 text-left">
+                                <p><strong>Nome:</strong> ${agendamento.nome}</p>
+                                <p><strong>Data:</strong> ${agendamento.data}</p>
+                                <p><strong>Horário:</strong> ${agendamento.horario}</p>
+                            </div>
+                        </div>
+                    `;
                     document.getElementById('agendarForm').reset();
                 } else {
-                    document.getElementById('resultado').innerHTML = 
-                        `<p class="error">${result.msg}</p>`;
+                    document.getElementById('resultado').innerHTML = `
+                        <div class="p-6 rounded-lg error-message">
+                            <i data-feather="alert-circle" class="w-12 h-12 mx-auto mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-2">Erro no Agendamento</h3>
+                            <p>${result.msg}</p>
+                        </div>
+                    `;
                 }
+                
+                feather.replace();
+                
             } catch (error) {
-                document.getElementById('resultado').innerHTML = 
-                    '<p class="error">Erro ao agendar. Tente novamente.</p>';
+                document.getElementById('resultado').style.display = 'block';
+                document.getElementById('resultado').innerHTML = `
+                    <div class="p-6 rounded-lg error-message">
+                        <i data-feather="wifi-off" class="w-12 h-12 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Erro de Conexão</h3>
+                        <p>Erro ao agendar. Verifique sua conexão e tente novamente.</p>
+                    </div>
+                `;
+                feather.replace();
+            } finally {
+                // Restaura botão
+                agendarText.textContent = 'Agendar Compromisso';
+                agendarSpinner.classList.add('hidden');
+                submitBtn.disabled = false;
             }
         });
 
-        // Define data mínima como hoje
-        document.getElementById('data').min = new Date().toISOString().split('T')[0];
+        // Animações para os campos
+        document.querySelectorAll('.input-field').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('ring-2', 'ring-indigo-500/30');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('ring-2', 'ring-indigo-500/30');
+            });
+        });
     </script>
 </body>
 </html>
