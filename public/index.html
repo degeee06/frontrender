@@ -2433,10 +2433,19 @@
         });
 
     
+// 🔥 SUBSTITUA as funções confirmarAgendamento e cancelarAgendamento no frontend:
+
+// ---------------- CONFIRMAR AGENDAMENTO CORRIGIDO ----------------
 async function confirmarAgendamento(id) {
+    if (!userToken) {
+        showToast("Faça login para confirmar um agendamento.", "warning");
+        return;
+    }
+
     try {
         console.log('✅ Confirmando agendamento ID:', id);
         
+        // 🔥 AGORA USA A ROTA PÚBLICA QUE EXISTE NO BACKEND
         const res = await fetch(`${API_BASE_URL}/agendamentos/confirmar/${id}`, {
             method: "POST",
             headers: {
@@ -2445,24 +2454,93 @@ async function confirmarAgendamento(id) {
             }
         });
 
+        console.log('📨 Status resposta:', res.status);
+        
         if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.msg || "Erro ao confirmar");
+            const errorText = await res.text();
+            console.error('❌ Erro HTTP:', res.status, errorText);
+            
+            // Se for 404, tenta a rota antiga como fallback
+            if (res.status === 404) {
+                console.log('🔄 Tentando rota antiga como fallback...');
+                return await confirmarAgendamentoAntigo(id);
+            }
+            
+            throw new Error(`Erro ${res.status}: ${errorText}`);
         }
 
         const data = await res.json();
-        showToast(data.msg, "success");
+        console.log('📨 Resposta confirmação:', data);
+
+        showToast(data.msg || "Agendamento confirmado com sucesso!", "success");
         listarAgendamentos();
-        
+        limparCacheEstatisticas();
+
     } catch (e) {
         console.error('❌ Erro confirmar:', e);
-        showToast(e.message, "error");
+        showToast("Erro ao confirmar agendamento", "error");
     }
 }
 
-        // 🔥 SEGUNDO: Tenta endpoint público (para agendamentos criados por link)
-        console.log('🔄 Tentando endpoint público...');
-        const resPublic = await fetch(`${API_BASE_URL}/agendamentos/confirmar/${id}`, {
+// ---------------- CANCELAR AGENDAMENTO CORRIGIDO ----------------
+async function cancelarAgendamento(id) {
+    if (!userToken) {
+        showToast("Faça login para cancelar um agendamento.", "warning");
+        return;
+    }
+
+    try {
+        console.log('❌ Cancelando agendamento ID:', id);
+        
+        // 🔥 AGORA USA A ROTA PÚBLICA QUE EXISTE NO BACKEND
+        const res = await fetch(`${API_BASE_URL}/agendamentos/cancelar/${id}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${userToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        console.log('📨 Status resposta:', res.status);
+        
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('❌ Erro HTTP:', res.status, errorText);
+            
+            // Se for 404, tenta a rota antiga como fallback
+            if (res.status === 404) {
+                console.log('🔄 Tentando rota antiga como fallback...');
+                return await cancelarAgendamentoAntigo(id);
+            }
+            
+            throw new Error(`Erro ${res.status}: ${errorText}`);
+        }
+
+        const data = await res.json();
+        console.log('📨 Resposta cancelamento:', data);
+
+        showToast(data.msg || "Agendamento cancelado com sucesso!", "success");
+        listarAgendamentos();
+        limparCacheEstatisticas();
+
+    } catch (e) {
+        console.error('❌ Erro cancelar:', e);
+        showToast("Erro ao cancelar agendamento", "error");
+    }
+}
+
+// ---------------- FUNÇÕES FALLBACK (para compatibilidade) ----------------
+async function confirmarAgendamentoAntigo(id) {
+    try {
+        console.log('🔄 Usando método antigo para confirmar:', id);
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !user.email) {
+            throw new Error("Usuário não encontrado");
+        }
+
+        const userEmail = user.email;
+        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/confirmar/${id}`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${userToken}`,
@@ -2474,48 +2552,31 @@ async function confirmarAgendamento(id) {
             })
         });
 
-        if (resPublic.ok) {
-            const data = await resPublic.json();
-            console.log('✅ Confirmado via endpoint público:', data);
+        if (res.ok) {
+            const data = await res.json();
             showToast(data.msg || "Agendamento confirmado com sucesso!", "success");
             listarAgendamentos();
             limparCacheEstatisticas();
-            return;
+        } else {
+            throw new Error("Método antigo também falhou");
         }
-
-        // 🔥 TERCEIRO: Tenta endpoint alternativo
-        console.log('🔄 Tentando endpoint alternativo...');
-        const resAlt = await fetch(`${API_BASE_URL}/confirmar-agendamento/${id}`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${userToken}`,
-                "Content-Type": "application/json"
-            }
-        });
-
-        if (resAlt.ok) {
-            const data = await resAlt.json();
-            console.log('✅ Confirmado via endpoint alternativo:', data);
-            showToast(data.msg || "Agendamento confirmado com sucesso!", "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-            return;
-        }
-
-        // Se nenhum funcionou
-        throw new Error("Nenhum endpoint funcionou para confirmar");
-
-    } catch (e) {
-        console.error('❌ Erro confirmar:', e);
-        showToast("Erro ao confirmar agendamento. O agendamento pode ter sido criado por outro usuário.", "error");
+    } catch (error) {
+        console.error('❌ Fallback também falhou:', error);
+        throw error;
     }
 }
 
-  async function cancelarAgendamento(id) {
+async function cancelarAgendamentoAntigo(id) {
     try {
-        console.log('❌ Cancelando agendamento ID:', id);
+        console.log('🔄 Usando método antigo para cancelar:', id);
         
-        const res = await fetch(`${API_BASE_URL}/agendamentos/cancelar/${id}`, {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !user.email) {
+            throw new Error("Usuário não encontrado");
+        }
+
+        const userEmail = user.email;
+        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/cancelar/${id}`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${userToken}`,
@@ -2523,28 +2584,33 @@ async function confirmarAgendamento(id) {
             }
         });
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.msg || "Erro ao cancelar");
+        if (res.ok) {
+            const data = await res.json();
+            showToast(data.msg || "Agendamento cancelado com sucesso!", "success");
+            listarAgendamentos();
+            limparCacheEstatisticas();
+        } else {
+            throw new Error("Método antigo também falhou");
         }
-
-        const data = await res.json();
-        showToast(data.msg, "success");
-        listarAgendamentos();
-        
-    } catch (e) {
-        console.error('❌ Erro cancelar:', e);
-        showToast(e.message, "error");
+    } catch (error) {
+        console.error('❌ Fallback também falhou:', error);
+        throw error;
     }
 }
 
+        // 🔥 SUBSTITUA a função reagendarAgendamento no frontend:
 
-      // 🔥 VERSÃO MAIS SIMPLES - só a rota pública
-
+// ---------------- REAGENDAR AGENDAMENTO CORRIGIDO ----------------
 async function reagendarAgendamento(id, novaData, novoHorario) {
+    if (!userToken) {
+        showToast("Faça login para reagendar um agendamento.", "warning");
+        return;
+    }
+
     try {
         console.log('🔄 Reagendando ID:', id, novaData, novoHorario);
         
+        // 🔥 AGORA USA A ROTA PÚBLICA QUE EXISTE NO BACKEND
         const res = await fetch(`${API_BASE_URL}/agendamentos/reagendar/${id}`, {
             method: "POST",
             headers: {
@@ -2557,29 +2623,77 @@ async function reagendarAgendamento(id, novaData, novoHorario) {
             })
         });
 
+        console.log('📨 Status resposta:', res.status);
+        
         if (!res.ok) {
-            const errorData = await res.json();
+            const errorText = await res.text();
+            console.error('❌ Erro HTTP:', res.status, errorText);
             
-            // Trata conflito de horário
+            // Se for 404, tenta a rota antiga como fallback
+            if (res.status === 404) {
+                console.log('🔄 Tentando rota antiga como fallback...');
+                return await reagendarAgendamentoAntigo(id, novaData, novoHorario);
+            }
+            
+            // Trata erro de conflito especificamente
             if (res.status === 400) {
-                showToast(errorData.msg || "Já existe um agendamento para este horário", "error");
+                const errorData = await res.json();
+                showToast(errorData.msg || "Conflito de horário", "error");
                 return;
             }
             
-            throw new Error(errorData.msg || "Erro ao reagendar");
+            throw new Error(`Erro ${res.status}: ${errorText}`);
         }
 
         const data = await res.json();
-        showToast(data.msg, "success");
+        console.log('📨 Resposta reagendar:', data);
+
+        showToast(data.msg || "Agendamento reagendado com sucesso!", "success");
         listarAgendamentos();
         limparCacheEstatisticas();
-        
+
     } catch (e) {
         console.error('❌ Erro reagendar:', e);
-        showToast(e.message, "error");
+        showToast("Erro ao reagendar agendamento", "error");
     }
 }
 
+// ---------------- FUNÇÃO FALLBACK PARA REAGENDAR ----------------
+async function reagendarAgendamentoAntigo(id, novaData, novoHorario) {
+    try {
+        console.log('🔄 Usando método antigo para reagendar:', id);
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !user.email) {
+            throw new Error("Usuário não encontrado");
+        }
+
+        const userEmail = user.email;
+        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/reagendar/${id}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${userToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ 
+                novaData, 
+                novoHorario
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            showToast(data.msg || "Agendamento reagendado com sucesso!", "success");
+            listarAgendamentos();
+            limparCacheEstatisticas();
+        } else {
+            throw new Error("Método antigo também falhou");
+        }
+    } catch (error) {
+        console.error('❌ Fallback também falhou:', error);
+        throw error;
+    }
+}
 // 🔥 ADICIONE esta função auxiliar se precisar reutilizar
 async function getUserEmail() {
     try {
@@ -3240,6 +3354,7 @@ async function getUserEmail() {
     </script>
 </body>
 </html>
+
 
 
 
