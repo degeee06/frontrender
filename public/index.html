@@ -2480,41 +2480,43 @@
             }
         }
 
-        // ---------------- CANCELAR AGENDamento ----------------
-        async function cancelarAgendamento(id) {
-            if (!userToken) {
-                showToast("Faça login para cancelar um agendamento.", "warning");
-                return;
-            }
+        // ---------------- CANCELAR AGENDAMENTO CORRIGIDO ----------------
+async function cancelarAgendamento(id) {
+    if (!userToken) {
+        showToast("Faça login para cancelar um agendamento.", "warning");
+        return;
+    }
 
-            try {
-                const userEmail = await getUserEmail();
-                if (!userEmail) {
-                    showToast("Erro ao obter email do usuário.", "error");
-                    return;
-                }
+    try {
+        console.log('❌ Cancelando agendamento ID:', id);
+        
+        const res = await fetch(`${API_BASE_URL}/agendamentos/cancelar/${id}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${userToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ 
+                status: "cancelado" 
+            })
+        });
 
-                const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/cancelar/${id}`, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${userToken}`,
-                        "Content-Type": "application/json"
-                    }
-                });
+        const data = await res.json();
+        console.log('📨 Resposta cancelamento:', data);
 
-                const data = await res.json();
-                if (res.ok) {
-                    showToast("Agendamento cancelado com sucesso!", "success");
-                    listarAgendamentos();
-                    limparCacheEstatisticas();
-                } else {
-                    showToast("Erro ao cancelar: " + (data.msg || data.message), "error");
-                }
-            } catch (e) {
-                console.error(e);
-                showToast("Erro de conexão ao cancelar.", "error");
-            }
+        if (res.ok) {
+            showToast("Agendamento cancelado com sucesso!", "success");
+            listarAgendamentos();
+            limparCacheEstatisticas();
+        } else {
+            showToast("Erro ao cancelar: " + (data.msg || data.message), "error");
         }
+
+    } catch (e) {
+        console.error('❌ Erro cancelar:', e);
+        showToast("Erro de conexão ao cancelar.", "error");
+    }
+}
 
         // ---------------- REAGENDAR AGENDAMENTO ----------------
         async function reagendarAgendamento(id, novaData, novoHorario) {
@@ -3200,3 +3202,4 @@
     </script>
 </body>
 </html>
+
