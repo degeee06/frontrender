@@ -1085,21 +1085,7 @@
             // Garante que feather icons são carregados
             feather.replace();
         }
-// 🔥 ADICIONE ESTA FUNÇÃO NO SEU FRONTEND (em qualquer lugar, mas preferencialmente perto das outras funções de cache)
 
-// ---------------- LIMPAR CACHE DE ESTATÍSTICAS ----------------
-function limparCacheEstatisticas() {
-    try {
-        if (userToken) {
-            const cacheKey = `estatisticas_${userToken}`;
-            localStorage.removeItem(cacheKey);
-            localStorage.removeItem(`${cacheKey}_timestamp`);
-            console.log('🗑️ Cache de estatísticas limpo');
-        }
-    } catch (error) {
-        console.log('⚠️ Erro ao limpar cache de estatísticas:', error);
-    }
-}
         // 🔥 ADICIONE: Função para mostrar/ocultar botões corretamente
       function atualizarInterfacePosLogin() {
     const logoutBtn = document.getElementById('logoutBtn');
@@ -2458,154 +2444,124 @@ function limparCacheEstatisticas() {
             }
         }
 
-      // 🔥 CONFIRMAR AGENDAMENTO CORRIGIDO
-app.post("/agendamentos/:email/confirmar/:id", authMiddleware, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userEmail = req.user.email;
-    
-    console.log('✅ Confirmando agendamento ID:', id, 'por usuário:', userEmail, 'userId:', req.userId);
-
-    // ✅ BUSCA O AGENDAMENTO SEM FILTRAR POR CLIENTE
-    const { data: agendamento, error: fetchError } = await supabase
-      .from("agendamentos")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (fetchError || !agendamento) {
-      return res.status(404).json({ msg: "Agendamento não encontrado" });
+        // ---------------- CONFIRMAR AGENDAMENTO ----------------
+    async function confirmarAgendamento(id) {
+    if (!userToken) {
+        showToast("Faça login para confirmar um agendamento.", "warning");
+        return;
     }
 
-    console.log('📋 Agendamento encontrado:', {
-      id: agendamento.id,
-      cliente: agendamento.cliente,
-      user_id: agendamento.user_id,
-      nome: agendamento.nome
-    });
-
-    // ✅ VERIFICA SE USUÁRIO TEM PERMISSÃO
-    if (!usuarioPodeGerenciarAgendamento(agendamento, req.userId)) {
-      return res.status(403).json({ 
-        msg: "Você não tem permissão para confirmar este agendamento" 
-      });
-    }
-
-    // ✅ ATUALIZA SEM FILTRAR POR CLIENTE (já verificamos permissão)
-    const { data, error } = await supabase.from("agendamentos")
-      .update({ 
-        confirmado: true, 
-        status: "confirmado",
-        confirmado_por: req.userId // Registra quem confirmou
-      })
-      .eq("id", id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    if (!data) return res.status(404).json({ msg: "Agendamento não encontrado" });
-
-    // Atualiza Google Sheets
     try {
-      const doc = await accessUserSpreadsheet(userEmail, req.user.user_metadata);
-      if (doc) {
-        await updateRowInSheet(doc.sheetsByIndex[0], id, data);
-      }
-    } catch (sheetError) {
-      console.error("Erro ao atualizar Google Sheets:", sheetError);
+        console.log('✅ Confirmando agendamento ID:', id);
+        
+        // 🔥 PRIMEIRO: Pega o email do usuário logado
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !user.email) {
+            showToast("Erro: usuário não encontrado", "error");
+            return;
+        }
+
+        const userEmail = user.email;
+        console.log('📧 Usuário:', userEmail);
+        
+        // 🔥 CORREÇÃO: Endpoint com email na URL
+        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/confirmar/${id}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${userToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ 
+                status: "confirmado",
+                confirmado: true 
+            })
+        });
+
+        console.log('📨 Status resposta:', res.status);
+        
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('❌ Erro HTTP:', res.status, errorText);
+            throw new Error(`Erro ${res.status}: ${errorText}`);
+        }
+
+        const data = await res.json();
+        console.log('📨 Resposta confirmação:', data);
+
+        if (data.msg) {
+            showToast(data.msg, "success");
+            listarAgendamentos();
+            limparCacheEstatisticas();
+        } else {
+            showToast("Agendamento confirmado com sucesso!", "success");
+            listarAgendamentos();
+            limparCacheEstatisticas();
+        }
+
+    } catch (e) {
+        console.error('❌ Erro confirmar:', e);
+        showToast("Erro ao confirmar agendamento", "error");
+    }
+}
+
+        // ---------------- CANCELAR AGENDamento ----------------
+     async function cancelarAgendamento(id) {
+    if (!userToken) {
+        showToast("Faça login para cancelar um agendamento.", "warning");
+        return;
     }
 
-    // 🔥 INVALIDA CACHE DE AMBOS OS USUÁRIOS
-    cacheManager.delete(`agendamentos_${req.userId}`);
-    if (agendamento.cliente && agendamento.cliente !== req.userId) {
-      cacheManager.delete(`agendamentos_${agendamento.cliente}`);
-    }
-    
-    res.json({ 
-      msg: "Agendamento confirmado com sucesso!", 
-      agendamento: data 
-    });
-  } catch (err) {
-    console.error("Erro ao confirmar agendamento:", err);
-    res.status(500).json({ msg: "Erro interno" });
-  }
-});
-
-      // 🔥 CANCELAR AGENDAMENTO CORRIGIDO
-app.post("/agendamentos/:email/cancelar/:id", authMiddleware, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userEmail = req.user.email;
-    
-    console.log('❌ Cancelando agendamento ID:', id, 'por usuário:', userEmail, 'userId:', req.userId);
-
-    // ✅ BUSCA O AGENDAMENTO SEM FILTRAR POR CLIENTE
-    const { data: agendamento, error: fetchError } = await supabase
-      .from("agendamentos")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (fetchError || !agendamento) {
-      return res.status(404).json({ msg: "Agendamento não encontrado" });
-    }
-
-    console.log('📋 Agendamento encontrado:', {
-      id: agendamento.id,
-      cliente: agendamento.cliente,
-      user_id: agendamento.user_id,
-      nome: agendamento.nome
-    });
-
-    // ✅ VERIFICA SE USUÁRIO TEM PERMISSÃO
-    if (!usuarioPodeGerenciarAgendamento(agendamento, req.userId)) {
-      return res.status(403).json({ 
-        msg: "Você não tem permissão para cancelar este agendamento" 
-      });
-    }
-
-    // ✅ ATUALIZA SEM FILTRAR POR CLIENTE (já verificamos permissão)
-    const { data, error } = await supabase.from("agendamentos")
-      .update({ 
-        status: "cancelado", 
-        confirmado: false,
-        cancelado_por: req.userId // Registra quem cancelou
-      })
-      .eq("id", id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    if (!data) return res.status(404).json({ msg: "Agendamento não encontrado" });
-
-    // Atualiza Google Sheets
     try {
-      const doc = await accessUserSpreadsheet(userEmail, req.user.user_metadata);
-      if (doc) {
-        await updateRowInSheet(doc.sheetsByIndex[0], id, data);
-      }
-    } catch (sheetError) {
-      console.error("Erro ao atualizar Google Sheets:", sheetError);
+        console.log('❌ Cancelando agendamento ID:', id);
+        
+        // 🔥 PRIMEIRO: Pega o email do usuário logado
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !user.email) {
+            showToast("Erro: usuário não encontrado", "error");
+            return;
+        }
+
+        const userEmail = user.email;
+        console.log('📧 Usuário:', userEmail);
+        
+        // 🔥 CORREÇÃO: Endpoint com email na URL
+        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/cancelar/${id}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${userToken}`,
+                "Content-Type": "application/json"
+            }
+            // 🔥 NOTA: Seu backend não espera body no cancelar
+        });
+
+        console.log('📨 Status resposta:', res.status);
+        
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('❌ Erro HTTP:', res.status, errorText);
+            throw new Error(`Erro ${res.status}: ${errorText}`);
+        }
+
+        const data = await res.json();
+        console.log('📨 Resposta cancelamento:', data);
+
+        if (data.msg) {
+            showToast(data.msg, "success");
+            listarAgendamentos();
+            limparCacheEstatisticas();
+        } else {
+            showToast("Agendamento cancelado com sucesso!", "success");
+            listarAgendamentos();
+            limparCacheEstatisticas();
+        }
+
+    } catch (e) {
+        console.error('❌ Erro cancelar:', e);
+        showToast("Erro ao cancelar agendamento", "error");
     }
+}
 
-    // 🔥 INVALIDA CACHE DE AMBOS OS USUÁRIOS
-    cacheManager.delete(`agendamentos_${req.userId}`);
-    if (agendamento.cliente && agendamento.cliente !== req.userId) {
-      cacheManager.delete(`agendamentos_${agendamento.cliente}`);
-    }
-    
-    res.json({ 
-      msg: "Agendamento cancelado com sucesso!", 
-      agendamento: data 
-    });
-  } catch (err) {
-    console.error("Erro ao cancelar agendamento:", err);
-    res.status(500).json({ msg: "Erro interno" });
-  }
-});
-
-
-         // ---------------- REAGENDAR AGENDAMENTO ----------------
+        // ---------------- REAGENDAR AGENDAMENTO ----------------
         async function reagendarAgendamento(id, novaData, novoHorario) {
             if (!userToken) {
                 showToast("Faça login para reagendar um agendamento.", "warning");
@@ -3302,9 +3258,4 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
-
-
-
-
-
 
