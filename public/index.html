@@ -2590,7 +2590,9 @@ app.post("/agendamentos/:email/cancelar/:id", authMiddleware, async (req, res) =
   }
 });
 
-      // 🔥 REAGENDAR AGENDAMENTO CORRIGIDO
+
+         // ---------------- REAGENDAR AGENDAMENTO ----------------
+        // 🔥 REAGENDAR AGENDAMENTO CORRIGIDO
 app.post("/agendamentos/:email/reagendar/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -2619,13 +2621,39 @@ app.post("/agendamentos/:email/reagendar/:id", authMiddleware, async (req, res) 
       });
     }
 
-    // Resto do código permanece igual...
-    // ... (verificação de conflito, atualização, etc)
-  } catch (err) {
-    console.error("Erro ao reagendar:", err);
-    res.status(500).json({ msg: "Erro interno" });
-  }
-});
+                const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/reagendar/${id}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ 
+                        novaData, 
+                        novoHorario
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast("Agendamento reagendado com sucesso!", "success");
+                    listarAgendamentos();
+                    limparCacheEstatisticas();
+                } else {
+                    // Detecta conflito de horário (erro do índice único)
+                    if (data.code === "23505") {
+                        showToast("Já existe um agendamento nesse horário!", "error");
+                    } else {
+                        showToast("Erro ao reagendar: " + (data.msg || data.message), "error");
+                    }
+                }
+
+            } catch (e) {
+                console.error(e);
+                showToast("Erro de conexão ao reagendar.", "error");
+            }
+        }
+
 
        // 🔥 ATUALIZE a função configurarEventListenersModal para esta versão:
 
@@ -3277,6 +3305,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
