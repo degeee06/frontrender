@@ -995,37 +995,28 @@
             document.getElementById('secoesIA').style.display = 'none';
         }
 
-        // ✅ FUNÇÃO INIT SUPER SIMPLIFICADA
-        async function init() {
-            console.log('🚀 Iniciando app...');
-            
-            // 🎯🎯🎯 ADICIONE ESTA VERIFICAÇÃO NO INÍCIO DA INIT 🎯🎯🎯
-            if (verificarCallbackOAuth()) {
-                console.log('⏸️ Parando init - é callback OAuth');
-                return; // Para aqui se for callback
-            }
-            
-            // 🔥 SE NÃO FOR CALLBACK, CONTINUA NORMAL
-            console.log('▶️ Continuando init normal...');
-            
-          // 🔥 AGUARDA O FORM ESTAR VISÍVEL E DEPOIS APLICA A MÁSCARA
-function inicializarMascaraTelefone() {
-    const telefoneInput = document.getElementById('Telefone');
-    if (telefoneInput && window.IMask) {
-        telefoneMask = IMask(telefoneInput, {
-            mask: '(00) 00000-0000'
-        });
-        console.log('✅ Máscara de telefone aplicada!');
-    } else {
-        // 🔁 Tenta novamente se não conseguiu
-        setTimeout(inicializarMascaraTelefone, 100);
+       async function init() {
+    console.log('🚀 Iniciando app...');
+    
+    if (verificarCallbackOAuth()) {
+        console.log('⏸️ Parando init - é callback OAuth');
+        return;
     }
-}
-
-// Chama quando o form ficar visível
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(inicializarMascaraTelefone, 500);
-});
+    
+    console.log('▶️ Continuando init normal...');
+    
+    // 🔥 CORREÇÃO SIMPLES: Aplica máscara com delay
+    setTimeout(() => {
+        const telefoneInput = document.getElementById('telefone');
+        if (telefoneInput && window.IMask) {
+            const phoneMask = IMask(telefoneInput, {
+                mask: '(00) 00000-0000'
+            });
+            console.log('✅ Máscara de telefone aplicada com sucesso!');
+        } else {
+            console.log('❌ Input de telefone não encontrado ou IMask não carregado');
+        }
+    }, 1000);
                 
             
          // Permitir selecionar a partir de hoje
@@ -3256,6 +3247,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
