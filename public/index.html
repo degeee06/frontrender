@@ -2433,56 +2433,32 @@
         });
 
     
-
-      // ---------------- CONFIRMAR AGENDAMENTO CORRIGIDO ----------------
 async function confirmarAgendamento(id) {
-    const res = await fetch(`${API_BASE_URL}/agendamentos/confirmar/${id}`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${userToken}` }
-    });
-    if (!userToken) {
-        showToast("Faça login para confirmar um agendamento.", "warning");
-        return;
-    }
-
     try {
         console.log('✅ Confirmando agendamento ID:', id);
         
-        // 🔥 CORREÇÃO: Tenta múltiplos endpoints para agendamentos públicos
-        const { data: { user } } = await supabase.auth.getUser();
-        const userEmail = user?.email;
-        
-        console.log('📧 Usuário logado:', userEmail);
-        
-        // 🔥 PRIMEIRO: Tenta como usuário logado (se tiver email)
-        if (userEmail) {
-            try {
-                const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/confirmar/${id}`, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${userToken}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ 
-                        status: "confirmado",
-                        confirmado: true 
-                    })
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    console.log('✅ Confirmado como usuário logado:', data);
-                    showToast(data.msg || "Agendamento confirmado com sucesso!", "success");
-                    listarAgendamentos();
-                    limparCacheEstatisticas();
-                    return;
-                }
-                
-                console.log('❌ Falhou como usuário logado, tentando endpoint público...');
-            } catch (userError) {
-                console.log('❌ Erro como usuário logado, tentando público:', userError);
+        const res = await fetch(`${API_BASE_URL}/agendamentos/confirmar/${id}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${userToken}`,
+                "Content-Type": "application/json"
             }
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.msg || "Erro ao confirmar");
         }
+
+        const data = await res.json();
+        showToast(data.msg, "success");
+        listarAgendamentos();
+        
+    } catch (e) {
+        console.error('❌ Erro confirmar:', e);
+        showToast(e.message, "error");
+    }
+}
 
         // 🔥 SEGUNDO: Tenta endpoint público (para agendamentos criados por link)
         console.log('🔄 Tentando endpoint público...');
@@ -2535,55 +2511,11 @@ async function confirmarAgendamento(id) {
     }
 }
 
-    // ---------------- CANCELAR AGENDAMENTO CORRIGIDO ----------------
-async function cancelarAgendamento(id) {
-    const res = await fetch(`${API_BASE_URL}/agendamentos/cancelar/${id}`, {
-        method: "POST", 
-        headers: { "Authorization": `Bearer ${userToken}` }
-    });
-    if (!userToken) {
-        showToast("Faça login para cancelar um agendamento.", "warning");
-        return;
-    }
-
+  async function cancelarAgendamento(id) {
     try {
         console.log('❌ Cancelando agendamento ID:', id);
         
-        // 🔥 CORREÇÃO: Tenta múltiplos endpoints para agendamentos públicos
-        const { data: { user } } = await supabase.auth.getUser();
-        const userEmail = user?.email;
-        
-        console.log('📧 Usuário logado:', userEmail);
-        
-        // 🔥 PRIMEIRO: Tenta como usuário logado (se tiver email)
-        if (userEmail) {
-            try {
-                const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/cancelar/${id}`, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${userToken}`,
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    console.log('✅ Cancelado como usuário logado:', data);
-                    showToast(data.msg || "Agendamento cancelado com sucesso!", "success");
-                    listarAgendamentos();
-                    limparCacheEstatisticas();
-                    return;
-                }
-                
-                console.log('❌ Falhou como usuário logado, tentando endpoint público...');
-            } catch (userError) {
-                console.log('❌ Erro como usuário logado, tentando público:', userError);
-            }
-        }
-
-        // 🔥 SEGUNDO: Tenta endpoint público (para agendamentos criados por link)
-        console.log('🔄 Tentando endpoint público...');
-        const resPublic = await fetch(`${API_BASE_URL}/agendamentos/cancelar/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/agendamentos/cancelar/${id}`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${userToken}`,
@@ -2591,66 +2523,29 @@ async function cancelarAgendamento(id) {
             }
         });
 
-        if (resPublic.ok) {
-            const data = await resPublic.json();
-            console.log('✅ Cancelado via endpoint público:', data);
-            showToast(data.msg || "Agendamento cancelado com sucesso!", "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-            return;
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.msg || "Erro ao cancelar");
         }
 
-        // 🔥 TERCEIRO: Tenta endpoint alternativo
-        console.log('🔄 Tentando endpoint alternativo...');
-        const resAlt = await fetch(`${API_BASE_URL}/cancelar-agendamento/${id}`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${userToken}`,
-                "Content-Type": "application/json"
-            }
-        });
-
-        if (resAlt.ok) {
-            const data = await resAlt.json();
-            console.log('✅ Cancelado via endpoint alternativo:', data);
-            showToast(data.msg || "Agendamento cancelado com sucesso!", "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-            return;
-        }
-
-        // Se nenhum funcionou
-        throw new Error("Nenhum endpoint funcionou para cancelar");
-
+        const data = await res.json();
+        showToast(data.msg, "success");
+        listarAgendamentos();
+        
     } catch (e) {
         console.error('❌ Erro cancelar:', e);
-        showToast("Erro ao cancelar agendamento. O agendamento pode ter sido criado por outro usuário.", "error");
+        showToast(e.message, "error");
     }
 }
 
 
-        // ---------------- REAGENDAR AGENDAMENTO CORRIGIDO ----------------
-async function reagendarAgendamento(id, novaData, novoHorario) {
-    if (!userToken) {
-        showToast("Faça login para reagendar um agendamento.", "warning");
-        return;
-    }
+      // 🔥 VERSÃO MAIS SIMPLES - só a rota pública
 
+async function reagendarAgendamento(id, novaData, novoHorario) {
     try {
         console.log('🔄 Reagendando ID:', id, novaData, novoHorario);
         
-        // 🔥 PRIMEIRO: Pega o email do usuário logado
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !user.email) {
-            showToast("Erro: usuário não encontrado", "error");
-            return;
-        }
-
-        const userEmail = user.email;
-        console.log('📧 Usuário:', userEmail);
-        
-        // 🔥 CORREÇÃO: Endpoint com email na URL
-        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/reagendar/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/agendamentos/reagendar/${id}`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${userToken}`,
@@ -2662,38 +2557,26 @@ async function reagendarAgendamento(id, novaData, novoHorario) {
             })
         });
 
-        console.log('📨 Status resposta:', res.status);
-        
         if (!res.ok) {
-            const errorText = await res.text();
-            console.error('❌ Erro HTTP:', res.status, errorText);
+            const errorData = await res.json();
             
-            // 🔥 TRATA ERRO DE CONFLITO ESPECIFICAMENTE
+            // Trata conflito de horário
             if (res.status === 400) {
-                const errorData = await res.json();
-                showToast(errorData.msg || "Conflito de horário", "error");
+                showToast(errorData.msg || "Já existe um agendamento para este horário", "error");
                 return;
             }
             
-            throw new Error(`Erro ${res.status}: ${errorText}`);
+            throw new Error(errorData.msg || "Erro ao reagendar");
         }
 
         const data = await res.json();
-        console.log('📨 Resposta reagendar:', data);
-
-        if (data.msg) {
-            showToast(data.msg, "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-        } else {
-            showToast("Agendamento reagendado com sucesso!", "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-        }
-
+        showToast(data.msg, "success");
+        listarAgendamentos();
+        limparCacheEstatisticas();
+        
     } catch (e) {
         console.error('❌ Erro reagendar:', e);
-        showToast("Erro ao reagendar agendamento", "error");
+        showToast(e.message, "error");
     }
 }
 
@@ -3357,6 +3240,7 @@ async function getUserEmail() {
     </script>
 </body>
 </html>
+
 
 
 
