@@ -2436,6 +2436,10 @@
 
       // ---------------- CONFIRMAR AGENDAMENTO CORRIGIDO ----------------
 async function confirmarAgendamento(id) {
+    const res = await fetch(`${API_BASE_URL}/agendamentos/confirmar/${id}`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${userToken}` }
+    });
     if (!userToken) {
         showToast("Faça login para confirmar um agendamento.", "warning");
         return;
@@ -2533,6 +2537,10 @@ async function confirmarAgendamento(id) {
 
     // ---------------- CANCELAR AGENDAMENTO CORRIGIDO ----------------
 async function cancelarAgendamento(id) {
+    const res = await fetch(`${API_BASE_URL}/agendamentos/cancelar/${id}`, {
+        method: "POST", 
+        headers: { "Authorization": `Bearer ${userToken}` }
+    });
     if (!userToken) {
         showToast("Faça login para cancelar um agendamento.", "warning");
         return;
@@ -3349,6 +3357,7 @@ async function getUserEmail() {
     </script>
 </body>
 </html>
+
 
 
 
