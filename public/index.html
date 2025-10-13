@@ -2592,34 +2592,18 @@ app.post("/agendamentos/:email/cancelar/:id", authMiddleware, async (req, res) =
 
 
          // ---------------- REAGENDAR AGENDAMENTO ----------------
-        // 🔥 REAGENDAR AGENDAMENTO CORRIGIDO
-app.post("/agendamentos/:email/reagendar/:id", authMiddleware, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { novaData, novoHorario } = req.body;
-    const userEmail = req.user.email;
-    
-    if (!novaData || !novoHorario) return res.status(400).json({ msg: "Data e horário obrigatórios" });
+        async function reagendarAgendamento(id, novaData, novoHorario) {
+            if (!userToken) {
+                showToast("Faça login para reagendar um agendamento.", "warning");
+                return;
+            }
 
-    console.log('🔄 Reagendando agendamento ID:', id, 'por usuário:', userEmail, 'userId:', req.userId);
-
-    // ✅ BUSCA O AGENDAMENTO SEM FILTRAR POR CLIENTE
-    const { data: agendamento, error: fetchError } = await supabase
-      .from("agendamentos")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (fetchError || !agendamento) {
-      return res.status(404).json({ msg: "Agendamento não encontrado" });
-    }
-
-    // ✅ VERIFICA SE USUÁRIO TEM PERMISSÃO
-    if (!usuarioPodeGerenciarAgendamento(agendamento, req.userId)) {
-      return res.status(403).json({ 
-        msg: "Você não tem permissão para reagendar este agendamento" 
-      });
-    }
+            try {
+                const userEmail = await getUserEmail();
+                if (!userEmail) {
+                    showToast("Erro ao obter email do usuário.", "error");
+                    return;
+                }
 
                 const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/reagendar/${id}`, {
                     method: "POST",
@@ -2653,7 +2637,6 @@ app.post("/agendamentos/:email/reagendar/:id", authMiddleware, async (req, res) 
                 showToast("Erro de conexão ao reagendar.", "error");
             }
         }
-
 
        // 🔥 ATUALIZE a função configurarEventListenersModal para esta versão:
 
@@ -3305,6 +3288,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
