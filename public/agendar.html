@@ -197,24 +197,25 @@
             once: true
         });
 
-        // Pega user_id da URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const user_id = urlParams.get('user_id');
+       // Pega user_id E timestamp da URL
+const urlParams = new URLSearchParams(window.location.search);
+const user_id = urlParams.get('user_id');
+const t = urlParams.get('t'); // 🆕 PEGA TIMESTAMP
 
-        // Verifica se o link é válido
-        if (!user_id) {
-            document.getElementById('agendarForm').style.display = 'none';
-            document.getElementById('resultado').style.display = 'block';
-            document.getElementById('resultado').innerHTML = `
-                <div class="p-4 rounded-lg error-message">
-                    <i data-feather="alert-triangle" class="w-8 h-8 mx-auto mb-3"></i>
-                    <h3 class="text-xl font-semibold mb-2">Link Inválido</h3>
-                    <p>Este link de agendamento é inválido ou expirado.</p>
-                    <p class="text-sm opacity-80 mt-2">Entre em contato com quem enviou este link.</p>
-                </div>
-            `;
-            feather.replace();
-        }
+// Verifica se o link é válido (agora verifica ambos)
+if (!user_id || !t) {
+    document.getElementById('agendarForm').style.display = 'none';
+    document.getElementById('resultado').style.display = 'block';
+    document.getElementById('resultado').innerHTML = `
+        <div class="p-4 rounded-lg error-message">
+            <i data-feather="alert-triangle" class="w-8 h-8 mx-auto mb-3"></i>
+            <h3 class="text-xl font-semibold mb-2">Link Inválido</h3>
+            <p>Este link de agendamento é inválido ou expirado.</p>
+            <p class="text-sm opacity-80 mt-2">Entre em contato com quem enviou este link.</p>
+        </div>
+    `;
+    feather.replace();
+}
 
         // Máscara para telefone
         const phoneMask = IMask(document.getElementById('telefone'), {
@@ -244,6 +245,7 @@
     data: document.getElementById('data').value,
     horario: document.getElementById('horario').value,
     user_id: user_id
+    t: t // 🆕 ENVIA TIMESTAMP PARA O BACKEND
 };
 
             try {
