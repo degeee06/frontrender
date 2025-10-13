@@ -625,7 +625,7 @@
                         </div>
                     </div>
                     <div class="space-y-4 sm:space-y-5">
-                         <!-- Telefone -->
+                 <!-- Telefone -->
                 <div>
                     <label for="telefone" class="block mb-2 text-sm font-medium opacity-80">Telefone</label>
                     <div class="relative">
@@ -1016,14 +1016,12 @@
 }
                 
             
-            // Permitir selecionar a partir de hoje
-            const hoje = new Date();
-            const ontem = new Date(hoje);
-            ontem.setDate(ontem.getDate() - 1);
-            
-            if (dataInput) {
-                dataInput.min = ontem.toISOString().split('T')[0];
-            }
+         // Permitir selecionar a partir de hoje
+const hoje = new Date().toISOString().split('T')[0];
+
+if (dataInput) {
+    dataInput.min = hoje; // ⬅️ HOJE, não ontem!
+}
             
             configurarEventListenersModal();
             
@@ -3246,6 +3244,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
