@@ -1015,17 +1015,6 @@
     });
 }
                 
-                // 🔥 VALIDAÇÃO EXTRA NO SUBMIT
-                form.addEventListener('submit', function(e) {
-                    const telefoneLimpo = telefoneInput.value.replace(/\D/g, '');
-                    if (telefoneLimpo.length !== 11) {
-                        e.preventDefault();
-                        showToast("Telefone deve ter 11 dígitos", "error");
-                        telefoneInput.focus();
-                        return;
-                    }
-                });
-            }
             
             // Permitir selecionar a partir de hoje
             const hoje = new Date();
@@ -3257,6 +3246,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
