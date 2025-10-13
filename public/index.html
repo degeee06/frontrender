@@ -1008,12 +1008,24 @@
             // 🔥 SE NÃO FOR CALLBACK, CONTINUA NORMAL
             console.log('▶️ Continuando init normal...');
             
-            // Configurar máscara de telefone
-          if (telefoneInput) {
-    telefoneMask = IMask(telefoneInput, {
-        mask: '(00) 00000-0000'
-    });
+          // 🔥 AGUARDA O FORM ESTAR VISÍVEL E DEPOIS APLICA A MÁSCARA
+function inicializarMascaraTelefone() {
+    const telefoneInput = document.getElementById('Telefone');
+    if (telefoneInput && window.IMask) {
+        telefoneMask = IMask(telefoneInput, {
+            mask: '(00) 00000-0000'
+        });
+        console.log('✅ Máscara de telefone aplicada!');
+    } else {
+        // 🔁 Tenta novamente se não conseguiu
+        setTimeout(inicializarMascaraTelefone, 100);
+    }
 }
+
+// Chama quando o form ficar visível
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(inicializarMascaraTelefone, 500);
+});
                 
             
          // Permitir selecionar a partir de hoje
@@ -3244,6 +3256,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
