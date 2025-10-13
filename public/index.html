@@ -1087,24 +1087,22 @@
         }
 
         // 🔥 ADICIONE: Função para mostrar/ocultar botões corretamente
-      function atualizarInterfacePosLogin() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
-    
-    if (userToken) {
-        logoutBtn.style.display = 'flex';
-        settingsBtn.style.display = 'flex';
-        gerarLinkBtn.style.display = 'flex';
-        
-        // 🔥 CORREÇÃO CRÍTICA: Adicionar event listener ao botão configurações
-        settingsBtn.onclick = mostrarModalConfiguracao;
-    } else {
-        logoutBtn.style.display = 'none';
-        settingsBtn.style.display = 'none';
-        gerarLinkBtn.style.display = 'none';
-    }
-}
+        function atualizarInterfacePosLogin() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const gerarLinkBtn = document.getElementById('gerarLinkBtn');
+            
+            if (userToken) {
+                logoutBtn.style.display = 'flex';
+                settingsBtn.style.display = 'flex';
+                gerarLinkBtn.style.display = 'flex';
+            } else {
+                logoutBtn.style.display = 'none';
+                settingsBtn.style.display = 'none';
+                gerarLinkBtn.style.display = 'none';
+            }
+        }
+
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
@@ -2432,331 +2430,179 @@
             }
         });
 
-    
-// 🔥 SUBSTITUA as funções confirmarAgendamento e cancelarAgendamento no frontend:
-
-// ---------------- CONFIRMAR AGENDAMENTO CORRIGIDO ----------------
-async function confirmarAgendamento(id) {
-    if (!userToken) {
-        showToast("Faça login para confirmar um agendamento.", "warning");
-        return;
-    }
-
-    try {
-        console.log('✅ Confirmando agendamento ID:', id);
-        
-        // 🔥 AGORA USA A ROTA PÚBLICA QUE EXISTE NO BACKEND
-        const res = await fetch(`${API_BASE_URL}/agendamentos/confirmar/${id}`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${userToken}`,
-                "Content-Type": "application/json"
+        // 🔥 ADICIONE ESTA FUNÇÃO PARA PEGAR O EMAIL DO USUÁRIO
+        async function getUserEmail() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                return user?.email;
+            } catch (error) {
+                console.error("Erro ao obter email do usuário:", error);
+                return null;
             }
-        });
-
-        console.log('📨 Status resposta:', res.status);
-        
-        if (!res.ok) {
-            const errorText = await res.text();
-            console.error('❌ Erro HTTP:', res.status, errorText);
-            
-            // Se for 404, tenta a rota antiga como fallback
-            if (res.status === 404) {
-                console.log('🔄 Tentando rota antiga como fallback...');
-                return await confirmarAgendamentoAntigo(id);
-            }
-            
-            throw new Error(`Erro ${res.status}: ${errorText}`);
         }
 
-        const data = await res.json();
-        console.log('📨 Resposta confirmação:', data);
-
-        showToast(data.msg || "Agendamento confirmado com sucesso!", "success");
-        listarAgendamentos();
-        limparCacheEstatisticas();
-
-    } catch (e) {
-        console.error('❌ Erro confirmar:', e);
-        showToast("Erro ao confirmar agendamento", "error");
-    }
-}
-
-// ---------------- CANCELAR AGENDAMENTO CORRIGIDO ----------------
-async function cancelarAgendamento(id) {
-    if (!userToken) {
-        showToast("Faça login para cancelar um agendamento.", "warning");
-        return;
-    }
-
-    try {
-        console.log('❌ Cancelando agendamento ID:', id);
-        
-        // 🔥 AGORA USA A ROTA PÚBLICA QUE EXISTE NO BACKEND
-        const res = await fetch(`${API_BASE_URL}/agendamentos/cancelar/${id}`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${userToken}`,
-                "Content-Type": "application/json"
-            }
-        });
-
-        console.log('📨 Status resposta:', res.status);
-        
-        if (!res.ok) {
-            const errorText = await res.text();
-            console.error('❌ Erro HTTP:', res.status, errorText);
-            
-            // Se for 404, tenta a rota antiga como fallback
-            if (res.status === 404) {
-                console.log('🔄 Tentando rota antiga como fallback...');
-                return await cancelarAgendamentoAntigo(id);
-            }
-            
-            throw new Error(`Erro ${res.status}: ${errorText}`);
-        }
-
-        const data = await res.json();
-        console.log('📨 Resposta cancelamento:', data);
-
-        showToast(data.msg || "Agendamento cancelado com sucesso!", "success");
-        listarAgendamentos();
-        limparCacheEstatisticas();
-
-    } catch (e) {
-        console.error('❌ Erro cancelar:', e);
-        showToast("Erro ao cancelar agendamento", "error");
-    }
-}
-
-// ---------------- FUNÇÕES FALLBACK (para compatibilidade) ----------------
-async function confirmarAgendamentoAntigo(id) {
-    try {
-        console.log('🔄 Usando método antigo para confirmar:', id);
-        
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !user.email) {
-            throw new Error("Usuário não encontrado");
-        }
-
-        const userEmail = user.email;
-        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/confirmar/${id}`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${userToken}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ 
-                status: "confirmado",
-                confirmado: true 
-            })
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            showToast(data.msg || "Agendamento confirmado com sucesso!", "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-        } else {
-            throw new Error("Método antigo também falhou");
-        }
-    } catch (error) {
-        console.error('❌ Fallback também falhou:', error);
-        throw error;
-    }
-}
-
-async function cancelarAgendamentoAntigo(id) {
-    try {
-        console.log('🔄 Usando método antigo para cancelar:', id);
-        
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !user.email) {
-            throw new Error("Usuário não encontrado");
-        }
-
-        const userEmail = user.email;
-        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/cancelar/${id}`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${userToken}`,
-                "Content-Type": "application/json"
-            }
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            showToast(data.msg || "Agendamento cancelado com sucesso!", "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-        } else {
-            throw new Error("Método antigo também falhou");
-        }
-    } catch (error) {
-        console.error('❌ Fallback também falhou:', error);
-        throw error;
-    }
-}
-
-        // 🔥 SUBSTITUA a função reagendarAgendamento no frontend:
-
-// ---------------- REAGENDAR AGENDAMENTO CORRIGIDO ----------------
-async function reagendarAgendamento(id, novaData, novoHorario) {
-    if (!userToken) {
-        showToast("Faça login para reagendar um agendamento.", "warning");
-        return;
-    }
-
-    try {
-        console.log('🔄 Reagendando ID:', id, novaData, novoHorario);
-        
-        // 🔥 AGORA USA A ROTA PÚBLICA QUE EXISTE NO BACKEND
-        const res = await fetch(`${API_BASE_URL}/agendamentos/reagendar/${id}`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${userToken}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ 
-                novaData, 
-                novoHorario
-            })
-        });
-
-        console.log('📨 Status resposta:', res.status);
-        
-        if (!res.ok) {
-            const errorText = await res.text();
-            console.error('❌ Erro HTTP:', res.status, errorText);
-            
-            // Se for 404, tenta a rota antiga como fallback
-            if (res.status === 404) {
-                console.log('🔄 Tentando rota antiga como fallback...');
-                return await reagendarAgendamentoAntigo(id, novaData, novoHorario);
-            }
-            
-            // Trata erro de conflito especificamente
-            if (res.status === 400) {
-                const errorData = await res.json();
-                showToast(errorData.msg || "Conflito de horário", "error");
+        // ---------------- CONFIRMAR AGENDAMENTO ----------------
+        async function confirmarAgendamento(id) {
+            if (!userToken) {
+                showToast("Faça login para confirmar um agendamento.", "warning");
                 return;
             }
+
+            try {
+                const userEmail = await getUserEmail();
+                if (!userEmail) {
+                    showToast("Erro ao obter email do usuário.", "error");
+                    return;
+                }
+
+                const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/confirmar/${id}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ status: "confirmado", confirmado: true })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast("Agendamento confirmado com sucesso!", "success");
+                    listarAgendamentos();
+                    limparCacheEstatisticas();
+                } else {
+                    showToast("Erro ao confirmar: " + (data.msg || data.message), "error");
+                }
+
+            } catch (e) {
+                console.error(e);
+                showToast("Erro de conexão ao confirmar.", "error");
+            }
+        }
+
+        // ---------------- CANCELAR AGENDamento ----------------
+        async function cancelarAgendamento(id) {
+            if (!userToken) {
+                showToast("Faça login para cancelar um agendamento.", "warning");
+                return;
+            }
+
+            try {
+                const userEmail = await getUserEmail();
+                if (!userEmail) {
+                    showToast("Erro ao obter email do usuário.", "error");
+                    return;
+                }
+
+                const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/cancelar/${id}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    showToast("Agendamento cancelado com sucesso!", "success");
+                    listarAgendamentos();
+                    limparCacheEstatisticas();
+                } else {
+                    showToast("Erro ao cancelar: " + (data.msg || data.message), "error");
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Erro de conexão ao cancelar.", "error");
+            }
+        }
+
+        // ---------------- REAGENDAR AGENDAMENTO ----------------
+        async function reagendarAgendamento(id, novaData, novoHorario) {
+            if (!userToken) {
+                showToast("Faça login para reagendar um agendamento.", "warning");
+                return;
+            }
+
+            try {
+                const userEmail = await getUserEmail();
+                if (!userEmail) {
+                    showToast("Erro ao obter email do usuário.", "error");
+                    return;
+                }
+
+                const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/reagendar/${id}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ 
+                        novaData, 
+                        novoHorario
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast("Agendamento reagendado com sucesso!", "success");
+                    listarAgendamentos();
+                    limparCacheEstatisticas();
+                } else {
+                    // Detecta conflito de horário (erro do índice único)
+                    if (data.code === "23505") {
+                        showToast("Já existe um agendamento nesse horário!", "error");
+                    } else {
+                        showToast("Erro ao reagendar: " + (data.msg || data.message), "error");
+                    }
+                }
+
+            } catch (e) {
+                console.error(e);
+                showToast("Erro de conexão ao reagendar.", "error");
+            }
+        }
+
+        // 🔥 ADICIONE ESTES EVENT LISTENERS NO FINAL DO SEU SCRIPT
+        function configurarEventListenersModal() {
+            console.log('🔧 Iniciando configurarEventListenersModal...');
             
-            throw new Error(`Erro ${res.status}: ${errorText}`);
+            // Aguarda o modal ser criado no DOM
+            setTimeout(() => {
+                const modal = document.getElementById('configSheetsModal');
+                console.log('🔧 Modal encontrado:', !!modal);
+                
+                if (modal) {
+                    // Botão Criar Planilha Automática
+                    const btnCriar = modal.querySelector('.config-option:first-child button');
+                    console.log('🔧 Botão Criar encontrado:', !!btnCriar);
+                    if (btnCriar) {
+                        btnCriar.addEventListener('click', criarPlanilhaAutomatica);
+                        console.log('✅ Event listener adicionado ao botão Criar');
+                    }
+                    
+                    // Botão Usar Planilha Existente
+                    const btnUsar = modal.querySelector('.config-option:nth-child(2) button');
+                    console.log('🔧 Botão Usar encontrado:', !!btnUsar);
+                    if (btnUsar) {
+                        btnUsar.addEventListener('click', usarPlanilhaExistente);
+                        console.log('✅ Event listener adicionado ao botão Usar');
+                    }
+                    
+                    // Botão Configurar Depois
+                    const btnFechar = modal.querySelector('.config-option:nth-child(3) button');
+                    console.log('🔧 Botão Fechar encontrado:', !!btnFechar);
+                    if (btnFechar) {
+                        btnFechar.addEventListener('click', fecharConfiguracao);
+                        console.log('✅ Event listener adicionado ao botão Fechar');
+                    }
+                    
+                    console.log('✅ Event listeners do modal configurados');
+                } else {
+                    console.log('❌ Modal não encontrado!');
+                }
+            }, 500);
         }
-
-        const data = await res.json();
-        console.log('📨 Resposta reagendar:', data);
-
-        showToast(data.msg || "Agendamento reagendado com sucesso!", "success");
-        listarAgendamentos();
-        limparCacheEstatisticas();
-
-    } catch (e) {
-        console.error('❌ Erro reagendar:', e);
-        showToast("Erro ao reagendar agendamento", "error");
-    }
-}
-
-// ---------------- FUNÇÃO FALLBACK PARA REAGENDAR ----------------
-async function reagendarAgendamentoAntigo(id, novaData, novoHorario) {
-    try {
-        console.log('🔄 Usando método antigo para reagendar:', id);
-        
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !user.email) {
-            throw new Error("Usuário não encontrado");
-        }
-
-        const userEmail = user.email;
-        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/reagendar/${id}`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${userToken}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ 
-                novaData, 
-                novoHorario
-            })
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            showToast(data.msg || "Agendamento reagendado com sucesso!", "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-        } else {
-            throw new Error("Método antigo também falhou");
-        }
-    } catch (error) {
-        console.error('❌ Fallback também falhou:', error);
-        throw error;
-    }
-}
-// 🔥 ADICIONE esta função auxiliar se precisar reutilizar
-async function getUserEmail() {
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        return user?.email;
-    } catch (error) {
-        console.error("Erro ao obter email do usuário:", error);
-        return null;
-    }
-}
-
-        
-       function configurarEventListenersModal() {
-    console.log('🔧 Configurando event listeners do modal...');
-    
-    const modal = document.getElementById('configSheetsModal');
-    if (!modal) {
-        console.log('❌ Modal não encontrado!');
-        return;
-    }
-
-    // Botão Criar Planilha Automática
-    const btnCriar = modal.querySelector('.config-option:first-child button');
-    if (btnCriar) {
-        // Remove event listener antigo para evitar duplicação
-        btnCriar.replaceWith(btnCriar.cloneNode(true));
-        const novoBtnCriar = modal.querySelector('.config-option:first-child button');
-        novoBtnCriar.addEventListener('click', criarPlanilhaAutomatica);
-        console.log('✅ Event listener Criar adicionado');
-    }
-
-    // Botão Usar Planilha Existente
-    const btnUsar = modal.querySelector('.config-option:nth-child(2) button');
-    if (btnUsar) {
-        btnUsar.replaceWith(btnUsar.cloneNode(true));
-        const novoBtnUsar = modal.querySelector('.config-option:nth-child(2) button');
-        novoBtnUsar.addEventListener('click', usarPlanilhaExistente);
-        console.log('✅ Event listener Usar adicionado');
-    }
-
-    // Botão Configurar Depois
-    const btnFechar = modal.querySelector('.config-option:nth-child(3) button');
-    if (btnFechar) {
-        btnFechar.replaceWith(btnFechar.cloneNode(true));
-        const novoBtnFechar = modal.querySelector('.config-option:nth-child(3) button');
-        novoBtnFechar.addEventListener('click', fecharConfiguracao);
-        console.log('✅ Event listener Fechar adicionado');
-    }
-
-    // 🔥 ADICIONAR: Fechar modal clicando fora
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            fecharModalConfiguracao();
-        }
-    });
-
-    // 🔥 ADICIONAR: Fechar com ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-            fecharModalConfiguracao();
-        }
-    });
-}
 
         // ==================== FUNÇÕES IA (ADICIONAR NO SEU FRONTEND) ====================
 
@@ -3354,12 +3200,3 @@ async function getUserEmail() {
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
