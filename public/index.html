@@ -2550,6 +2550,7 @@ if (dataInput) {
 
        // 🔥 ATUALIZE a função configurarEventListenersModal para esta versão:
 
+// 🔧 ATUALIZAR: Função configurarEventListenersModal - VERSÃO SIMPLIFICADA
 function configurarEventListenersModal() {
     console.log('🔧 Configurando event listeners do modal...');
     
@@ -2559,21 +2560,22 @@ function configurarEventListenersModal() {
         return;
     }
 
+    // 🔥 REMOVIDO: Botão Criar Planilha Automática
 
-    // Botão Usar Planilha Existente
-    const btnUsar = modal.querySelector('.config-option:nth-child(2) button');
+    // Botão Usar Planilha Existente (agora é o primeiro)
+    const btnUsar = modal.querySelector('.config-option:nth-child(1) button');
     if (btnUsar) {
         btnUsar.replaceWith(btnUsar.cloneNode(true));
-        const novoBtnUsar = modal.querySelector('.config-option:nth-child(2) button');
+        const novoBtnUsar = modal.querySelector('.config-option:nth-child(1) button');
         novoBtnUsar.addEventListener('click', usarPlanilhaExistente);
         console.log('✅ Event listener Usar adicionado');
     }
 
-    // Botão Configurar Depois
-    const btnFechar = modal.querySelector('.config-option:nth-child(3) button');
+    // Botão Configurar Depois (agora é o segundo)
+    const btnFechar = modal.querySelector('.config-option:nth-child(2) button');
     if (btnFechar) {
         btnFechar.replaceWith(btnFechar.cloneNode(true));
-        const novoBtnFechar = modal.querySelector('.config-option:nth-child(3) button');
+        const novoBtnFechar = modal.querySelector('.config-option:nth-child(2) button');
         novoBtnFechar.addEventListener('click', fecharConfiguracao);
         console.log('✅ Event listener Fechar adicionado');
     }
@@ -2592,7 +2594,6 @@ function configurarEventListenersModal() {
         }
     });
 }
-
         // ==================== FUNÇÕES IA (ADICIONAR NO SEU FRONTEND) ====================
 
         // 🔧 FUNÇÃO: Pegar token CORRIGIDA
@@ -3189,6 +3190,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
