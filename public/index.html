@@ -777,7 +777,7 @@
                         Pular por enquanto
                     </button>
                 </div>
-            </div>
+    
 
             <div class="mt-4 text-center">
                 <p class="text-xs text-gray-400">
@@ -1315,52 +1315,53 @@ if (dataInput) {
         
       
 
-        async function usarPlanilhaExistente() {
-            console.log('🎯 Botão Usar Planilha clicado!');
-            const spreadsheetId = document.getElementById('spreadsheetIdInput').value.trim();
-            
-            if (!spreadsheetId) {
-                mostrarToast('❌ Por favor, cole o ID da planilha', 'error');
-                return;
-            }
-            
-            try {
-                const btn = document.querySelector('#configSheetsModal .config-option:nth-child(2) button');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div> Configurando...';
-                btn.disabled = true;
-                
-                console.log('🔧 Enviando requisição para configurar planilha...');
-                const response = await fetch(`${API_BASE_URL}/configurar-sheets`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${userToken}`
-                    },
-                    body: JSON.stringify({
-                        spreadsheetId: spreadsheetId
-                    })
-                });
-                
-                const data = await response.json();
-                console.log('🔧 Resposta da API:', data);
-                
-                if (response.ok) {
-                    mostrarToast('✅ Planilha configurada com sucesso!', 'success');
-                    fecharModalConfiguracao();
-                } else {
-                    throw new Error(data.msg || 'Erro ao configurar planilha');
-                }
-            } catch (error) {
-                console.error('Erro ao configurar planilha:', error);
-                mostrarToast('❌ Erro ao configurar planilha: ' + error.message, 'error');
-            } finally {
-                // Restaurar botão
-                const btn = document.querySelector('#configSheetsModal .config-option:nth-child(2) button');
-                btn.innerHTML = '💾 Usar Esta Planilha';
-                btn.disabled = false;
-            }
+       async function usarPlanilhaExistente() {
+    console.log('🎯 Botão Usar Planilha clicado!');
+    const spreadsheetId = document.getElementById('spreadsheetIdInput').value.trim();
+    
+    if (!spreadsheetId) {
+        mostrarToast('❌ Por favor, cole o ID da planilha', 'error');
+        return;
+    }
+    
+    try {
+        // 🔥 ATUALIZADO: Seleciona o botão correto
+        const btn = document.querySelector('#configSheetsModal .config-option:first-child button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div> Configurando...';
+        btn.disabled = true;
+        
+        console.log('🔧 Enviando requisição para configurar planilha...');
+        const response = await fetch(`${API_BASE_URL}/configurar-sheets`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userToken}`
+            },
+            body: JSON.stringify({
+                spreadsheetId: spreadsheetId
+            })
+        });
+        
+        const data = await response.json();
+        console.log('🔧 Resposta da API:', data);
+        
+        if (response.ok) {
+            mostrarToast('✅ Planilha configurada com sucesso!', 'success');
+            fecharModalConfiguracao();
+        } else {
+            throw new Error(data.msg || 'Erro ao configurar planilha');
         }
+    } catch (error) {
+        console.error('Erro ao configurar planilha:', error);
+        mostrarToast('❌ Erro ao configurar planilha: ' + error.message, 'error');
+    } finally {
+        // 🔥 ATUALIZADO: Restaura o botão correto
+        const btn = document.querySelector('#configSheetsModal .config-option:first-child button');
+        btn.innerHTML = 'Usar Esta Planilha';
+        btn.disabled = false;
+    }
+}
 
         async function verificarConfiguracaoSheets() {
             try {
@@ -2558,33 +2559,33 @@ function configurarEventListenersModal() {
         return;
     }
 
-
-    // Botão Usar Planilha Existente
-    const btnUsar = modal.querySelector('.config-option:nth-child(2) button');
+    // 🔥 ATUALIZADO: Agora só tem 2 opções
+    // Botão Usar Planilha Existente (primeira opção)
+    const btnUsar = modal.querySelector('.config-option:first-child button');
     if (btnUsar) {
         btnUsar.replaceWith(btnUsar.cloneNode(true));
-        const novoBtnUsar = modal.querySelector('.config-option:nth-child(2) button');
+        const novoBtnUsar = modal.querySelector('.config-option:first-child button');
         novoBtnUsar.addEventListener('click', usarPlanilhaExistente);
         console.log('✅ Event listener Usar adicionado');
     }
 
-    // Botão Configurar Depois
-    const btnFechar = modal.querySelector('.config-option:nth-child(3) button');
+    // Botão Configurar Depois (segunda opção)
+    const btnFechar = modal.querySelector('.config-option:nth-child(2) button');
     if (btnFechar) {
         btnFechar.replaceWith(btnFechar.cloneNode(true));
-        const novoBtnFechar = modal.querySelector('.config-option:nth-child(3) button');
+        const novoBtnFechar = modal.querySelector('.config-option:nth-child(2) button');
         novoBtnFechar.addEventListener('click', fecharConfiguracao);
         console.log('✅ Event listener Fechar adicionado');
     }
 
-    // 🔥 ADICIONAR: Fechar modal clicando fora
+    // Fechar modal clicando fora
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             fecharModalConfiguracao();
         }
     });
 
-    // 🔥 ADICIONAR: Fechar com ESC
+    // Fechar com ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
             fecharModalConfiguracao();
@@ -3188,6 +3189,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
