@@ -2568,13 +2568,13 @@ function configurarEventListenersModal() {
     }
 
     // Botão Configurar Depois
-    const btnFechar = modal.querySelector('.config-option:nth-child(3) button');
-    if (btnFechar) {
-        btnFechar.replaceWith(btnFechar.cloneNode(true));
-        const novoBtnFechar = modal.querySelector('.config-option:nth-child(3) button');
-        novoBtnFechar.addEventListener('click', fecharConfiguracao);
-        console.log('✅ Event listener Fechar adicionado');
-    }
+const btnFechar = modal.querySelector('.config-option:nth-child(3) button');
+if (btnFechar) {
+    btnFechar.replaceWith(btnFechar.cloneNode(true));
+    const novoBtnFechar = modal.querySelector('.config-option:nth-child(3) button');
+    novoBtnFechar.addEventListener('click', fecharModalConfiguracao); // ✅ FUNÇÃO CORRETA
+    console.log('✅ Event listener Fechar adicionado');
+}
 
     // 🔥 ADICIONAR: Fechar modal clicando fora
     modal.addEventListener('click', function(e) {
@@ -3169,11 +3169,7 @@ function configurarEventListenersModal() {
         });
 
         // 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
-        function fecharConfiguracao() {
-            console.log('🎯 Usuário pulou configuração');
-            fecharModalConfiguracao();
-            mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
-        }
+
 
         // ---------------- INIT ----------------
         AOS.init({
@@ -3186,6 +3182,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
