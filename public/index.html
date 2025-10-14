@@ -1052,6 +1052,7 @@ if (dataInput) {
                 document.getElementById('secoesIA').style.display = 'block';
                 listarAgendamentos();
                 setTimeout(() => verificarConfiguracaoSheets(), 1000);
+                configurarBotaoSettings();
             } else {
                 // Usuário NÃO logado - mostra login
                 console.log('👤 Usuário não logado - mostrando tela de login');
@@ -1065,6 +1066,316 @@ if (dataInput) {
             feather.replace();
         }
 
+// ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
+
+// 🎯 FUNÇÃO: Menu de Configurações
+function abrirMenuConfiguracoes() {
+    const modalExistente = document.getElementById('modalMenuConfig');
+    if (modalExistente) modalExistente.remove();
+
+    const modalHTML = `
+        <div id="modalMenuConfig" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div class="glass-card rounded-2xl p-6 max-w-sm w-full mx-4 animate-fade-in">
+                <!-- Cabeçalho -->
+                <div class="flex items-center justify-center mb-2">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg">
+                        <i data-feather="settings" class="w-6 h-6 text-white"></i>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-semibold text-center mb-2">⚙️ Configurações</h3>
+                <p class="text-center text-gray-300 mb-4">Gerencie suas configurações</p>
+                
+                <!-- Opções -->
+                <div class="space-y-3">
+                    <!-- Perfil do Negócio -->
+                    <button onclick="abrirModalPerfil(); fecharMenuConfig();" 
+                            class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                        <i data-feather="user" class="w-4 h-4"></i>
+                        🏪 Perfil do Negócio
+                    </button>
+                    
+                    <!-- Google Sheets -->
+                    <button onclick="mostrarModalConfiguracao(); fecharMenuConfig();" 
+                            class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                        <i data-feather="file-text" class="w-4 h-4"></i>
+                        📊 Google Sheets
+                    </button>
+                    
+                    <!-- Fechar -->
+                    <button onclick="fecharMenuConfig()" 
+                            class="w-full px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white flex items-center justify-center gap-2">
+                        <i data-feather="x" class="w-4 h-4"></i>
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    feather.replace();
+}
+
+// 🎯 FUNÇÃO: Fechar Menu
+function fecharMenuConfig() {
+    const modal = document.getElementById('modalMenuConfig');
+    if (modal) modal.remove();
+}
+
+// 🎯 FUNÇÃO: Modal do Perfil do Negócio
+function abrirModalPerfil() {
+    const modalExistente = document.getElementById('modalPerfilConfig');
+    if (modalExistente) modalExistente.remove();
+
+    const modalHTML = `
+        <div id="modalPerfilConfig" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div class="glass-card rounded-2xl p-6 max-w-md w-full mx-4 animate-fade-in" style="max-height: 90vh; overflow-y: auto;">
+                <!-- Cabeçalho -->
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">🏪 Perfil do Negócio</h3>
+                    <button onclick="fecharModalPerfil()" class="text-gray-400 hover:text-white">
+                        <i data-feather="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Nome do Negócio -->
+                    <div>
+                        <label class="block text-sm font-medium opacity-80 mb-1">Nome do Negócio</label>
+                        <input type="text" id="nomeNegocioInput" placeholder="Ex: Barbearia do João" 
+                               class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
+                    </div>
+                    
+                    <!-- Tipo de Negócio -->
+                    <div>
+                        <label class="block text-sm font-medium opacity-80 mb-1">Tipo de Negócio</label>
+                        <select id="tipoNegocioSelect" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
+                            <option value="barbearia">💈 Barbearia</option>
+                            <option value="consultorio">🏥 Consultório</option>
+                            <option value="salao">💇 Salão de Beleza</option>
+                            <option value="clinica">🩺 Clínica</option>
+                            <option value="estetica">✨ Clínica de Estética</option>
+                            <option value="massagem">💆 Spa/Massagem</option>
+                            <option value="outros">🏢 Outros</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Dias de Funcionamento -->
+                    <div>
+                        <label class="block text-sm font-medium opacity-80 mb-2">Dias de Funcionamento</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            ${['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'].map(dia => `
+                                <label class="flex items-center gap-1 text-sm cursor-pointer p-1 rounded hover:bg-white/5">
+                                    <input type="checkbox" value="${dia}" class="dias-checkbox rounded" checked>
+                                    <span class="capitalize text-xs">${dia.substring(0,3)}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <!-- Horários Padrão -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium opacity-80 mb-1">⏰ Abertura</label>
+                            <input type="time" id="horarioAbertura" value="08:00" 
+                                   class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium opacity-80 mb-1">⏰ Fechamento</label>
+                            <input type="time" id="horarioFechamento" value="18:00" 
+                                   class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="flex gap-2 mt-6">
+                    <button onclick="fecharModalPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
+                        Cancelar
+                    </button>
+                    <button onclick="salvarPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
+                        <i data-feather="save" class="w-4 h-4"></i>
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    feather.replace();
+    
+    // Carrega perfil existente se tiver
+    setTimeout(() => carregarPerfilExistente(), 100);
+}
+
+// 🎯 FUNÇÃO: Fechar Modal do Perfil
+function fecharModalPerfil() {
+    const modal = document.getElementById('modalPerfilConfig');
+    if (modal) modal.remove();
+}
+
+// 💾 FUNÇÃO: Salvar Perfil
+async function salvarPerfil() {
+    try {
+        const nomeNegocio = document.getElementById('nomeNegocioInput').value.trim();
+        const tipoNegocio = document.getElementById('tipoNegocioSelect').value;
+        const horarioAbertura = document.getElementById('horarioAbertura').value;
+        const horarioFechamento = document.getElementById('horarioFechamento').value;
+        
+        // Coletar dias selecionados
+        const diasSelecionados = Array.from(document.querySelectorAll('.dias-checkbox:checked'))
+            .map(cb => cb.value);
+        
+        if (!nomeNegocio) {
+            mostrarToast('❌ Digite o nome do seu negócio', 'error');
+            return;
+        }
+        
+        if (diasSelecionados.length === 0) {
+            mostrarToast('❌ Selecione pelo menos um dia de funcionamento', 'error');
+            return;
+        }
+        
+        // Criar objeto de horários por dia
+        const horariosFuncionamento = {};
+        diasSelecionados.forEach(dia => {
+            horariosFuncionamento[dia] = {
+                inicio: horarioAbertura,
+                fim: horarioFechamento
+            };
+        });
+        
+        const perfilData = {
+            nome_negocio: nomeNegocio,
+            tipo_negocio: tipoNegocio,
+            horarios_funcionamento: horariosFuncionamento,
+            dias_funcionamento: diasSelecionados
+        };
+        
+        // Mostrar loading
+        const btnSalvar = document.querySelector('#modalPerfilConfig button:last-child');
+        const originalText = btnSalvar.innerHTML;
+        btnSalvar.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div>';
+        btnSalvar.disabled = true;
+        
+        const response = await fetch(`${API_BASE_URL}/api/criar-perfil`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userToken}`
+            },
+            body: JSON.stringify(perfilData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            mostrarToast('✅ Perfil salvo com sucesso!', 'success');
+            fecharModalPerfil();
+            
+            // Atualiza badge do botão
+            atualizarBadgePerfil();
+            
+        } else {
+            throw new Error(data.msg || 'Erro ao salvar perfil');
+        }
+        
+    } catch (error) {
+        console.error('Erro ao salvar perfil:', error);
+        mostrarToast('❌ Erro ao salvar perfil: ' + error.message, 'error');
+    } finally {
+        // Restaurar botão
+        const btnSalvar = document.querySelector('#modalPerfilConfig button:last-child');
+        if (btnSalvar) {
+            btnSalvar.innerHTML = '<i data-feather="save" class="w-4 h-4"></i> Salvar';
+            btnSalvar.disabled = false;
+            feather.replace();
+        }
+    }
+}
+
+// 🔍 FUNÇÃO: Carregar Perfil Existente
+async function carregarPerfilExistente() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+            headers: {
+                'Authorization': `Bearer ${userToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.perfil) {
+                preencherFormularioPerfil(data.perfil);
+            }
+        }
+    } catch (error) {
+        console.log('Nenhum perfil existente ou erro ao carregar:', error);
+    }
+}
+
+// 📝 FUNÇÃO: Preencher Formulário com Dados Existentes
+function preencherFormularioPerfil(perfil) {
+    const nomeInput = document.getElementById('nomeNegocioInput');
+    const tipoSelect = document.getElementById('tipoNegocioSelect');
+    const diasCheckboxes = document.querySelectorAll('.dias-checkbox');
+    
+    if (nomeInput) nomeInput.value = perfil.nome_negocio || '';
+    if (tipoSelect) tipoSelect.value = perfil.tipo_negocio || 'barbearia';
+    
+    // Preencher dias
+    diasCheckboxes.forEach(cb => {
+        cb.checked = perfil.dias_funcionamento?.includes(cb.value) || false;
+    });
+    
+    // Preencher horários (usa o primeiro dia como referência)
+    if (perfil.horarios_funcionamento) {
+        const primeiroDia = Object.keys(perfil.horarios_funcionamento)[0];
+        if (primeiroDia) {
+            const horarioAbertura = document.getElementById('horarioAbertura');
+            const horarioFechamento = document.getElementById('horarioFechamento');
+            
+            if (horarioAbertura) horarioAbertura.value = perfil.horarios_funcionamento[primeiroDia].inicio || '08:00';
+            if (horarioFechamento) horarioFechamento.value = perfil.horarios_funcionamento[primeiroDia].fim || '18:00';
+        }
+    }
+}
+
+// 🔔 FUNÇÃO: Atualizar Badge do Botão
+async function atualizarBadgePerfil() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+            headers: { 'Authorization': `Bearer ${userToken}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const settingsBtn = document.getElementById('settingsBtn');
+            
+            if (settingsBtn && data.success && data.perfil) {
+                // Adiciona um indicador visual que o perfil está configurado
+                settingsBtn.innerHTML = `<i data-feather="settings" class="w-4 h-4"></i> ⚙️`;
+                feather.replace();
+            }
+        }
+    } catch (error) {
+        console.log('Erro ao verificar perfil:', error);
+    }
+}
+
+// 🎯 FUNÇÃO: Configurar Botão Principal
+function configurarBotaoSettings() {
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        // Substitui o evento onclick para abrir o menu
+        settingsBtn.onclick = abrirMenuConfiguracoes;
+    }
+}
+
+
+        
         // 🔥 ADICIONE: Função para mostrar/ocultar botões corretamente
       function atualizarInterfacePosLogin() {
     const logoutBtn = document.getElementById('logoutBtn');
@@ -1075,7 +1386,7 @@ if (dataInput) {
         logoutBtn.style.display = 'flex';
         settingsBtn.style.display = 'flex';
         gerarLinkBtn.style.display = 'flex';
-        
+        setTimeout(() => atualizarBadgePerfil(), 2000);
         // 🔥 CORREÇÃO CRÍTICA: Adicionar event listener ao botão configurações
         settingsBtn.onclick = mostrarModalConfiguracao;
     } else {
@@ -1284,7 +1595,7 @@ if (dataInput) {
                             form.style.display = 'block';
                             atualizarInterfacePosLogin();
                             document.getElementById('secoesIA').style.display = 'block';
-                            
+                            setTimeout(() => atualizarBadgePerfil(), 2000);
                             listarAgendamentos();
                             showToast("Login com Google realizado!", "success");
                             setTimeout(() => verificarConfiguracaoSheets(), 1500);
@@ -1799,8 +2110,9 @@ if (dataInput) {
                 form.style.display = 'block';
                 atualizarInterfacePosLogin();
                 document.getElementById('secoesIA').style.display = 'block';
+                setTimeout(() => atualizarBadgePerfil(), 2000);  
                 listarAgendamentos().then(() => {
-                    
+                  
                     // Seleciona o dia atual
                     let hoje = new Date().getDay();
                     if (hoje === 0) {
@@ -3190,6 +3502,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
