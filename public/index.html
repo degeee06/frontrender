@@ -750,18 +750,7 @@
             <h3 class="text-2xl font-semibold text-center mb-2">🎯 Configurar Google Sheets</h3>
             <p class="text-center text-gray-300 mb-6">Escolha como deseja sincronizar seus agendamentos</p>
             
-            <div class="space-y-6">
-                <div class="config-option p-4 rounded-lg bg-white/5 border border-white/10">
-                    <h4 class="font-semibold mb-2 flex items-center gap-2">
-                        <i data-feather="plus" class="w-4 h-4 text-green-400"></i>
-                        📊 Criar Planilha Automática
-                    </h4>
-                    <p class="text-sm text-gray-300 mb-3">O sistema cria uma planilha nova para você automaticamente</p>
-                    <button class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
-                        <i data-feather="plus" class="w-4 h-4"></i>
-                        🚀 Criar Minha Planilha
-                    </button>
-                </div>
+
 
                 <div class="config-option p-4 rounded-lg bg-white/5 border border-white/10">
                     <h4 class="font-semibold mb-2 flex items-center gap-2">
@@ -2608,15 +2597,6 @@ function configurarEventListenersModal() {
         return;
     }
 
-    // Botão Criar Planilha Automática
-    const btnCriar = modal.querySelector('.config-option:first-child button');
-    if (btnCriar) {
-        // Remove event listener antigo para evitar duplicação
-        btnCriar.replaceWith(btnCriar.cloneNode(true));
-        const novoBtnCriar = modal.querySelector('.config-option:first-child button');
-        novoBtnCriar.addEventListener('click', criarPlanilhaAutomatica);
-        console.log('✅ Event listener Criar adicionado');
-    }
 
     // Botão Usar Planilha Existente
     const btnUsar = modal.querySelector('.config-option:nth-child(2) button');
@@ -3247,6 +3227,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
