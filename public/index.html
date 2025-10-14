@@ -1313,46 +1313,7 @@ if (dataInput) {
             modal.classList.add('hidden');
         }
         
-        // 🔥 CORREÇÃO: Funções atualizadas para o modal
-        async function criarPlanilhaAutomatica() {
-            console.log('🎯 Botão Criar Planilha clicado!');
-            try {
-                const btn = document.querySelector('#configSheetsModal .config-option:first-child button');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div> Criando...';
-                btn.disabled = true;
-                
-                console.log('🔧 Enviando requisição para criar planilha...');
-                const response = await fetch(`${API_BASE_URL}/configurar-sheets`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${userToken}`
-                    },
-                    body: JSON.stringify({
-                        criarAutomatico: true
-                    })
-                });
-                
-                const data = await response.json();
-                console.log('🔧 Resposta da API:', data);
-                
-                if (response.ok) {
-                    mostrarToast('✅ Planilha criada com sucesso!', 'success');
-                    fecharModalConfiguracao();
-                } else {
-                    throw new Error(data.msg || 'Erro ao criar planilha');
-                }
-            } catch (error) {
-                console.error('Erro ao criar planilha:', error);
-                mostrarToast('❌ Erro ao criar planilha: ' + error.message, 'error');
-            } finally {
-                // Restaurar botão
-                const btn = document.querySelector('#configSheetsModal .config-option:first-child button');
-                btn.innerHTML = '🚀 Criar Minha Planilha';
-                btn.disabled = false;
-            }
-        }
+      
 
         async function usarPlanilhaExistente() {
             console.log('🎯 Botão Usar Planilha clicado!');
@@ -3227,6 +3188,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
