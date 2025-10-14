@@ -1068,7 +1068,7 @@ if (dataInput) {
 
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
 
-// 🎯 FUNÇÃO: Menu de Configurações
+// 🎯 FUNÇÃO: Menu de Configurações (ATUALIZADA)
 function abrirMenuConfiguracoes() {
     const modalExistente = document.getElementById('modalMenuConfig');
     if (modalExistente) modalExistente.remove();
@@ -1089,21 +1089,21 @@ function abrirMenuConfiguracoes() {
                 <!-- Opções -->
                 <div class="space-y-3">
                     <!-- Perfil do Negócio -->
-                    <button onclick="abrirModalPerfil(); fecharMenuConfig();" 
+                    <button id="btnPerfilNegocio" 
                             class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
                         <i data-feather="user" class="w-4 h-4"></i>
                         🏪 Perfil do Negócio
                     </button>
                     
                     <!-- Google Sheets -->
-                    <button onclick="mostrarModalConfiguracao(); fecharMenuConfig();" 
+                    <button id="btnGoogleSheets" 
                             class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
                         <i data-feather="file-text" class="w-4 h-4"></i>
                         📊 Google Sheets
                     </button>
                     
                     <!-- Fechar -->
-                    <button onclick="fecharMenuConfig()" 
+                    <button id="btnFecharMenu" 
                             class="w-full px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white flex items-center justify-center gap-2">
                         <i data-feather="x" class="w-4 h-4"></i>
                         Fechar
@@ -1115,8 +1115,30 @@ function abrirMenuConfiguracoes() {
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     feather.replace();
+    
+    // 🔥 ADICIONE: Event listeners DEPOIS de criar o modal
+    setTimeout(() => {
+        document.getElementById('btnPerfilNegocio').addEventListener('click', function() {
+            abrirModalPerfil();
+            fecharMenuConfig();
+        });
+        
+        document.getElementById('btnGoogleSheets').addEventListener('click', function() {
+            mostrarModalConfiguracao();
+            fecharMenuConfig();
+        });
+        
+        document.getElementById('btnFecharMenu').addEventListener('click', fecharMenuConfig);
+        
+        // Fechar clicando fora
+        document.getElementById('modalMenuConfig').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharMenuConfig();
+            }
+        });
+    }, 100);
 }
-
+        
 // 🎯 FUNÇÃO: Fechar Menu
 function fecharMenuConfig() {
     const modal = document.getElementById('modalMenuConfig');
@@ -3500,6 +3522,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
