@@ -2557,32 +2557,33 @@ function configurarEventListenersModal() {
         return;
     }
 
+
     // Botão Usar Planilha Existente
-    const btnUsar = modal.querySelector('.config-option:nth-child(1) button');
+    const btnUsar = modal.querySelector('.config-option:nth-child(2) button');
     if (btnUsar) {
         btnUsar.replaceWith(btnUsar.cloneNode(true));
-        const novoBtnUsar = modal.querySelector('.config-option:nth-child(1) button');
+        const novoBtnUsar = modal.querySelector('.config-option:nth-child(2) button');
         novoBtnUsar.addEventListener('click', usarPlanilhaExistente);
         console.log('✅ Event listener Usar adicionado');
     }
 
     // Botão Configurar Depois
-    const btnFechar = modal.querySelector('.config-option:nth-child(2) button');
+    const btnFechar = modal.querySelector('.config-option:nth-child(3) button');
     if (btnFechar) {
         btnFechar.replaceWith(btnFechar.cloneNode(true));
-        const novoBtnFechar = modal.querySelector('.config-option:nth-child(2) button');
-        novoBtnFechar.addEventListener('click', fecharModalConfiguracao);
+        const novoBtnFechar = modal.querySelector('.config-option:nth-child(3) button');
+        novoBtnFechar.addEventListener('click', fecharConfiguracao);
         console.log('✅ Event listener Fechar adicionado');
     }
 
-    // Fechar modal clicando fora
+    // 🔥 ADICIONAR: Fechar modal clicando fora
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             fecharModalConfiguracao();
         }
     });
 
-    // Fechar com ESC
+    // 🔥 ADICIONAR: Fechar com ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
             fecharModalConfiguracao();
@@ -3185,6 +3186,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
