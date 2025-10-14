@@ -1145,7 +1145,7 @@ function fecharMenuConfig() {
     if (modal) modal.remove();
 }
 
-// 🎯 FUNÇÃO: Modal do Perfil do Negócio
+// 🎯 FUNÇÃO: Modal do Perfil do Negócio (VERSÃO CORRIGIDA)
 function abrirModalPerfil() {
     const modalExistente = document.getElementById('modalPerfilConfig');
     if (modalExistente) modalExistente.remove();
@@ -1156,7 +1156,7 @@ function abrirModalPerfil() {
                 <!-- Cabeçalho -->
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-semibold">🏪 Perfil do Negócio</h3>
-                    <button onclick="fecharModalPerfil()" class="text-gray-400 hover:text-white">
+                    <button id="btnFecharModalPerfil" class="text-gray-400 hover:text-white">
                         <i data-feather="x" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -1213,10 +1213,10 @@ function abrirModalPerfil() {
 
                 <!-- Botões -->
                 <div class="flex gap-2 mt-6">
-                    <button onclick="fecharModalPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
+                    <button id="btnCancelarPerfil" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
                         Cancelar
                     </button>
-                    <button onclick="salvarPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
+                    <button id="btnSalvarPerfil" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
                         <i data-feather="save" class="w-4 h-4"></i>
                         Salvar
                     </button>
@@ -1228,9 +1228,25 @@ function abrirModalPerfil() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     feather.replace();
     
+    // 🔥 ADICIONE: Event listeners para os botões
+    setTimeout(() => {
+        document.getElementById('btnFecharModalPerfil').addEventListener('click', fecharModalPerfil);
+        document.getElementById('btnCancelarPerfil').addEventListener('click', fecharModalPerfil);
+        document.getElementById('btnSalvarPerfil').addEventListener('click', salvarPerfil);
+        
+        // Fechar clicando fora
+        document.getElementById('modalPerfilConfig').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharModalPerfil();
+            }
+        });
+    }, 100);
+    
     // Carrega perfil existente se tiver
     setTimeout(() => carregarPerfilExistente(), 100);
 }
+
+    
 
 // 🎯 FUNÇÃO: Fechar Modal do Perfil
 function fecharModalPerfil() {
@@ -3522,6 +3538,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
