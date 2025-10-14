@@ -1387,8 +1387,6 @@ function configurarBotaoSettings() {
         settingsBtn.style.display = 'flex';
         gerarLinkBtn.style.display = 'flex';
         setTimeout(() => atualizarBadgePerfil(), 2000);
-        // 🔥 CORREÇÃO CRÍTICA: Adicionar event listener ao botão configurações
-        settingsBtn.onclick = mostrarModalConfiguracao;
     } else {
         logoutBtn.style.display = 'none';
         settingsBtn.style.display = 'none';
@@ -3502,6 +3500,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
