@@ -247,7 +247,11 @@ if (!user_id || !t) {
     user_id: user_id,
     t: t // 🆕 ENVIA TIMESTAMP PARA O BACKEND
 };
-
+ // 🔥🔥🔥 ADICIONE ESTA PARTE AQUI:
+    // Se email estiver vazio, define um valor padrão
+    if(!agendamento.email || agendamento.email.trim() === '') {
+        agendamento.email = 'Não informado';
+    }
             try {
                 const response = await fetch('https://agendamento-ynxr.onrender.com/agendamento-publico', {
                     method: 'POST',
@@ -268,7 +272,6 @@ if (!user_id || !t) {
         <p class="mb-4">${result.msg}</p>
         <div class="bg-white/10 rounded-lg p-4 text-left">
             <p><strong>Nome:</strong> ${agendamento.nome}</p>
-            <p><strong>Email:</strong> ${agendamento.email || 'não informado'}</p>  <!-- ✅ AQUI -->
             <p><strong>Telefone:</strong> ${agendamento.telefone}</p>
             <p><strong>Data:</strong> ${agendamento.data}</p>
             <p><strong>Horário:</strong> ${agendamento.horario}</p>
