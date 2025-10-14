@@ -238,19 +238,19 @@ if (!user_id || !t) {
             agendarSpinner.classList.remove('hidden');
             submitBtn.disabled = true;
 
-          const agendamento = {
-    Nome: document.getElementById('nome').value,      // ✅ MAIÚSCULA
-    Email: document.getElementById('email').value,    // ✅ MAIÚSCULA  
-    Telefone: document.getElementById('telefone').value,
-    Data: document.getElementById('data').value,
-    Horario: document.getElementById('horario').value,
+         const agendamento = {
+    nome: document.getElementById('nome').value,
+    email: document.getElementById('email').value, // ✅ mantém minúsculo
+    telefone: document.getElementById('telefone').value,
+    data: document.getElementById('data').value,
+    horario: document.getElementById('horario').value,
     user_id: user_id,
     t: t
 };
 
-// 🔥 CORRIJA A VERIFICAÇÃO TAMBÉM:
-if(!agendamento.Email || agendamento.Email.trim() === '') { // ✅ 'Email' maiúsculo
-    agendamento.Email = 'Não informado'; // ✅ 'Email' maiúsculo
+// 🔥 CORRIJA A VERIFICAÇÃO (usa 'email' minúsculo):
+if(!agendamento.email || agendamento.email.trim() === '') {
+    agendamento.email = 'Não informado'; // ✅ 'email' minúsculo
 }
             try {
                 const response = await fetch('https://agendamento-ynxr.onrender.com/agendamento-publico', {
