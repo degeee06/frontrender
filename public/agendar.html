@@ -261,18 +261,20 @@ if (!user_id || !t) {
                 document.getElementById('resultado').style.display = 'block';
                 
                 if (result.success) {
-                    document.getElementById('resultado').innerHTML = `
-                        <div class="p-6 rounded-lg success-message">
-                            <i data-feather="check-circle" class="w-12 h-12 mx-auto mb-4"></i>
-                            <h3 class="text-xl font-semibold mb-2">Agendamento Confirmado!</h3>
-                            <p class="mb-4">${result.msg}</p>
-                            <div class="bg-white/10 rounded-lg p-4 text-left">
-                                <p><strong>Nome:</strong> ${agendamento.nome}</p>
-                                <p><strong>Data:</strong> ${agendamento.data}</p>
-                                <p><strong>Horário:</strong> ${agendamento.horario}</p>
-                            </div>
-                        </div>
-                    `;
+                   document.getElementById('resultado').innerHTML = `
+    <div class="p-6 rounded-lg success-message">
+        <i data-feather="check-circle" class="w-12 h-12 mx-auto mb-4"></i>
+        <h3 class="text-xl font-semibold mb-2">Agendamento Confirmado!</h3>
+        <p class="mb-4">${result.msg}</p>
+        <div class="bg-white/10 rounded-lg p-4 text-left">
+            <p><strong>Nome:</strong> ${agendamento.nome}</p>
+            <p><strong>Email:</strong> ${agendamento.email || 'não informado'}</p>  <!-- ✅ AQUI -->
+            <p><strong>Telefone:</strong> ${agendamento.telefone}</p>
+            <p><strong>Data:</strong> ${agendamento.data}</p>
+            <p><strong>Horário:</strong> ${agendamento.horario}</p>
+        </div>
+    </div>
+`;
                     document.getElementById('agendarForm').reset();
                 } else {
                     document.getElementById('resultado').innerHTML = `
