@@ -317,44 +317,6 @@
     margin-bottom: 6px;
     font-weight: 600;
 }
-        /* 🆕 ESTILOS PARA DIFERENCIAR TIPOS DE BLOQUEIO */
-.bloqueio-recorrente {
-    background: rgba(245, 158, 11, 0.1) !important;
-    border-color: rgba(245, 158, 11, 0.3) !important;
-    color: #fbbf24 !important;
-}
-
-.bloqueio-data-especifica {
-    background: rgba(59, 130, 246, 0.1) !important;
-    border-color: rgba(59, 130, 246, 0.3) !important;
-    color: #60a5fa !important;
-}
-
-.bloqueio-compatibilidade {
-    background: rgba(139, 92, 246, 0.1) !important;
-    border-color: rgba(139, 92, 246, 0.3) !important;
-    color: #a78bfa !important;
-}
-
-.tipo-bloqueio-badge {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    margin-left: 6px;
-    text-transform: uppercase;
-}
-
-.badge-recorrente {
-    background: rgba(245, 158, 11, 0.3);
-    color: #fbbf24;
-}
-
-.badge-data-especifica {
-    background: rgba(59, 130, 246, 0.3);
-    color: #60a5fa;
-}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -555,7 +517,7 @@ function adicionarMensagemChat(texto, tipo = 'bot') {
     feather.replace();
 }
 
-// 🔥 SUBSTITUIR: Função carregarHorariosReais CORRIGIDA
+// 🔥 ATUALIZAR: Função carregarHorariosReais mais clara
 async function carregarHorariosReais() {
     if (!user_id) {
         adicionarMensagemChat('<strong>Assistente:</strong> Link inválido. Não é possível verificar horários. ❌');
@@ -598,15 +560,16 @@ async function carregarHorariosReais() {
             infoFuncionamento += `</div>`;
             adicionarMensagemChat(infoFuncionamento);
             
-            // 🆕 CORREÇÃO: MOSTRA APENAS BLOQUEIOS RECORRENTES AQUI
+            // 🆕 CORREÇÃO: Mostra bloqueios de forma mais inteligente
             if (perfilInfo.horarios_bloqueados && perfilInfo.horarios_bloqueados.length > 0) {
-                // 🔥 FILTRA APENAS BLOQUEIOS RECORRENTES para mostrar aqui
+                // Separa bloqueios recorrentes vs data específica
                 const bloqueiosRecorrentes = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'recorrente');
+                const bloqueiosDataEspecifica = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'data_especifica');
                 
                 if (bloqueiosRecorrentes.length > 0) {
                     adicionarMensagemChat(`
                         <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
-                            <strong>🔄 Bloqueios Fixos (Todos os dias):</strong><br>
+                            <strong>🚫 Períodos Bloqueados Fixos:</strong><br>
                             <div style="font-size: 12px; margin-top: 6px;">
                                 ${bloqueiosRecorrentes.map(periodo => 
                                     `• ${periodo.inicio} - ${periodo.fim}`
@@ -619,12 +582,10 @@ async function carregarHorariosReais() {
                     `);
                 }
                 
-                // 🔥 MOSTRA INFO SOBRE BLOQUEIOS POR DATA (sem mostrar as datas específicas)
-                const bloqueiosDataEspecifica = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'data_especifica');
                 if (bloqueiosDataEspecifica.length > 0) {
                     adicionarMensagemChat(`
                         <div class="info-box" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
-                            <strong>📅 Bloqueios por Data Específica:</strong><br>
+                            <strong>📅 Bloqueios em Datas Específicas:</strong><br>
                             <div style="font-size: 12px; margin-top: 6px;">
                                 Existem ${bloqueiosDataEspecifica.length} períodos bloqueados em datas específicas
                             </div>
@@ -721,27 +682,27 @@ async function selecionarData(dataSelecionada) {
         if (response.ok) {
             const data = await response.json();
             
-           if (data.success && data.horariosDisponiveis && data.horariosDisponiveis.length > 0) {
-    // 🆕 CORREÇÃO: Passa a estrutura correta de periodosBloqueados
-    mostrarHorariosDisponiveis(
-        dataSelecionada, 
-        data.horariosDisponiveis, 
-        data.horariosOcupados,
-        data.periodosBloqueados // ✅ Já está na estrutura correta {recorrentes: [], data_especifica: []}
-    );
-    
-    // 🎯 INFO ADICIONAL SOBRE DISPONIBILIDADE
-    if (data.horariosOcupados && data.horariosOcupados.length > 0) {
-        adicionarMensagemChat(`
-            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
-                <strong>📊 Status de Disponibilidade:</strong><br>
-                ✅ <strong>${data.totalDisponiveis}</strong> horários disponíveis<br>
-                ❌ <strong>${data.totalOcupados}</strong> horários ocupados
-                ${data.periodosBloqueados && (data.periodosBloqueados.recorrentes.length > 0 || data.periodosBloqueados.data_especifica.length > 0) ? 
-                    `<br>🚫 <strong>${(data.periodosBloqueados.recorrentes?.length || 0) + (data.periodosBloqueados.data_especifica?.length || 0)}</strong> períodos bloqueados` : ''}
-            </div>
-        `);
-    }
+            if (data.success && data.horariosDisponiveis && data.horariosDisponiveis.length > 0) {
+                // 🆕 MOSTRA HORÁRIOS DISPONÍVEIS COM PERÍODOS BLOQUEADOS
+                mostrarHorariosDisponiveis(
+                    dataSelecionada, 
+                    data.horariosDisponiveis, 
+                    data.horariosOcupados,
+                    data.periodosBloqueados // 🆕 Passa períodos bloqueados
+                );
+                
+                // 🎯 INFO ADICIONAL SOBRE DISPONIBILIDADE
+                if (data.horariosOcupados && data.horariosOcupados.length > 0) {
+                    adicionarMensagemChat(`
+                        <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                            <strong>📊 Status de Disponibilidade:</strong><br>
+                            ✅ <strong>${data.totalDisponiveis}</strong> horários disponíveis<br>
+                            ❌ <strong>${data.totalOcupados}</strong> horários ocupados
+                            ${data.periodosBloqueados && data.periodosBloqueados.length > 0 ? 
+                                `<br>🚫 <strong>${data.periodosBloqueados.length}</strong> períodos bloqueados` : ''}
+                        </div>
+                    `);
+                }
             } else {
                 // Se não tiver horários disponíveis
                 let motivo = data.motivo || "Todos os horários estão ocupados ou bloqueados";
@@ -764,8 +725,8 @@ async function selecionarData(dataSelecionada) {
         await gerarHorariosBasePerfil(dataSelecionada);
     }
 }
-// 🔥 SUBSTITUIR: Função mostrarHorariosDisponiveis com separação CLARA de bloqueios
-function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados = [], periodosBloqueados = {}) {
+// 🔥 SUBSTITUIR: Função mostrarHorariosDisponiveis COMPATÍVEL
+function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados = [], periodosBloqueados = []) {
     if (horariosDisponiveis.length === 0) {
         adicionarMensagemChat(`
             <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
@@ -776,8 +737,23 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
         return;
     }
 
+    // 🎯 CORREÇÃO: Converte estrutura nova para array simples (compatibilidade)
+    let periodosArray = [];
+    if (periodosBloqueados && typeof periodosBloqueados === 'object') {
+        // Se é objeto {recorrentes: [], data_especifica: []}
+        if (periodosBloqueados.recorrentes) {
+            periodosArray = periodosArray.concat(periodosBloqueados.recorrentes);
+        }
+        if (periodosBloqueados.data_especifica) {
+            periodosArray = periodosArray.concat(periodosBloqueados.data_especifica);
+        }
+    } else {
+        // Se já é array (compatibilidade com versão antiga)
+        periodosArray = periodosBloqueados || [];
+    }
+
     // 🎯 ORGANIZA HORÁRIOS POR PERÍODOS BLOQUEADOS
-    let horariosAgrupados = agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados);
+    let horariosAgrupados = agruparHorariosPorPeriodo(horariosDisponiveis, periodosArray);
     
     adicionarMensagemChat(`
         <div class="info-box">
@@ -810,46 +786,24 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
 
     adicionarMensagemChat(`</div>`);
 
-    // 🆕 MELHORADO: MOSTRA BLOQUEIOS SEPARADOS POR TIPO (MELHORIA SIGNIFICATIVA)
+    // 🎯 MOSTRA INFORMAÇÕES SOBRE BLOQUEIOS E OCUPAÇÕES
     let infoAdicional = [];
     
     if (horariosOcupados.length > 0) {
         infoAdicional.push(`<strong>⏰ Ocupados:</strong> ${horariosOcupados.length} horários`);
     }
     
-    // 🟡 BLOQUEIOS RECORRENTES (SE HOUVER)
-    if (periodosBloqueados.recorrentes && periodosBloqueados.recorrentes.length > 0) {
-        infoAdicional.push(`<strong>🔄 Fixos:</strong> ${periodosBloqueados.recorrentes.length} períodos`);
+    if (periodosArray.length > 0) {
+        infoAdicional.push(`<strong>🚫 Bloqueados:</strong> ${periodosArray.length} períodos`);
         
+        // 🆕 MOSTRA OS PERÍODOS BLOQUEADOS ESPECÍFICOS
         adicionarMensagemChat(`
-            <div class="info-box bloqueio-recorrente">
-                <strong>🔄 Bloqueios Fixos (Todos os dias):</strong>
+            <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
+                <strong>📋 Períodos Bloqueados:</strong>
                 <div style="font-size: 11px; margin-top: 6px;">
-                    ${periodosBloqueados.recorrentes.map(periodo => 
+                    ${periodosArray.map(periodo => 
                         `🚫 ${periodo.inicio} - ${periodo.fim}`
                     ).join('<br>')}
-                </div>
-                <div style="font-size: 10px; margin-top: 4px; opacity: 0.8;">
-                    ⚠️ Bloqueados em todos os dias
-                </div>
-            </div>
-        `);
-    }
-    
-    // 🔵 BLOQUEIOS POR DATA ESPECÍFICA (SE HOUVER)
-    if (periodosBloqueados.data_especifica && periodosBloqueados.data_especifica.length > 0) {
-        infoAdicional.push(`<strong>📅 Específicos:</strong> ${periodosBloqueados.data_especifica.length} períodos`);
-        
-        adicionarMensagemChat(`
-            <div class="info-box bloqueio-data-especifica">
-                <strong>📅 Bloqueios para esta data:</strong>
-                <div style="font-size: 11px; margin-top: 6px;">
-                    ${periodosBloqueados.data_especifica.map(periodo => 
-                        `🚫 ${periodo.inicio} - ${periodo.fim} ${periodo.motivo ? `<br><em>${periodo.motivo}</em>` : ''}`
-                    ).join('<br>')}
-                </div>
-                <div style="font-size: 10px; margin-top: 4px; opacity: 0.8;">
-                    📍 Apenas para ${formatarData(data)}
                 </div>
             </div>
         `);
@@ -857,29 +811,17 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
 
     if (infoAdicional.length > 0) {
         adicionarMensagemChat(`
-            <div style="font-size: 12px; opacity: 0.7; margin-top: 8px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
-                <strong>📊 Resumo:</strong><br>
+            <div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">
                 ${infoAdicional.join('<br>')}
             </div>
         `);
     }
 }
 
-   // 🔥 SUBSTITUIR: Função agruparHorariosPorPeriodo CORRIGIDA para nova estrutura
+        // 🆕 FUNÇÃO: Agrupa horários considerando períodos bloqueados
 function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
-    // 🆕 CORREÇÃO: Converte a nova estrutura para array simples de períodos
-    let todosPeriodosBloqueados = [];
-    
-    if (periodosBloqueados.recorrentes) {
-        todosPeriodosBloqueados = todosPeriodosBloqueados.concat(periodosBloqueados.recorrentes);
-    }
-    
-    if (periodosBloqueados.data_especifica) {
-        todosPeriodosBloqueados = todosPeriodosBloqueados.concat(periodosBloqueados.data_especifica);
-    }
-    
-    // Se não há períodos bloqueados, retorna um único grupo
-    if (todosPeriodosBloqueados.length === 0) {
+    if (!periodosBloqueados || periodosBloqueados.length === 0) {
+        // Se não há períodos bloqueados, retorna um único grupo
         return [{ horarios: horariosDisponiveis }];
     }
     
@@ -887,7 +829,7 @@ function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
     let horariosRestantes = [...horariosDisponiveis];
     
     // Ordena períodos bloqueados por horário de início
-    const periodosOrdenados = [...todosPeriodosBloqueados].sort((a, b) => a.inicio.localeCompare(b.inicio));
+    const periodosOrdenados = [...periodosBloqueados].sort((a, b) => a.inicio.localeCompare(b.inicio));
     
     // Para cada período bloqueado, cria grupos antes/depois
     periodosOrdenados.forEach((periodo, index) => {
@@ -925,8 +867,6 @@ function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
     
     return grupos;
 }
-
-        
 // 🔥 SUBSTITUIR: Função corrigida que RESPEITA horário de funcionamento
 async function gerarHorariosBasePerfil(dataSelecionada) {
     try {
