@@ -2968,171 +2968,224 @@ function configurarEventListenersModal() {
         }
 
         // 🧠 FUNÇÃO: Assistente IA CORRIGIDA
-        window.perguntarIA = async function() {
-            try {
-                const inputPergunta = document.getElementById('input-pergunta-ia');
-                if (!inputPergunta) {
-                    console.error('❌ Elemento input-pergunta-ia não encontrado');
-                    return;
-                }
-                
-                const pergunta = inputPergunta.value.trim();
-                if (!pergunta) {
-                    showToast("Digite uma pergunta para a IA", "warning");
-                    return;
-                }
-
-                // Mostra loading no chat
-                const historico = document.getElementById('historico-chat-ia');
-                if (!historico) {
-                    console.error('❌ Elemento historico-chat-ia não encontrado');
-                    return;
-                }
-                
-                historico.innerHTML += `
-                    <div class="mensagem usuario">
-                        <p><strong>Você:</strong> ${pergunta}</p>
-                    </div>
-                    <div class="mensagem ia carregando">
-                        <p>🤖 IA está pensando...</p>
-                    </div>
-                `;
-
-                const token = getToken();
-                if (!token) {
-                    showToast("Faça login para usar a IA", "error");
-                    document.querySelector('.carregando')?.remove();
-                    return;
-                }
-
-                // 🔥 CORREÇÃO: Loading simples no botão
-                const btnEnviar = document.getElementById('btn-enviar-ia');
-                if (btnEnviar) {
-                    btnEnviar.disabled = true;
-                    btnEnviar.innerHTML = '<div class="loading-spinner"></div>';
-                }
-
-                const response = await fetch(`${API_BASE_URL}/api/assistente-ia`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ mensagem: pergunta })
-                });
-
-                // 🔥 CORREÇÃO: Verifica se a resposta é OK
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-
-                // Remove loading e mostra resposta
-                document.querySelector('.carregando')?.remove();
-                
-                if (data.success) {
-                    historico.innerHTML += `
-                        <div class="mensagem ia">
-                            <p><strong>Assistente IA:</strong> ${data.resposta}</p>
-                        </div>
-                    `;
-                } else {
-                    historico.innerHTML += `
-                        <div class="mensagem ia erro">
-                            <p>❌ Erro: ${data.msg || "Não foi possível processar sua pergunta"}</p>
-                        </div>
-                    `;
-                }
-
-                // 🔥 CORREÇÃO: Restaura botão
-                if (btnEnviar) {
-                    btnEnviar.disabled = false;
-                    btnEnviar.innerHTML = 'Enviar';
-                }
-
-                // Limpa input e rola para baixo
-                inputPergunta.value = '';
-                historico.scrollTop = historico.scrollHeight;
-
-            } catch (error) {
-                console.error('❌ Erro ao perguntar para IA:', error);
-                showToast("Erro ao conversar com a IA", "error");
-                
-                // 🔥 CORREÇÃO: Restaura botão em caso de erro
-                const btnEnviar = document.getElementById('btn-enviar-ia');
-                if (btnEnviar) {
-                    btnEnviar.disabled = false;
-                    btnEnviar.innerHTML = 'Enviar';
-                }
-                
-                // Remove loading em caso de erro
-                document.querySelector('.carregando')?.remove();
-            }
+       // 🧠 FUNÇÃO: Assistente IA CORRIGIDA - COM DADOS DO PERFIL
+window.perguntarIA = async function() {
+    try {
+        const inputPergunta = document.getElementById('input-pergunta-ia');
+        if (!inputPergunta) {
+            console.error('❌ Elemento input-pergunta-ia não encontrado');
+            return;
+        }
+        
+        const pergunta = inputPergunta.value.trim();
+        if (!pergunta) {
+            showToast("Digite uma pergunta para a IA", "warning");
+            return;
         }
 
-        // 🎯 FUNÇÃO: Sugerir Horários CORRIGIDA
-        window.sugerirHorarios = async function() {
-            try {
-                const sugestoesDiv = document.getElementById('sugestoes-horarios');
-                if (!sugestoesDiv) {
-                    console.error('❌ Elemento sugestoes-horarios não encontrado');
-                    return;
+        // Mostra loading no chat
+        const historico = document.getElementById('historico-chat-ia');
+        if (!historico) {
+            console.error('❌ Elemento historico-chat-ia não encontrado');
+            return;
+        }
+        
+        historico.innerHTML += `
+            <div class="mensagem usuario">
+                <p><strong>Você:</strong> ${pergunta}</p>
+            </div>
+            <div class="mensagem ia carregando">
+                <p>🤖 IA está pensando...</p>
+            </div>
+        `;
+
+        const token = getToken();
+        if (!token) {
+            showToast("Faça login para usar a IA", "error");
+            document.querySelector('.carregando')?.remove();
+            return;
+        }
+
+        // 🔥 CORREÇÃO: Loading simples no botão
+        const btnEnviar = document.getElementById('btn-enviar-ia');
+        if (btnEnviar) {
+            btnEnviar.disabled = true;
+            btnEnviar.innerHTML = '<div class="loading-spinner"></div>';
+        }
+
+        // 🔥 NOVO: Buscar perfil do negócio antes de enviar para IA
+        let contextoPerfil = '';
+        try {
+            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
-                
-                sugestoesDiv.innerHTML = '<div class="p-3 bg-blue-500/20 rounded-lg">🔍 Analisando sua agenda...</div>';
-
-                const token = getToken();
-                if (!token) {
-                    showToast("Faça login para usar esta função", "error");
-                    sugestoesDiv.innerHTML = '';
-                    return;
-                }
-
-                const response = await fetch(`${API_BASE_URL}/api/sugerir-horarios`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    sugestoesDiv.innerHTML = `
-                        <div class="p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="text-green-400">📅</span>
-                                <strong class="text-green-400">Horários Sugeridos</strong>
-                            </div>
-                            <div class="sugestoes-texto whitespace-pre-line text-sm leading-relaxed">
-                                ${data.sugestoes || 'Nenhuma sugestão disponível no momento.'}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    sugestoesDiv.innerHTML = `
-                        <div class="p-3 bg-red-500/20 rounded-lg">
-                            <p class="text-red-400">❌ ${data.msg || 'Erro ao buscar sugestões'}</p>
-                        </div>
-                    `;
-                }
-
-            } catch (error) {
-                console.error('❌ Erro ao sugerir horários:', error);
-                const sugestoesDiv = document.getElementById('sugestoes-horarios');
-                if (sugestoesDiv) {
-                    sugestoesDiv.innerHTML = `
-                        <div class="p-3 bg-red-500/20 rounded-lg">
-                            <p class="text-red-400">❌ Erro de conexão</p>
-                        </div>
-                    `;
+            });
+            
+            if (perfilResponse.ok) {
+                const perfilData = await perfilResponse.json();
+                if (perfilData.success && perfilData.perfil) {
+                    const p = perfilData.perfil;
+                    contextoPerfil = `
+PERFIL DO NEGÓCIO:
+- Nome: ${p.nome_negocio}
+- Tipo: ${p.tipo_negocio}
+- Dias de funcionamento: ${p.dias_funcionamento.join(', ')}
+- Horários: ${JSON.stringify(p.horarios_funcionamento)}
+`;
                 }
             }
+        } catch (error) {
+            console.log('❌ Erro ao buscar perfil para IA:', error);
         }
+
+        // 🔥 ENVIAR PERFIL + PERGUNTA para a IA
+        const mensagemComContexto = {
+            mensagem: pergunta,
+            contextoPerfil: contextoPerfil || 'Perfil não configurado'
+        };
+
+        const response = await fetch(`${API_BASE_URL}/api/assistente-ia`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(mensagemComContexto)
+        });
+
+        // 🔥 CORREÇÃO: Verifica se a resposta é OK
+        if (!response.ok) {
+            throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Remove loading e mostra resposta
+        document.querySelector('.carregando')?.remove();
+        
+        if (data.success) {
+            historico.innerHTML += `
+                <div class="mensagem ia">
+                    <p><strong>Assistente IA:</strong> ${data.resposta}</p>
+                </div>
+            `;
+        } else {
+            historico.innerHTML += `
+                <div class="mensagem ia erro">
+                    <p>❌ Erro: ${data.msg || "Não foi possível processar sua pergunta"}</p>
+                </div>
+            `;
+        }
+
+        // 🔥 CORREÇÃO: Restaura botão
+        if (btnEnviar) {
+            btnEnviar.disabled = false;
+            btnEnviar.innerHTML = 'Enviar';
+        }
+
+        // Limpa input e rola para baixo
+        inputPergunta.value = '';
+        historico.scrollTop = historico.scrollHeight;
+
+    } catch (error) {
+        console.error('❌ Erro ao perguntar para IA:', error);
+        showToast("Erro ao conversar com a IA", "error");
+        
+        // 🔥 CORREÇÃO: Restaura botão em caso de erro
+        const btnEnviar = document.getElementById('btn-enviar-ia');
+        if (btnEnviar) {
+            btnEnviar.disabled = false;
+            btnEnviar.innerHTML = 'Enviar';
+        }
+        
+        // Remove loading em caso de erro
+        document.querySelector('.carregando')?.remove();
+    }
+}
+       // 🎯 FUNÇÃO: Sugerir Horários CORRIGIDA - COM PERFIL
+window.sugerirHorarios = async function() {
+    try {
+        const sugestoesDiv = document.getElementById('sugestoes-horarios');
+        if (!sugestoesDiv) {
+            console.error('❌ Elemento sugestoes-horarios não encontrado');
+            return;
+        }
+        
+        sugestoesDiv.innerHTML = '<div class="p-3 bg-blue-500/20 rounded-lg">🔍 Analisando sua agenda e perfil...</div>';
+
+        const token = getToken();
+        if (!token) {
+            showToast("Faça login para usar esta função", "error");
+            sugestoesDiv.innerHTML = '';
+            return;
+        }
+
+        // 🔥 NOVO: Buscar perfil primeiro
+        let perfilInfo = '';
+        try {
+            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (perfilResponse.ok) {
+                const perfilData = await perfilResponse.json();
+                if (perfilData.success && perfilData.perfil) {
+                    const p = perfilData.perfil;
+                    perfilInfo = `Baseado no seu perfil: ${p.nome_negocio} (${p.tipo_negocio}), atendendo ${p.dias_funcionamento.join(', ')} das ${Object.values(p.horarios_funcionamento)[0]?.inicio || '08:00'} às ${Object.values(p.horarios_funcionamento)[0]?.fim || '18:00'}`;
+                }
+            }
+        } catch (error) {
+            console.log('Erro ao buscar perfil para sugestões:', error);
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/sugerir-horarios`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            sugestoesDiv.innerHTML = `
+                <div class="p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-green-400">📅</span>
+                        <strong class="text-green-400">Horários Sugeridos</strong>
+                    </div>
+                    ${perfilInfo ? `<p class="text-sm text-green-300 mb-2">${perfilInfo}</p>` : ''}
+                    <div class="sugestoes-texto whitespace-pre-line text-sm leading-relaxed">
+                        ${data.sugestoes || 'Nenhuma sugestão disponível no momento.'}
+                    </div>
+                </div>
+            `;
+        } else {
+            sugestoesDiv.innerHTML = `
+                <div class="p-3 bg-red-500/20 rounded-lg">
+                    <p class="text-red-400">❌ ${data.msg || 'Erro ao buscar sugestões'}</p>
+                </div>
+            `;
+        }
+
+    } catch (error) {
+        console.error('❌ Erro ao sugerir horários:', error);
+        const sugestoesDiv = document.getElementById('sugestoes-horarios');
+        if (sugestoesDiv) {
+            sugestoesDiv.innerHTML = `
+                <div class="p-3 bg-red-500/20 rounded-lg">
+                    <p class="text-red-400">❌ Erro de conexão</p>
+                </div>
+            `;
+        }
+    }
+}
 
         // ==================== SSE NO FRONTEND ====================
         let eventSource = null;
@@ -3556,6 +3609,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
