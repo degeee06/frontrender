@@ -86,23 +86,55 @@
         border: 1px solid rgba(239, 68, 68, 0.5);
         color: #f87171;
     }
-
-        /* 🔥 ESTILOS DO MINI-CHAT COM DADOS REAIS */
-.mini-chat-section {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(16px);
+        /* 🔥 CHAT FLUTUANTE NO CANTO DIREITO */
+.chat-flutuante {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    height: 450px;
+    background: rgba(23, 23, 23, 0.95);
+    backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.mini-chat-messages {
-    height: 200px;
-    overflow-y: auto;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
+.chat-header {
+    background: linear-gradient(135deg, #6366f1, #3b82f6);
     padding: 16px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.message {
+.chat-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.chat-toggle {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.chat-message {
     margin-bottom: 12px;
     padding: 10px 14px;
     border-radius: 12px;
@@ -110,36 +142,96 @@
     animation: fadeIn 0.3s ease;
 }
 
-.bot-message {
+.chat-bot {
     background: rgba(139, 92, 246, 0.3);
     border: 1px solid rgba(139, 92, 246, 0.5);
     margin-right: auto;
 }
 
-.user-message {
+.chat-user {
     background: rgba(59, 130, 246, 0.3);
     border: 1px solid rgba(59, 130, 246, 0.5);
     margin-left: auto;
 }
 
-.message-content {
+.chat-message-content {
     font-size: 14px;
     line-height: 1.5;
 }
 
+.chat-actions {
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.chat-btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Botão flutuante para abrir chat */
+.chat-abrir-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #6366f1, #3b82f6);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.chat-abrir-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.6);
+}
+
+/* Estados do chat */
+.chat-fechado {
+    transform: translateY(100px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.chat-aberto {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Grid de horários no chat */
 .horarios-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 6px;
     margin-top: 8px;
 }
 
 .horario-btn {
-    padding: 8px 12px;
+    padding: 6px 8px;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    font-size: 12px;
+    border-radius: 6px;
+    font-size: 11px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -155,33 +247,44 @@
     border-color: rgba(34, 197, 94, 0.5);
 }
 
+.info-box {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    margin: 8px 0;
+    font-size: 12px;
+}
+
 .dia-section {
-    margin-bottom: 16px;
-    padding: 12px;
+    margin-bottom: 12px;
+    padding: 10px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
 }
 
 .dia-titulo {
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: #60a5fa;
-}
-
-.info-box {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    border-radius: 8px;
-    padding: 12px;
-    margin: 8px 0;
     font-size: 13px;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Responsivo */
+@media (max-width: 640px) {
+    .chat-flutuante {
+        width: calc(100vw - 40px);
+        height: 70vh;
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+    }
+    
+    .chat-abrir-btn {
+        bottom: 10px;
+        right: 10px;
+    }
 }
-        
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -198,33 +301,37 @@
                 Preencha os dados para agendar seu compromisso
             </p>
         </header>
+        
+<!-- 🔥 CHAT FLUTUANTE NO CANTO DIREITO -->
+<button class="chat-abrir-btn" onclick="toggleChat()">
+    <i data-feather="message-circle"></i>
+</button>
 
-        <!-- 🔥 MINI-CHAT COM DADOS REAIS DAS TABELAS -->
-<div class="mini-chat-section glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
-    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-        <span>💬</span>
-        Horários Disponíveis
-    </h3>
+<div id="chatFlutuante" class="chat-flutuante chat-fechado">
+    <!-- Cabeçalho do Chat -->
+    <div class="chat-header">
+        <h3>💬 Assistente de Agendamento</h3>
+        <button class="chat-toggle" onclick="toggleChat()">
+            <i data-feather="x"></i>
+        </button>
+    </div>
     
-    <div class="mini-chat-container">
-        <div id="mini-chat-messages" class="mini-chat-messages">
-            <div class="message bot-message">
-                <div class="message-content">
-                    <strong>Assistente:</strong> Vou verificar os horários reais disponíveis para você! 📅
-                </div>
+    <!-- Mensagens do Chat -->
+    <div id="chatMessages" class="chat-messages">
+        <div class="chat-message chat-bot">
+            <div class="chat-message-content">
+                <strong>Assistente:</strong> Olá! Posso ajudar você a encontrar horários disponíveis! 😊
             </div>
         </div>
-        
-        <div class="text-center mt-4">
-            <button onclick="carregarHorariosReais()" 
-                    class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 mx-auto">
-                <span>🔍</span>
-                Ver Horários Reais
-            </button>
-        </div>
+    </div>
+    
+    <!-- Ações do Chat -->
+    <div class="chat-actions">
+        <button class="chat-btn-primary" onclick="carregarHorariosReais()">
+            <span>🔍 Ver Horários Disponíveis</span>
+        </button>
     </div>
 </div>
-
         
         <!-- Formulário de Agendamento -->
         <form id="agendarForm" class="glass-card rounded-2xl p-6 md:p-8 mb-6" data-aos="fade-up">
@@ -370,35 +477,52 @@ if (!user_id || !t) {
     user_id: user_id,
     t: t
 };
-// 🔥 FUNÇÕES QUE USAM DADOS REAIS DAS TABELAS
-function adicionarMensagem(texto, tipo = 'bot') {
-    const messagesDiv = document.getElementById('mini-chat-messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${tipo}-message`;
-    messageDiv.innerHTML = `<div class="message-content">${texto}</div>`;
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+// 🔥 CONTROLE DO CHAT FLUTUANTE
+let chatAberto = false;
+
+function toggleChat() {
+    const chat = document.getElementById('chatFlutuante');
+    const botao = document.querySelector('.chat-abrir-btn');
+    
+    if (chatAberto) {
+        chat.classList.remove('chat-aberto');
+        chat.classList.add('chat-fechado');
+        botao.style.display = 'flex';
+    } else {
+        chat.classList.remove('chat-fechado');
+        chat.classList.add('chat-aberto');
+        botao.style.display = 'none';
+    }
+    
+    chatAberto = !chatAberto;
+    feather.replace();
 }
 
+function adicionarMensagemChat(texto, tipo = 'bot') {
+    const messagesDiv = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message chat-${tipo}`;
+    messageDiv.innerHTML = `<div class="chat-message-content">${texto}</div>`;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    feather.replace();
+}
+
+// 🔥 FUNÇÃO PRINCIPAL - BUSCA DADOS REAIS
 async function carregarHorariosReais() {
-    if (!user_id) return;
+    if (!user_id) {
+        adicionarMensagemChat('<strong>Assistente:</strong> Link inválido. Não é possível verificar horários. ❌');
+        return;
+    }
     
-    const messagesDiv = document.getElementById('mini-chat-messages');
-    messagesDiv.innerHTML = '';
-    
-    adicionarMensagem('<strong>Assistente:</strong> Consultando dados reais do sistema... ⏳');
+    adicionarMensagemChat('<strong>Assistente:</strong> Consultando horários reais do sistema... ⏳');
 
     try {
-        // 🎯 BUSCA PERFIL REAL da tabela perfis_negocio
+        // 🎯 BUSCA PERFIL REAL do backend
         let perfilInfo = null;
         try {
-            const perfilResponse = await fetch(`https://agendamento-ynxr.onrender.com/api/meu-perfil`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-User-ID': user_id // Header customizado para identificar o user
-                }
-            });
+            // Tenta buscar perfil público (você precisa criar esta rota)
+            const perfilResponse = await fetch(`https://agendamento-ynxr.onrender.com/api/perfil-publico/${user_id}`);
             
             if (perfilResponse.ok) {
                 const perfilData = await perfilResponse.json();
@@ -407,33 +531,17 @@ async function carregarHorariosReais() {
                 }
             }
         } catch (perfilError) {
-            console.log('Perfil não encontrado ou erro na requisição');
-        }
-
-        // 🎯 BUSCA AGENDAMENTOS REAIS da tabela agendamentos
-        let agendamentosExistentes = [];
-        try {
-            // Simula busca de agendamentos - você pode criar uma rota pública depois
-            const hoje = new Date().toISOString().split('T')[0];
-            
-            // Para demonstração, vamos considerar que não há agendamentos
-            // Na prática, você criaria uma rota como /api/agendamentos-publicos/:user_id
-            agendamentosExistentes = [];
-            
-        } catch (agendamentosError) {
-            console.log('Erro ao buscar agendamentos');
+            console.log('Perfil não disponível publicamente');
         }
 
         // 🎯 MOSTRA INFORMAÇÕES REAIS
-        messagesDiv.innerHTML = '';
-        
         if (perfilInfo) {
-            adicionarMensagem(`<strong>Assistente:</strong> Encontrei o <strong>${perfilInfo.nome_negocio}</strong>! 🏪`);
+            adicionarMensagemChat(`<strong>Assistente:</strong> Encontrei o <strong>${perfilInfo.nome_negocio}</strong>! 🏪`);
             
             // Mostra horários de funcionamento REAIS
             let infoFuncionamento = `
                 <div class="info-box">
-                    <strong>Horários de Funcionamento:</strong><br>
+                    <strong>🕒 Horários de Funcionamento:</strong><br>
             `;
             
             Object.keys(perfilInfo.horarios_funcionamento).forEach(dia => {
@@ -442,52 +550,55 @@ async function carregarHorariosReais() {
             });
             
             infoFuncionamento += `</div>`;
-            adicionarMensagem(infoFuncionamento);
+            adicionarMensagemChat(infoFuncionamento);
             
             // Mostra dias de funcionamento REAIS
-            adicionarMensagem(`<strong>Dias de atendimento:</strong> ${perfilInfo.dias_funcionamento.map(d => formatarDiaNome(d)).join(', ')}`);
+            adicionarMensagemChat(`<strong>📅 Dias de atendimento:</strong> ${perfilInfo.dias_funcionamento.map(d => formatarDiaNome(d)).join(', ')}`);
             
         } else {
-            adicionarMensagem('<strong>Assistente:</strong> Use o formulário abaixo para agendar. Os horários serão validados automaticamente! ✅');
+            adicionarMensagemChat('<strong>Assistente:</strong> Use o formulário principal para agendar. Os horários serão validados automaticamente! ✅');
         }
 
-        // 🎯 SUGERE PRÓXIMOS PASSOS
-        adicionarMensagem(`
+        // 🎯 INSTRUÇÕES PRÁTICAS
+        adicionarMensagemChat(`
             <div class="info-box">
-                <strong>Como agendar:</strong><br>
-                1. Escolha uma data futura no calendário<br>
-                2. Selecione um horário<br>
+                <strong>📝 Como agendar:</strong><br>
+                1. Escolha uma data no calendário<br>
+                2. Selecione um horário<br>  
                 3. Preencha seus dados<br>
-                4. O sistema verificará automaticamente a disponibilidade! 🔄
+                4. Clique em "Agendar Compromisso"<br>
+                5. O sistema verificará a disponibilidade! 🔄
             </div>
         `);
 
     } catch (error) {
-        console.error('Erro:', error);
-        messagesDiv.innerHTML = '';
-        adicionarMensagem('<strong>Assistente:</strong> Use o formulário para agendar. A disponibilidade será verificada na confirmação! ✅');
+        console.error('Erro no chat:', error);
+        adicionarMensagemChat('<strong>Assistente:</strong> Use o formulário principal para agendar. A disponibilidade será verificada automaticamente! ✅');
     }
 }
 
-// Função para selecionar data/horário manualmente
-function selecionarHorario(data, horario) {
+// 🔥 FUNÇÃO PARA SELECIONAR VIA CHAT
+function selecionarHorarioChat(data, horario) {
     document.getElementById('data').value = data;
     document.getElementById('horario').value = horario;
     
-    adicionarMensagem(`<strong>Você:</strong> Selecionou ${formatarData(data)} às ${horario}`, 'user');
-    adicionarMensagem('<strong>Assistente:</strong> Perfeito! Agora preencha seus dados abaixo. ✅');
+    adicionarMensagemChat(`<strong>Você:</strong> Selecionou ${formatarData(data)} às ${horario}`, 'user');
+    adicionarMensagemChat('<strong>Assistente:</strong> Perfeito! Agora preencha o formulário principal. ✅');
     
-    document.getElementById('agendarForm').scrollIntoView({ behavior: 'smooth' });
+    // Foca no formulário
+    setTimeout(() => {
+        document.getElementById('agendarForm').scrollIntoView({ behavior: 'smooth' });
+    }, 500);
 }
 
-// Funções auxiliares
+// 🔥 FUNÇÕES AUXILIARES
 function formatarDiaNome(dia) {
     const dias = {
-        'segunda': 'Segunda-feira',
-        'terca': 'Terça-feira', 
-        'quarta': 'Quarta-feira',
-        'quinta': 'Quinta-feira',
-        'sexta': 'Sexta-feira',
+        'segunda': 'Segunda',
+        'terca': 'Terça', 
+        'quarta': 'Quarta',
+        'quinta': 'Quinta',
+        'sexta': 'Sexta',
         'sabado': 'Sábado',
         'domingo': 'Domingo'
     };
@@ -499,11 +610,15 @@ function formatarData(dataString) {
     return data.toLocaleDateString('pt-BR');
 }
 
-// 🎯 INICIALIZAÇÃO AUTOMÁTICA
+// 🔥 INICIALIZAÇÃO
+feather.replace();
+
+// Abre o chat automaticamente após 2 segundos
 setTimeout(() => {
-    carregarHorariosReais();
-}, 1000);
-            
+    if (!chatAberto) {
+        toggleChat();
+    }
+}, 2000);
 // 🔥 CORRIJA A VERIFICAÇÃO (usa 'email' minúsculo):
 if(!agendamento.email || agendamento.email.trim() === '') {
     agendamento.email = 'Não informado'; // ✅ 'email' minúsculo
