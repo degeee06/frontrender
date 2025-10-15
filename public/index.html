@@ -1254,9 +1254,11 @@ function fecharModalPerfil() {
     if (modal) modal.remove();
 }
 
-// 💾 FUNÇÃO: Salvar Perfil
+// 💾 FUNÇÃO: Salvar Perfil - VERSÃO CORRIGIDA
 async function salvarPerfil() {
     try {
+        console.log('💾 Iniciando salvamento do perfil...');
+        
         const nomeNegocio = document.getElementById('nomeNegocioInput').value.trim();
         const tipoNegocio = document.getElementById('tipoNegocioSelect').value;
         const horarioAbertura = document.getElementById('horarioAbertura').value;
@@ -1292,10 +1294,12 @@ async function salvarPerfil() {
             dias_funcionamento: diasSelecionados
         };
         
-        // Mostrar loading
+        console.log('📤 Enviando dados do perfil:', perfilData);
+        
+        // 🔥 CORREÇÃO CRÍTICA: Usar ID específico em vez de seleção por posição
         const btnSalvar = document.getElementById('btnSalvarPerfil');
         const originalText = btnSalvar.innerHTML;
-        btnSalvar.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div>';
+        btnSalvar.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div> Salvando...';
         btnSalvar.disabled = true;
         
         const response = await fetch(`${API_BASE_URL}/api/criar-perfil`, {
@@ -1307,7 +1311,9 @@ async function salvarPerfil() {
             body: JSON.stringify(perfilData)
         });
         
+        console.log('📥 Resposta recebida, status:', response.status);
         const data = await response.json();
+        console.log('📊 Dados da resposta:', data);
         
         if (data.success) {
             mostrarToast('✅ Perfil salvo com sucesso!', 'success');
@@ -1321,10 +1327,10 @@ async function salvarPerfil() {
         }
         
     } catch (error) {
-        console.error('Erro ao salvar perfil:', error);
+        console.error('❌ Erro ao salvar perfil:', error);
         mostrarToast('❌ Erro ao salvar perfil: ' + error.message, 'error');
     } finally {
-        // Restaurar botão
+        // 🔥 CORREÇÃO CRÍTICA: Usar ID específico aqui também
         const btnSalvar = document.getElementById('btnSalvarPerfil');
         if (btnSalvar) {
             btnSalvar.innerHTML = '<i data-feather="save" class="w-4 h-4"></i> Salvar';
@@ -1335,25 +1341,37 @@ async function salvarPerfil() {
 }
 
 // 🔍 FUNÇÃO: Carregar Perfil Existente
+// 🔍 FUNÇÃO: Carregar Perfil Existente - VERSÃO MELHORADA
 async function carregarPerfilExistente() {
     try {
+        console.log('🔍 Buscando perfil existente...');
+        
         const response = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
             headers: {
                 'Authorization': `Bearer ${userToken}`
             }
         });
         
+        console.log('📊 Status da resposta:', response.status);
+        
         if (response.ok) {
             const data = await response.json();
+            console.log('📦 Dados do perfil:', data);
+            
             if (data.success && data.perfil) {
                 preencherFormularioPerfil(data.perfil);
+                console.log('✅ Perfil carregado com sucesso');
+            } else {
+                console.log('ℹ️ Nenhum perfil encontrado');
             }
+        } else {
+            console.log('❌ Erro HTTP ao carregar perfil:', response.status);
         }
     } catch (error) {
-        console.log('Nenhum perfil existente ou erro ao carregar:', error);
+        console.error('❌ Erro ao carregar perfil:', error);
     }
 }
-
+        
 // 📝 FUNÇÃO: Preencher Formulário com Dados Existentes
 function preencherFormularioPerfil(perfil) {
     const nomeInput = document.getElementById('nomeNegocioInput');
@@ -3538,6 +3556,7 @@ function configurarEventListenersModal() {
     </script>
 </body>
 </html>
+
 
 
 
