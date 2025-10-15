@@ -2598,54 +2598,62 @@ function configurarBotaoSettings() {
             }
         });
 
-        // ---------------- AGENDAR ----------------
-        form.addEventListener('submit', async (e)=>{
-            e.preventDefault();
-            const formData=new FormData(form);
-            const dataToSend={};
-            formData.forEach((v,k)=>dataToSend[k]=v);
+      // ---------------- AGENDAR ----------------
+form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const formData = new FormData(form);
+    const dataToSend = {};
+    formData.forEach((v,k) => dataToSend[k] = v);
 
-            // ✅ NOVO - Email opcional:
-            if(!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
-                showToast("Preencha todos os campos obrigatórios", "warning");
-                return;
-            }
+    // ✅ NOVO - Email opcional:
+    if(!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
+        showToast("Preencha todos os campos obrigatórios", "warning");
+        return;
+    }
 
-            // 🔥 Se email estiver vazio, define um valor padrão
-            if(!dataToSend.Email || dataToSend.Email.trim() === '') {
-                dataToSend.Email = 'Não informado';
-            }
+    // 🔥 Se email estiver vazio, define um valor padrão
+    if(!dataToSend.Email || dataToSend.Email.trim() === '') {
+        dataToSend.Email = 'Não informado';
+    }
 
-            // Mostrar loading
-            agendarText.classList.add('hidden');
-            agendarSpinner.classList.remove('hidden');
-            form.querySelector('button[type="submit"]').disabled = true;
-     
-            try{
-                const response = await fetch(`${API_BASE_URL}/agendar`, {
-                    method:'POST',
-                    headers:{'Content-Type':'application/json',"Authorization":`Bearer ${userToken}`},
-                    body:JSON.stringify(dataToSend)
-                });
-                
-                if(response.ok){ 
-                    showToast("Agendado com sucesso!","success"); 
-                    form.reset(); 
-                    listarAgendamentos(); 
-                } else {
-                    const errorData = await response.json();
-                    showToast(errorData.message || "Não foi possível agendar, horário ocupado!", "error");
-                }
-            } catch(err){ 
-                console.error(err); 
-                showToast("Erro ao enviar agendamento","error"); 
-            } finally {
-                // Esconder loading
-                agendarText.classList.remove('hidden');
-                agendarSpinner.classList.add('hidden');
-                form.querySelector('button[type="submit"]').disabled = false;
-            }
+    // Mostrar loading
+    agendarText.classList.add('hidden');
+    agendarSpinner.classList.remove('hidden');
+    form.querySelector('button[type="submit"]').disabled = true;
+
+    try{
+        const response = await fetch(`${API_BASE_URL}/agendar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${userToken}`
+            },
+            body: JSON.stringify(dataToSend)
         });
+        
+        if(response.ok){ 
+            showToast("Agendado com sucesso!", "success"); 
+            form.reset(); 
+            listarAgendamentos(); 
+        } else {
+            const errorData = await response.json();
+            
+            // ✅✅✅ CORREÇÃO AQUI - USA errorData.msg EM VEZ DE errorData.message
+            const mensagemErro = errorData.msg || errorData.message || "Não foi possível agendar";
+            showToast(mensagemErro, "error");
+            
+            console.log("Detalhes do erro:", errorData); // Para debug
+        }
+    } catch(err){ 
+        console.error(err); 
+        showToast("Erro ao enviar agendamento", "error"); 
+    } finally {
+        // Esconder loading
+        agendarText.classList.remove('hidden');
+        agendarSpinner.classList.add('hidden');
+        form.querySelector('button[type="submit"]').disabled = false;
+    }
+});
 
         // ---------------- FILTROS ----------------
         searchInput.addEventListener("input", debounce(renderAgendamentos, 300));
@@ -3897,6 +3905,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
