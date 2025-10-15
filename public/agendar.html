@@ -599,42 +599,74 @@ async function mostrarProximasDatasDisponiveis(perfilInfo) {
 }
         
 // 🎯 FUNÇÃO QUANDO USUÁRIO SELECIONA UMA DATA
+// 🎯 FUNÇÃO QUANDO USUÁRIO SELECIONA UMA DATA (VERSÃO MELHORADA)
 async function selecionarData(dataSelecionada) {
     const dataFormatada = formatarData(dataSelecionada);
     adicionarMensagemChat(`<strong>Você:</strong> Selecionou ${dataFormatada}`, 'user');
     
     adicionarMensagemChat('<strong>Assistente:</strong> Verificando horários disponíveis... 🔄');
-    
+
     try {
-        // 🎯 BUSCA HORÁRIOS DISPONÍVEIS REAIS
+        // 🎯 BUSCA HORÁRIOS DISPONÍVEIS REAIS DO BACKEND
         const response = await fetch(`https://agendamento-ynxr.onrender.com/api/horarios-disponiveis/${user_id}?data=${dataSelecionada}`);
         
         if (response.ok) {
             const data = await response.json();
             
             if (data.success && data.horariosDisponiveis && data.horariosDisponiveis.length > 0) {
-                // Mostra horários disponíveis do backend
-                mostrarHorariosDisponiveis(dataSelecionada, data.horariosDisponiveis);
+                // Mostra horários disponíveis REAIS do backend
+                mostrarHorariosDisponiveis(dataSelecionada, data.horariosDisponiveis, data.horariosOcupados);
+                
+                // 🎯 INFO ADICIONAL SOBRE DISPONIBILIDADE
+                if (data.horariosOcupados && data.horariosOcupados.length > 0) {
+                    adicionarMensagemChat(`
+                        <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                            <strong>📊 Status de Disponibilidade:</strong><br>
+                            ✅ <strong>${data.totalDisponiveis}</strong> horários disponíveis<br>
+                            ❌ <strong>${data.totalOcupados}</strong> horários ocupados
+                        </div>
+                    `);
+                }
             } else {
-                // Se não tiver horários do backend, gera baseado no perfil
-                await gerarHorariosBasePerfil(dataSelecionada);
+                // Se não tiver horários disponíveis
+                let motivo = data.motivo || "Todos os horários estão ocupados";
+                adicionarMensagemChat(`
+                    <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                        <strong>❌ Nenhum horário disponível</strong><br>
+                        ${motivo}<br><br>
+                        <em>💡 Tente selecionar outra data</em>
+                    </div>
+                `);
             }
         } else {
+            // Fallback se a rota não funcionar
             await gerarHorariosBasePerfil(dataSelecionada);
         }
         
     } catch (error) {
+        console.error('Erro ao buscar horários:', error);
+        // Fallback em caso de erro
         await gerarHorariosBasePerfil(dataSelecionada);
     }
 }
 
-// 🎯 MOSTRA HORÁRIOS DISPONÍVEIS COM BOTÕES
-function mostrarHorariosDisponiveis(data, horarios) {
+// 🎯 MOSTRA HORÁRIOS DISPONÍVEIS COM BOTÕES (VERSÃO MELHORADA)
+function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados = []) {
+    if (horariosDisponiveis.length === 0) {
+        adicionarMensagemChat(`
+            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                <strong>❌ Todos os horários estão ocupados</strong><br>
+                💡 Tente selecionar outra data
+            </div>
+        `);
+        return;
+    }
+
     adicionarMensagemChat(`
         <div class="info-box">
             <strong>🕐 Horários Disponíveis para ${formatarData(data)}:</strong>
             <div class="horarios-grid" style="margin-top: 8px;">
-                ${horarios.map(horario => `
+                ${horariosDisponiveis.map(horario => `
                     <button class="horario-btn" onclick="selecionarHorarioChat('${data}', '${horario}')"
                             style="padding: 8px 12px; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 6px; cursor: pointer; transition: all 0.3s;">
                         <strong>${horario}</strong>
@@ -643,6 +675,15 @@ function mostrarHorariosDisponiveis(data, horarios) {
             </div>
         </div>
     `);
+
+    // 🎯 MOSTRA HORÁRIOS OCUPADOS (OPCIONAL - para transparência)
+    if (horariosOcupados.length > 0) {
+        adicionarMensagemChat(`
+            <div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">
+                <strong>⏰ Horários ocupados:</strong> ${horariosOcupados.join(', ')}
+            </div>
+        `);
+    }
 }
 
 // 🎯 GERA HORÁRIOS BASEADO NO PERFIL (fallback)
