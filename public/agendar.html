@@ -285,6 +285,51 @@
         right: 10px;
     }
 }
+        .datas-grid {
+    display: grid;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.data-btn {
+    padding: 10px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.data-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-1px);
+}
+
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.horario-btn {
+    padding: 8px 6px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 6px;
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.horario-btn:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.5);
+    transform: translateY(-1px);
+}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -485,7 +530,7 @@ function adicionarMensagemChat(texto, tipo = 'bot') {
     feather.replace();
 }
 
-// 🔥 FUNÇÃO PRINCIPAL - BUSCA DADOS REAIS
+// 🔥 FUNÇÃO PRINCIPAL - SISTEMA INTERATIVO DE HORÁRIOS
 async function carregarHorariosReais() {
     if (!user_id) {
         adicionarMensagemChat('<strong>Assistente:</strong> Link inválido. Não é possível verificar horários. ❌');
@@ -495,10 +540,9 @@ async function carregarHorariosReais() {
     adicionarMensagemChat('<strong>Assistente:</strong> Consultando horários reais do sistema... ⏳');
 
     try {
-        // 🎯 BUSCA PERFIL REAL do backend
+        // 🎯 BUSCA PERFIL REAL
         let perfilInfo = null;
         try {
-            // Tenta buscar perfil público (você precisa criar esta rota)
             const perfilResponse = await fetch(`https://agendamento-ynxr.onrender.com/api/perfil-publico/${user_id}`);
             
             if (perfilResponse.ok) {
@@ -508,14 +552,14 @@ async function carregarHorariosReais() {
                 }
             }
         } catch (perfilError) {
-            console.log('Perfil não disponível publicamente');
+            console.log('Perfil não disponível');
         }
 
         // 🎯 MOSTRA INFORMAÇÕES REAIS
         if (perfilInfo) {
             adicionarMensagemChat(`<strong>Assistente:</strong> Encontrei o <strong>${perfilInfo.nome_negocio}</strong>! 🏪`);
             
-            // Mostra horários de funcionamento REAIS
+            // Mostra horários de funcionamento
             let infoFuncionamento = `
                 <div class="info-box">
                     <strong>🕒 Horários de Funcionamento:</strong><br>
@@ -529,24 +573,12 @@ async function carregarHorariosReais() {
             infoFuncionamento += `</div>`;
             adicionarMensagemChat(infoFuncionamento);
             
-            // Mostra dias de funcionamento REAIS
-            adicionarMensagemChat(`<strong>📅 Dias de atendimento:</strong> ${perfilInfo.dias_funcionamento.map(d => formatarDiaNome(d)).join(', ')}`);
+            // 🎯 AGORA MOSTRA DATAS DISPONÍVEIS INTERATIVAS
+            await mostrarProximasDatasDisponiveis(perfilInfo);
             
         } else {
             adicionarMensagemChat('<strong>Assistente:</strong> Use o formulário principal para agendar. Os horários serão validados automaticamente! ✅');
         }
-
-        // 🎯 INSTRUÇÕES PRÁTICAS
-        adicionarMensagemChat(`
-            <div class="info-box">
-                <strong>📝 Como agendar:</strong><br>
-                1. Escolha uma data no calendário<br>
-                2. Selecione um horário<br>  
-                3. Preencha seus dados<br>
-                4. Clique em "Agendar Compromisso"<br>
-                5. O sistema verificará a disponibilidade! 🔄
-            </div>
-        `);
 
     } catch (error) {
         console.error('Erro no chat:', error);
@@ -554,48 +586,181 @@ async function carregarHorariosReais() {
     }
 }
 
-// 🔥 FUNÇÃO PARA SELECIONAR VIA CHAT
+// 🎯 FUNÇÃO PARA MOSTRAR PRÓXIMAS DATAS DISPONÍVEIS
+async function mostrarProximasDatasDisponiveis(perfilInfo) {
+    adicionarMensagemChat('<strong>Assistente:</strong> Calculando próximas datas disponíveis... 📅');
+    
+    const diasFuncionamento = perfilInfo.dias_funcionamento;
+    const hoje = new Date();
+    
+    // Gera próximos 7 dias
+    const proximosDias = [];
+    for (let i = 1; i <= 14; i++) {
+        const data = new Date(hoje);
+        data.setDate(hoje.getDate() + i);
+        
+        const diaSemana = data.getDay();
+        const nomeDia = obterDiaSemana(diaSemana);
+        
+        // Verifica se é dia de funcionamento
+        if (diasFuncionamento.includes(nomeDia.toLowerCase())) {
+            proximosDias.push({
+                data: data.toISOString().split('T')[0],
+                nomeDia: formatarDiaNome(nomeDia.toLowerCase()),
+                dataFormatada: formatarData(data.toISOString().split('T')[0])
+            });
+            
+            // Limita a 5 dias
+            if (proximosDias.length >= 5) break;
+        }
+    }
+    
+    if (proximosDias.length === 0) {
+        adicionarMensagemChat('<strong>Assistente:</strong> Nenhuma data disponível encontrada para os próximos dias. 😕');
+        return;
+    }
+    
+    // Mostra datas disponíveis
+    adicionarMensagemChat(`
+        <div class="info-box">
+            <strong>📅 Próximas Datas Disponíveis:</strong>
+            <div class="datas-grid" style="margin-top: 8px;">
+                ${proximosDias.map(dia => `
+                    <button class="data-btn" onclick="selecionarData('${dia.data}')" 
+                            style="display: block; width: 100%; padding: 8px; margin: 4px 0; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 6px; cursor: pointer; text-align: center;">
+                        <strong>${dia.nomeDia}</strong><br>
+                        ${dia.dataFormatada}
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    `);
+    
+    adicionarMensagemChat('<strong>Assistente:</strong> Clique em uma data para ver os horários disponíveis! 🕐');
+}
+
+// 🎯 FUNÇÃO QUANDO USUÁRIO SELECIONA UMA DATA
+async function selecionarData(dataSelecionada) {
+    const dataFormatada = formatarData(dataSelecionada);
+    adicionarMensagemChat(`<strong>Você:</strong> Selecionou ${dataFormatada}`, 'user');
+    
+    adicionarMensagemChat('<strong>Assistente:</strong> Verificando horários disponíveis... 🔄');
+    
+    try {
+        // 🎯 BUSCA HORÁRIOS DISPONÍVEIS REAIS
+        const response = await fetch(`https://agendamento-ynxr.onrender.com/api/horarios-disponiveis/${user_id}?data=${dataSelecionada}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success && data.horariosDisponiveis && data.horariosDisponiveis.length > 0) {
+                // Mostra horários disponíveis do backend
+                mostrarHorariosDisponiveis(dataSelecionada, data.horariosDisponiveis);
+            } else {
+                // Se não tiver horários do backend, gera baseado no perfil
+                await gerarHorariosBasePerfil(dataSelecionada);
+            }
+        } else {
+            await gerarHorariosBasePerfil(dataSelecionada);
+        }
+        
+    } catch (error) {
+        await gerarHorariosBasePerfil(dataSelecionada);
+    }
+}
+
+// 🎯 MOSTRA HORÁRIOS DISPONÍVEIS COM BOTÕES
+function mostrarHorariosDisponiveis(data, horarios) {
+    adicionarMensagemChat(`
+        <div class="info-box">
+            <strong>🕐 Horários Disponíveis para ${formatarData(data)}:</strong>
+            <div class="horarios-grid" style="margin-top: 8px;">
+                ${horarios.map(horario => `
+                    <button class="horario-btn" onclick="selecionarHorarioChat('${data}', '${horario}')"
+                            style="padding: 8px 12px; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 6px; cursor: pointer; transition: all 0.3s;">
+                        <strong>${horario}</strong>
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    `);
+}
+
+// 🎯 GERA HORÁRIOS BASEADO NO PERFIL (fallback)
+async function gerarHorariosBasePerfil(dataSelecionada) {
+    try {
+        const perfilResponse = await fetch(`https://agendamento-ynxr.onrender.com/api/perfil-publico/${user_id}`);
+        
+        if (perfilResponse.ok) {
+            const perfilData = await perfilResponse.json();
+            if (perfilData.success && perfilData.perfil) {
+                const perfilInfo = perfilData.perfil;
+                const diaSemana = new Date(dataSelecionada).getDay();
+                const nomeDia = obterDiaSemana(diaSemana).toLowerCase();
+                
+                if (perfilInfo.horarios_funcionamento[nomeDia]) {
+                    const horarioDia = perfilInfo.horarios_funcionamento[nomeDia];
+                    const horarios = gerarHorariosIntervalo(horarioDia.inicio, horarioDia.fim, 60);
+                    
+                    mostrarHorariosDisponiveis(dataSelecionada, horarios);
+                    return;
+                }
+            }
+        }
+        
+        // Fallback final - horários padrão
+        const horariosPadrao = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+        mostrarHorariosDisponiveis(dataSelecionada, horariosPadrao);
+        
+    } catch (error) {
+        const horariosPadrao = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+        mostrarHorariosDisponiveis(dataSelecionada, horariosPadrao);
+    }
+}
+
+// 🎯 GERA HORÁRIOS EM INTERVALO
+function gerarHorariosIntervalo(inicio, fim, intervaloMinutos) {
+    const horarios = [];
+    const [horaInicio, minutoInicio] = inicio.split(':').map(Number);
+    const [horaFim, minutoFim] = fim.split(':').map(Number);
+    
+    let horaAtual = horaInicio;
+    let minutoAtual = minutoInicio;
+    
+    while (horaAtual < horaFim || (horaAtual === horaFim && minutoAtual < minutoFim)) {
+        const horario = `${horaAtual.toString().padStart(2, '0')}:${minutoAtual.toString().padStart(2, '0')}`;
+        horarios.push(horario);
+        
+        // Adiciona intervalo
+        minutoAtual += intervaloMinutos;
+        if (minutoAtual >= 60) {
+            horaAtual += Math.floor(minutoAtual / 60);
+            minutoAtual = minutoAtual % 60;
+        }
+    }
+    
+    return horarios;
+}
+
+// 🎯 FUNÇÃO AUXILIAR - OBTÉM DIA DA SEMANA
+function obterDiaSemana(diaNumero) {
+    const dias = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+    return dias[diaNumero];
+}
+
+// 🎯 FUNÇÃO PARA SELECIONAR VIA CHAT (ATUALIZADA)
 function selecionarHorarioChat(data, horario) {
     document.getElementById('data').value = data;
     document.getElementById('horario').value = horario;
     
     adicionarMensagemChat(`<strong>Você:</strong> Selecionou ${formatarData(data)} às ${horario}`, 'user');
-    adicionarMensagemChat('<strong>Assistente:</strong> Perfeito! Agora preencha o formulário principal. ✅');
+    adicionarMensagemChat('<strong>Assistente:</strong> Perfeito! Agora preencha seus dados no formulário principal. ✅');
     
     // Foca no formulário
     setTimeout(() => {
         document.getElementById('agendarForm').scrollIntoView({ behavior: 'smooth' });
     }, 500);
 }
-
-// 🔥 FUNÇÕES AUXILIARES
-function formatarDiaNome(dia) {
-    const dias = {
-        'segunda': 'Segunda',
-        'terca': 'Terça', 
-        'quarta': 'Quarta',
-        'quinta': 'Quinta',
-        'sexta': 'Sexta',
-        'sabado': 'Sábado',
-        'domingo': 'Domingo'
-    };
-    return dias[dia] || dia;
-}
-
-function formatarData(dataString) {
-    const data = new Date(dataString);
-    return data.toLocaleDateString('pt-BR');
-}
-
-// 🔥 INICIALIZAÇÃO
-feather.replace();
-
-// Abre o chat automaticamente após 2 segundos
-setTimeout(() => {
-    if (!chatAberto) {
-        toggleChat();
-    }
-}, 2000);
 
         
         // Define data mínima como hoje
