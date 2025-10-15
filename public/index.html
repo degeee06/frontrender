@@ -1162,8 +1162,8 @@ function fecharMenuConfig() {
     if (modal) modal.remove();
 }
 
-// 🎯 FUNÇÃO: Modal do Perfil do Negócio (VERSÃO CORRIGIDA)
-// 🆕 SUBSTITUIR: Modal do Perfil do Negócio com Bloqueio por Períodos
+
+// 🎯 FUNÇÃO: Modal do Perfil do Negócio (VERSÃO CORRIGIDA - SEM DUPLICAÇÃO)
 function abrirModalPerfil() {
     const modalExistente = document.getElementById('modalPerfilConfig');
     if (modalExistente) modalExistente.remove();
@@ -1271,26 +1271,51 @@ function abrirModalPerfil() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     feather.replace();
     
-    // 🔥 ADICIONAR: Event listeners para os botões
-    setTimeout(() => {
-        document.getElementById('btnFecharModalPerfil').addEventListener('click', fecharModalPerfil);
-        document.getElementById('btnCancelarPerfil').addEventListener('click', fecharModalPerfil);
-        document.getElementById('btnSalvarPerfil').addEventListener('click', salvarPerfil);
-        document.getElementById('btnAdicionarPeriodo').addEventListener('click', adicionarPeriodoBloqueio);
-        
-        // Fechar clicando fora
-        document.getElementById('modalPerfilConfig').addEventListener('click', function(e) {
+    // 🔥 CORREÇÃO CRÍTICA: Configurar event listeners SEM setTimeout
+    configurarEventListenersPerfil();
+    
+    // Carrega perfil existente se tiver
+    carregarPerfilExistente();
+}
+
+// 🔥 NOVA FUNÇÃO: Configurar event listeners do perfil (SEM duplicação)
+function configurarEventListenersPerfil() {
+    console.log('🔧 Configurando event listeners do perfil...');
+    
+    // Fechar modal
+    const btnFechar = document.getElementById('btnFecharModalPerfil');
+    const btnCancelar = document.getElementById('btnCancelarPerfil');
+    const btnSalvar = document.getElementById('btnSalvarPerfil');
+    const btnAdicionarPeriodo = document.getElementById('btnAdicionarPeriodo');
+    
+    if (btnFechar) {
+        btnFechar.onclick = fecharModalPerfil;
+    }
+    
+    if (btnCancelar) {
+        btnCancelar.onclick = fecharModalPerfil;
+    }
+    
+    if (btnSalvar) {
+        // 🔥 CORREÇÃO: Remove event listener anterior e adiciona apenas UM
+        btnSalvar.replaceWith(btnSalvar.cloneNode(true));
+        const novoBtnSalvar = document.getElementById('btnSalvarPerfil');
+        novoBtnSalvar.onclick = salvarPerfil;
+    }
+    
+    if (btnAdicionarPeriodo) {
+        btnAdicionarPeriodo.onclick = adicionarPeriodoBloqueio;
+    }
+    
+    // Fechar clicando fora do modal
+    const modal = document.getElementById('modalPerfilConfig');
+    if (modal) {
+        modal.onclick = function(e) {
             if (e.target === this) {
                 fecharModalPerfil();
             }
-        });
-        
-        // Inicializar lista de períodos
-        inicializarListaPeriodos();
-    }, 100);
-    
-    // Carrega perfil existente se tiver
-    setTimeout(() => carregarPerfilExistente(), 200);
+        };
+    }
 }
 
 // 🆕 FUNÇÃO: Inicializar lista de períodos
@@ -3905,6 +3930,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
