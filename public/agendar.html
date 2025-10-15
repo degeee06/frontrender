@@ -541,27 +541,32 @@ async function carregarHorariosReais() {
     }
 }
 // 🎯 FUNÇÃO PARA MOSTRAR PRÓXIMAS DATAS DISPONÍVEIS
+// 🎯 FUNÇÃO PARA MOSTRAR PRÓXIMAS DATAS DISPONÍVEIS (ATUALIZADA)
 async function mostrarProximasDatasDisponiveis(perfilInfo) {
     adicionarMensagemChat('<strong>Assistente:</strong> Calculando próximas datas disponíveis... 📅');
     
     const diasFuncionamento = perfilInfo.dias_funcionamento;
-    const hoje = new Date();
     
-    // Gera próximos 7 dias
+    // 🔥 CORREÇÃO: Usa data UTC para evitar problemas
+    const hoje = new Date();
+    const hojeUTC = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()));
+    
     const proximosDias = [];
     for (let i = 1; i <= 14; i++) {
-        const data = new Date(hoje);
-        data.setDate(hoje.getDate() + i);
+        const data = new Date(hojeUTC);
+        data.setUTCDate(hojeUTC.getUTCDate() + i);
         
-        const diaSemana = data.getDay();
+        const diaSemana = data.getUTCDay();
         const nomeDia = obterDiaSemana(diaSemana);
         
         // Verifica se é dia de funcionamento
         if (diasFuncionamento.includes(nomeDia.toLowerCase())) {
+            const dataISO = data.toISOString().split('T')[0];
+            
             proximosDias.push({
-                data: data.toISOString().split('T')[0],
+                data: dataISO,
                 nomeDia: formatarDiaNome(nomeDia.toLowerCase()),
-                dataFormatada: formatarData(data.toISOString().split('T')[0])
+                dataFormatada: formatarData(dataISO)
             });
             
             // Limita a 5 dias
@@ -592,7 +597,7 @@ async function mostrarProximasDatasDisponiveis(perfilInfo) {
     
     adicionarMensagemChat('<strong>Assistente:</strong> Clique em uma data para ver os horários disponíveis! 🕐');
 }
-
+        
 // 🎯 FUNÇÃO QUANDO USUÁRIO SELECIONA UMA DATA
 async function selecionarData(dataSelecionada) {
     const dataFormatada = formatarData(dataSelecionada);
@@ -704,9 +709,12 @@ function obterDiaSemana(diaNumero) {
 
 
 
-// 🎯 FUNÇÃO PARA SELECIONAR VIA CHAT (ATUALIZADA)
+// 🎯 FUNÇÃO PARA SELECIONAR VIA CHAT (CORRIGIDA - FUSO HORÁRIO)
 function selecionarHorarioChat(data, horario) {
-    document.getElementById('data').value = data;
+    // 🔥 CORREÇÃO DO FUSO HORÁRIO - garante que a data seja mantida
+    const dataCorrigida = corrigirFusoHorario(data);
+    
+    document.getElementById('data').value = dataCorrigida;
     document.getElementById('horario').value = horario;
     
     adicionarMensagemChat(`<strong>Você:</strong> Selecionou ${formatarData(data)} às ${horario}`, 'user');
@@ -717,8 +725,21 @@ function selecionarHorarioChat(data, horario) {
         document.getElementById('agendarForm').scrollIntoView({ behavior: 'smooth' });
     }, 500);
 }
+
+// 🔥 FUNÇÃO PARA CORRIGIR FUSO HORÁRIO
+function corrigirFusoHorario(dataString) {
+    // Cria a data no horário UTC para evitar problemas de fuso
+    const data = new Date(dataString + 'T00:00:00Z');
+    
+    // Formata de volta para YYYY-MM-DD sem ajuste de fuso
+    const ano = data.getUTCFullYear();
+    const mes = String(data.getUTCMonth() + 1).padStart(2, '0');
+    const dia = String(data.getUTCDate()).padStart(2, '0');
+    
+    return `${ano}-${mes}-${dia}`;
+}
         
-// 🔥 FUNÇÕES AUXILIARES
+// 🔥 FUNÇÕES AUXILIARES (ATUALIZADAS)
 function formatarDiaNome(dia) {
     const dias = {
         'segunda': 'Segunda',
@@ -733,8 +754,14 @@ function formatarDiaNome(dia) {
 }
 
 function formatarData(dataString) {
-    const data = new Date(dataString);
-    return data.toLocaleDateString('pt-BR');
+    // 🔥 CORREÇÃO: Usa UTC para evitar problemas de fuso
+    const data = new Date(dataString + 'T00:00:00Z');
+    return data.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+}
+
+function obterDiaSemana(diaNumero) {
+    const dias = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+    return dias[diaNumero];
 }
 
 // 🔥 INICIALIZAÇÃO
