@@ -1305,11 +1305,10 @@ function inicializarListaPeriodos() {
     }
 }
 
-// 🆕 FUNÇÃO: Adicionar período de bloqueio
+// 🆕 SUBSTITUIR a função adicionarPeriodoBloqueio:
 function adicionarPeriodoBloqueio() {
     const lista = document.getElementById('listaPeriodosBloqueados');
     
-    // Remove mensagem de "vazio" se existir
     if (lista.querySelector('.text-center')) {
         lista.innerHTML = '';
     }
@@ -1317,40 +1316,47 @@ function adicionarPeriodoBloqueio() {
     const periodoId = 'periodo_' + Date.now();
     
     const periodoHTML = `
-        <div id="${periodoId}" class="periodo-bloqueado flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-white/10">
-            <div class="flex-1 grid grid-cols-2 gap-2">
+        <div id="${periodoId}" class="periodo-bloqueado p-3 bg-white/5 rounded-lg border border-white/10 space-y-2">
+            <div class="grid grid-cols-1 gap-2">
+                <!-- 🆕 CAMPO DATA ADICIONADO -->
                 <div>
-                    <label class="block text-xs text-gray-300 mb-1">De</label>
-                    <input type="time" class="inicio-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="10:00">
+                    <label class="block text-xs text-gray-300 mb-1">📅 Data</label>
+                    <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
+                           min="${new Date().toISOString().split('T')[0]}">
                 </div>
-                <div>
-                    <label class="block text-xs text-gray-300 mb-1">Até</label>
-                    <input type="time" class="fim-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="11:00">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs text-gray-300 mb-1">De</label>
+                        <input type="time" class="inicio-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="12:00">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-300 mb-1">Até</label>
+                        <input type="time" class="fim-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="14:00">
+                    </div>
                 </div>
             </div>
-            <button class="btn-remover-periodo px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all text-sm" title="Remover período">
-                <i data-feather="trash-2" class="w-3 h-3"></i>
-            </button>
+            <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-400">🎯 Bloqueio para data específica</span>
+                <button class="btn-remover-periodo px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all text-sm">
+                    <i data-feather="trash-2" class="w-3 h-3"></i> Remover
+                </button>
+            </div>
         </div>
     `;
     
     lista.insertAdjacentHTML('beforeend', periodoHTML);
     feather.replace();
     
-    // Adicionar event listener para o botão remover
     const btnRemover = document.querySelector(`#${periodoId} .btn-remover-periodo`);
     if (btnRemover) {
         btnRemover.addEventListener('click', function() {
             document.getElementById(periodoId).remove();
-            
-            // Se não houver mais períodos, mostra mensagem
             if (lista.children.length === 0) {
                 inicializarListaPeriodos();
             }
         });
     }
     
-    // Rolagem para o novo período
     lista.scrollTop = lista.scrollHeight;
 }
 
@@ -3782,6 +3788,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
