@@ -1305,7 +1305,7 @@ function inicializarListaPeriodos() {
     }
 }
 
-// 🆕 SUBSTITUIR: Função adicionarPeriodoBloqueio com campo DATA
+// 🆕 SUBSTITUIR: Função adicionarPeriodoBloqueio com SELETOR DE TIPO
 function adicionarPeriodoBloqueio() {
     const lista = document.getElementById('listaPeriodosBloqueados');
     
@@ -1318,26 +1318,43 @@ function adicionarPeriodoBloqueio() {
     
     const periodoHTML = `
         <div id="${periodoId}" class="periodo-bloqueado p-3 bg-white/5 rounded-lg border border-white/10 space-y-2">
-            <div class="grid grid-cols-1 gap-2">
-                <!-- 🆕 CAMPO DATA ADICIONADO -->
+            <!-- 🆕 SELETOR DE TIPO DE BLOQUEIO -->
+            <div class="flex gap-3 mb-2">
+                <label class="flex items-center gap-1 text-xs cursor-pointer">
+                    <input type="radio" name="tipo_${periodoId}" value="recorrente" checked 
+                           class="tipo-bloqueio rounded-full bg-white/10 border-white/20">
+                    <span>🔄 Fixo (Todos os dias)</span>
+                </label>
+                <label class="flex items-center gap-1 text-xs cursor-pointer">
+                    <input type="radio" name="tipo_${periodoId}" value="data_especifica"
+                           class="tipo-bloqueio rounded-full bg-white/10 border-white/20">
+                    <span>📅 Data Específica</span>
+                </label>
+            </div>
+            
+            <!-- 🆕 CAMPO DATA (inicialmente oculto) -->
+            <div id="campo-data-${periodoId}" class="hidden">
+                <label class="block text-xs text-gray-300 mb-1">📅 Data do Bloqueio</label>
+                <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
+                       min="${new Date().toISOString().split('T')[0]}">
+            </div>
+            
+            <!-- Campos de Horário (sempre visíveis) -->
+            <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="block text-xs text-gray-300 mb-1">📅 Data</label>
-                    <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
-                           min="${new Date().toISOString().split('T')[0]}">
+                    <label class="block text-xs text-gray-300 mb-1">⏰ De</label>
+                    <input type="time" class="inicio-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="12:00">
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">De</label>
-                        <input type="time" class="inicio-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="12:00">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-300 mb-1">Até</label>
-                        <input type="time" class="fim-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="14:00">
-                    </div>
+                <div>
+                    <label class="block text-xs text-gray-300 mb-1">⏰ Até</label>
+                    <input type="time" class="fim-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="14:00">
                 </div>
             </div>
-            <div class="flex justify-between items-center">
-                <span class="text-xs text-gray-400">🎯 Bloqueio para data específica</span>
+            
+            <div class="flex justify-between items-center pt-2">
+                <span id="info-tipo-${periodoId}" class="text-xs text-green-400">
+                    ✅ Bloqueio FIXO em todos os dias
+                </span>
                 <button class="btn-remover-periodo px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all text-sm">
                     <i data-feather="trash-2" class="w-3 h-3"></i> Remover
                 </button>
@@ -1347,6 +1364,25 @@ function adicionarPeriodoBloqueio() {
     
     lista.insertAdjacentHTML('beforeend', periodoHTML);
     feather.replace();
+    
+    // 🆕 CONFIGURAR EVENT LISTENERS PARA O TIPO
+    const radios = document.querySelectorAll(`#${periodoId} .tipo-bloqueio`);
+    const campoData = document.getElementById(`campo-data-${periodoId}`);
+    const infoTipo = document.getElementById(`info-tipo-${periodoId}`);
+    
+    radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'data_especifica') {
+                campoData.classList.remove('hidden');
+                infoTipo.textContent = '📅 Bloqueio para DATA ESPECÍFICA';
+                infoTipo.className = 'text-xs text-blue-400';
+            } else {
+                campoData.classList.add('hidden');
+                infoTipo.textContent = '✅ Bloqueio FIXO em todos os dias';
+                infoTipo.className = 'text-xs text-green-400';
+            }
+        });
+    });
     
     // Adicionar event listener para o botão remover
     const btnRemover = document.querySelector(`#${periodoId} .btn-remover-periodo`);
@@ -1365,23 +1401,36 @@ function adicionarPeriodoBloqueio() {
     lista.scrollTop = lista.scrollHeight;
 }
 
-// 🆕 SUBSTITUIR: Função coletarPeriodosBloqueados com DATA
+// 🆕 SUBSTITUIR: Função coletarPeriodosBloqueados com TIPO
 function coletarPeriodosBloqueados() {
     const periodos = [];
     const elementosPeriodos = document.querySelectorAll('.periodo-bloqueado');
     
     elementosPeriodos.forEach(elemento => {
-        const data = elemento.querySelector('.data-periodo').value;
+        // 🆕 Obtém o tipo selecionado
+        const tipoSelecionado = elemento.querySelector('.tipo-bloqueio:checked')?.value || 'recorrente';
         const inicio = elemento.querySelector('.inicio-periodo').value;
         const fim = elemento.querySelector('.fim-periodo').value;
         
-        // 🆕 Só adiciona se DATA, INÍCIO e FIM estiverem preenchidos
-        if (data && inicio && fim && inicio !== fim) {
-            periodos.push({
-                data: data,        // 🆕 Campo DATA obrigatório
+        // 🆕 VALIDAÇÃO POR TIPO
+        if (inicio && fim && inicio !== fim) {
+            const periodo = {
+                tipo: tipoSelecionado,
                 inicio: inicio,
                 fim: fim
-            });
+            };
+            
+            // 🆕 Se for data específica, adiciona a data
+            if (tipoSelecionado === 'data_especifica') {
+                const data = elemento.querySelector('.data-periodo').value;
+                if (data) {
+                    periodo.data = data;
+                    periodos.push(periodo);
+                }
+            } else {
+                // 🆕 Bloqueio recorrente não precisa de data
+                periodos.push(periodo);
+            }
         }
     });
     
@@ -1514,7 +1563,7 @@ async function carregarPerfilExistente() {
     }
 }
 
-// 🆕 SUBSTITUIR: Preencher formulário com períodos bloqueados (COM DATA)
+// 🆕 SUBSTITUIR: Preencher formulário com períodos bloqueados (COM TIPO)
 function preencherFormularioPerfil(perfil) {
     const nomeInput = document.getElementById('nomeNegocioInput');
     const tipoSelect = document.getElementById('tipoNegocioSelect');
@@ -1540,36 +1589,59 @@ function preencherFormularioPerfil(perfil) {
         }
     }
     
-    // 🆕 ATUALIZADO: Preencher períodos bloqueados COM DATA
+    // 🆕 ATUALIZADO: Preencher períodos bloqueados COM TIPO
     if (perfil.horarios_bloqueados && perfil.horarios_bloqueados.length > 0) {
         const lista = document.getElementById('listaPeriodosBloqueados');
         lista.innerHTML = ''; // Limpa mensagem inicial
         
         perfil.horarios_bloqueados.forEach((periodo, index) => {
             const periodoId = 'periodo_' + index;
+            const tipo = periodo.tipo || (periodo.data ? 'data_especifica' : 'recorrente');
+            const mostraData = tipo === 'data_especifica';
             
             const periodoHTML = `
                 <div id="${periodoId}" class="periodo-bloqueado p-3 bg-white/5 rounded-lg border border-white/10 space-y-2">
-                    <div class="grid grid-cols-1 gap-2">
-                        <!-- 🆕 CAMPO DATA -->
+                    <!-- 🆕 SELETOR DE TIPO -->
+                    <div class="flex gap-3 mb-2">
+                        <label class="flex items-center gap-1 text-xs cursor-pointer">
+                            <input type="radio" name="tipo_${periodoId}" value="recorrente" 
+                                   ${tipo === 'recorrente' ? 'checked' : ''}
+                                   class="tipo-bloqueio rounded-full bg-white/10 border-white/20">
+                            <span>🔄 Fixo (Todos os dias)</span>
+                        </label>
+                        <label class="flex items-center gap-1 text-xs cursor-pointer">
+                            <input type="radio" name="tipo_${periodoId}" value="data_especifica"
+                                   ${tipo === 'data_especifica' ? 'checked' : ''}
+                                   class="tipo-bloqueio rounded-full bg-white/10 border-white/20">
+                            <span>📅 Data Específica</span>
+                        </label>
+                    </div>
+                    
+                    <!-- 🆕 CAMPO DATA -->
+                    <div id="campo-data-${periodoId}" class="${mostraData ? '' : 'hidden'}">
+                        <label class="block text-xs text-gray-300 mb-1">📅 Data do Bloqueio</label>
+                        <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
+                               value="${periodo.data || ''}">
+                    </div>
+                    
+                    <!-- Campos de Horário -->
+                    <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-xs text-gray-300 mb-1">📅 Data</label>
-                            <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
-                                   value="${periodo.data || ''}">
+                            <label class="block text-xs text-gray-300 mb-1">⏰ De</label>
+                            <input type="time" class="inicio-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
+                                   value="${periodo.inicio}">
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-xs text-gray-300 mb-1">De</label>
-                                <input type="time" class="inicio-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="${periodo.inicio}">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-300 mb-1">Até</label>
-                                <input type="time" class="fim-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="${periodo.fim}">
-                            </div>
+                        <div>
+                            <label class="block text-xs text-gray-300 mb-1">⏰ Até</label>
+                            <input type="time" class="fim-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
+                                   value="${periodo.fim}">
                         </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs text-gray-400">🎯 Bloqueio para data específica</span>
+                    
+                    <div class="flex justify-between items-center pt-2">
+                        <span id="info-tipo-${periodoId}" class="text-xs ${tipo === 'recorrente' ? 'text-green-400' : 'text-blue-400'}">
+                            ${tipo === 'recorrente' ? '✅ Bloqueio FIXO em todos os dias' : '📅 Bloqueio para DATA ESPECÍFICA'}
+                        </span>
                         <button class="btn-remover-periodo px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all text-sm">
                             <i data-feather="trash-2" class="w-3 h-3"></i> Remover
                         </button>
@@ -1579,18 +1651,36 @@ function preencherFormularioPerfil(perfil) {
             
             lista.insertAdjacentHTML('beforeend', periodoHTML);
             
-            // Adicionar event listener para o botão remover
-            const btnRemover = document.querySelector(`#${periodoId} .btn-remover-periodo`);
-            if (btnRemover) {
-                btnRemover.addEventListener('click', function() {
-                    document.getElementById(periodoId).remove();
-                    
-                    // Se não houver mais períodos, mostra mensagem
-                    if (lista.children.length === 0) {
-                        inicializarListaPeriodos();
-                    }
+            // 🆕 CONFIGURAR EVENT LISTENERS (igual ao adicionar novo)
+            setTimeout(() => {
+                const radios = document.querySelectorAll(`#${periodoId} .tipo-bloqueio`);
+                const campoData = document.getElementById(`campo-data-${periodoId}`);
+                const infoTipo = document.getElementById(`info-tipo-${periodoId}`);
+                
+                radios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (this.value === 'data_especifica') {
+                            campoData.classList.remove('hidden');
+                            infoTipo.textContent = '📅 Bloqueio para DATA ESPECÍFICA';
+                            infoTipo.className = 'text-xs text-blue-400';
+                        } else {
+                            campoData.classList.add('hidden');
+                            infoTipo.textContent = '✅ Bloqueio FIXO em todos os dias';
+                            infoTipo.className = 'text-xs text-green-400';
+                        }
+                    });
                 });
-            }
+                
+                const btnRemover = document.querySelector(`#${periodoId} .btn-remover-periodo`);
+                if (btnRemover) {
+                    btnRemover.addEventListener('click', function() {
+                        document.getElementById(periodoId).remove();
+                        if (lista.children.length === 0) {
+                            inicializarListaPeriodos();
+                        }
+                    });
+                }
+            }, 100);
         });
         
         feather.replace();
@@ -3807,6 +3897,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
