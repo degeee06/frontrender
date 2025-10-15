@@ -721,27 +721,27 @@ async function selecionarData(dataSelecionada) {
         if (response.ok) {
             const data = await response.json();
             
-            if (data.success && data.horariosDisponiveis && data.horariosDisponiveis.length > 0) {
-                // 🆕 MOSTRA HORÁRIOS DISPONÍVEIS COM PERÍODOS BLOQUEADOS
-                mostrarHorariosDisponiveis(
-                    dataSelecionada, 
-                    data.horariosDisponiveis, 
-                    data.horariosOcupados,
-                    data.periodosBloqueados // 🆕 Passa períodos bloqueados
-                );
-                
-                // 🎯 INFO ADICIONAL SOBRE DISPONIBILIDADE
-                if (data.horariosOcupados && data.horariosOcupados.length > 0) {
-                    adicionarMensagemChat(`
-                        <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
-                            <strong>📊 Status de Disponibilidade:</strong><br>
-                            ✅ <strong>${data.totalDisponiveis}</strong> horários disponíveis<br>
-                            ❌ <strong>${data.totalOcupados}</strong> horários ocupados
-                            ${data.periodosBloqueados && data.periodosBloqueados.length > 0 ? 
-                                `<br>🚫 <strong>${data.periodosBloqueados.length}</strong> períodos bloqueados` : ''}
-                        </div>
-                    `);
-                }
+           if (data.success && data.horariosDisponiveis && data.horariosDisponiveis.length > 0) {
+    // 🆕 CORREÇÃO: Passa a estrutura correta de periodosBloqueados
+    mostrarHorariosDisponiveis(
+        dataSelecionada, 
+        data.horariosDisponiveis, 
+        data.horariosOcupados,
+        data.periodosBloqueados // ✅ Já está na estrutura correta {recorrentes: [], data_especifica: []}
+    );
+    
+    // 🎯 INFO ADICIONAL SOBRE DISPONIBILIDADE
+    if (data.horariosOcupados && data.horariosOcupados.length > 0) {
+        adicionarMensagemChat(`
+            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                <strong>📊 Status de Disponibilidade:</strong><br>
+                ✅ <strong>${data.totalDisponiveis}</strong> horários disponíveis<br>
+                ❌ <strong>${data.totalOcupados}</strong> horários ocupados
+                ${data.periodosBloqueados && (data.periodosBloqueados.recorrentes.length > 0 || data.periodosBloqueados.data_especifica.length > 0) ? 
+                    `<br>🚫 <strong>${(data.periodosBloqueados.recorrentes?.length || 0) + (data.periodosBloqueados.data_especifica?.length || 0)}</strong> períodos bloqueados` : ''}
+            </div>
+        `);
+    }
             } else {
                 // Se não tiver horários disponíveis
                 let motivo = data.motivo || "Todos os horários estão ocupados ou bloqueados";
@@ -865,10 +865,21 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
     }
 }
 
-        // 🆕 FUNÇÃO: Agrupa horários considerando períodos bloqueados
+   // 🔥 SUBSTITUIR: Função agruparHorariosPorPeriodo CORRIGIDA para nova estrutura
 function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
-    if (!periodosBloqueados || periodosBloqueados.length === 0) {
-        // Se não há períodos bloqueados, retorna um único grupo
+    // 🆕 CORREÇÃO: Converte a nova estrutura para array simples de períodos
+    let todosPeriodosBloqueados = [];
+    
+    if (periodosBloqueados.recorrentes) {
+        todosPeriodosBloqueados = todosPeriodosBloqueados.concat(periodosBloqueados.recorrentes);
+    }
+    
+    if (periodosBloqueados.data_especifica) {
+        todosPeriodosBloqueados = todosPeriodosBloqueados.concat(periodosBloqueados.data_especifica);
+    }
+    
+    // Se não há períodos bloqueados, retorna um único grupo
+    if (todosPeriodosBloqueados.length === 0) {
         return [{ horarios: horariosDisponiveis }];
     }
     
@@ -876,7 +887,7 @@ function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
     let horariosRestantes = [...horariosDisponiveis];
     
     // Ordena períodos bloqueados por horário de início
-    const periodosOrdenados = [...periodosBloqueados].sort((a, b) => a.inicio.localeCompare(b.inicio));
+    const periodosOrdenados = [...todosPeriodosBloqueados].sort((a, b) => a.inicio.localeCompare(b.inicio));
     
     // Para cada período bloqueado, cria grupos antes/depois
     periodosOrdenados.forEach((periodo, index) => {
@@ -914,6 +925,8 @@ function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
     
     return grupos;
 }
+
+        
 // 🔥 SUBSTITUIR: Função corrigida que RESPEITA horário de funcionamento
 async function gerarHorariosBasePerfil(dataSelecionada) {
     try {
