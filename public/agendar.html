@@ -555,7 +555,7 @@ function adicionarMensagemChat(texto, tipo = 'bot') {
     feather.replace();
 }
 
-// 🔥 SUBSTITUIR: Função carregarHorariosReais com separação CLARA de bloqueios
+// 🔥 SUBSTITUIR: Função carregarHorariosReais CORRIGIDA
 async function carregarHorariosReais() {
     if (!user_id) {
         adicionarMensagemChat('<strong>Assistente:</strong> Link inválido. Não é possível verificar horários. ❌');
@@ -598,77 +598,41 @@ async function carregarHorariosReais() {
             infoFuncionamento += `</div>`;
             adicionarMensagemChat(infoFuncionamento);
             
-            // 🆕 MELHORADO: Separa claramente os tipos de bloqueio
+            // 🆕 CORREÇÃO: MOSTRA APENAS BLOQUEIOS RECORRENTES AQUI
             if (perfilInfo.horarios_bloqueados && perfilInfo.horarios_bloqueados.length > 0) {
-                // Separa bloqueios por tipo
+                // 🔥 FILTRA APENAS BLOQUEIOS RECORRENTES para mostrar aqui
                 const bloqueiosRecorrentes = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'recorrente');
-                const bloqueiosDataEspecifica = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'data_especifica');
-                const bloqueiosSemTipo = perfilInfo.horarios_bloqueados.filter(p => !p.tipo); // Compatibilidade
                 
-                let infoBloqueios = '';
-
-                // 🟡 BLOQUEIOS RECORRENTES (FIXOS)
                 if (bloqueiosRecorrentes.length > 0) {
-                    infoBloqueios += `
-                        <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); margin-bottom: 8px;">
+                    adicionarMensagemChat(`
+                        <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
                             <strong>🔄 Bloqueios Fixos (Todos os dias):</strong><br>
                             <div style="font-size: 12px; margin-top: 6px;">
                                 ${bloqueiosRecorrentes.map(periodo => 
-                                    `• ${periodo.inicio} - ${periodo.fim} ${periodo.motivo ? `(${periodo.motivo})` : ''}`
+                                    `• ${periodo.inicio} - ${periodo.fim}`
                                 ).join('<br>')}
                             </div>
                             <div style="font-size: 11px; margin-top: 4px; color: #fbbf24;">
                                 ⚠️ Estes horários não estarão disponíveis em nenhum dia
                             </div>
                         </div>
-                    `;
+                    `);
                 }
-
-                // 🔵 BLOQUEIOS POR DATA ESPECÍFICA
+                
+                // 🔥 MOSTRA INFO SOBRE BLOQUEIOS POR DATA (sem mostrar as datas específicas)
+                const bloqueiosDataEspecifica = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'data_especifica');
                 if (bloqueiosDataEspecifica.length > 0) {
-                    // Filtra apenas datas futuras para não poluir a tela
-                    const hoje = new Date().toISOString().split('T')[0];
-                    const bloqueiosFuturos = bloqueiosDataEspecifica.filter(p => p.data >= hoje);
-                    
-                    if (bloqueiosFuturos.length > 0) {
-                        infoBloqueios += `
-                            <div class="info-box" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); margin-bottom: 8px;">
-                                <strong>📅 Bloqueios por Data Específica:</strong><br>
-                                <div style="font-size: 12px; margin-top: 6px;">
-                                    ${bloqueiosFuturos.slice(0, 3).map(periodo => 
-                                        `• ${formatarData(periodo.data)}: ${periodo.inicio} - ${periodo.fim} ${periodo.motivo ? `(${periodo.motivo})` : ''}`
-                                    ).join('<br>')}
-                                    ${bloqueiosFuturos.length > 3 ? `<br><em>... e mais ${bloqueiosFuturos.length - 3} datas</em>` : ''}
-                                </div>
-                                <div style="font-size: 11px; margin-top: 4px; color: #60a5fa;">
-                                    📍 Bloqueios apenas nas datas específicas
-                                </div>
+                    adicionarMensagemChat(`
+                        <div class="info-box" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
+                            <strong>📅 Bloqueios por Data Específica:</strong><br>
+                            <div style="font-size: 12px; margin-top: 6px;">
+                                Existem ${bloqueiosDataEspecifica.length} períodos bloqueados em datas específicas
                             </div>
-                        `;
-                    }
-                }
-
-                // 🟣 BLOQUEIOS ANTIGOS (COMPATIBILIDADE)
-                if (bloqueiosSemTipo.length > 0) {
-                    const hoje = new Date().toISOString().split('T')[0];
-                    const bloqueiosFuturos = bloqueiosSemTipo.filter(p => p.data >= hoje);
-                    
-                    if (bloqueiosFuturos.length > 0) {
-                        infoBloqueios += `
-                            <div class="info-box" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3);">
-                                <strong>📋 Bloqueios Programados:</strong><br>
-                                <div style="font-size: 12px; margin-top: 6px;">
-                                    ${bloqueiosFuturos.slice(0, 3).map(periodo => 
-                                        `• ${formatarData(periodo.data)}: ${periodo.inicio} - ${periodo.fim}`
-                                    ).join('<br>')}
-                                </div>
+                            <div style="font-size: 11px; margin-top: 4px; color: #60a5fa;">
+                                📍 Estes bloqueios aparecerão apenas nas datas correspondentes
                             </div>
-                        `;
-                    }
-                }
-
-                if (infoBloqueios) {
-                    adicionarMensagemChat(infoBloqueios);
+                        </div>
+                    `);
                 }
             }
             
