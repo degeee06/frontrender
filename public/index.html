@@ -1069,7 +1069,13 @@ if (dataInput) {
                 document.getElementById('secoesIA').style.display = 'block';
                 listarAgendamentos();
                 setTimeout(() => verificarConfiguracaoSheets(), 1000);
-                configurarBotaoSettings();
+                 setTimeout(() => {
+        if (userToken) {
+            configurarBotaoSettings();
+        }
+    }, 2000);
+}
+                
             } else {
                 // Usuário NÃO logado - mostra login
                 console.log('👤 Usuário não logado - mostrando tela de login');
@@ -1734,19 +1740,22 @@ async function atualizarBadgePerfil() {
     }
 }
 
-// 🎯 FUNÇÃO: Configurar Botão Principal
+// 🔥 CORREÇÃO: Função atualizada para configurar o botão de settings
 function configurarBotaoSettings() {
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) {
-        // Substitui o evento onclick para abrir o menu
-        settingsBtn.onclick = abrirMenuConfiguracoes;
+        // Remove event listeners anteriores para evitar duplicação
+        settingsBtn.replaceWith(settingsBtn.cloneNode(true));
+        const novoBtn = document.getElementById('settingsBtn');
+        
+        // Configura o novo event listener
+        novoBtn.onclick = abrirMenuConfiguracoes;
+        console.log('✅ Botão de configurações configurado');
     }
 }
 
-
-        
-        // 🔥 ADICIONE: Função para mostrar/ocultar botões corretamente
-      function atualizarInterfacePosLogin() {
+// 🔥 CORREÇÃO: Função atualizada para interface pós-login
+function atualizarInterfacePosLogin() {
     const logoutBtn = document.getElementById('logoutBtn');
     const settingsBtn = document.getElementById('settingsBtn');
     const gerarLinkBtn = document.getElementById('gerarLinkBtn');
@@ -1755,7 +1764,12 @@ function configurarBotaoSettings() {
         logoutBtn.style.display = 'flex';
         settingsBtn.style.display = 'flex';
         gerarLinkBtn.style.display = 'flex';
-        setTimeout(() => atualizarBadgePerfil(), 2000);
+        
+        // 🔥 CORREÇÃO CRÍTICA: Configurar o botão de settings IMEDIATAMENTE
+        setTimeout(() => {
+            configurarBotaoSettings();
+            atualizarBadgePerfil();
+        }, 100);
     } else {
         logoutBtn.style.display = 'none';
         settingsBtn.style.display = 'none';
@@ -1763,6 +1777,13 @@ function configurarBotaoSettings() {
     }
 }
 
+// 🔥 ADICIONE: Esta função para garantir que o botão sempre funcione
+function garantirFuncionamentoSettings() {
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn && settingsBtn.style.display !== 'none') {
+        configurarBotaoSettings();
+    }
+}
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
@@ -2478,6 +2499,11 @@ function configurarBotaoSettings() {
                 atualizarInterfacePosLogin();
                 document.getElementById('secoesIA').style.display = 'block';
                 setTimeout(() => atualizarBadgePerfil(), 2000);  
+                setTimeout(() => {
+        configurarBotaoSettings();
+    }, 500);
+});
+
                 listarAgendamentos().then(() => {
                   
                     // Seleciona o dia atual
@@ -2566,8 +2592,30 @@ function configurarBotaoSettings() {
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
+             setTimeout(() => {
+        garantirFuncionamentoSettings();
+    }, 1000);
+});
+const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+            const settingsBtn = document.getElementById('settingsBtn');
+            if (settingsBtn && settingsBtn.style.display === 'flex') {
+                console.log('🎯 Botão de settings ficou visível - configurando...');
+                setTimeout(() => configurarBotaoSettings(), 100);
             }
-        });
+        }
+    });
+});
+
+        // Iniciar observação quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', function() {
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        observer.observe(settingsBtn, { attributes: true });
+    }
+});
+
 
         // ---------------- LOGOUT CORRIGIDO ----------------
         logoutBtn.addEventListener('click', async () => {
@@ -3930,6 +3978,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
