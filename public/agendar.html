@@ -285,51 +285,6 @@
         right: 10px;
     }
 }
-        .datas-grid {
-    display: grid;
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.data-btn {
-    padding: 10px;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.data-btn:hover {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: rgba(59, 130, 246, 0.5);
-    transform: translateY(-1px);
-}
-
-.horarios-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.horario-btn {
-    padding: 8px 6px;
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    border-radius: 6px;
-    font-size: 12px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.horario-btn:hover {
-    background: rgba(34, 197, 94, 0.2);
-    border-color: rgba(34, 197, 94, 0.5);
-    transform: translateY(-1px);
-}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -530,7 +485,7 @@ function adicionarMensagemChat(texto, tipo = 'bot') {
     feather.replace();
 }
 
-// 🔥 FUNÇÃO PRINCIPAL - SISTEMA INTERATIVO DE HORÁRIOS
+// 🔥 FUNÇÃO PRINCIPAL - BUSCA DADOS REAIS
 async function carregarHorariosReais() {
     if (!user_id) {
         adicionarMensagemChat('<strong>Assistente:</strong> Link inválido. Não é possível verificar horários. ❌');
@@ -585,7 +540,6 @@ async function carregarHorariosReais() {
         adicionarMensagemChat('<strong>Assistente:</strong> Use o formulário principal para agendar. A disponibilidade será verificada automaticamente! ✅');
     }
 }
-
 // 🎯 FUNÇÃO PARA MOSTRAR PRÓXIMAS DATAS DISPONÍVEIS
 async function mostrarProximasDatasDisponiveis(perfilInfo) {
     adicionarMensagemChat('<strong>Assistente:</strong> Calculando próximas datas disponíveis... 📅');
@@ -748,6 +702,8 @@ function obterDiaSemana(diaNumero) {
     return dias[diaNumero];
 }
 
+
+
 // 🎯 FUNÇÃO PARA SELECIONAR VIA CHAT (ATUALIZADA)
 function selecionarHorarioChat(data, horario) {
     document.getElementById('data').value = data;
@@ -761,6 +717,35 @@ function selecionarHorarioChat(data, horario) {
         document.getElementById('agendarForm').scrollIntoView({ behavior: 'smooth' });
     }, 500);
 }
+        
+// 🔥 FUNÇÕES AUXILIARES
+function formatarDiaNome(dia) {
+    const dias = {
+        'segunda': 'Segunda',
+        'terca': 'Terça', 
+        'quarta': 'Quarta',
+        'quinta': 'Quinta',
+        'sexta': 'Sexta',
+        'sabado': 'Sábado',
+        'domingo': 'Domingo'
+    };
+    return dias[dia] || dia;
+}
+
+function formatarData(dataString) {
+    const data = new Date(dataString);
+    return data.toLocaleDateString('pt-BR');
+}
+
+// 🔥 INICIALIZAÇÃO
+feather.replace();
+
+// Abre o chat automaticamente após 2 segundos
+setTimeout(() => {
+    if (!chatAberto) {
+        toggleChat();
+    }
+}, 2000);
 
         
         // Define data mínima como hoje
