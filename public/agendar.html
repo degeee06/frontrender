@@ -302,8 +302,8 @@
             </p>
         </header>
         
-<!-- 🔥 CHAT FLUTUANTE NO CANTO DIREITO -->
-<button class="chat-abrir-btn" onclick="toggleChat()">
+<!-- 🔥 BOTÃO CORRIGIDO - CHAT FLUTUANTE NO CANTO DIREITO -->
+<button class="chat-abrir-btn" id="chatAbrirBtn">
     <i data-feather="message-circle"></i>
 </button>
 
@@ -311,7 +311,7 @@
     <!-- Cabeçalho do Chat -->
     <div class="chat-header">
         <h3>💬 Assistente de Agendamento</h3>
-        <button class="chat-toggle" onclick="toggleChat()">
+        <button class="chat-toggle" id="chatFecharBtn">
             <i data-feather="x"></i>
         </button>
     </div>
@@ -327,12 +327,11 @@
     
     <!-- Ações do Chat -->
     <div class="chat-actions">
-        <button class="chat-btn-primary" onclick="carregarHorariosReais()">
+        <button class="chat-btn-primary" id="carregarHorariosBtn">
             <span>🔍 Ver Horários Disponíveis</span>
         </button>
     </div>
 </div>
-        
         <!-- Formulário de Agendamento -->
         <form id="agendarForm" class="glass-card rounded-2xl p-6 md:p-8 mb-6" data-aos="fade-up">
             <div class="flex items-center justify-center mb-6">
@@ -420,7 +419,10 @@
     <script>
         // Inicializa Feather Icons
         feather.replace();
-        
+        // 🔥 CONFIGURA EVENT LISTENERS DO CHAT (ADICIONE ISSO)
+document.getElementById('chatAbrirBtn').addEventListener('click', toggleChat);
+document.getElementById('chatFecharBtn').addEventListener('click', toggleChat);
+document.getElementById('carregarHorariosBtn').addEventListener('click', carregarHorariosReais);
         // Inicializa AOS
         AOS.init({
             duration: 800,
@@ -452,31 +454,6 @@ if (!user_id || !t) {
             mask: '(00) 00000-0000'
         });
 
-        // Define data mínima como hoje
-        document.getElementById('data').min = new Date().toISOString().split('T')[0];
-
-        // Submit do formulário
-        document.getElementById('agendarForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = document.querySelector('#agendarForm button[type="submit"]');
-            const agendarText = document.getElementById('agendarText');
-            const agendarSpinner = document.getElementById('agendarSpinner');
-            
-            // Mostra loading
-            agendarText.textContent = 'Agendando...';
-            agendarSpinner.classList.remove('hidden');
-            submitBtn.disabled = true;
-
-         const agendamento = {
-    nome: document.getElementById('nome').value,
-    email: document.getElementById('email').value, // ✅ mantém minúsculo
-    telefone: document.getElementById('telefone').value,
-    data: document.getElementById('data').value,
-    horario: document.getElementById('horario').value,
-    user_id: user_id,
-    t: t
-};
 // 🔥 CONTROLE DO CHAT FLUTUANTE
 let chatAberto = false;
 
@@ -619,6 +596,36 @@ setTimeout(() => {
         toggleChat();
     }
 }, 2000);
+
+        
+        // Define data mínima como hoje
+        document.getElementById('data').min = new Date().toISOString().split('T')[0];
+
+        // Submit do formulário
+        document.getElementById('agendarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.querySelector('#agendarForm button[type="submit"]');
+            const agendarText = document.getElementById('agendarText');
+            const agendarSpinner = document.getElementById('agendarSpinner');
+            
+            // Mostra loading
+            agendarText.textContent = 'Agendando...';
+            agendarSpinner.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+         const agendamento = {
+    nome: document.getElementById('nome').value,
+    email: document.getElementById('email').value, // ✅ mantém minúsculo
+    telefone: document.getElementById('telefone').value,
+    data: document.getElementById('data').value,
+    horario: document.getElementById('horario').value,
+    user_id: user_id,
+    t: t
+};
+            
+
+            
 // 🔥 CORRIJA A VERIFICAÇÃO (usa 'email' minúsculo):
 if(!agendamento.email || agendamento.email.trim() === '') {
     agendamento.email = 'Não informado'; // ✅ 'email' minúsculo
