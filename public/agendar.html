@@ -427,8 +427,9 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-feather="clock" class="w-5 h-5 text-gray-400"></i>
                             </div>
-                            <input type="time" id="horario" placeholder="Horário" required 
-                                   class="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field">
+                           <input type="time" id="horario" placeholder="Horário" required 
+       class="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field"
+       step="3600"> <!-- 🔥 3600 segundos = 1 hora -->
                         </div>
                     </div>
                 </div>
@@ -668,7 +669,7 @@ async function mostrarProximasDatasDisponiveis(perfilInfo) {
     adicionarMensagemChat('<strong>Assistente:</strong> Clique em uma data para ver os horários disponíveis! 🕐');
 }
         
-// 🔥 ATUALIZAR: Função quando usuário seleciona uma data (com períodos bloqueados)
+// 🔥 ATUALIZAR: Função quando usuário seleciona uma data (com filtro de horas cheias)
 async function selecionarData(dataSelecionada) {
     const dataFormatada = formatarData(dataSelecionada);
     adicionarMensagemChat(`<strong>Você:</strong> Selecionou ${dataFormatada}`, 'user');
@@ -683,23 +684,36 @@ async function selecionarData(dataSelecionada) {
             const data = await response.json();
             
             if (data.success && data.horariosDisponiveis && data.horariosDisponiveis.length > 0) {
-                // 🆕 MOSTRA HORÁRIOS DISPONÍVEIS COM PERÍODOS BLOQUEADOS
-                mostrarHorariosDisponiveis(
-                    dataSelecionada, 
-                    data.horariosDisponiveis, 
-                    data.horariosOcupados,
-                    data.periodosBloqueados // 🆕 Passa períodos bloqueados
-                );
+                // 🆕 FILTRA APENAS HORAS CHEIAS da resposta da API
+                const horasCheiasDisponiveis = filtrarHorasCheias(data.horariosDisponiveis);
+                const horasCheiasOcupadas = filtrarHorasCheias(data.horariosOcupados || []);
                 
-                // 🎯 INFO ADICIONAL SOBRE DISPONIBILIDADE
-                if (data.horariosOcupados && data.horariosOcupados.length > 0) {
+                if (horasCheiasDisponiveis.length > 0) {
+                    mostrarHorariosDisponiveis(
+                        dataSelecionada, 
+                        horasCheiasDisponiveis, 
+                        horasCheiasOcupadas,
+                        data.periodosBloqueados
+                    );
+                    
+                    // 🎯 INFO ADICIONAL SOBRE DISPONIBILIDADE
+                    if (horasCheiasOcupadas.length > 0) {
+                        adicionarMensagemChat(`
+                            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                                <strong>📊 Status de Disponibilidade:</strong><br>
+                                ✅ <strong>${horasCheiasDisponiveis.length}</strong> horários disponíveis (apenas horas cheias)<br>
+                                ❌ <strong>${horasCheiasOcupadas.length}</strong> horários ocupados
+                                ${data.periodosBloqueados && (data.periodosBloqueados.recorrentes?.length > 0 || data.periodosBloqueados.data_especifica?.length > 0) ? 
+                                    `<br>🚫 <strong>${(data.periodosBloqueados.recorrentes?.length || 0) + (data.periodosBloqueados.data_especifica?.length || 0)}</strong> períodos bloqueados` : ''}
+                            </div>
+                        `);
+                    }
+                } else {
                     adicionarMensagemChat(`
                         <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
-                            <strong>📊 Status de Disponibilidade:</strong><br>
-                            ✅ <strong>${data.totalDisponiveis}</strong> horários disponíveis<br>
-                            ❌ <strong>${data.totalOcupados}</strong> horários ocupados
-                            ${data.periodosBloqueados && data.periodosBloqueados.length > 0 ? 
-                                `<br>🚫 <strong>${data.periodosBloqueados.length}</strong> períodos bloqueados` : ''}
+                            <strong>❌ Nenhuma hora cheia disponível</strong><br>
+                            Todos os horários de hora em hora estão ocupados ou bloqueados.<br><br>
+                            <em>💡 Tente selecionar outra data</em>
                         </div>
                     `);
                 }
@@ -725,6 +739,8 @@ async function selecionarData(dataSelecionada) {
         await gerarHorariosBasePerfil(dataSelecionada);
     }
 }
+
+        
 // 🔥 SUBSTITUIR: Função mostrarHorariosDisponiveis COMPATÍVEL
 function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados = [], periodosBloqueados = []) {
     if (horariosDisponiveis.length === 0) {
@@ -867,7 +883,17 @@ function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
     
     return grupos;
 }
-// 🔥 SUBSTITUIR: Função corrigida que RESPEITA horário de funcionamento
+        
+// 🆕 FUNÇÃO: Filtra apenas horas cheias (00 minutos)
+function filtrarHorasCheias(horarios) {
+    return horarios.filter(horario => {
+        const minutos = horario.split(':')[1];
+        // ✅ Permite apenas: 00 minutos (horas cheias)
+        return minutos === '00';
+    });
+}
+        
+// 🔥 SUBSTITUIR: Função corrigida que usa APENAS HORAS CHEIAS
 async function gerarHorariosBasePerfil(dataSelecionada) {
     try {
         const perfilResponse = await fetch(`https://agendamento-ynxr.onrender.com/api/perfil-publico/${user_id}`);
@@ -882,17 +908,23 @@ async function gerarHorariosBasePerfil(dataSelecionada) {
                 if (perfilInfo.horarios_funcionamento && perfilInfo.horarios_funcionamento[nomeDia]) {
                     const horarioDia = perfilInfo.horarios_funcionamento[nomeDia];
                     
-                    // 🔥 CORREÇÃO: Gera horários APENAS dentro do funcionamento
+                    // Gera horários com intervalo de 30 minutos (para ter mais opções)
                     const todosHorarios = gerarHorariosIntervalo(
                         horarioDia.inicio, 
-                        horarioDia.fim, // ✅ USA O FIM DO FUNCIONAMENTO (16:00)
-                        60
+                        horarioDia.fim,
+                        30 // Gera de 30 em 30 minutos
                     );
                     
-                    console.log(`🕒 Horários gerados para ${nomeDia}: ${horarioDia.inicio} - ${horarioDia.fim}`, todosHorarios);
+                    // 🆕 FILTRA APENAS HORAS CHEIAS (00 minutos)
+                    const horasCheias = filtrarHorasCheias(todosHorarios);
+                    
+                    console.log(`🕒 Horários para ${nomeDia}:`, {
+                        todos: todosHorarios,
+                        horas_cheias: horasCheias
+                    });
                     
                     // 🆕 FILTRA HORÁRIOS BLOQUEADOS
-                    let horariosDisponiveis = [...todosHorarios];
+                    let horariosDisponiveis = [...horasCheias];
                     
                     if (perfilInfo.horarios_bloqueados && perfilInfo.horarios_bloqueados.length > 0) {
                         horariosDisponiveis = horariosDisponiveis.filter(horario => {
@@ -915,24 +947,27 @@ async function gerarHorariosBasePerfil(dataSelecionada) {
                         dataSelecionada, 
                         horariosDisponiveis, 
                         [], // Não temos info de ocupados no fallback
-                        perfilInfo.horarios_bloqueados || [] // 🆕 Passa períodos bloqueados
+                        perfilInfo.horarios_bloqueados || []
                     );
                     return;
                 }
             }
         }
         
-        // 🔥 CORREÇÃO: Fallback que respeita horário comercial padrão (9h-16h)
-        const horariosPadrao = gerarHorariosIntervalo('09:00', '16:00', 60);
-        mostrarHorariosDisponiveis(dataSelecionada, horariosPadrao);
+        // 🔥 CORREÇÃO: Fallback com APENAS HORAS CHEIAS
+        const todosHorarios = gerarHorariosIntervalo('09:00', '16:00', 30);
+        const horasCheias = filtrarHorasCheias(todosHorarios);
+        mostrarHorariosDisponiveis(dataSelecionada, horasCheias);
         
     } catch (error) {
         console.error('Erro no fallback:', error);
-        // 🔥 CORREÇÃO: Fallback seguro
-        const horariosPadrao = gerarHorariosIntervalo('09:00', '16:00', 60);
-        mostrarHorariosDisponiveis(dataSelecionada, horariosPadrao);
+        const todosHorarios = gerarHorariosIntervalo('09:00', '16:00', 30);
+        const horasCheias = filtrarHorasCheias(todosHorarios);
+        mostrarHorariosDisponiveis(dataSelecionada, horasCheias);
     }
 }
+        
+     
 
 // 🔥 ATUALIZAR: Função gerarHorariosIntervalo corrigida
 function gerarHorariosIntervalo(inicio, fim, intervaloMinutos) {
