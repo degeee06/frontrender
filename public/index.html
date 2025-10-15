@@ -1069,7 +1069,6 @@ if (dataInput) {
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
 
 // 🎯 FUNÇÃO: Menu de Configurações (ATUALIZADA)
-// ✅ ATUALIZAR: Adicionar chamada para configurar event listeners
 function abrirMenuConfiguracoes() {
     const modalExistente = document.getElementById('modalMenuConfig');
     if (modalExistente) modalExistente.remove();
@@ -1117,13 +1116,28 @@ function abrirMenuConfiguracoes() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     feather.replace();
     
-    // ✅ ADICIONAR: Configurar event listeners do menu
+    // 🔥 ADICIONE: Event listeners DEPOIS de criar o modal
     setTimeout(() => {
-        configurarEventListenersMenu();
+        document.getElementById('btnPerfilNegocio').addEventListener('click', function() {
+            abrirModalPerfil();
+            fecharMenuConfig();
+        });
+        
+        document.getElementById('btnGoogleSheets').addEventListener('click', function() {
+            mostrarModalConfiguracao();
+            fecharMenuConfig();
+        });
+        
+        document.getElementById('btnFecharMenu').addEventListener('click', fecharMenuConfig);
+        
+        // Fechar clicando fora
+        document.getElementById('modalMenuConfig').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharMenuConfig();
+            }
+        });
     }, 100);
 }
-    
-  
         
 // 🎯 FUNÇÃO: Fechar Menu
 function fecharMenuConfig() {
@@ -1132,7 +1146,6 @@ function fecharMenuConfig() {
 }
 
 // 🎯 FUNÇÃO: Modal do Perfil do Negócio (VERSÃO CORRIGIDA)
-// ✅ ATUALIZAR: Adicionar chamada para configurar event listeners do perfil
 function abrirModalPerfil() {
     const modalExistente = document.getElementById('modalPerfilConfig');
     if (modalExistente) modalExistente.remove();
@@ -1215,14 +1228,24 @@ function abrirModalPerfil() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     feather.replace();
     
-    // ✅ ADICIONAR: Configurar event listeners e carregar perfil
+    // 🔥 ADICIONE: Event listeners para os botões
     setTimeout(() => {
-        configurarEventListenersPerfil();
-        carregarPerfilExistente();
+        document.getElementById('btnFecharModalPerfil').addEventListener('click', fecharModalPerfil);
+        document.getElementById('btnCancelarPerfil').addEventListener('click', fecharModalPerfil);
+        document.getElementById('btnSalvarPerfil').addEventListener('click', salvarPerfil);
+        
+        // Fechar clicando fora
+        document.getElementById('modalPerfilConfig').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharModalPerfil();
+            }
+        });
     }, 100);
-}
     
-  
+    // Carrega perfil existente se tiver
+    setTimeout(() => carregarPerfilExistente(), 100);
+}
+
     
 
 // 🎯 FUNÇÃO: Fechar Modal do Perfil
@@ -1232,7 +1255,6 @@ function fecharModalPerfil() {
 }
 
 // 💾 FUNÇÃO: Salvar Perfil
-// ✅ CORREÇÃO: URL correta e tratamento de erros
 async function salvarPerfil() {
     try {
         const nomeNegocio = document.getElementById('nomeNegocioInput').value.trim();
@@ -1270,15 +1292,12 @@ async function salvarPerfil() {
             dias_funcionamento: diasSelecionados
         };
         
-        console.log('📤 Enviando dados do perfil:', perfilData);
-        
         // Mostrar loading
         const btnSalvar = document.getElementById('btnSalvarPerfil');
         const originalText = btnSalvar.innerHTML;
-        btnSalvar.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div> Salvando...';
+        btnSalvar.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div>';
         btnSalvar.disabled = true;
         
-        // ✅ CORREÇÃO: URL correta
         const response = await fetch(`${API_BASE_URL}/api/criar-perfil`, {
             method: 'POST',
             headers: {
@@ -1289,7 +1308,6 @@ async function salvarPerfil() {
         });
         
         const data = await response.json();
-        console.log('📥 Resposta da API:', data);
         
         if (data.success) {
             mostrarToast('✅ Perfil salvo com sucesso!', 'success');
@@ -1317,34 +1335,22 @@ async function salvarPerfil() {
 }
 
 // 🔍 FUNÇÃO: Carregar Perfil Existente
-// ✅ CORREÇÃO: URL correta e melhor tratamento
 async function carregarPerfilExistente() {
     try {
-        console.log('🔍 Carregando perfil existente...');
-        
         const response = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
             headers: {
                 'Authorization': `Bearer ${userToken}`
             }
         });
         
-        console.log('📥 Status da resposta:', response.status);
-        
         if (response.ok) {
             const data = await response.json();
-            console.log('📊 Dados do perfil:', data);
-            
             if (data.success && data.perfil) {
                 preencherFormularioPerfil(data.perfil);
-                mostrarToast('✅ Perfil carregado!', 'success');
-            } else {
-                console.log('ℹ️ Nenhum perfil encontrado ou dados inválidos');
             }
-        } else {
-            console.log('❌ Erro ao carregar perfil:', response.status);
         }
     } catch (error) {
-        console.error('❌ Erro ao carregar perfil:', error);
+        console.log('Nenhum perfil existente ou erro ao carregar:', error);
     }
 }
 
@@ -1375,40 +1381,6 @@ function preencherFormularioPerfil(perfil) {
     }
 }
 
-    // ✅ CORREÇÃO: Configurar event listeners corretamente
-// ✅ VERIFICAR se esta função está presente e completa:
-function configurarEventListenersPerfil() {
-    console.log('🔧 Configurando event listeners do perfil...');
-    
-    // Botão Salvar
-    const btnSalvar = document.getElementById('btnSalvarPerfil');
-    if (btnSalvar) {
-        btnSalvar.onclick = salvarPerfil;
-        console.log('✅ Event listener do botão salvar configurado');
-    }
-    
-    // Botão Fechar
-    const btnFechar = document.getElementById('btnFecharModalPerfil');
-    if (btnFechar) {
-        btnFechar.onclick = fecharModalPerfil;
-    }
-    
-    // Botão Cancelar
-    const btnCancelar = document.getElementById('btnCancelarPerfil');
-    if (btnCancelar) {
-        btnCancelar.onclick = fecharModalPerfil;
-    }
-    
-    // Fechar clicando fora
-    const modal = document.getElementById('modalPerfilConfig');
-    if (modal) {
-        modal.onclick = function(e) {
-            if (e.target === modal) fecharModalPerfil();
-        };
-    }
-}
-
-        
 // 🔔 FUNÇÃO: Atualizar Badge do Botão
 async function atualizarBadgePerfil() {
     try {
@@ -2924,33 +2896,7 @@ function configurarBotaoSettings() {
             }
         }
 
-// ✅ ADICIONAR: Configurar event listeners do menu
-function configurarEventListenersMenu() {
-    console.log('🔧 Configurando event listeners do menu...');
-    
-    const btnPerfil = document.getElementById('btnPerfilNegocio');
-    const btnSheets = document.getElementById('btnGoogleSheets');
-    const btnFechar = document.getElementById('btnFecharMenu');
-    const modal = document.getElementById('modalMenuConfig');
-    
-    if (btnPerfil) btnPerfil.onclick = function() {
-        abrirModalPerfil();
-        fecharMenuConfig();
-    };
-    
-    if (btnSheets) btnSheets.onclick = function() {
-        mostrarModalConfiguracao();
-        fecharMenuConfig();
-    };
-    
-    if (btnFechar) btnFechar.onclick = fecharMenuConfig;
-    
-    if (modal) {
-        modal.onclick = function(e) {
-            if (e.target === modal) fecharMenuConfig();
-        };
-    }
-}
+       // 🔥 ATUALIZE a função configurarEventListenersModal para esta versão:
 
 // 🔧 ATUALIZAR: Função configurarEventListenersModal - VERSÃO SIMPLIFICADA
 function configurarEventListenersModal() {
