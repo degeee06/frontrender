@@ -832,7 +832,7 @@ function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
     
     return grupos;
 }
-// 🔥 ATUALIZAR: Gera horários baseado no perfil considerando períodos bloqueados
+// 🔥 SUBSTITUIR: Função corrigida que RESPEITA horário de funcionamento
 async function gerarHorariosBasePerfil(dataSelecionada) {
     try {
         const perfilResponse = await fetch(`https://agendamento-ynxr.onrender.com/api/perfil-publico/${user_id}`);
@@ -844,9 +844,17 @@ async function gerarHorariosBasePerfil(dataSelecionada) {
                 const diaSemana = new Date(dataSelecionada).getDay();
                 const nomeDia = obterDiaSemana(diaSemana).toLowerCase();
                 
-                if (perfilInfo.horarios_funcionamento[nomeDia]) {
+                if (perfilInfo.horarios_funcionamento && perfilInfo.horarios_funcionamento[nomeDia]) {
                     const horarioDia = perfilInfo.horarios_funcionamento[nomeDia];
-                    const todosHorarios = gerarHorariosIntervalo(horarioDia.inicio, horarioDia.fim, 60);
+                    
+                    // 🔥 CORREÇÃO: Gera horários APENAS dentro do funcionamento
+                    const todosHorarios = gerarHorariosIntervalo(
+                        horarioDia.inicio, 
+                        horarioDia.fim, // ✅ USA O FIM DO FUNCIONAMENTO (16:00)
+                        60
+                    );
+                    
+                    console.log(`🕒 Horários gerados para ${nomeDia}: ${horarioDia.inicio} - ${horarioDia.fim}`, todosHorarios);
                     
                     // 🆕 FILTRA HORÁRIOS BLOQUEADOS
                     let horariosDisponiveis = [...todosHorarios];
@@ -879,17 +887,19 @@ async function gerarHorariosBasePerfil(dataSelecionada) {
             }
         }
         
-        // Fallback final - horários padrão
-        const horariosPadrao = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+        // 🔥 CORREÇÃO: Fallback que respeita horário comercial padrão (9h-16h)
+        const horariosPadrao = gerarHorariosIntervalo('09:00', '16:00', 60);
         mostrarHorariosDisponiveis(dataSelecionada, horariosPadrao);
         
     } catch (error) {
-        const horariosPadrao = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+        console.error('Erro no fallback:', error);
+        // 🔥 CORREÇÃO: Fallback seguro
+        const horariosPadrao = gerarHorariosIntervalo('09:00', '16:00', 60);
         mostrarHorariosDisponiveis(dataSelecionada, horariosPadrao);
     }
 }
 
-// 🎯 GERA HORÁRIOS EM INTERVALO
+// 🔥 ATUALIZAR: Função gerarHorariosIntervalo corrigida
 function gerarHorariosIntervalo(inicio, fim, intervaloMinutos) {
     const horarios = [];
     const [horaInicio, minutoInicio] = inicio.split(':').map(Number);
@@ -898,6 +908,7 @@ function gerarHorariosIntervalo(inicio, fim, intervaloMinutos) {
     let horaAtual = horaInicio;
     let minutoAtual = minutoInicio;
     
+    // 🔥 CORREÇÃO: Para ANTES de chegar no horário de fim
     while (horaAtual < horaFim || (horaAtual === horaFim && minutoAtual < minutoFim)) {
         const horario = `${horaAtual.toString().padStart(2, '0')}:${minutoAtual.toString().padStart(2, '0')}`;
         horarios.push(horario);
@@ -908,8 +919,14 @@ function gerarHorariosIntervalo(inicio, fim, intervaloMinutos) {
             horaAtual += Math.floor(minutoAtual / 60);
             minutoAtual = minutoAtual % 60;
         }
+        
+        // 🔥 CORREÇÃO CRÍTICA: Para se passar do horário de fim
+        if (horaAtual > horaFim || (horaAtual === horaFim && minutoAtual >= minutoFim)) {
+            break;
+        }
     }
     
+    console.log(`📅 Horários gerados: ${inicio} - ${fim} =>`, horarios);
     return horarios;
 }
 
