@@ -1073,48 +1073,31 @@ setTimeout(() => {
 }, 2000);
 
         
-       // Define data mínima como hoje
-document.getElementById('data').min = new Date().toISOString().split('T')[0];
+      // Define data mínima como hoje
+        document.getElementById('data').min = new Date().toISOString().split('T')[0];
 
-// Submit do formulário
-document.getElementById('agendarForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    // 🆕 VALIDAÇÃO: Verifica se é hora cheia
-    const horario = document.getElementById('horario').value;
-    const minutos = horario.split(':')[1];
-    if (minutos !== '00') {
-        document.getElementById('resultado').style.display = 'block';
-        document.getElementById('resultado').innerHTML = `
-            <div class="p-6 rounded-lg error-message">
-                <i data-feather="alert-circle" class="w-12 h-12 mx-auto mb-4"></i>
-                <h3 class="text-xl font-semibold mb-2">Horário Inválido</h3>
-                <p>Por favor, selecione um horário de hora em hora (ex: 09:00, 10:00, 11:00)</p>
-            </div>
-        `;
-        feather.replace();
-        return;
-    }
-    
-    const submitBtn = document.querySelector('#agendarForm button[type="submit"]');
-    const agendarText = document.getElementById('agendarText');
-    const agendarSpinner = document.getElementById('agendarSpinner');
-    
-    // Mostra loading
-    agendarText.textContent = 'Agendando...';
-    agendarSpinner.classList.remove('hidden');
-    submitBtn.disabled = true;
+        // Submit do formulário
+        document.getElementById('agendarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.querySelector('#agendarForm button[type="submit"]');
+            const agendarText = document.getElementById('agendarText');
+            const agendarSpinner = document.getElementById('agendarSpinner');
+            
+            // Mostra loading
+            agendarText.textContent = 'Agendando...';
+            agendarSpinner.classList.remove('hidden');
+            submitBtn.disabled = true;
 
-    const agendamento = {
-        nome: document.getElementById('nome').value,
-        email: document.getElementById('email').value, // ✅ mantém minúsculo
-        telefone: document.getElementById('telefone').value,
-        data: document.getElementById('data').value,
-        horario: document.getElementById('horario').value,
-        user_id: user_id,
-        t: t
-    };
-
+         const agendamento = {
+    nome: document.getElementById('nome').value,
+    email: document.getElementById('email').value, // ✅ mantém minúsculo
+    telefone: document.getElementById('telefone').value,
+    data: document.getElementById('data').value,
+    horario: document.getElementById('horario').value,
+    user_id: user_id,
+    t: t
+};
             
 
             
