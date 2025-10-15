@@ -1056,38 +1056,49 @@ if (dataInput) {
                 });
             }
             
-            // ✅ VERIFICAÇÃO MUITO SIMPLES DE LOGIN
-            const token = localStorage.getItem('userToken');
-            console.log('🔑 Token no localStorage:', !!token);
-            
-            if (token) {
-                userToken = token;
-                // Usuário JÁ logado - mostra dashboard
-                loginSection.style.display = 'none';
-                form.style.display = 'block';
-                atualizarInterfacePosLogin();
-                document.getElementById('secoesIA').style.display = 'block';
-                listarAgendamentos();
-                setTimeout(() => verificarConfiguracaoSheets(), 1000);
-                 setTimeout(() => {
+           // ✅ VERIFICAÇÃO MUITO SIMPLES DE LOGIN
+const token = localStorage.getItem('userToken');
+console.log('🔑 Token no localStorage:', !!token);
+
+if (token) {
+    // Define a variável global corretamente (evita ReferenceError)
+    let userToken = token;
+
+    // Usuário JÁ logado - mostra dashboard
+    loginSection.style.display = 'none';
+    form.style.display = 'block';
+    atualizarInterfacePosLogin();
+
+    const secoesIA = document.getElementById('secoesIA');
+    if (secoesIA) secoesIA.style.display = 'block';
+
+    listarAgendamentos();
+
+    // Pequenos delays para garantir que elementos e dados estejam prontos
+    setTimeout(() => verificarConfiguracaoSheets(), 1000);
+
+    setTimeout(() => {
         if (userToken) {
             configurarBotaoSettings();
         }
     }, 2000);
+
+} else {
+    // Usuário NÃO logado - mostra login
+    console.log('👤 Usuário não logado - mostrando tela de login');
+    loginSection.style.display = 'block';
+    form.style.display = 'none';
+    logoutBtn.style.display = 'none';
+
+    const secoesIA = document.getElementById('secoesIA');
+    if (secoesIA) secoesIA.style.display = 'none';
 }
-                
-            } else {
-                // Usuário NÃO logado - mostra login
-                console.log('👤 Usuário não logado - mostrando tela de login');
-                loginSection.style.display = 'block';
-                form.style.display = 'none';
-                logoutBtn.style.display = 'none';
-                document.getElementById('secoesIA').style.display = 'none';
-            }
-            
-            // Garante que feather icons são carregados
-            feather.replace();
-        }
+
+// Garante que feather icons são carregados (deve estar disponível no escopo)
+if (typeof feather !== 'undefined') {
+    feather.replace();
+}
+
 
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
 
@@ -3978,6 +3989,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
