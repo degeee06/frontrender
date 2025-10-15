@@ -695,18 +695,6 @@ async function selecionarData(dataSelecionada) {
                         data.periodosBloqueados
                     );
                     
-                    // 🎯 INFO ADICIONAL SOBRE DISPONIBILIDADE
-                    if (horasCheiasOcupadas.length > 0) {
-                        adicionarMensagemChat(`
-                            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
-                                <strong>📊 Status de Disponibilidade:</strong><br>
-                                ✅ <strong>${horasCheiasDisponiveis.length}</strong> horários disponíveis (apenas horas cheias)<br>
-                                ❌ <strong>${horasCheiasOcupadas.length}</strong> horários ocupados
-                                ${data.periodosBloqueados && (data.periodosBloqueados.recorrentes?.length > 0 || data.periodosBloqueados.data_especifica?.length > 0) ? 
-                                    `<br>🚫 <strong>${(data.periodosBloqueados.recorrentes?.length || 0) + (data.periodosBloqueados.data_especifica?.length || 0)}</strong> períodos bloqueados` : ''}
-                            </div>
-                        `);
-                    }
                 } else {
                     adicionarMensagemChat(`
                         <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
