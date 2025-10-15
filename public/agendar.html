@@ -86,6 +86,102 @@
         border: 1px solid rgba(239, 68, 68, 0.5);
         color: #f87171;
     }
+
+        /* 🔥 ESTILOS DO MINI-CHAT COM DADOS REAIS */
+.mini-chat-section {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mini-chat-messages {
+    height: 200px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.message {
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    max-width: 85%;
+    animation: fadeIn 0.3s ease;
+}
+
+.bot-message {
+    background: rgba(139, 92, 246, 0.3);
+    border: 1px solid rgba(139, 92, 246, 0.5);
+    margin-right: auto;
+}
+
+.user-message {
+    background: rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    margin-left: auto;
+}
+
+.message-content {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.horario-btn {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.horario-btn:hover {
+    background: rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.horario-btn.selecionado {
+    background: rgba(34, 197, 94, 0.3);
+    border-color: rgba(34, 197, 94, 0.5);
+}
+
+.dia-section {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.dia-titulo {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #60a5fa;
+}
+
+.info-box {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    font-size: 13px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+        
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -102,7 +198,62 @@
                 Preencha os dados para agendar seu compromisso
             </p>
         </header>
+        
+<!-- 🔥 MINI-CHAT DE HORÁRIOS DISPONÍVEIS -->
+<div class="mini-chat-section glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
+    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        <span>💬</span>
+        Horários Disponíveis Esta Semana
+    </h3>
+    
+    <div class="mini-chat-container">
+        <!-- Mensagens do chat -->
+        <div id="mini-chat-messages" class="mini-chat-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    <strong>Assistente:</strong> Analisando horários disponíveis para você... <span class="loading-dots"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botão de ação -->
+        <div class="text-center mt-4">
+            <button onclick="carregarHorariosDisponiveis()" 
+                    class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 mx-auto">
+                <span>🔄</span>
+                Atualizar Horários
+            </button>
+        </div>
+    </div>
+</div>
 
+        <!-- 🔥 MINI-CHAT COM DADOS REAIS DAS TABELAS -->
+<div class="mini-chat-section glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
+    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        <span>💬</span>
+        Horários Disponíveis
+    </h3>
+    
+    <div class="mini-chat-container">
+        <div id="mini-chat-messages" class="mini-chat-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    <strong>Assistente:</strong> Vou verificar os horários reais disponíveis para você! 📅
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <button onclick="carregarHorariosReais()" 
+                    class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 mx-auto">
+                <span>🔍</span>
+                Ver Horários Reais
+            </button>
+        </div>
+    </div>
+</div>
+
+        
         <!-- Formulário de Agendamento -->
         <form id="agendarForm" class="glass-card rounded-2xl p-6 md:p-8 mb-6" data-aos="fade-up">
             <div class="flex items-center justify-center mb-6">
@@ -247,7 +398,140 @@ if (!user_id || !t) {
     user_id: user_id,
     t: t
 };
+// 🔥 FUNÇÕES QUE USAM DADOS REAIS DAS TABELAS
+function adicionarMensagem(texto, tipo = 'bot') {
+    const messagesDiv = document.getElementById('mini-chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${tipo}-message`;
+    messageDiv.innerHTML = `<div class="message-content">${texto}</div>`;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
 
+async function carregarHorariosReais() {
+    if (!user_id) return;
+    
+    const messagesDiv = document.getElementById('mini-chat-messages');
+    messagesDiv.innerHTML = '';
+    
+    adicionarMensagem('<strong>Assistente:</strong> Consultando dados reais do sistema... ⏳');
+
+    try {
+        // 🎯 BUSCA PERFIL REAL da tabela perfis_negocio
+        let perfilInfo = null;
+        try {
+            const perfilResponse = await fetch(`https://agendamento-ynxr.onrender.com/api/meu-perfil`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-ID': user_id // Header customizado para identificar o user
+                }
+            });
+            
+            if (perfilResponse.ok) {
+                const perfilData = await perfilResponse.json();
+                if (perfilData.success && perfilData.perfil) {
+                    perfilInfo = perfilData.perfil;
+                }
+            }
+        } catch (perfilError) {
+            console.log('Perfil não encontrado ou erro na requisição');
+        }
+
+        // 🎯 BUSCA AGENDAMENTOS REAIS da tabela agendamentos
+        let agendamentosExistentes = [];
+        try {
+            // Simula busca de agendamentos - você pode criar uma rota pública depois
+            const hoje = new Date().toISOString().split('T')[0];
+            
+            // Para demonstração, vamos considerar que não há agendamentos
+            // Na prática, você criaria uma rota como /api/agendamentos-publicos/:user_id
+            agendamentosExistentes = [];
+            
+        } catch (agendamentosError) {
+            console.log('Erro ao buscar agendamentos');
+        }
+
+        // 🎯 MOSTRA INFORMAÇÕES REAIS
+        messagesDiv.innerHTML = '';
+        
+        if (perfilInfo) {
+            adicionarMensagem(`<strong>Assistente:</strong> Encontrei o <strong>${perfilInfo.nome_negocio}</strong>! 🏪`);
+            
+            // Mostra horários de funcionamento REAIS
+            let infoFuncionamento = `
+                <div class="info-box">
+                    <strong>Horários de Funcionamento:</strong><br>
+            `;
+            
+            Object.keys(perfilInfo.horarios_funcionamento).forEach(dia => {
+                const horario = perfilInfo.horarios_funcionamento[dia];
+                infoFuncionamento += `${formatarDiaNome(dia)}: ${horario.inicio} às ${horario.fim}<br>`;
+            });
+            
+            infoFuncionamento += `</div>`;
+            adicionarMensagem(infoFuncionamento);
+            
+            // Mostra dias de funcionamento REAIS
+            adicionarMensagem(`<strong>Dias de atendimento:</strong> ${perfilInfo.dias_funcionamento.map(d => formatarDiaNome(d)).join(', ')}`);
+            
+        } else {
+            adicionarMensagem('<strong>Assistente:</strong> Use o formulário abaixo para agendar. Os horários serão validados automaticamente! ✅');
+        }
+
+        // 🎯 SUGERE PRÓXIMOS PASSOS
+        adicionarMensagem(`
+            <div class="info-box">
+                <strong>Como agendar:</strong><br>
+                1. Escolha uma data futura no calendário<br>
+                2. Selecione um horário<br>
+                3. Preencha seus dados<br>
+                4. O sistema verificará automaticamente a disponibilidade! 🔄
+            </div>
+        `);
+
+    } catch (error) {
+        console.error('Erro:', error);
+        messagesDiv.innerHTML = '';
+        adicionarMensagem('<strong>Assistente:</strong> Use o formulário para agendar. A disponibilidade será verificada na confirmação! ✅');
+    }
+}
+
+// Função para selecionar data/horário manualmente
+function selecionarHorario(data, horario) {
+    document.getElementById('data').value = data;
+    document.getElementById('horario').value = horario;
+    
+    adicionarMensagem(`<strong>Você:</strong> Selecionou ${formatarData(data)} às ${horario}`, 'user');
+    adicionarMensagem('<strong>Assistente:</strong> Perfeito! Agora preencha seus dados abaixo. ✅');
+    
+    document.getElementById('agendarForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Funções auxiliares
+function formatarDiaNome(dia) {
+    const dias = {
+        'segunda': 'Segunda-feira',
+        'terca': 'Terça-feira', 
+        'quarta': 'Quarta-feira',
+        'quinta': 'Quinta-feira',
+        'sexta': 'Sexta-feira',
+        'sabado': 'Sábado',
+        'domingo': 'Domingo'
+    };
+    return dias[dia] || dia;
+}
+
+function formatarData(dataString) {
+    const data = new Date(dataString);
+    return data.toLocaleDateString('pt-BR');
+}
+
+// 🎯 INICIALIZAÇÃO AUTOMÁTICA
+setTimeout(() => {
+    carregarHorariosReais();
+}, 1000);
+            
 // 🔥 CORRIJA A VERIFICAÇÃO (usa 'email' minúsculo):
 if(!agendamento.email || agendamento.email.trim() === '') {
     agendamento.email = 'Não informado'; // ✅ 'email' minúsculo
