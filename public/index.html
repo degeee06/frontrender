@@ -1305,10 +1305,11 @@ function inicializarListaPeriodos() {
     }
 }
 
-// 🆕 SUBSTITUIR a função adicionarPeriodoBloqueio:
+// 🆕 SUBSTITUIR: Função adicionarPeriodoBloqueio com campo DATA
 function adicionarPeriodoBloqueio() {
     const lista = document.getElementById('listaPeriodosBloqueados');
     
+    // Remove mensagem de "vazio" se existir
     if (lista.querySelector('.text-center')) {
         lista.innerHTML = '';
     }
@@ -1347,30 +1348,37 @@ function adicionarPeriodoBloqueio() {
     lista.insertAdjacentHTML('beforeend', periodoHTML);
     feather.replace();
     
+    // Adicionar event listener para o botão remover
     const btnRemover = document.querySelector(`#${periodoId} .btn-remover-periodo`);
     if (btnRemover) {
         btnRemover.addEventListener('click', function() {
             document.getElementById(periodoId).remove();
+            
+            // Se não houver mais períodos, mostra mensagem
             if (lista.children.length === 0) {
                 inicializarListaPeriodos();
             }
         });
     }
     
+    // Rolagem para o novo período
     lista.scrollTop = lista.scrollHeight;
 }
 
-// 🆕 FUNÇÃO: Coletar períodos bloqueados
+// 🆕 SUBSTITUIR: Função coletarPeriodosBloqueados com DATA
 function coletarPeriodosBloqueados() {
     const periodos = [];
     const elementosPeriodos = document.querySelectorAll('.periodo-bloqueado');
     
     elementosPeriodos.forEach(elemento => {
+        const data = elemento.querySelector('.data-periodo').value;
         const inicio = elemento.querySelector('.inicio-periodo').value;
         const fim = elemento.querySelector('.fim-periodo').value;
         
-        if (inicio && fim && inicio !== fim) {
+        // 🆕 Só adiciona se DATA, INÍCIO e FIM estiverem preenchidos
+        if (data && inicio && fim && inicio !== fim) {
             periodos.push({
+                data: data,        // 🆕 Campo DATA obrigatório
                 inicio: inicio,
                 fim: fim
             });
@@ -1379,7 +1387,7 @@ function coletarPeriodosBloqueados() {
     
     return periodos;
 }
-    
+        
 
 // 🎯 FUNÇÃO: Fechar Modal do Perfil
 function fecharModalPerfil() {
@@ -1506,7 +1514,7 @@ async function carregarPerfilExistente() {
     }
 }
 
-// 🔥 ATUALIZAR: Preencher formulário com períodos bloqueados
+// 🆕 SUBSTITUIR: Preencher formulário com períodos bloqueados (COM DATA)
 function preencherFormularioPerfil(perfil) {
     const nomeInput = document.getElementById('nomeNegocioInput');
     const tipoSelect = document.getElementById('tipoNegocioSelect');
@@ -1532,7 +1540,7 @@ function preencherFormularioPerfil(perfil) {
         }
     }
     
-    // 🆕 Preencher períodos bloqueados
+    // 🆕 ATUALIZADO: Preencher períodos bloqueados COM DATA
     if (perfil.horarios_bloqueados && perfil.horarios_bloqueados.length > 0) {
         const lista = document.getElementById('listaPeriodosBloqueados');
         lista.innerHTML = ''; // Limpa mensagem inicial
@@ -1541,20 +1549,31 @@ function preencherFormularioPerfil(perfil) {
             const periodoId = 'periodo_' + index;
             
             const periodoHTML = `
-                <div id="${periodoId}" class="periodo-bloqueado flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-white/10">
-                    <div class="flex-1 grid grid-cols-2 gap-2">
+                <div id="${periodoId}" class="periodo-bloqueado p-3 bg-white/5 rounded-lg border border-white/10 space-y-2">
+                    <div class="grid grid-cols-1 gap-2">
+                        <!-- 🆕 CAMPO DATA -->
                         <div>
-                            <label class="block text-xs text-gray-300 mb-1">De</label>
-                            <input type="time" class="inicio-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="${periodo.inicio}">
+                            <label class="block text-xs text-gray-300 mb-1">📅 Data</label>
+                            <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
+                                   value="${periodo.data || ''}">
                         </div>
-                        <div>
-                            <label class="block text-xs text-gray-300 mb-1">Até</label>
-                            <input type="time" class="fim-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="${periodo.fim}">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs text-gray-300 mb-1">De</label>
+                                <input type="time" class="inicio-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="${periodo.inicio}">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-300 mb-1">Até</label>
+                                <input type="time" class="fim-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" value="${periodo.fim}">
+                            </div>
                         </div>
                     </div>
-                    <button class="btn-remover-periodo px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all text-sm" title="Remover período">
-                        <i data-feather="trash-2" class="w-3 h-3"></i>
-                    </button>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-400">🎯 Bloqueio para data específica</span>
+                        <button class="btn-remover-periodo px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all text-sm">
+                            <i data-feather="trash-2" class="w-3 h-3"></i> Remover
+                        </button>
+                    </div>
                 </div>
             `;
             
@@ -3788,6 +3807,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
