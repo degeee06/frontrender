@@ -740,9 +740,14 @@ async function selecionarData(dataSelecionada) {
 }
 
         
-// 🔥 SUBSTITUIR: Função mostrarHorariosDisponiveis COMPATÍVEL
+// 🔥 CORRIGIDO: Função mostrarHorariosDisponiveis - REMOVE HORÁRIOS OCUPADOS
 function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados = [], periodosBloqueados = []) {
-    if (horariosDisponiveis.length === 0) {
+    // 🆕 CRÍTICO: Remove horários ocupados da lista de disponíveis
+    const horariosRealmenteDisponiveis = horariosDisponiveis.filter(horario => 
+        !horariosOcupados.includes(horario)
+    );
+
+    if (horariosRealmenteDisponiveis.length === 0) {
         adicionarMensagemChat(`
             <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
                 <strong>❌ Todos os horários estão ocupados ou bloqueados</strong><br>
@@ -767,15 +772,15 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
         periodosArray = periodosBloqueados || [];
     }
 
-    // 🎯 ORGANIZA HORÁRIOS POR PERÍODOS BLOQUEADOS
-    let horariosAgrupados = agruparHorariosPorPeriodo(horariosDisponiveis, periodosArray);
+    // 🎯 ORGANIZA HORÁRIOS POR PERÍODOS BLOQUEADOS (usa os REALMENTE disponíveis)
+    let horariosAgrupados = agruparHorariosPorPeriodo(horariosRealmenteDisponiveis, periodosArray);
     
     adicionarMensagemChat(`
         <div class="info-box">
             <strong>🕐 Horários Disponíveis para ${formatarData(data)}:</strong>
     `);
 
-    // 🎯 MOSTRA HORÁRIOS DISPONÍVEIS AGRUPADOS
+    // 🎯 MOSTRA HORÁRIOS DISPONÍVEIS AGRUPADOS (apenas os disponíveis)
     horariosAgrupados.forEach(grupo => {
         if (grupo.horarios.length > 0) {
             let tituloGrupo = '';
@@ -806,6 +811,18 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
     
     if (horariosOcupados.length > 0) {
         infoAdicional.push(`<strong>⏰ Ocupados:</strong> ${horariosOcupados.length} horários`);
+        
+        // 🆕 MOSTRA OS HORÁRIOS OCUPADOS ESPECÍFICOS
+        adicionarMensagemChat(`
+            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                <strong>📋 Horários Ocupados:</strong>
+                <div style="font-size: 11px; margin-top: 6px;">
+                    ${horariosOcupados.map(horario => 
+                        `❌ ${horario}`
+                    ).join('<br>')}
+                </div>
+            </div>
+        `);
     }
     
     if (periodosArray.length > 0) {
@@ -831,6 +848,16 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
             </div>
         `);
     }
+    
+    // � INFO FINAL SOBRE DISPONIBILIDADE REAL
+    adicionarMensagemChat(`
+        <div class="info-box" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3);">
+            <strong>📊 Status Final:</strong><br>
+            ✅ <strong>${horariosRealmenteDisponiveis.length}</strong> horários disponíveis<br>
+            ❌ <strong>${horariosOcupados.length}</strong> horários ocupados<br>
+            🚫 <strong>${periodosArray.length}</strong> períodos bloqueados
+        </div>
+    `);
 }
 
         // 🆕 FUNÇÃO: Agrupa horários considerando períodos bloqueados
