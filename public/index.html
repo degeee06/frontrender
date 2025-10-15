@@ -489,31 +489,6 @@
             <!-- 🔐 SESSÕES IA (APÓS LOGIN) -->
             <div id="secoesIA" style="display: none;">
 
-                <!-- 🤖 ASSISTENTE IA -->
-                <div class="assistente-ia-section" data-aos="fade-up">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <span>🤖</span>
-                        Assistente de Agenda IA
-                    </h3>
-                    
-                    <div class="chat-ia">
-                        <div id="historico-chat-ia" class="historico-chat scrollbar-hide">
-                            <div class="mensagem ia">
-                                <p><strong>Assistente IA:</strong> Olá! Sou seu assistente de agenda inteligente. Como posso ajudar? 😊</p>
-                            </div>
-                        </div>
-                        
-                        <div class="input-chat">
-                            <input type="text" id="input-pergunta-ia" 
-                                   placeholder="Ex: Quais meus compromissos importantes esta semana?"
-                                   onkeypress="if(event.key === 'Enter') perguntarIA()">
-                            <button id="btn-enviar-ia" onclick="perguntarIA()">
-                                <span id="btn-ia-text">Enviar</span>
-                                <div id="btn-ia-spinner" class="loading-spinner hidden" style="width:16px;height:16px;border-width:2px;"></div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- 🎯 SUGERIR HORÁRIOS LIVRES -->
                 <div class="agendamento-ia-section" data-aos="fade-up">
@@ -3609,6 +3584,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
