@@ -2694,15 +2694,32 @@ form.addEventListener('submit', async (e)=>{
             showToast("Agendado com sucesso!", "success"); 
             form.reset(); 
             listarAgendamentos(); 
+       } else {
+    const data = await response.json();
+    
+    // 🔥 TRATAMENTO DE ERRO MELHORADO
+    if (response.status === 400) {
+        // Agora trata diferentes tipos de erro 400 do backend
+        if (data.msg?.includes("Horário indisponível")) {
+            showToast(data.msg, "error");
+        } else if (data.msg?.includes("Fora do horário")) {
+            showToast(data.msg, "error");
+        } else if (data.msg?.includes("bloqueado")) {
+            showToast(data.msg, "error");
+        } else if (data.msg?.includes("passado")) {
+            showToast(data.msg, "error");
+        } else if (data.msg?.includes("conflito") || data.msg?.includes("já possui")) {
+            showToast(data.msg, "error");
         } else {
-            const errorData = await response.json();
-            
-            // ✅✅✅ CORREÇÃO AQUI - USA errorData.msg EM VEZ DE errorData.message
-            const mensagemErro = errorData.msg || errorData.message || "Não foi possível agendar";
-            showToast(mensagemErro, "error");
-            
-            console.log("Detalhes do erro:", errorData); // Para debug
+            showToast(data.msg || "Erro ao agendar", "error");
         }
+    } else {
+        // Outros códigos de erro (401, 500, etc)
+        showToast(data.msg || "Erro ao agendar", "error");
+    }
+    
+    console.log("Detalhes do erro:", data);
+}
     } catch(err){ 
         console.error(err); 
         showToast("Erro ao enviar agendamento", "error"); 
@@ -3964,6 +3981,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
