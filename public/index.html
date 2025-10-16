@@ -1780,6 +1780,19 @@ function configurarBotaoSettings() {
         // 🔥 ADICIONE: Função para gerar link de agendamento
         async function gerarLinkAgendamento() {
             try {
+                // 🔥 PRIMEIRO: Verifica se tem perfil
+        const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+            headers: { 'Authorization': `Bearer ${userToken}` }
+        });
+        
+        if (perfilResponse.ok) {
+            const perfilData = await perfilResponse.json();
+            if (!perfilData.success || !perfilData.perfil) {
+                showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
+                abrirMenuConfiguracoes(); // Abre automaticamente as configurações
+                return;
+            }
+        }
                 // 🔥 PRIMEIRO: Pega o userId do usuário logado
                 const { data: { user } } = await supabase.auth.getUser();
                 
@@ -3940,6 +3953,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
