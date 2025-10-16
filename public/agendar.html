@@ -498,10 +498,6 @@
     <script>
         // Inicializa Feather Icons
         feather.replace();
-        // 🔥 CONFIGURA EVENT LISTENERS DO CHAT (ADICIONE ISSO)
-document.getElementById('chatAbrirBtn').addEventListener('click', toggleChat);
-document.getElementById('chatFecharBtn').addEventListener('click', toggleChat);
-document.getElementById('carregarHorariosBtn').addEventListener('click', carregarHorariosReais);
         // Inicializa AOS
         AOS.init({
             duration: 800,
@@ -533,8 +529,6 @@ if (!user_id || !t) {
             mask: '(00) 00000-0000'
         });
 
-// 🔥 CONTROLE DO CHAT FLUTUANTE
-let chatAberto = false;
 
 
 function adicionarMensagemChat(texto, tipo = 'bot') {
@@ -559,7 +553,9 @@ function esconderNotificacaoChat() {
     notificacao.classList.add('hidden');
 }
 
-// 🔥 MODIFICAR A FUNÇÃO toggleChat
+// 🔥 CONTROLE DO CHAT FLUTUANTE (MANTENHA APENAS ESTA VERSÃO)
+let chatAberto = false;
+
 function toggleChat() {
     const chat = document.getElementById('chatFlutuante');
     const botao = document.querySelector('.chat-abrir-btn');
@@ -582,8 +578,13 @@ function toggleChat() {
     feather.replace();
 }
 
-// 🔥 ADICIONAR EVENT LISTENER PARA O BOTÃO DE FECHAR
-document.getElementById('chatFecharBtn').addEventListener('click', function() {
+// 🔥 CONFIGURA EVENT LISTENERS (APENAS UMA VEZ, NO FINAL DO CÓDIGO)
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('chatAbrirBtn').addEventListener('click', toggleChat);
+    document.getElementById('chatFecharBtn').addEventListener('click', toggleChat);
+    document.getElementById('carregarHorariosBtn').addEventListener('click', carregarHorariosReais);
+});
+        
     toggleChat();
     // 🔥 MOSTRA NOTIFICAÇÃO APÓS FECHAR
     setTimeout(mostrarNotificacaoChat, 1000);
