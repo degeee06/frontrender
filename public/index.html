@@ -484,6 +484,17 @@
 .inicio-periodo:valid + .fim-periodo:valid {
     border-color: rgba(34, 197, 94, 0.5) !important;
 }
+        /* 🔧 Correção visual do select invisível */
+#tipoNegocioSelect {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+#tipoNegocioSelect option {
+  background-color: #1f2937; /* fundo escuro */
+  color: #fff; /* texto branco visível */
+}
+
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -3953,6 +3964,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
