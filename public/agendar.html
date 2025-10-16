@@ -252,21 +252,7 @@
     font-size: 13px;
 }
 
-/* Responsivo */
-@media (max-width: 640px) {
-    .chat-flutuante {
-        width: calc(100vw - 40px);
-        height: 70vh;
-        bottom: 10px;
-        right: 10px;
-        left: 10px;
-    }
-    
-    .chat-abrir-btn {
-        bottom: 10px;
-        right: 10px;
-    }
-}
+
         /* 🆕 ESTILOS PARA PERÍODOS BLOQUEADOS NO CHAT */
 .periodo-bloqueado-info {
     background: rgba(245, 158, 11, 0.1) !important;
@@ -299,11 +285,12 @@
     margin-bottom: 6px;
     font-weight: 600;
 }
-   /* 🔥 ADICIONE ESTE ESTILO PARA A NOTIFICAÇÃO */
+
+/* 🔥 BOTÃO FLUTUANTE - LADO ESQUERDO */
 .chat-abrir-btn {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 20px;                    /* ✅ ESQUERDA */
     width: 60px;
     height: 60px;
     background: linear-gradient(135deg, #6366f1, #3b82f6);
@@ -317,7 +304,6 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    /* 🔥 ADICIONE ESTAS LINHAS */
     position: relative; /* Para o absolute da notificação funcionar */
 }
 
@@ -343,7 +329,30 @@
 /* 🔥 CLASSE PARA ESCONDER A NOTIFICAÇÃO */
 .hidden {
     display: none !important;
-}     
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+    .chat-flutuante {
+        width: calc(100vw - 40px);
+        height: 70vh;
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+    }
+    
+    .chat-abrir-btn {
+        bottom: 10px;
+        left: 10px;              /* ✅ ESQUERDA no mobile também */
+    }
+}
+
+/* 🆕 ESTILOS PARA PERÍODOS BLOQUEADOS NO CHAT */
+.periodo-bloqueado-info {
+    background: rgba(245, 158, 11, 0.1) !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    color: #fbbf24 !important;
+}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
