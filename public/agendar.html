@@ -523,8 +523,14 @@ async function carregarHorariosReais() {
         adicionarMensagemChat('<strong>Assistente:</strong> Link inválido. Não é possível verificar horários. ❌');
         return;
     }
-    
+
+     // ✅✅✅ ADICIONE AQUI - LOADING NO BOTÃO
+    const carregarBtn = document.getElementById('carregarHorariosBtn');
+    carregarBtn.innerHTML = '<div class="loading-spinner"></div> Carregando...';
+    carregarBtn.disabled = true;
+
     adicionarMensagemChat('<strong>Assistente:</strong> Consultando horários reais do sistema... ⏳');
+
 
     try {
         // 🎯 BUSCA PERFIL REAL - COM TRATAMENTO DE ERRO MELHORADO
@@ -628,6 +634,11 @@ async function carregarHorariosReais() {
                 <strong>💡 Solução:</strong> Use o formulário principal para agendar normalmente.
             </div>
         `);
+         } finally {
+        // ✅✅✅ ADICIONE AQUI - RESTAURA BOTÃO (SEMPRE executa)
+        const carregarBtn = document.getElementById('carregarHorariosBtn');
+        carregarBtn.innerHTML = '🔍 Ver Horários Disponíveis';
+        carregarBtn.disabled = false;
     }
 }
         
@@ -1147,7 +1158,27 @@ setTimeout(() => {
     t: t
 };
             
+// ✅✅✅ ADICIONE AQUI - VALIDAÇÃO DE DATA NO PASSADO
+    const dataAgendamento = new Date(`${agendamento.data}T${agendamento.horario}`);
+    const agora = new Date();
 
+    if (dataAgendamento < agora) {
+        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('resultado').innerHTML = `
+            <div class="p-6 rounded-lg error-message">
+                <i data-feather="clock" class="w-12 h-12 mx-auto mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Data Inválida</h3>
+                <p>Não é possível agendar no passado.</p>
+            </div>
+        `;
+        feather.replace();
+        
+        // Restaura botão
+        agendarText.textContent = 'Agendar Compromisso';
+        agendarSpinner.classList.add('hidden');
+        submitBtn.disabled = false;
+        return; // Para a execução
+    }
             
 // 🔥 CORRIJA A VERIFICAÇÃO (usa 'email' minúsculo):
 if(!agendamento.email || agendamento.email.trim() === '') {
@@ -1181,14 +1212,31 @@ if(!agendamento.email || agendamento.email.trim() === '') {
 `;
                     document.getElementById('agendarForm').reset();
                 } else {
-                    document.getElementById('resultado').innerHTML = `
-                        <div class="p-6 rounded-lg error-message">
-                            <i data-feather="alert-circle" class="w-12 h-12 mx-auto mb-4"></i>
-                            <h3 class="text-xl font-semibold mb-2">Erro no Agendamento</h3>
-                            <p>${result.msg}</p>
-                        </div>
-                    `;
-                }
+    // 🔥 TRATAMENTO DE ERRO MELHORADO
+    let mensagemErro = result.msg || "Erro ao agendar";
+    
+    if (response.status === 400) {
+        if (mensagemErro.includes("Horário indisponível")) {
+            mensagemErro = "❌ " + mensagemErro;
+        } else if (mensagemErro.includes("Fora do horário")) {
+            mensagemErro = "🕒 " + mensagemErro;
+        } else if (mensagemErro.includes("bloqueado")) {
+            mensagemErro = "🚫 " + mensagemErro;
+        } else if (mensagemErro.includes("passado")) {
+            mensagemErro = "⏰ " + mensagemErro;
+        } else if (mensagemErro.includes("expirado")) {
+            mensagemErro = "🔗 " + mensagemErro;
+        }
+    }
+    
+    document.getElementById('resultado').innerHTML = `
+        <div class="p-6 rounded-lg error-message">
+            <i data-feather="alert-circle" class="w-12 h-12 mx-auto mb-4"></i>
+            <h3 class="text-xl font-semibold mb-2">${response.status === 400 ? 'Dados Inválidos' : 'Erro no Agendamento'}</h3>
+            <p>${mensagemErro}</p>
+        </div>
+    `;
+}
                 
                 feather.replace();
                 
