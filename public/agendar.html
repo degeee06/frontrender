@@ -723,29 +723,32 @@ async function mostrarProximasDatasDisponiveis(perfilInfo) {
     const hojeUTC = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()));
     
     const proximosDias = [];
-    // ✅ CORREÇÃO: Começa em 0 para incluir HOJE
+    
+    // ✅ CORREÇÃO CRÍTICA: Começa de i = 0 (HOJE) em vez de i = 1
     for (let i = 0; i <= 14; i++) { // 🔥 MUDEI: i = 0 inclui HOJE
         const data = new Date(hojeUTC);
         data.setUTCDate(hojeUTC.getUTCDate() + i);
         
         const diaSemana = data.getUTCDay();
         const nomeDia = obterDiaSemana(diaSemana);
+        const nomeDiaLower = nomeDia.toLowerCase();
         
         // Verifica se é dia de funcionamento
-        if (diasFuncionamento.includes(nomeDia.toLowerCase())) {
+        if (diasFuncionamento.includes(nomeDiaLower)) {
             const dataISO = data.toISOString().split('T')[0];
             
-            // ✅ ADICIONE: Identifica HOJE para mostrar label especial
-            const labelDia = i === 0 ? "Hoje" : formatarDiaNome(nomeDia.toLowerCase());
+            // 🔥 DETECTA SE É HOJE para mostrar label especial
+            const labelDia = i === 0 ? "Hoje" : formatarDiaNome(nomeDiaLower);
             const dataFormatada = i === 0 ? "Hoje" : formatarData(dataISO);
             
             proximosDias.push({
                 data: dataISO,
-                nomeDia: labelDia, // ✅ Usa label especial para HOJE
-                dataFormatada: dataFormatada // ✅ Usa formato especial para HOJE
+                nomeDia: labelDia,
+                dataFormatada: dataFormatada,
+                ehHoje: i === 0 // 🔥 Flag para identificar hoje
             });
             
-            // Limita a 5 dias
+            // Limita a 5 dias (incluindo hoje)
             if (proximosDias.length >= 5) break;
         }
     }
@@ -755,21 +758,37 @@ async function mostrarProximasDatasDisponiveis(perfilInfo) {
         return;
     }
     
-    // Mostra datas disponíveis (o resto permanece IGUAL)
+    // 🔥 DESTACA HOJE visualmente
     adicionarMensagemChat(`
         <div class="info-box">
-            <strong>📅 Próximas Datas Disponíveis:</strong>
+            <strong>📅 Datas Disponíveis:</strong>
             <div class="datas-grid" style="margin-top: 8px;">
                 ${proximosDias.map(dia => `
                     <button class="data-btn" onclick="selecionarData('${dia.data}')" 
-                            style="display: block; width: 100%; padding: 8px; margin: 4px 0; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 6px; cursor: pointer; text-align: center;">
+                            style="display: block; width: 100%; padding: 8px; margin: 4px 0; 
+                                   background: ${dia.ehHoje ? 'rgba(34, 197, 94, 0.3)' : 'rgba(59, 130, 246, 0.2)'}; 
+                                   border: 1px solid ${dia.ehHoje ? 'rgba(34, 197, 94, 0.5)' : 'rgba(59, 130, 246, 0.4)'}; 
+                                   border-radius: 6px; cursor: pointer; text-align: center;
+                                   ${dia.ehHoje ? 'font-weight: bold;' : ''}">
                         <strong>${dia.nomeDia}</strong><br>
                         ${dia.dataFormatada}
+                        ${dia.ehHoje ? ' 🎯' : ''}
                     </button>
                 `).join('')}
             </div>
         </div>
     `);
+    
+    // 🔥 MENSAGEM ESPECIAL SE HOJE ESTIVER DISPONÍVEL
+    const hojeDisponivel = proximosDias.find(dia => dia.ehHoje);
+    if (hojeDisponivel) {
+        adicionarMensagemChat(`
+            <div class="info-box" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3);">
+                <strong>🎯 Disponível Hoje!</strong><br>
+                Você pode agendar para <strong>hoje mesmo</strong> se houver horários disponíveis!
+            </div>
+        `);
+    }
     
     adicionarMensagemChat('<strong>Assistente:</strong> Clique em uma data para ver os horários disponíveis! 🕐');
 }
