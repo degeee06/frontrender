@@ -1005,7 +1005,7 @@
             document.getElementById('secoesIA').style.display = 'none';
         }
 
-   async function init() {
+     async function init() {
     console.log('🚀 Iniciando app...');
     
     if (verificarCallbackOAuth()) {
@@ -1060,12 +1060,7 @@
         // Usuário JÁ logado - mostra dashboard
         loginSection.style.display = 'none';
         form.style.display = 'block';
-        
-        // 🔥 CORREÇÃO: Pequeno delay para garantir que o DOM está pronto
-        setTimeout(() => {
-            atualizarInterfacePosLogin();
-        }, 100);
-        
+        atualizarInterfacePosLogin(); // 🔥 GARANTIR QUE É CHAMADO
         document.getElementById('secoesIA').style.display = 'block';
         listarAgendamentos();
         setTimeout(() => verificarConfiguracaoSheets(), 1000);
@@ -1074,25 +1069,13 @@
         console.log('👤 Usuário não logado - mostrando tela de login');
         loginSection.style.display = 'block';
         form.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'none';
+        logoutBtn.style.display = 'none';
         document.getElementById('secoesIA').style.display = 'none';
     }
     
     // Garante que feather icons são carregados
     feather.replace();
 }
-
-// 🔥 ADICIONAR: Debug helper para verificar se o botão existe
-function debugBotaoSettings() {
-    const btn = document.getElementById('settingsBtn');
-    console.log('🔍 Debug settingsBtn:', {
-        existe: !!btn,
-        display: btn ? btn.style.display : 'não existe',
-        onclick: btn ? btn.onclick : 'não existe',
-        eventListeners: btn ? btn.getEventListeners?.('click') : 'não existe'
-    });
-}
-        window.debugSettings = debugBotaoSettings;
 
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
 
@@ -1751,28 +1734,22 @@ function configurarBotaoSettings() {
     console.log('🔧 Configurando botão settings...', settingsBtn);
     
     if (settingsBtn) {
-        // 🔥 CORREÇÃO: Remove event listeners antigos de forma mais simples
-        settingsBtn.onclick = null; // Limpa event listeners antigos
-        settingsBtn.addEventListener('click', abrirMenuConfiguracoes);
+        // Remove event listeners antigos para evitar duplicação
+        const newSettingsBtn = settingsBtn.cloneNode(true);
+        settingsBtn.parentNode.replaceChild(newSettingsBtn, settingsBtn);
+        
+        // Adiciona o event listener ao novo botão
+        newSettingsBtn.addEventListener('click', abrirMenuConfiguracoes);
         console.log('✅ Botão settings configurado com sucesso!');
     } else {
         console.log('❌ Botão settings não encontrado');
-        // 🔥 Tenta novamente depois de um tempo se não encontrou
-        setTimeout(() => {
-            const btn = document.getElementById('settingsBtn');
-            if (btn) {
-                btn.onclick = null;
-                btn.addEventListener('click', abrirMenuConfiguracoes);
-                console.log('✅ Botão settings configurado no retry!');
-            }
-        }, 500);
     }
 }
 
 
         
         // 🔥 ADICIONE: Função para mostrar/ocultar botões corretamente
- function atualizarInterfacePosLogin() {
+   function atualizarInterfacePosLogin() {
     const logoutBtn = document.getElementById('logoutBtn');
     const settingsBtn = document.getElementById('settingsBtn');
     const gerarLinkBtn = document.getElementById('gerarLinkBtn');
@@ -1780,21 +1757,19 @@ function configurarBotaoSettings() {
     console.log('🎯 Atualizando interface pós-login...');
     
     if (userToken) {
-        if (logoutBtn) logoutBtn.style.display = 'flex';
-        if (settingsBtn) settingsBtn.style.display = 'flex';
-        if (gerarLinkBtn) gerarLinkBtn.style.display = 'flex';
+        logoutBtn.style.display = 'flex';
+        settingsBtn.style.display = 'flex';
+        gerarLinkBtn.style.display = 'flex';
         
-        // 🔥 CORREÇÃO: Configura o botão com delay para garantir que o DOM está pronto
-        setTimeout(() => {
-            configurarBotaoSettings();
-        }, 100);
+        // 🔥 CORREÇÃO CRÍTICA: Configurar o botão settings IMEDIATAMENTE
+        configurarBotaoSettings();
         
         // Verifica perfil depois de um delay
         setTimeout(() => atualizarBadgePerfil(), 2000);
     } else {
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        if (settingsBtn) settingsBtn.style.display = 'none';
-        if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
+        logoutBtn.style.display = 'none';
+        settingsBtn.style.display = 'none';
+        gerarLinkBtn.style.display = 'none';
     }
 }
 
@@ -3965,8 +3940,6 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
-
-
 
 
 
