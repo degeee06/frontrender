@@ -362,11 +362,7 @@
             </p>
         </header>
         
-<button class="fixed bottom-5 left-5 z-50 w-14 h-14 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300 border-none cursor-pointer" id="chatAbrirBtn">
-    <i data-feather="message-circle" class="text-white w-6 h-6"></i>
-    <!-- 🔥 INDICADOR DE NOVAS MENSAGENS -->
-    <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse hidden" id="chatNotification"></span>
-</button>
+<button class="chat-abrir-btn fixed bottom-5 left-5 z-50 w-14 h-14 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300 border-none cursor-pointer" id="chatAbrirBtn">
 
 <div id="chatFlutuante" class="chat-flutuante chat-fechado">
     <!-- Cabeçalho do Chat -->
@@ -543,7 +539,7 @@ let chatAberto = false;
 
 function toggleChat() {
     const chat = document.getElementById('chatFlutuante');
-    const botao = document.querySelector('.chat-abrir-btn');
+    const botao = document.getElementById('chatAbrirBtn');
     
     if (chatAberto) {
         chat.classList.remove('chat-aberto');
