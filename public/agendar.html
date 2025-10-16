@@ -181,25 +181,7 @@
     transform: translateY(-1px);
 }
 
-/* Botão flutuante para abrir chat */
-.chat-abrir-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #6366f1, #3b82f6);
-    border: none;
-    border-radius: 50%;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
+
 
 .chat-abrir-btn:hover {
     transform: scale(1.1);
@@ -528,7 +510,34 @@ if (!user_id || !t) {
         const phoneMask = IMask(document.getElementById('telefone'), {
             mask: '(00) 00000-0000'
         });
-// 🔥 CONTROLE DO CHAT FLUTUANTE (MANTENHA APENAS ESTA VERSÃO)
+
+
+   // 🔥 FUNÇÕES FALTANTES - ADICIONE ISSO
+function mostrarNotificacaoChat() {
+    const notificacao = document.getElementById('chatNotification');
+    if (notificacao) {
+        notificacao.classList.remove('hidden');
+    }
+}
+
+function esconderNotificacaoChat() {
+    const notificacao = document.getElementById('chatNotification');
+    if (notificacao) {
+        notificacao.classList.add('hidden');
+    }
+}
+
+function adicionarMensagemChat(texto, tipo = 'bot') {
+    const messagesDiv = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message chat-${tipo}`;
+    messageDiv.innerHTML = `<div class="chat-message-content">${texto}</div>`;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    feather.replace();
+}
+
+// 🔥 CONTROLE DO CHAT FLUTUANTE
 let chatAberto = false;
 
 function toggleChat() {
@@ -553,7 +562,7 @@ function toggleChat() {
     feather.replace();
 }
 
-// 🔥 CONFIGURA EVENT LISTENERS (APENAS UMA VEZ, NO FINAL DO CÓDIGO)
+// 🔥 CONFIGURA EVENT LISTENERS
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('chatAbrirBtn').addEventListener('click', toggleChat);
     document.getElementById('chatFecharBtn').addEventListener('click', toggleChat);
@@ -561,15 +570,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function adicionarMensagemChat(texto, tipo = 'bot') {
-    const messagesDiv = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message chat-${tipo}`;
-    messageDiv.innerHTML = `<div class="chat-message-content">${texto}</div>`;
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    feather.replace();
-}
 
 // 🔥 CORREÇÃO COMPLETA: Função carregarHorariosReais
 async function carregarHorariosReais() {
