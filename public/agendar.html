@@ -517,7 +517,7 @@ function adicionarMensagemChat(texto, tipo = 'bot') {
     feather.replace();
 }
 
-// 🔥 ATUALIZAR: Função carregarHorariosReais mais clara
+// 🔥 CORREÇÃO COMPLETA: Função carregarHorariosReais
 async function carregarHorariosReais() {
     if (!user_id) {
         adicionarMensagemChat('<strong>Assistente:</strong> Link inválido. Não é possível verificar horários. ❌');
@@ -527,86 +527,107 @@ async function carregarHorariosReais() {
     adicionarMensagemChat('<strong>Assistente:</strong> Consultando horários reais do sistema... ⏳');
 
     try {
-        // 🎯 BUSCA PERFIL REAL
+        // 🎯 BUSCA PERFIL REAL - COM TRATAMENTO DE ERRO MELHORADO
         let perfilInfo = null;
         try {
+            console.log('🔍 Buscando perfil para user_id:', user_id);
             const perfilResponse = await fetch(`https://agendamento-ynxr.onrender.com/api/perfil-publico/${user_id}`);
+            
+            console.log('📡 Status da resposta:', perfilResponse.status);
             
             if (perfilResponse.ok) {
                 const perfilData = await perfilResponse.json();
+                console.log('📦 Dados do perfil recebidos:', perfilData);
+                
                 if (perfilData.success && perfilData.perfil) {
                     perfilInfo = perfilData.perfil;
+                    console.log('✅ Perfil carregado com sucesso:', perfilInfo.nome_negocio);
+                } else {
+                    console.log('❌ Perfil não encontrado ou success=false');
+                    adicionarMensagemChat('<strong>Assistente:</strong> Perfil do estabelecimento não encontrado. ❌');
+                    return;
                 }
+            } else {
+                console.log('❌ Erro HTTP:', perfilResponse.status);
+                throw new Error(`HTTP ${perfilResponse.status}`);
             }
         } catch (perfilError) {
-            console.log('Perfil não disponível');
+            console.error('❌ Erro ao buscar perfil:', perfilError);
+            adicionarMensagemChat('<strong>Assistente:</strong> Erro ao carregar informações do estabelecimento. ❌');
+            return;
         }
 
-        // 🎯 MOSTRA INFORMAÇÕES REAIS
-        if (perfilInfo) {
-            adicionarMensagemChat(`<strong>Assistente:</strong> Encontrei o <strong>${perfilInfo.nome_negocio}</strong>! 🏪`);
+        // 🎯 SE CHEGOU AQUI, TEMOS PERFIL - MOSTRA INFORMAÇÕES
+        adicionarMensagemChat(`<strong>Assistente:</strong> Encontrei o <strong>${perfilInfo.nome_negocio}</strong>! 🏪`);
+        
+        // Mostra horários de funcionamento
+        let infoFuncionamento = `
+            <div class="info-box">
+                <strong>🕒 Horários de Funcionamento:</strong><br>
+        `;
+        
+        Object.keys(perfilInfo.horarios_funcionamento).forEach(dia => {
+            const horario = perfilInfo.horarios_funcionamento[dia];
+            infoFuncionamento += `${formatarDiaNome(dia)}: ${horario.inicio} às ${horario.fim}<br>`;
+        });
+        
+        infoFuncionamento += `</div>`;
+        adicionarMensagemChat(infoFuncionamento);
+        
+        // 🎯 MOSTRA BLOQUEIOS SE EXISTIREM
+        if (perfilInfo.horarios_bloqueados && perfilInfo.horarios_bloqueados.length > 0) {
+            const bloqueiosRecorrentes = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'recorrente');
+            const bloqueiosDataEspecifica = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'data_especifica');
             
-            // Mostra horários de funcionamento
-            let infoFuncionamento = `
-                <div class="info-box">
-                    <strong>🕒 Horários de Funcionamento:</strong><br>
-            `;
-            
-            Object.keys(perfilInfo.horarios_funcionamento).forEach(dia => {
-                const horario = perfilInfo.horarios_funcionamento[dia];
-                infoFuncionamento += `${formatarDiaNome(dia)}: ${horario.inicio} às ${horario.fim}<br>`;
-            });
-            
-            infoFuncionamento += `</div>`;
-            adicionarMensagemChat(infoFuncionamento);
-            
-            // 🆕 CORREÇÃO: Mostra bloqueios de forma mais inteligente
-            if (perfilInfo.horarios_bloqueados && perfilInfo.horarios_bloqueados.length > 0) {
-                // Separa bloqueios recorrentes vs data específica
-                const bloqueiosRecorrentes = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'recorrente');
-                const bloqueiosDataEspecifica = perfilInfo.horarios_bloqueados.filter(p => p.tipo === 'data_especifica');
-                
-                if (bloqueiosRecorrentes.length > 0) {
-                    adicionarMensagemChat(`
-                        <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
-                            <strong>🚫 Períodos Bloqueados Fixos:</strong><br>
-                            <div style="font-size: 12px; margin-top: 6px;">
-                                ${bloqueiosRecorrentes.map(periodo => 
-                                    `• ${periodo.inicio} - ${periodo.fim}`
-                                ).join('<br>')}
-                            </div>
-                            <div style="font-size: 11px; margin-top: 4px; color: #fbbf24;">
-                                ⚠️ Estes horários não estarão disponíveis em nenhum dia
-                            </div>
+            if (bloqueiosRecorrentes.length > 0) {
+                adicionarMensagemChat(`
+                    <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
+                        <strong>🚫 Períodos Bloqueados Fixos:</strong><br>
+                        <div style="font-size: 12px; margin-top: 6px;">
+                            ${bloqueiosRecorrentes.map(periodo => 
+                                `• ${periodo.inicio} - ${periodo.fim}`
+                            ).join('<br>')}
                         </div>
-                    `);
-                }
-                
-                if (bloqueiosDataEspecifica.length > 0) {
-                    adicionarMensagemChat(`
-                        <div class="info-box" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
-                            <strong>📅 Bloqueios em Datas Específicas:</strong><br>
-                            <div style="font-size: 12px; margin-top: 6px;">
-                                Existem ${bloqueiosDataEspecifica.length} períodos bloqueados em datas específicas
-                            </div>
-                            <div style="font-size: 11px; margin-top: 4px; color: #60a5fa;">
-                                📍 Estes bloqueios aparecerão apenas nas datas correspondentes
-                            </div>
+                        <div style="font-size: 11px; margin-top: 4px; color: #fbbf24;">
+                            ⚠️ Estes horários não estarão disponíveis em nenhum dia
                         </div>
-                    `);
-                }
+                    </div>
+                `);
             }
             
-            // 🎯 AGORA MOSTRA DATAS DISPONÍVEIS INTERATIVAS
-            await mostrarProximasDatasDisponiveis(perfilInfo);
-            
+            if (bloqueiosDataEspecifica.length > 0) {
+                adicionarMensagemChat(`
+                    <div class="info-box" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
+                        <strong>📅 Bloqueios em Datas Específicas:</strong><br>
+                        <div style="font-size: 12px; margin-top: 6px;">
+                            Existem ${bloqueiosDataEspecifica.length} períodos bloqueados em datas específicas
+                        </div>
+                        <div style="font-size: 11px; margin-top: 4px; color: #60a5fa;">
+                            📍 Estes bloqueios aparecerão apenas nas datas correspondentes
+                        </div>
+                    </div>
+                `);
+            }
         } else {
-            adicionarMensagemChat('<strong>Assistente:</strong> Use o formulário principal para agendar. Os horários serão validados automaticamente! ✅');
+            adicionarMensagemChat(`
+                <div class="info-box" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3);">
+                    <strong>✅ Sem bloqueios:</strong> Todos os horários estão disponíveis!
+                </div>
+            `);
         }
-
+        
+        // 🎯 AGORA MOSTRA DATAS DISPONÍVEIS INTERATIVAS
+        await mostrarProximasDatasDisponiveis(perfilInfo);
+        
     } catch (error) {
-        console.error('Erro no chat:', error);
-        adicionarMensagemChat('<strong>Assistente:</strong> Use o formulário principal para agendar. A disponibilidade será verificada automaticamente! ✅');
+        console.error('❌ Erro geral no chat:', error);
+        adicionarMensagemChat(`
+            <div class="info-box" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
+                <strong>❌ Erro de conexão:</strong><br>
+                Não foi possível carregar os horários disponíveis.<br><br>
+                <strong>💡 Solução:</strong> Use o formulário principal para agendar normalmente.
+            </div>
+        `);
     }
 }
         
