@@ -852,43 +852,46 @@
         }
 
         // 🔥 PROCESSAMENTO PARA WEB
-        async function processarOAuthWeb() {
-            try {
-                // Aguarda um pouco para processar a sessão
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                const { data: { session } } = await supabase.auth.getSession();
-                
-                if (session) {
-                    console.log('✅ Sessão OAuth restaurada no web!');
-                    
-                    // Salva o token
-                    userToken = session.access_token;
-                    localStorage.setItem('userToken', userToken);
-                    
-                    // Limpa a URL
-                    window.history.replaceState(null, '', window.location.pathname);
-                    
-                    // Mostra app normal
-                    document.getElementById('authCallbackScreen').classList.add('hidden');
-                    document.getElementById('mainAppContent').classList.remove('hidden');
-                    
-                    // Atualiza interface
-                    loginSection.style.display = 'none';
-                    form.style.display = 'block';
-                    atualizarInterfacePosLogin();
-                    document.getElementById('secoesIA').style.display = 'block';
-                    
-                    listarAgendamentos();
-                    // 🔥 ADICIONE: Conectar SSE após login
-                    setTimeout(() => iniciarSistemaAtualizacao(), 1000);
-                    showToast("Login realizado com sucesso!", "success");
-                }
-            } catch (error) {
-                console.error('❌ Erro OAuth web:', error);
-                window.location.href = '/';
-            }
+       async function processarOAuthWeb() {
+    try {
+        // Aguarda um pouco para processar a sessão
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+            console.log('✅ Sessão OAuth restaurada no web!');
+            
+            // Salva o token
+            userToken = session.access_token;
+            localStorage.setItem('userToken', userToken);
+            
+            // Limpa a URL
+            window.history.replaceState(null, '', window.location.pathname);
+            
+            // Mostra app normal
+            document.getElementById('authCallbackScreen').classList.add('hidden');
+            document.getElementById('mainAppContent').classList.remove('hidden');
+            
+            // Atualiza interface - 🔥 CORREÇÃO: CHAMAR atualizarInterfacePosLogin()
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            atualizarInterfacePosLogin(); // 🔥 LINHA CRÍTICA ADICIONADA
+            document.getElementById('secoesIA').style.display = 'block';
+            
+            listarAgendamentos();
+            // 🔥 ADICIONE: Conectar SSE após login
+            setTimeout(() => iniciarSistemaAtualizacao(), 1000);
+            showToast("Login realizado com sucesso!", "success");
+            
+            // 🔥 ADICIONAR: Verificar configuração sheets
+            setTimeout(() => verificarConfiguracaoSheets(), 1500);
         }
+    } catch (error) {
+        console.error('❌ Erro OAuth web:', error);
+        window.location.href = '/';
+    }
+}
 
         // 🔥 PROCESSAMENTO PARA APP
         function processarOAuthApp() {
@@ -1002,7 +1005,7 @@
             document.getElementById('secoesIA').style.display = 'none';
         }
 
-       async function init() {
+     async function init() {
     console.log('🚀 Iniciando app...');
     
     if (verificarCallbackOAuth()) {
@@ -1012,7 +1015,7 @@
     
     console.log('▶️ Continuando init normal...');
     
-    // 🔥 CORREÇÃO SIMPLES: Aplica máscara com delay
+    // 🔥 CORREÇÃO: Aplica máscara com delay
     setTimeout(() => {
         const telefoneInput = document.getElementById('Telefone');
         if (telefoneInput && window.IMask) {
@@ -1024,81 +1027,55 @@
             console.log('❌ Input de telefone não encontrado ou IMask não carregado');
         }
     }, 1000);
+    
+    configurarEventListenersModal();
+    
+    // ✅ LISTENER CAPACITOR CORRIGIDO
+    if (window.Capacitor && window.Capacitor.Plugins?.App) {
+        window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
+            console.log('🔗 App aberto via URL:', data.url);
+            
+            if (data.url.includes('auth-callback')) {
+                console.log('📱 Processando retorno OAuth no app...');
                 
-            
-         // Permitir selecionar a partir de hoje
-const hoje = new Date().toISOString().split('T')[0];
-
-if (dataInput) {
-    dataInput.min = hoje; // ⬅️ HOJE, não ontem!
-}
-            
-            configurarEventListenersModal();
-            
-            // ✅ LISTENER CAPACITOR CORRIGIDO
-            if (window.Capacitor && window.Capacitor.Plugins?.App) {
-                window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-                    console.log('🔗 App aberto via URL:', data.url);
-                    
-                    if (data.url.includes('auth-callback')) {
-                        console.log('📱 Processando retorno OAuth no app...');
-                        
-                        // 🔥 EXTRAI OS PARÂMETROS DA URL DO APP
-                        const url = new URL(data.url);
-                        const hash = url.hash;
-                        
-                        if (hash) {
-                            // 🔥 CONVERTE PARA URL DO NAVEGADOR PARA PROCESSAR
-                            const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
-                            processarRetornoOAuth(webUrl);
-                        }
-                    }
-                });
+                // 🔥 EXTRAI OS PARÂMETROS DA URL DO APP
+                const url = new URL(data.url);
+                const hash = url.hash;
+                
+                if (hash) {
+                    // 🔥 CONVERTE PARA URL DO NAVEGADOR PARA PROCESSAR
+                    const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
+                    processarRetornoOAuth(webUrl);
+                }
             }
-            
-           // ✅ VERIFICAÇÃO MUITO SIMPLES DE LOGIN
-const token = localStorage.getItem('userToken');
-console.log('🔑 Token no localStorage:', !!token);
-
-if (token) {
-    // Define a variável global corretamente (evita ReferenceError)
-    let userToken = token;
-
-    // Usuário JÁ logado - mostra dashboard
-    loginSection.style.display = 'none';
-    form.style.display = 'block';
-    atualizarInterfacePosLogin();
-
-    const secoesIA = document.getElementById('secoesIA');
-    if (secoesIA) secoesIA.style.display = 'block';
-
-    listarAgendamentos();
-
-    // Pequenos delays para garantir que elementos e dados estejam prontos
-    setTimeout(() => verificarConfiguracaoSheets(), 1000);
-
-    setTimeout(() => {
-        if (userToken) {
-            configurarBotaoSettings();
-        }
-    }, 2000);
-
-} else {
-    // Usuário NÃO logado - mostra login
-    console.log('👤 Usuário não logado - mostrando tela de login');
-    loginSection.style.display = 'block';
-    form.style.display = 'none';
-    logoutBtn.style.display = 'none';
-
-    const secoesIA = document.getElementById('secoesIA');
-    if (secoesIA) secoesIA.style.display = 'none';
-}
-
-// Garante que feather icons são carregados (deve estar disponível no escopo)
-if (typeof feather !== 'undefined') {
+        });
+    }
+    
+    // ✅ VERIFICAÇÃO MUITO SIMPLES DE LOGIN
+    const token = localStorage.getItem('userToken');
+    console.log('🔑 Token no localStorage:', !!token);
+    
+    if (token) {
+        userToken = token;
+        // Usuário JÁ logado - mostra dashboard
+        loginSection.style.display = 'none';
+        form.style.display = 'block';
+        atualizarInterfacePosLogin(); // 🔥 GARANTIR QUE É CHAMADO
+        document.getElementById('secoesIA').style.display = 'block';
+        listarAgendamentos();
+        setTimeout(() => verificarConfiguracaoSheets(), 1000);
+    } else {
+        // Usuário NÃO logado - mostra login
+        console.log('👤 Usuário não logado - mostrando tela de login');
+        loginSection.style.display = 'block';
+        form.style.display = 'none';
+        logoutBtn.style.display = 'none';
+        document.getElementById('secoesIA').style.display = 'none';
+    }
+    
+    // Garante que feather icons são carregados
     feather.replace();
 }
-
 
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
 
@@ -1751,36 +1728,44 @@ async function atualizarBadgePerfil() {
     }
 }
 
-// 🔥 CORREÇÃO: Função atualizada para configurar o botão de settings
+// 🎯 FUNÇÃO: Configurar Botão Principal
 function configurarBotaoSettings() {
     const settingsBtn = document.getElementById('settingsBtn');
+    console.log('🔧 Configurando botão settings...', settingsBtn);
+    
     if (settingsBtn) {
-        // Remove event listeners anteriores para evitar duplicação
-        settingsBtn.replaceWith(settingsBtn.cloneNode(true));
-        const novoBtn = document.getElementById('settingsBtn');
+        // Remove event listeners antigos para evitar duplicação
+        const newSettingsBtn = settingsBtn.cloneNode(true);
+        settingsBtn.parentNode.replaceChild(newSettingsBtn, settingsBtn);
         
-        // Configura o novo event listener
-        novoBtn.onclick = abrirMenuConfiguracoes;
-        console.log('✅ Botão de configurações configurado');
+        // Adiciona o event listener ao novo botão
+        newSettingsBtn.addEventListener('click', abrirMenuConfiguracoes);
+        console.log('✅ Botão settings configurado com sucesso!');
+    } else {
+        console.log('❌ Botão settings não encontrado');
     }
 }
 
-// 🔥 CORREÇÃO: Função atualizada para interface pós-login
-function atualizarInterfacePosLogin() {
+
+        
+        // 🔥 ADICIONE: Função para mostrar/ocultar botões corretamente
+   function atualizarInterfacePosLogin() {
     const logoutBtn = document.getElementById('logoutBtn');
     const settingsBtn = document.getElementById('settingsBtn');
     const gerarLinkBtn = document.getElementById('gerarLinkBtn');
+    
+    console.log('🎯 Atualizando interface pós-login...');
     
     if (userToken) {
         logoutBtn.style.display = 'flex';
         settingsBtn.style.display = 'flex';
         gerarLinkBtn.style.display = 'flex';
         
-        // 🔥 CORREÇÃO CRÍTICA: Configurar o botão de settings IMEDIATAMENTE
-        setTimeout(() => {
-            configurarBotaoSettings();
-            atualizarBadgePerfil();
-        }, 100);
+        // 🔥 CORREÇÃO CRÍTICA: Configurar o botão settings IMEDIATAMENTE
+        configurarBotaoSettings();
+        
+        // Verifica perfil depois de um delay
+        setTimeout(() => atualizarBadgePerfil(), 2000);
     } else {
         logoutBtn.style.display = 'none';
         settingsBtn.style.display = 'none';
@@ -1788,13 +1773,7 @@ function atualizarInterfacePosLogin() {
     }
 }
 
-// 🔥 ADICIONE: Esta função para garantir que o botão sempre funcione
-function garantirFuncionamentoSettings() {
-    const settingsBtn = document.getElementById('settingsBtn');
-    if (settingsBtn && settingsBtn.style.display !== 'none') {
-        configurarBotaoSettings();
-    }
-}
+
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
@@ -1958,55 +1937,54 @@ function garantirFuncionamentoSettings() {
         }
         
         // ✅ FUNÇÃO PARA PROCESSAR RETORNO DO OAUTH
-        async function processarRetornoOAuth(url) {
-            try {
-                console.log('🔄 Processando URL OAuth:', url);
+    async function processarRetornoOAuth(url) {
+    try {
+        console.log('🔄 Processando URL OAuth:', url);
+        
+        const urlObj = new URL(url);
+        const hash = urlObj.hash.substring(1);
+        
+        if (hash) {
+            const params = new URLSearchParams(hash);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            
+            if (accessToken) {
+                const { data, error } = await supabase.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: refreshToken
+                });
                 
-                const urlObj = new URL(url);
-                const hash = urlObj.hash.substring(1);
-                
-                if (hash) {
-                    const params = new URLSearchParams(hash);
-                    const accessToken = params.get('access_token');
-                    const refreshToken = params.get('refresh_token');
+                if (!error && data.session) {
+                    userToken = data.session.access_token;
+                    localStorage.setItem('userToken', userToken);
                     
-                    if (accessToken) {
-                        const { data, error } = await supabase.auth.setSession({
-                            access_token: accessToken,
-                            refresh_token: refreshToken
-                        });
-                        
-                        if (!error && data.session) {
-                            userToken = data.session.access_token;
-                            localStorage.setItem('userToken', userToken);
-                            
-                            // Fecha browser do Capacitor
-                            if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-                                try {
-                                    await window.Capacitor.Plugins.Browser.close();
-                                } catch (e) {
-                                    console.log('Browser já fechado');
-                                }
-                            }
-                            
-                            // Atualiza interface
-                            loginSection.style.display = 'none';
-                            form.style.display = 'block';
-                            atualizarInterfacePosLogin();
-                            document.getElementById('secoesIA').style.display = 'block';
-                            setTimeout(() => atualizarBadgePerfil(), 2000);
-                            listarAgendamentos();
-                            showToast("Login com Google realizado!", "success");
-                            setTimeout(() => verificarConfiguracaoSheets(), 1500);
+                    // Fecha browser do Capacitor
+                    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+                        try {
+                            await window.Capacitor.Plugins.Browser.close();
+                        } catch (e) {
+                            console.log('Browser já fechado');
                         }
                     }
+                    
+                    // 🔥 CORREÇÃO: Atualiza interface COMPLETAMENTE
+                    loginSection.style.display = 'none';
+                    form.style.display = 'block';
+                    atualizarInterfacePosLogin(); // 🔥 LINHA CRÍTICA
+                    document.getElementById('secoesIA').style.display = 'block';
+                    setTimeout(() => atualizarBadgePerfil(), 2000);
+                    listarAgendamentos();
+                    showToast("Login com Google realizado!", "success");
+                    setTimeout(() => verificarConfiguracaoSheets(), 1500);
                 }
-            } catch (error) {
-                console.error('❌ Erro ao processar OAuth:', error);
-                showToast("Erro ao finalizar login", "error");
             }
         }
-
+    } catch (error) {
+        console.error('❌ Erro ao processar OAuth:', error);
+        showToast("Erro ao finalizar login", "error");
+    }
+}
         function mostrarModalConfiguracao() {
             const modal = document.getElementById('configSheetsModal');
             modal.classList.remove('hidden');
@@ -2510,11 +2488,6 @@ function garantirFuncionamentoSettings() {
                 atualizarInterfacePosLogin();
                 document.getElementById('secoesIA').style.display = 'block';
                 setTimeout(() => atualizarBadgePerfil(), 2000);  
-                setTimeout(() => {
-        configurarBotaoSettings();
-    }, 500);
-});
-
                 listarAgendamentos().then(() => {
                   
                     // Seleciona o dia atual
@@ -2603,30 +2576,8 @@ function garantirFuncionamentoSettings() {
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-             setTimeout(() => {
-        garantirFuncionamentoSettings();
-    }, 1000);
-});
-const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-            const settingsBtn = document.getElementById('settingsBtn');
-            if (settingsBtn && settingsBtn.style.display === 'flex') {
-                console.log('🎯 Botão de settings ficou visível - configurando...');
-                setTimeout(() => configurarBotaoSettings(), 100);
             }
-        }
-    });
-});
-
-        // Iniciar observação quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', function() {
-    const settingsBtn = document.getElementById('settingsBtn');
-    if (settingsBtn) {
-        observer.observe(settingsBtn, { attributes: true });
-    }
-});
-
+        });
 
         // ---------------- LOGOUT CORRIGIDO ----------------
         logoutBtn.addEventListener('click', async () => {
@@ -3989,11 +3940,6 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
-
-
-
-
-
 
 
 
