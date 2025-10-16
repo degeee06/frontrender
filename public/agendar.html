@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.2/imask.min.js"></script>
-    <style>
+      <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     body {
@@ -86,273 +86,265 @@
         border: 1px solid rgba(239, 68, 68, 0.5);
         color: #f87171;
     }
-        /* 🔥 CHAT FLUTUANTE NO CANTO DIREITO */
-.chat-flutuante {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 350px;
-    height: 450px;
-    background: rgba(23, 23, 23, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.chat-header {
-    background: linear-gradient(135deg, #6366f1, #3b82f6);
-    padding: 16px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.chat-header h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.chat-toggle {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 4px;
-}
-
-.chat-messages {
-    flex: 1;
-    padding: 16px;
-    overflow-y: auto;
-    background: rgba(0, 0, 0, 0.3);
-}
-
-.chat-message {
-    margin-bottom: 12px;
-    padding: 10px 14px;
-    border-radius: 12px;
-    max-width: 85%;
-    animation: fadeIn 0.3s ease;
-}
-
-.chat-bot {
-    background: rgba(139, 92, 246, 0.3);
-    border: 1px solid rgba(139, 92, 246, 0.5);
-    margin-right: auto;
-}
-
-.chat-user {
-    background: rgba(59, 130, 246, 0.3);
-    border: 1px solid rgba(59, 130, 246, 0.5);
-    margin-left: auto;
-}
-
-.chat-message-content {
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.chat-actions {
-    padding: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.chat-btn-primary {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #10b981, #059669);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.chat-btn-primary:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-}
-
-
-
-.chat-abrir-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.6);
-}
-
-/* Estados do chat */
-.chat-fechado {
-    transform: translateY(100px);
-    opacity: 0;
-    pointer-events: none;
-}
-
-.chat-aberto {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-/* Grid de horários no chat */
-.horarios-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.horario-btn {
-    padding: 6px 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    font-size: 11px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.horario-btn:hover {
-    background: rgba(59, 130, 246, 0.3);
-    border-color: rgba(59, 130, 246, 0.5);
-}
-
-.horario-btn.selecionado {
-    background: rgba(34, 197, 94, 0.3);
-    border-color: rgba(34, 197, 94, 0.5);
-}
-
-.info-box {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    border-radius: 8px;
-    padding: 10px;
-    margin: 8px 0;
-    font-size: 12px;
-}
-
-.dia-section {
-    margin-bottom: 12px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-}
-
-.dia-titulo {
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #60a5fa;
-    font-size: 13px;
-}
-
-
-        /* 🆕 ESTILOS PARA PERÍODOS BLOQUEADOS NO CHAT */
-.periodo-bloqueado-info {
-    background: rgba(245, 158, 11, 0.1) !important;
-    border: 1px solid rgba(245, 158, 11, 0.3) !important;
-    color: #fbbf24 !important;
-}
-
-.horario-bloqueado {
-    background: rgba(107, 114, 128, 0.3) !important;
-    border-color: rgba(107, 114, 128, 0.5) !important;
-    color: #9ca3af !important;
-    cursor: not-allowed !important;
-}
-
-.horario-bloqueado:hover {
-    background: rgba(107, 114, 128, 0.3) !important;
-    transform: none !important;
-}
-
-.grupo-horarios {
-    margin-bottom: 12px;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 8px;
-}
-
-.titulo-grupo {
-    font-size: 11px;
-    color: #fbbf24;
-    margin-bottom: 6px;
-    font-weight: 600;
-}
-
-/* 🔥 BOTÃO FLUTUANTE - LADO ESQUERDO */
-.chat-abrir-btn {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;                    /* ✅ ESQUERDA */
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #6366f1, #3b82f6);
-    border: none;
-    border-radius: 50%;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    position: relative; /* Para o absolute da notificação funcionar */
-}
-
-/* 🔥 ESTILO DA NOTIFICAÇÃO */
-#chatNotification {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 12px;
-    height: 12px;
-    background: #ef4444;
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-    border: 2px solid rgba(23, 23, 23, 0.95);
-}
-
-/* 🔥 ANIMAÇÃO DE PULSO */
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-/* 🔥 CLASSE PARA ESCONDER A NOTIFICAÇÃO */
-.hidden {
-    display: none !important;
-}
-
-/* Responsivo */
-@media (max-width: 640px) {
-    .chat-flutuante {
-        width: calc(100vw - 40px);
-        height: 70vh;
-        bottom: 10px;
-        right: 10px;
-        left: 10px;
-    }
     
-    .chat-abrir-btn {
-        bottom: 10px;
-        left: 10px;              /* ✅ ESQUERDA no mobile também */
+    /* 🔥 CHAT FLUTUANTE NO CANTO DIREITO */
+    .chat-flutuante {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        height: 450px;
+        background: rgba(23, 23, 23, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
-}
 
-/* 🆕 ESTILOS PARA PERÍODOS BLOQUEADOS NO CHAT */
-.periodo-bloqueado-info {
-    background: rgba(245, 158, 11, 0.1) !important;
-    border: 1px solid rgba(245, 158, 11, 0.3) !important;
-    color: #fbbf24 !important;
-}
+    .chat-header {
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        padding: 16px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .chat-toggle {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 16px;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .chat-message {
+        margin-bottom: 12px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        max-width: 85%;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .chat-bot {
+        background: rgba(139, 92, 246, 0.3);
+        border: 1px solid rgba(139, 92, 246, 0.5);
+        margin-right: auto;
+    }
+
+    .chat-user {
+        background: rgba(59, 130, 246, 0.3);
+        border: 1px solid rgba(59, 130, 246, 0.5);
+        margin-left: auto;
+    }
+
+    .chat-message-content {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .chat-actions {
+        padding: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-btn-primary {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .chat-btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    /* Estados do chat */
+    .chat-fechado {
+        transform: translateY(100px);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .chat-aberto {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    /* Grid de horários no chat */
+    .horarios-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .horario-btn {
+        padding: 6px 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        font-size: 11px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .horario-btn:hover {
+        background: rgba(59, 130, 246, 0.3);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .horario-btn.selecionado {
+        background: rgba(34, 197, 94, 0.3);
+        border-color: rgba(34, 197, 94, 0.5);
+    }
+
+    .info-box {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 8px 0;
+        font-size: 12px;
+    }
+
+    .dia-section {
+        margin-bottom: 12px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+    }
+
+    .dia-titulo {
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #60a5fa;
+        font-size: 13px;
+    }
+
+    /* 🆕 ESTILOS PARA PERÍODOS BLOQUEADOS NO CHAT */
+    .periodo-bloqueado-info {
+        background: rgba(245, 158, 11, 0.1) !important;
+        border: 1px solid rgba(245, 158, 11, 0.3) !important;
+        color: #fbbf24 !important;
+    }
+
+    .horario-bloqueado {
+        background: rgba(107, 114, 128, 0.3) !important;
+        border-color: rgba(107, 114, 128, 0.5) !important;
+        color: #9ca3af !important;
+        cursor: not-allowed !important;
+    }
+
+    .horario-bloqueado:hover {
+        background: rgba(107, 114, 128, 0.3) !important;
+        transform: none !important;
+    }
+
+    .grupo-horarios {
+        margin-bottom: 12px;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+    }
+
+    .titulo-grupo {
+        font-size: 11px;
+        color: #fbbf24;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    /* 🔥 BOTÃO FLUTUANTE - LADO ESQUERDO (APENAS ESTA VERSÃO) */
+    .chat-abrir-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;                    /* ✅ ESQUERDA */
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        position: relative; /* Para o absolute da notificação funcionar */
+    }
+
+    /* 🔥 HOVER DO BOTÃO (ADICIONE AQUI) */
+    .chat-abrir-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.6);
+    }
+
+    /* 🔥 ESTILO DA NOTIFICAÇÃO */
+    #chatNotification {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        background: #ef4444;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+        border: 2px solid rgba(23, 23, 23, 0.95);
+    }
+
+    /* 🔥 ANIMAÇÃO DE PULSO */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* 🔥 CLASSE PARA ESCONDER A NOTIFICAÇÃO */
+    .hidden {
+        display: none !important;
+    }
+
+    /* Responsivo */
+    @media (max-width: 640px) {
+        .chat-flutuante {
+            width: calc(100vw - 40px);
+            height: 70vh;
+            bottom: 10px;
+            right: 10px;
+            left: 10px;
+        }
+        
+        .chat-abrir-btn {
+            bottom: 10px;
+            left: 10px;              /* ✅ ESQUERDA no mobile também */
+        }
+    }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
