@@ -3653,45 +3653,69 @@ function desconectarSSE() {
             const modalExistente = document.getElementById('modalEstatisticas');
             if (modalExistente) modalExistente.remove();
 
-            const modalHTML = `
-                <div id="modalEstatisticas" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div class="glass-card rounded-xl p-4 w-full max-w-md mx-auto animate-fade-in" style="max-height: 85vh;">
-                        <!-- Cabeçalho -->
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold">📊 Estatísticas</h3>
-                            <button onclick="fecharModalEstatisticas()" class="text-gray-400 hover:text-white">
-                                <i data-feather="x" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                        
-                        <!-- Estatísticas -->
-                        <div class="grid grid-cols-2 gap-3 mb-4">
-                            <div class="text-center p-3 bg-white/10 rounded-lg">
-                                <div class="text-base font-bold text-cyan-400">${data.estatisticas.total}</div>
-                                <div class="text-xs text-gray-300 mt-1">Total</div>
-                            </div>
-                            <div class="text-center p-3 bg-white/10 rounded-lg">
-                                <div class="text-base font-bold text-green-400">${data.estatisticas.este_mes}</div>
-                                <div class="text-xs text-gray-300 mt-1">Este Mês</div>
-                            </div>
-                            <div class="text-center p-3 bg-white/10 rounded-lg">
-                                <div class="text-base font-bold text-blue-400">${data.estatisticas.confirmados}</div>
-                                <div class="text-xs text-gray-300 mt-1">Confirmados</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Análise IA -->
-                        <div class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-purple-500/30 p-3 mb-4" style="max-height: 200px; overflow-y: auto;">
-                            <h4 class="font-semibold text-purple-400 text-sm mb-2">💡 Análise da IA</h4>
-                            <p class="text-sm leading-relaxed whitespace-pre-line">${data.analise_ia}</p>
-                        </div>
-                        
-                        <button onclick="fecharModalEstatisticas()" class="w-full px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-sm font-medium">
-                            Fechar
-                        </button>
-                    </div>
+           const modalHTML = `
+    <div id="modalEstatisticas" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div class="glass-card rounded-xl p-4 w-full max-w-md mx-auto animate-fade-in" style="max-height: 85vh;">
+            <!-- Cabeçalho -->
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">📊 Estatísticas do Negócio</h3>
+                <button onclick="fecharModalEstatisticas()" class="text-gray-400 hover:text-white">
+                    <i data-feather="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            
+            <!-- 🎯 ESTATÍSTICAS PRINCIPAIS -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="text-center p-3 bg-white/10 rounded-lg">
+                    <div class="text-base font-bold text-cyan-400">${data.estatisticas.total}</div>
+                    <div class="text-xs text-gray-300 mt-1">Total</div>
                 </div>
-            `;
+                <div class="text-center p-3 bg-white/10 rounded-lg">
+                    <div class="text-base font-bold text-green-400">${data.estatisticas.este_mes}</div>
+                    <div class="text-xs text-gray-300 mt-1">Este Mês</div>
+                </div>
+                <div class="text-center p-3 bg-white/10 rounded-lg">
+                    <div class="text-base font-bold text-blue-400">${data.estatisticas.confirmados}</div>
+                    <div class="text-xs text-gray-300 mt-1">Confirmados</div>
+                </div>
+                <div class="text-center p-3 bg-white/10 rounded-lg">
+                    <div class="text-base font-bold text-yellow-400">${data.estatisticas.taxa_comparecimento || '0%'}</div>
+                    <div class="text-xs text-gray-300 mt-1">Comparecimento</div>
+                </div>
+            </div>
+            
+            <!-- 💼 ANÁLISE IA - VERSÃO MELHORADA -->
+            <div class="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-purple-500/30 p-3 mb-4" style="max-height: 250px; overflow-y: auto;">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                        <span class="text-white text-xs">IA</span>
+                    </div>
+                    <h4 class="font-semibold text-purple-400 text-sm">💼 Análise do Seu Negócio</h4>
+                </div>
+                <div class="text-sm leading-relaxed whitespace-pre-line text-gray-200">
+                    ${data.analise_ia}
+                </div>
+            </div>
+            
+            <!-- 📈 AÇÕES SUGERIDAS -->
+            <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg border border-green-500/20 p-3 mb-4">
+                <h4 class="font-semibold text-green-400 text-sm mb-2 flex items-center gap-2">
+                    <i data-feather="trending-up" class="w-4 h-4"></i>
+                    Próximos Passos Sugeridos
+                </h4>
+                <ul class="text-xs text-gray-300 space-y-1">
+                    <li>• Confirme os agendamentos pendentes</li>
+                    <li>• Mantenha a frequência mensal</li>
+                    <li>• Configure lembretes automáticos</li>
+                </ul>
+            </div>
+            
+            <button onclick="fecharModalEstatisticas()" class="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 transition-all text-sm font-medium text-white">
+                Entendido
+            </button>
+        </div>
+    </div>
+`;
             
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             feather.replace();
@@ -3787,6 +3811,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
