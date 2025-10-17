@@ -2255,23 +2255,53 @@ function atualizarInterfacePosLogin() {
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
         
-        if(diaSelecionado >= 0 && diaSelecionado <= 6) {
-            // Dias da semana (Seg, Ter, Qua, etc.)
-            return dataAgendamento.getDay() === diaSelecionado && 
-                   dataAgendamento >= hoje;
-        } else {
-            // Tabs de semanas (Sem Passada, 2 Semanas, 1 Mês)
-            const semanas = -diaSelecionado; // Converte para positivo (1, 2, 4)
-            const dataLimite = new Date(hoje);
-            
-            // 🔥 CORREÇÃO: Para semanas PASSADAS, subtrai
-            dataLimite.setDate(dataLimite.getDate() - semanas * 7);
-            const dataLimiteFim = new Date(dataLimite);
-            dataLimiteFim.setDate(dataLimiteFim.getDate() + 7);
-            
-            return dataAgendamento >= dataLimite && 
-                   dataAgendamento < dataLimiteFim;
-        }
+        // 🔥 CORREÇÃO COMPLETA - Substitua toda a lógica de data:
+if(diaSelecionado >= 0 && diaSelecionado <= 6) {
+    // Dias da semana (Seg, Ter, Qua, etc.) - FUTURO
+    return dataAgendamento.getDay() === diaSelecionado && 
+           dataAgendamento >= hoje;
+} else {
+    // Tabs de tempo PASSADO - CORREÇÃO CRÍTICA
+    const hoje = new Date();
+    hoje.setHours(23, 59, 59, 999); // Fim do dia de hoje
+    
+    const dataAgendamentoCompleta = new Date(`${a.data}T${a.horario}`);
+    
+    if (diaSelecionado === -1) { // SEM PASSADA
+        const umaSemanaAtras = new Date();
+        umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
+        umaSemanaAtras.setHours(0, 0, 0, 0);
+        
+        return dataAgendamentoCompleta >= umaSemanaAtras && 
+               dataAgendamentoCompleta <= hoje;
+                
+    } else if (diaSelecionado === -2) { // 2 SEMANAS
+        const duasSemanasAtras = new Date();
+        duasSemanasAtras.setDate(duasSemanasAtras.getDate() - 14);
+        duasSemanasAtras.setHours(0, 0, 0, 0);
+        
+        const umaSemanaAtras = new Date();
+        umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
+        umaSemanaAtras.setHours(0, 0, 0, 0);
+        
+        return dataAgendamentoCompleta >= duasSemanasAtras && 
+               dataAgendamentoCompleta < umaSemanaAtras;
+                
+    } else if (diaSelecionado === -4) { // 1 MÊS
+        const umMesAtras = new Date();
+        umMesAtras.setDate(umMesAtras.getDate() - 30);
+        umMesAtras.setHours(0, 0, 0, 0);
+        
+        const duasSemanasAtras = new Date();
+        duasSemanasAtras.setDate(duasSemanasAtras.getDate() - 14);
+        duasSemanasAtras.setHours(0, 0, 0, 0);
+        
+        return dataAgendamentoCompleta >= umMesAtras && 
+               dataAgendamentoCompleta < duasSemanasAtras;
+    }
+    
+    return false;
+}
     })
     .sort((a,b) => {
         const dateA = new Date(`${a.data}T${a.horario}`);
@@ -3821,6 +3851,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
