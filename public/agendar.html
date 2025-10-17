@@ -853,27 +853,21 @@ async function selecionarData(dataSelecionada) {
 }
 
         
-// 🔥 CORRIGIDO: Função mostrarHorariosDisponiveis - COMPARAÇÃO CORRETA DE HORÁRIOS
+// 🔥 CORRIGIDO: Função mostrarHorariosDisponiveis - BLOQUEIA HORÁRIOS NO PASSADO
 function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados = [], periodosBloqueados = []) {
-    // 🆕 CRÍTICO: Remove horários ocupados da lista de disponíveis (compara formatos corretos)
-    const horariosRealmenteDisponiveis = horariosDisponiveis.filter(horario => {
-        // Converte horário ocupado (HH:00:00) para formato de comparação (HH:00)
-        const horarioParaComparar = horario.length === 8 ? horario.substring(0, 5) : horario;
-        
-        // Verifica se está na lista de ocupados (converte ambos para o mesmo formato)
-        const estaOcupado = horariosOcupados.some(ocupado => {
-            const ocupadoParaComparar = ocupado.length === 8 ? ocupado.substring(0, 5) : ocupado;
-            return ocupadoParaComparar === horarioParaComparar;
-        });
-        
-        return !estaOcupado;
+    // 🆕 CRÍTICO: Remove horários no PASSADO
+    const agora = new Date();
+    const horariosFuturos = horariosDisponiveis.filter(horario => {
+        const dataHorario = new Date(`${data}T${horario}`);
+        return dataHorario > agora;
     });
 
-    if (horariosRealmenteDisponiveis.length === 0) {
+    if (horariosFuturos.length === 0) {
         adicionarMensagemChat(`
             <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
-                <strong>❌ Todos os horários estão ocupados ou bloqueados</strong><br>
-                💡 Tente selecionar outra data
+                <strong>❌ Nenhum horário disponível</strong><br>
+                ${horariosDisponiveis.length > 0 ? 'Todos os horários estão no passado.' : 'Todos os horários estão ocupados ou bloqueados.'}<br><br>
+                <em>💡 Tente selecionar outra data</em>
             </div>
         `);
         return;
@@ -882,7 +876,6 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
     // 🎯 CORREÇÃO: Converte estrutura nova para array simples (compatibilidade)
     let periodosArray = [];
     if (periodosBloqueados && typeof periodosBloqueados === 'object') {
-        // Se é objeto {recorrentes: [], data_especifica: []}
         if (periodosBloqueados.recorrentes) {
             periodosArray = periodosArray.concat(periodosBloqueados.recorrentes);
         }
@@ -890,24 +883,22 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
             periodosArray = periodosArray.concat(periodosBloqueados.data_especifica);
         }
     } else {
-        // Se já é array (compatibilidade com versão antiga)
         periodosArray = periodosBloqueados || [];
     }
 
-    // 🎯 ORGANIZA HORÁRIOS POR PERÍODOS BLOQUEADOS (usa os REALMENTE disponíveis)
-    let horariosAgrupados = agruparHorariosPorPeriodo(horariosRealmenteDisponiveis, periodosArray);
+    // 🎯 ORGANIZA HORÁRIOS POR PERÍODOS BLOQUEADOS (usa os REALMENTE disponíveis e futuros)
+    let horariosAgrupados = agruparHorariosPorPeriodo(horariosFuturos, periodosArray);
     
     adicionarMensagemChat(`
         <div class="info-box">
             <strong>🕐 Horários Disponíveis para ${formatarData(data)}:</strong>
     `);
 
-    // 🎯 MOSTRA HORÁRIOS DISPONÍVEIS AGRUPADOS (apenas os disponíveis)
+    // 🎯 MOSTRA HORÁRIOS DISPONÍVEIS AGRUPADOS (apenas os futuros)
     horariosAgrupados.forEach(grupo => {
         if (grupo.horarios.length > 0) {
             let tituloGrupo = '';
             
-            // 🆕 DETECTA SE É UM PERÍODO ENTRE BLOQUEIOS
             if (grupo.periodoAnterior && grupo.periodoPosterior) {
                 tituloGrupo = `<div style="font-size: 11px; color: #fbbf24; margin-bottom: 4px;">⏳ Período livre entre bloqueios</div>`;
             }
@@ -915,12 +906,32 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
             adicionarMensagemChat(`
                 ${tituloGrupo}
                 <div class="horarios-grid" style="margin-top: 6px; margin-bottom: 10px;">
-                    ${grupo.horarios.map(horario => `
-                        <button class="horario-btn" onclick="selecionarHorarioChat('${data}', '${horario}')"
-                                style="padding: 8px 12px; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 6px; cursor: pointer; transition: all 0.3s;">
-                            <strong>${horario}</strong>
-                        </button>
-                    `).join('')}
+                    ${grupo.horarios.map(horario => {
+                        const dataHorario = new Date(`${data}T${horario}`);
+                        const ehPassado = dataHorario <= agora;
+                        
+                        // 🆕 BOTÃO DESABILITADO SE FOR NO PASSADO
+                        if (ehPassado) {
+                            return `
+                                <button class="horario-btn horario-bloqueado" disabled
+                                        style="padding: 8px 12px; background: rgba(107, 114, 128, 0.3); 
+                                               border: 1px solid rgba(107, 114, 128, 0.5); 
+                                               border-radius: 6px; color: #9ca3af; cursor: not-allowed;">
+                                    <strong>${horario}</strong>
+                                    <div style="font-size: 9px; margin-top: 2px;">⏰ Passado</div>
+                                </button>
+                            `;
+                        } else {
+                            return `
+                                <button class="horario-btn" onclick="selecionarHorarioChat('${data}', '${horario}')"
+                                        style="padding: 8px 12px; background: rgba(34, 197, 94, 0.2); 
+                                               border: 1px solid rgba(34, 197, 94, 0.4); 
+                                               border-radius: 6px; cursor: pointer; transition: all 0.3s;">
+                                    <strong>${horario}</strong>
+                                </button>
+                            `;
+                        }
+                    }).join('')}
                 </div>
             `);
         }
@@ -928,63 +939,22 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
 
     adicionarMensagemChat(`</div>`);
 
-    // 🎯 MOSTRA INFORMAÇÕES SOBRE BLOQUEIOS E OCUPAÇÕES
-    let infoAdicional = [];
-    
-    if (horariosOcupados.length > 0) {
-        infoAdicional.push(`<strong>⏰ Ocupados:</strong> ${horariosOcupados.length} horários`);
-        
-        // 🆕 MOSTRA OS HORÁRIOS OCUPADOS ESPECÍFICOS (formata corretamente)
-        const horariosOcupadosFormatados = horariosOcupados.map(ocupado => 
-            ocupado.length === 8 ? ocupado.substring(0, 5) : ocupado
-        );
-        
-        adicionarMensagemChat(`
-            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
-                <strong>📋 Horários Ocupados:</strong>
-                <div style="font-size: 11px; margin-top: 6px;">
-                    ${horariosOcupadosFormatados.map(horario => 
-                        `❌ ${horario}`
-                    ).join('<br>')}
-                </div>
-            </div>
-        `);
-    }
-    
-    if (periodosArray.length > 0) {
-        infoAdicional.push(`<strong>🚫 Bloqueados:</strong> ${periodosArray.length} períodos`);
-        
-        // 🆕 MOSTRA OS PERÍODOS BLOQUEADOS ESPECÍFICOS
-        adicionarMensagemChat(`
-            <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
-                <strong>📋 Períodos Bloqueados:</strong>
-                <div style="font-size: 11px; margin-top: 6px;">
-                    ${periodosArray.map(periodo => 
-                        `🚫 ${periodo.inicio} - ${periodo.fim}`
-                    ).join('<br>')}
-                </div>
-            </div>
-        `);
-    }
+    // 🎯 MOSTRA ESTATÍSTICAS ATUALIZADAS
+    const totalHorariosFuturos = horariosFuturos.length;
+    const totalHorariosPassados = horariosDisponiveis.length - totalHorariosFuturos;
 
-    if (infoAdicional.length > 0) {
-        adicionarMensagemChat(`
-            <div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">
-                ${infoAdicional.join('<br>')}
-            </div>
-        `);
-    }
-    
-    // 🎯 INFO FINAL SOBRE DISPONIBILIDADE REAL
     adicionarMensagemChat(`
         <div class="info-box" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3);">
             <strong>📊 Status Final:</strong><br>
-            ✅ <strong>${horariosRealmenteDisponiveis.length}</strong> horários disponíveis<br>
+            ✅ <strong>${totalHorariosFuturos}</strong> horários disponíveis<br>
+            ⏰ <strong>${totalHorariosPassados}</strong> horários no passado<br>
             ❌ <strong>${horariosOcupados.length}</strong> horários ocupados<br>
             🚫 <strong>${periodosArray.length}</strong> períodos bloqueados
         </div>
     `);
 }
+    
+
         // 🆕 FUNÇÃO: Agrupa horários considerando períodos bloqueados
 function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
     if (!periodosBloqueados || periodosBloqueados.length === 0) {
@@ -1159,26 +1129,10 @@ function obterDiaSemana(diaNumero) {
 
 
 
-// 🎯 FUNÇÃO PARA SELECIONAR VIA CHAT (CORRIGIDA - FUSO HORÁRIO)
+// 🎯 FUNÇÃO PARA SELECIONAR VIA CHAT (AGORA SEM VALIDAÇÃO, JÁ QUE OS BOTÕES ESTÃO BLOQUEADOS)
 function selecionarHorarioChat(data, horario) {
     // 🔥 CORREÇÃO DO FUSO HORÁRIO - garante que a data seja mantida
     const dataCorrigida = corrigirFusoHorario(data);
-    
-    // 🆕 BLOQUEIA SELEÇÃO NO PASSADO - Fornece feedback visual ao usuário
-    const dataHorarioSelecionado = new Date(`${dataCorrigida}T${horario}`);
-    const agora = new Date();
-    
-    if (dataHorarioSelecionado < agora) {
-        adicionarMensagemChat(`<strong>Você:</strong> Tentou selecionar ${formatarData(data)} às ${horario}`, 'user');
-        adicionarMensagemChat(`
-            <div class="info-box" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
-                <strong>⏰ Horário no passado!</strong><br>
-                Não é possível agendar para horários que já passaram.<br><br>
-                <em>💡 Selecione um horário futuro</em>
-            </div>
-        `);
-        return; // Impede a seleção
-    }
     
     document.getElementById('data').value = dataCorrigida;
     document.getElementById('horario').value = horario;
