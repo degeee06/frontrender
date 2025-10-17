@@ -779,17 +779,7 @@ async function mostrarProximasDatasDisponiveis(perfilInfo) {
         </div>
     `);
     
-    // 🔥 MENSAGEM ESPECIAL SE HOJE ESTIVER DISPONÍVEL
-    const hojeDisponivel = proximosDias.find(dia => dia.ehHoje);
-    if (hojeDisponivel) {
-        adicionarMensagemChat(`
-            <div class="info-box" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3);">
-                <strong>🎯 Disponível Hoje!</strong><br>
-                Você pode agendar para <strong>hoje mesmo</strong> se houver horários disponíveis!
-            </div>
-        `);
-    }
-    
+  
     adicionarMensagemChat('<strong>Assistente:</strong> Clique em uma data para ver os horários disponíveis! 🕐');
 }
         
