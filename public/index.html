@@ -2344,27 +2344,27 @@ function configurarBotaoSettings() {
             }
         }
 
-        // ---------------- LOGOUT SILENCIOSO ----------------
-        async function logoutSilencioso() {
-            try {
-                localStorage.removeItem('userToken');
-                localStorage.removeItem('supabase.auth.token');
-                userToken = null;
-                agendamentosCache = [];
-                
-                // Atualiza interface
-                loginSection.style.display = 'block';
-                form.style.display = 'none';
-                meusAgendamentos.style.display = 'none';
-                document.getElementById('filtersSection').style.display = 'none';
-                document.getElementById('diasTabs').style.display = 'none';
-                atualizarInterfacePosLogin();
-                document.getElementById('secoesIA').style.display = 'none';
-                
-            } catch (error) {
-                console.log('Erro no logout silencioso:', error);
-            }
-        }
+   // 🔥 SUBSTITUA a função logoutSilencioso por esta versão CORRIGIDA:
+async function logoutSilencioso() {
+    try {
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('supabase.auth.token');
+        userToken = null;
+        agendamentosCache = [];
+        
+        // 🔥 CORREÇÃO: Atualiza interface usando a função existente
+        loginSection.style.display = 'block';
+        form.style.display = 'none';
+        meusAgendamentos.style.display = 'none';
+        document.getElementById('filtersSection').style.display = 'none';
+        document.getElementById('diasTabs').style.display = 'none';
+        atualizarInterfacePosLogin();
+        document.getElementById('secoesIA').style.display = 'none';
+        
+    } catch (error) {
+        console.log('Erro no logout silencioso:', error);
+    }
+}
 
         async function listarAgendamentos(){
             try {
@@ -2501,7 +2501,7 @@ function configurarBotaoSettings() {
             }
         });
 
-    // ---------------- LOGOUT CORRIGIDO E SEGURO ----------------
+   // 🔥 SUBSTITUA o event listener do logoutBtn por esta versão CORRIGIDA:
 logoutBtn.addEventListener('click', async () => {
     desconectarSSE();
     console.log('🚪 Iniciando logout...');
@@ -2526,7 +2526,7 @@ logoutBtn.addEventListener('click', async () => {
         userToken = null;
         agendamentosCache = [];
         
-        // 🔥 REDEFINE A INTERFACE USANDO A FUNÇÃO SEGURA
+        // 🔥 CORREÇÃO: Usa a função existente mostrarTelaLogin() em vez de função inexistente
         mostrarTelaLogin();
         
         console.log('✅ Interface resetada');
@@ -3680,6 +3680,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
