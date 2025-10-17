@@ -1164,6 +1164,22 @@ function selecionarHorarioChat(data, horario) {
     // 🔥 CORREÇÃO DO FUSO HORÁRIO - garante que a data seja mantida
     const dataCorrigida = corrigirFusoHorario(data);
     
+    // 🆕 BLOQUEIA SELEÇÃO NO PASSADO - Fornece feedback visual ao usuário
+    const dataHorarioSelecionado = new Date(`${dataCorrigida}T${horario}`);
+    const agora = new Date();
+    
+    if (dataHorarioSelecionado < agora) {
+        adicionarMensagemChat(`<strong>Você:</strong> Tentou selecionar ${formatarData(data)} às ${horario}`, 'user');
+        adicionarMensagemChat(`
+            <div class="info-box" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
+                <strong>⏰ Horário no passado!</strong><br>
+                Não é possível agendar para horários que já passaram.<br><br>
+                <em>💡 Selecione um horário futuro</em>
+            </div>
+        `);
+        return; // Impede a seleção
+    }
+    
     document.getElementById('data').value = dataCorrigida;
     document.getElementById('horario').value = horario;
     
