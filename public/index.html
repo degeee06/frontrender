@@ -921,15 +921,13 @@ select option {
     </div>
 </div>
 
-           </div> <!-- Fecha div#mainAppContent -->
-        
-        <!-- 🔥 FOOTER CORRETO AQUI -->
-        <footer class="fixed bottom-4 left-1/2 -translate-x-1/2 text-xs text-white/60 backdrop-blur-sm bg-white/10 rounded-xl py-2 px-4 z-40">
-            © <span id="ano">2025</span> OUJ4Y — Todos os direitos reservados.
-        </footer>
+         </div> <!-- 🔥 FECHA mainAppContent -->
 
-    </div> <!-- Fecha div#mainAppContent (se tiver) -->
-
+<!-- ✅ FOOTER NO LUGAR CORRETO -->
+<footer class="fixed bottom-4 left-1/2 -translate-x-1/2 text-xs text-white/60 backdrop-blur-sm bg-white/10 rounded-xl py-2 px-4 z-40">
+    © <span id="ano">2025</span> OUJ4Y — Todos os direitos reservados.
+</footer>
+    
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
@@ -3848,7 +3846,7 @@ function forcarAtualizacaoAgendamentos() {
             fecharModalConfiguracao();
             mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
         }
-    // ---------------- INIT ----------------
+       // ---------------- INIT ----------------
     AOS.init({
         duration: 800,
         easing: 'ease-out-quart',
@@ -3856,13 +3854,16 @@ function forcarAtualizacaoAgendamentos() {
     });
     feather.replace();
     init();
-        
+</script> <!-- 🔥 FECHA script type="module" -->
+
+<!-- ✅ SCRIPT DO ANO FORA do module -->
 <script>
   document.getElementById("ano").textContent = new Date().getFullYear();
 </script>
 
 </body>
 </html>
+
 
 
 
