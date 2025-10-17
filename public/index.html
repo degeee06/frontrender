@@ -924,61 +924,9 @@ async function processarCallbackOAuth() {
     }
 }
         
-        // 🔥 PROCESSAMENTO PARA WEB
-       async function processarOAuthWeb() {
-    try {
-        // Aguarda um pouco para processar a sessão
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session) {
-            console.log('✅ Sessão OAuth restaurada no web!');
-            
-            // Salva o token
-            userToken = session.access_token;
-            localStorage.setItem('userToken', userToken);
-            
-            // Limpa a URL
-            window.history.replaceState(null, '', window.location.pathname);
-            
-            // Mostra app normal
-            document.getElementById('authCallbackScreen').classList.add('hidden');
-            document.getElementById('mainAppContent').classList.remove('hidden');
-            
-            // Atualiza interface - 🔥 CORREÇÃO: CHAMAR atualizarInterfacePosLogin()
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            atualizarInterfacePosLogin(); // 🔥 LINHA CRÍTICA ADICIONADA
-            document.getElementById('secoesIA').style.display = 'block';
-            
-            listarAgendamentos();
-            // 🔥 ADICIONE: Conectar SSE após login
-            setTimeout(() => iniciarSistemaAtualizacao(), 1000);
-            showToast("Login realizado com sucesso!", "success");
-            
-            // 🔥 ADICIONAR: Verificar configuração sheets
-            setTimeout(() => verificarConfiguracaoSheets(), 1500);
-        }
-    } catch (error) {
-        console.error('❌ Erro OAuth web:', error);
-        window.location.href = '/';
-    }
-}
+      
 
-        // 🔥 PROCESSAMENTO PARA APP
-        function processarOAuthApp() {
-            console.log('📱 Redirecionando para app...');
-            
-            // 1. Tenta redirecionar para o app
-            const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
-            window.location.href = appUrl;
-            
-            // 2. Fecha o browser após 1 segundo
-            setTimeout(() => {
-                fecharBrowserCapacitor();
-            }, 1000);
-        }
+       
 
         // 🔥 FUNÇÃO PARA FECHAR BROWSER
         async function fecharBrowserCapacitor() {
@@ -1020,22 +968,22 @@ async function processarCallbackOAuth() {
             showToast(message, type);
         }
         
-        const form = document.getElementById('agendamentoForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const loginSection = document.getElementById('loginSection');
-        const meusAgendamentos = document.getElementById('meusAgendamentos');
-        const searchInput = document.getElementById("searchInput");
-        const statusFilter = document.getElementById("statusFilter");
-        const exportCSVBtn = document.getElementById("exportCSVBtn");
-        const exportPDFBtn = document.getElementById("exportPDFBtn");
-        const logoutBtn = document.getElementById("logoutBtn");
-        const loginText = document.getElementById("loginText");
-        const loginSpinner = document.getElementById("loginSpinner");
-        const agendarText = document.getElementById("agendarText");
-        const agendarSpinner = document.getElementById("agendarSpinner");
-        const telefoneInput = document.getElementById("Telefone");
-        const dataInput = document.getElementById("Data");
-        const horarioInput = document.getElementById("Horario");
+
+const form = document.getElementById('agendamentoForm');
+const loginSection = document.getElementById('loginSection');
+const meusAgendamentos = document.getElementById('meusAgendamentos');
+const searchInput = document.getElementById("searchInput");
+const statusFilter = document.getElementById("statusFilter");
+const exportCSVBtn = document.getElementById("exportCSVBtn");
+const exportPDFBtn = document.getElementById("exportPDFBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+// REMOVER: loginBtn, loginText, loginSpinner (não existem)
+const agendarText = document.getElementById("agendarText");
+const agendarSpinner = document.getElementById("agendarSpinner");
+const telefoneInput = document.getElementById("Telefone");
+const dataInput = document.getElementById("Data");
+const horarioInput = document.getElementById("Horario");
+
 
         function formatData(data){ 
             const [y,m,d] = data.split("-"); 
@@ -1132,15 +1080,22 @@ async function init() {
     feather.replace();
 }
 
-        // 🔥 NOVA FUNÇÃO: Mostrar tela de login
+// 🔥 CORREÇÃO: Função mostrarTelaLogin atualizada
 function mostrarTelaLogin() {
     console.log('👤 Usuário não logado - mostrando tela de login');
-    loginSection.style.display = 'block';
-    form.style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'none';
-    document.getElementById('settingsBtn').style.display = 'none';
-    document.getElementById('gerarLinkBtn').style.display = 'none';
-    document.getElementById('secoesIA').style.display = 'none';
+    const loginSection = document.getElementById('loginSection');
+    const form = document.getElementById('agendamentoForm');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
+    const secoesIA = document.getElementById('secoesIA');
+    
+    if (loginSection) loginSection.style.display = 'block';
+    if (form) form.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    if (settingsBtn) settingsBtn.style.display = 'none';
+    if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
+    if (secoesIA) secoesIA.style.display = 'none';
 }
 
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
@@ -2019,55 +1974,7 @@ function configurarBotaoSettings() {
             }
         }
         
-        // ✅ FUNÇÃO PARA PROCESSAR RETORNO DO OAUTH
-    async function processarRetornoOAuth(url) {
-    try {
-        console.log('🔄 Processando URL OAuth:', url);
-        
-        const urlObj = new URL(url);
-        const hash = urlObj.hash.substring(1);
-        
-        if (hash) {
-            const params = new URLSearchParams(hash);
-            const accessToken = params.get('access_token');
-            const refreshToken = params.get('refresh_token');
-            
-            if (accessToken) {
-                const { data, error } = await supabase.auth.setSession({
-                    access_token: accessToken,
-                    refresh_token: refreshToken
-                });
-                
-                if (!error && data.session) {
-                    userToken = data.session.access_token;
-                    localStorage.setItem('userToken', userToken);
-                    
-                    // Fecha browser do Capacitor
-                    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-                        try {
-                            await window.Capacitor.Plugins.Browser.close();
-                        } catch (e) {
-                            console.log('Browser já fechado');
-                        }
-                    }
-                    
-                    // 🔥 CORREÇÃO: Atualiza interface COMPLETAMENTE
-                    loginSection.style.display = 'none';
-                    form.style.display = 'block';
-                    atualizarInterfacePosLogin(); // 🔥 LINHA CRÍTICA
-                    document.getElementById('secoesIA').style.display = 'block';
-                    setTimeout(() => atualizarBadgePerfil(), 2000);
-                    listarAgendamentos();
-                    showToast("Login com Google realizado!", "success");
-                    setTimeout(() => verificarConfiguracaoSheets(), 1500);
-                }
-            }
-        }
-    } catch (error) {
-        console.error('❌ Erro ao processar OAuth:', error);
-        showToast("Erro ao finalizar login", "error");
-    }
-}
+       
         function mostrarModalConfiguracao() {
             const modal = document.getElementById('configSheetsModal');
             modal.classList.remove('hidden');
@@ -2594,59 +2501,40 @@ function configurarBotaoSettings() {
             }
         });
 
-        // ---------------- LOGOUT CORRIGIDO ----------------
-        logoutBtn.addEventListener('click', async () => {
-            desconectarSSE();
-            console.log('🚪 Iniciando logout...');
-            
-            try {
-                // 🔥 CORREÇÃO: Remove event listeners específicos
-                if (searchInput && typeof renderAgendamentos === 'function') {
-                    searchInput.removeEventListener("input", renderAgendamentos);
-                }
-                if (statusFilter && typeof renderAgendamentos === 'function') {
-                    statusFilter.removeEventListener("change", renderAgendamentos);
-                }
-                
-                // Limpa storage
-                localStorage.removeItem('userToken');
-                localStorage.removeItem('supabase.auth.token');
-                
-                // 🔥 DEPOIS FAZ LOGOUT NO SUPABASE
-                const { error } = await supabase.auth.signOut();
-                if (error) {
-                    console.log('⚠️ Erro no logout Supabase:', error);
-                } else {
-                    console.log('✅ Logout Supabase realizado');
-                }
-                
-            } catch (error) {
-                console.log('⚠️ Erro no processo de logout:', error);
-            } finally {
-                // 🔥 GARANTE QUE LIMPA TUDO MESMO COM ERRO
-                userToken = null;
-                agendamentosCache = [];
-                
-                // 🔥 REDEFINE A INTERFACE
-                loginSection.style.display = 'block';
-                form.style.display = 'none';
-                meusAgendamentos.style.display = 'none';
-                document.getElementById('filtersSection').style.display = 'none';
-                document.getElementById('diasTabs').style.display = 'none';
-                atualizarInterfacePosLogin();
-                document.getElementById('secoesIA').style.display = 'none';
-                
-                // 🔥 LIMPA OS CAMPOS
-                document.getElementById('email').value = '';
-                document.getElementById('senha').value = '';
-                
-                console.log('✅ Interface resetada');
-                showToast("Logout realizado com sucesso", "info");
-                
-                // 🔥 RECARREGA PARA GARANTIR CLEAN STATE
-                setTimeout(() => window.location.reload(), 500);
-            }
-        });
+    // ---------------- LOGOUT CORRIGIDO E SEGURO ----------------
+logoutBtn.addEventListener('click', async () => {
+    desconectarSSE();
+    console.log('🚪 Iniciando logout...');
+    
+    try {
+        // Limpa storage primeiro
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('supabase.auth.token');
+        
+        // Logout no Supabase
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.log('⚠️ Erro no logout Supabase:', error);
+        } else {
+            console.log('✅ Logout Supabase realizado');
+        }
+        
+    } catch (error) {
+        console.log('⚠️ Erro no processo de logout:', error);
+    } finally {
+        // 🔥 GARANTE QUE LIMPA TUDO MESMO COM ERRO
+        userToken = null;
+        agendamentosCache = [];
+        
+        // 🔥 REDEFINE A INTERFACE USANDO A FUNÇÃO SEGURA
+        mostrarTelaLogin();
+        
+        console.log('✅ Interface resetada');
+        showToast("Logout realizado com sucesso", "info");
+        
+        // ✅ NÃO RECARREGA A PÁGINA - Mantém estado limpo sem refresh
+    }
+});
 
       // ---------------- AGENDAR ----------------
 form.addEventListener('submit', async (e)=>{
@@ -2773,37 +2661,7 @@ form.addEventListener('submit', async (e)=>{
             console.log('🔔 Atualização automática ativada (30 segundos)');
         }
 
-        // 4. BOTÃO MANUAL ATUALIZADO
-        async function atualizarListaAgendamentos() {
-            const btn = document.getElementById('btnAtualizarLista');
-            if (!btn) return;
-            
-            btn.classList.add('btn-loading');
-            btn.disabled = true;
-            
-            try {
-                console.log('🔄 Atualização manual acionada...');
-                
-                // Força atualização
-                await atualizarListaAutomaticamente();
-                
-                // Feedback visual
-                btn.classList.remove('btn-loading');
-                btn.classList.add('btn-success');
-                showToast(`✅ Lista atualizada!`, "success");
-                
-            } catch (error) {
-                console.error('❌ Erro na atualização manual:', error);
-                btn.classList.remove('btn-loading');
-                btn.classList.add('btn-error');
-                showToast("❌ Erro ao atualizar", "error");
-            } finally {
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.classList.remove('btn-loading', 'btn-success', 'btn-error');
-                }, 2000);
-            }
-        }
+    
 
         // 5. Parar atualização automática quando página não está visível
         document.addEventListener('visibilitychange', function() {
@@ -2862,12 +2720,7 @@ form.addEventListener('submit', async (e)=>{
                 });
             });
             
-            // 🔥 BOTÃO ATUALIZAR - USA A NOVA FUNÇÃO
-            const btnAtualizar = document.getElementById('btnAtualizarLista');
-            if (btnAtualizar) {
-                btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
-            }
-        }
+           
 
         // ---------------- FUNÇÃO AUXILIAR: Converter blob para base64 ----------------
         function blobToBase64(blob) {
@@ -3330,142 +3183,7 @@ function configurarEventListenersModal() {
             return userToken || localStorage.getItem('userToken');
         }
 
-        // 🧠 FUNÇÃO: Assistente IA CORRIGIDA
-       // 🧠 FUNÇÃO: Assistente IA CORRIGIDA - COM DADOS DO PERFIL
-window.perguntarIA = async function() {
-    try {
-        const inputPergunta = document.getElementById('input-pergunta-ia');
-        if (!inputPergunta) {
-            console.error('❌ Elemento input-pergunta-ia não encontrado');
-            return;
-        }
-        
-        const pergunta = inputPergunta.value.trim();
-        if (!pergunta) {
-            showToast("Digite uma pergunta para a IA", "warning");
-            return;
-        }
-
-        // Mostra loading no chat
-        const historico = document.getElementById('historico-chat-ia');
-        if (!historico) {
-            console.error('❌ Elemento historico-chat-ia não encontrado');
-            return;
-        }
-        
-        historico.innerHTML += `
-            <div class="mensagem usuario">
-                <p><strong>Você:</strong> ${pergunta}</p>
-            </div>
-            <div class="mensagem ia carregando">
-                <p>🤖 IA está pensando...</p>
-            </div>
-        `;
-
-        const token = getToken();
-        if (!token) {
-            showToast("Faça login para usar a IA", "error");
-            document.querySelector('.carregando')?.remove();
-            return;
-        }
-
-        // 🔥 CORREÇÃO: Loading simples no botão
-        const btnEnviar = document.getElementById('btn-enviar-ia');
-        if (btnEnviar) {
-            btnEnviar.disabled = true;
-            btnEnviar.innerHTML = '<div class="loading-spinner"></div>';
-        }
-
-        // 🔥 NOVO: Buscar perfil do negócio antes de enviar para IA
-        let contextoPerfil = '';
-        try {
-            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (perfilResponse.ok) {
-                const perfilData = await perfilResponse.json();
-                if (perfilData.success && perfilData.perfil) {
-                    const p = perfilData.perfil;
-                    contextoPerfil = `
-PERFIL DO NEGÓCIO:
-- Nome: ${p.nome_negocio}
-- Tipo: ${p.tipo_negocio}
-- Dias de funcionamento: ${p.dias_funcionamento.join(', ')}
-- Horários: ${JSON.stringify(p.horarios_funcionamento)}
-`;
-                }
-            }
-        } catch (error) {
-            console.log('❌ Erro ao buscar perfil para IA:', error);
-        }
-
-        // 🔥 ENVIAR PERFIL + PERGUNTA para a IA
-        const mensagemComContexto = {
-            mensagem: pergunta,
-            contextoPerfil: contextoPerfil || 'Perfil não configurado'
-        };
-
-        const response = await fetch(`${API_BASE_URL}/api/assistente-ia`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(mensagemComContexto)
-        });
-
-        // 🔥 CORREÇÃO: Verifica se a resposta é OK
-        if (!response.ok) {
-            throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        // Remove loading e mostra resposta
-        document.querySelector('.carregando')?.remove();
-        
-        if (data.success) {
-            historico.innerHTML += `
-                <div class="mensagem ia">
-                    <p><strong>Assistente IA:</strong> ${data.resposta}</p>
-                </div>
-            `;
-        } else {
-            historico.innerHTML += `
-                <div class="mensagem ia erro">
-                    <p>❌ Erro: ${data.msg || "Não foi possível processar sua pergunta"}</p>
-                </div>
-            `;
-        }
-
-        // 🔥 CORREÇÃO: Restaura botão
-        if (btnEnviar) {
-            btnEnviar.disabled = false;
-            btnEnviar.innerHTML = 'Enviar';
-        }
-
-        // Limpa input e rola para baixo
-        inputPergunta.value = '';
-        historico.scrollTop = historico.scrollHeight;
-
-    } catch (error) {
-        console.error('❌ Erro ao perguntar para IA:', error);
-        showToast("Erro ao conversar com a IA", "error");
-        
-        // 🔥 CORREÇÃO: Restaura botão em caso de erro
-        const btnEnviar = document.getElementById('btn-enviar-ia');
-        if (btnEnviar) {
-            btnEnviar.disabled = false;
-            btnEnviar.innerHTML = 'Enviar';
-        }
-        
-        // Remove loading em caso de erro
-        document.querySelector('.carregando')?.remove();
-    }
-}
+     
        // 🎯 FUNÇÃO: Sugerir Horários CORRIGIDA - COM PERFIL
 window.sugerirHorarios = async function() {
     try {
@@ -3711,14 +3429,18 @@ function conectarSSE() {
             }, 5000);
         }
 
-        // 🔥 FUNÇÃO: Desconectar SSE (no logout)
-        function desconectarSSE() {
-            if (eventSource) {
-                eventSource.close();
-                eventSource = null;
-                console.log('🔗 Conexão SSE fechada');
-            }
+// 🔥 CORREÇÃO: Função desconectarSSE robusta
+function desconectarSSE() {
+    if (eventSource) {
+        try {
+            eventSource.close();
+            eventSource = null;
+            console.log('🔗 Conexão SSE fechada');
+        } catch (error) {
+            console.log('⚠️ Erro ao fechar SSE:', error);
         }
+    }
+}
 
         // 🔧 FUNÇÃO AUXILIAR: Abrir formulário de agendamento
         window.abrirFormAgendamento = function() {
@@ -3873,51 +3595,7 @@ function conectarSSE() {
             if (modal) modal.remove();
         }
 
-        // 🔥 ADICIONAR: Event listeners para melhor UX no chat
-        document.addEventListener('DOMContentLoaded', function() {
-            const inputPergunta = document.getElementById('input-pergunta-ia');
-            
-            if (inputPergunta) {
-                // 🔥 CORREÇÃO: Enviar com Enter
-                inputPergunta.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        perguntarIA();
-                    }
-                });
-                
-                // 🔥 CORREÇÃO: Auto-focus no input do chat
-                setTimeout(() => {
-                    inputPergunta.focus();
-                }, 1000);
-            }
-        });
-
-
-        // 🔥 CORREÇÃO: Adicionar event listener para o botão de enviar IA
-document.addEventListener('DOMContentLoaded', function() {
-    const btnEnviarIA = document.getElementById('btn-enviar-ia');
-    if (btnEnviarIA) {
-        btnEnviarIA.addEventListener('click', perguntarIA);
-    }
-    
-    const inputPerguntaIA = document.getElementById('input-pergunta-ia');
-    if (inputPerguntaIA) {
-        inputPerguntaIA.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                perguntarIA();
-            }
-        });
-    }
-});
-        // 🔥 ADICIONAR: Debounce para evitar múltiplos envios acidentais
-        let iaDebounceTimer;
-        function debounceIA() {
-            clearTimeout(iaDebounceTimer);
-            iaDebounceTimer = setTimeout(() => {
-                perguntarIA();
-            }, 100);
-        }
-
+       
         // ---------------- DETECTAR E REDIRECIONAR PARA O APP ----------------
         function isInApp() {
             return /Android|iPhone|iPad/i.test(navigator.userAgent) && 
@@ -3979,13 +3657,6 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
 
-        // 🔥 EVENT LISTENER para o botão
-        document.addEventListener('DOMContentLoaded', function() {
-            const btnAtualizar = document.getElementById('btnAtualizarLista');
-            if (btnAtualizar) {
-                btnAtualizar.addEventListener('click', atualizarListaAgendamentos);
-            }
-        });
 
         // 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
         function fecharConfiguracao() {
@@ -4005,6 +3676,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
 
 
 
