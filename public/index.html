@@ -495,6 +495,32 @@
   color: #fff; /* texto branco visível */
 }
 
+        /* 🔥 CORREÇÃO: Estilos para inputs de data/time no iOS */
+input[type="date"], input[type="time"] {
+    font-size: 16px !important;
+    min-height: 44px !important;
+}
+
+/* 🔥 CORREÇÃO: Garantir que selects sejam visíveis */
+select {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+select option {
+    background-color: #1f2937 !important;
+    color: white !important;
+}
+
+/* 🔥 CORREÇÃO: Loading states para botões IA */
+.btn-loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-loading .loading-spinner {
+    display: inline-block !important;
+}
 
     </style>
 </head>
@@ -825,44 +851,79 @@
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-        // 🔥 VERIFICAÇÃO DE CALLBACK OAUTH - EXECUTA PRIMEIRO
-        function verificarCallbackOAuth() {
-            console.log('🔄 Verificando se é callback OAuth...');
-            console.log('📍 URL:', window.location.href);
-            console.log('🔑 Hash:', window.location.hash);
-            
-            const isCallback = window.location.hash.includes('access_token') || 
-                               window.location.hash.includes('error');
-            
-            if (isCallback) {
-                console.log('🎯 Detectado callback OAuth - processando...');
-                
-                // MOSTRA TELA DE AUTENTICAÇÃO
-                document.getElementById('authCallbackScreen').classList.remove('hidden');
-                document.getElementById('mainAppContent').classList.add('hidden');
-                
-                // 🔥 DETECTA AMBIENTE
-                const isWeb = !(window.Browser || window.cordova || 
-                               navigator.userAgent.includes('Capacitor') ||
-                               navigator.userAgent.includes('Cordova'));
-                console.log('Ambiente:', isWeb ? 'WEB' : 'APP');
-                
-                if (isWeb) {
-                    // 💻 WEB: Processa e redireciona
-                    console.log('🌐 Processando para web...');
-                    processarOAuthWeb();
-                } else {
-                    // 📱 APP: Redireciona para app e fecha
-                    console.log('📱 Processando para app...');
-                    processarOAuthApp();
-                }
-                
-                return true; // É um callback, para a execução normal
-            }
-            
-            return false; // Não é callback, continua normal
-        }
+      // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
+function verificarCallbackOAuth() {
+    console.log('🔄 Verificando se é callback OAuth...');
+    
+    const isCallback = window.location.hash.includes('access_token') || 
+                       window.location.hash.includes('error');
+    
+    if (isCallback) {
+        console.log('🎯 Detectado callback OAuth - processando...');
+        
+        // MOSTRA TELA DE AUTENTICAÇÃO
+        document.getElementById('authCallbackScreen').classList.remove('hidden');
+        document.getElementById('mainAppContent').classList.add('hidden');
+        
+        // Processa o callback
+        processarCallbackOAuth();
+        return true;
+    }
+    
+    return false;
+}
 
+        
+// 🔥 CORREÇÃO: Função única para processar callback
+async function processarCallbackOAuth() {
+    try {
+        console.log('🔄 Processando callback OAuth...');
+        
+        // Aguarda o Supabase processar a sessão
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+            throw error;
+        }
+        
+        if (session) {
+            console.log('✅ Sessão OAuth restaurada!');
+            
+            userToken = session.access_token;
+            localStorage.setItem('userToken', userToken);
+            
+            // Limpa a URL
+            window.history.replaceState(null, '', window.location.pathname);
+            
+            // Mostra app normal
+            document.getElementById('authCallbackScreen').classList.add('hidden');
+            document.getElementById('mainAppContent').classList.remove('hidden');
+            
+            // Atualiza interface
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            atualizarInterfacePosLogin();
+            document.getElementById('secoesIA').style.display = 'block';
+            
+            listarAgendamentos();
+            setTimeout(() => iniciarSistemaAtualizacao(), 1000);
+            showToast("Login realizado com sucesso!", "success");
+            
+            setTimeout(() => verificarConfiguracaoSheets(), 1500);
+        } else {
+            throw new Error('Sessão não encontrada');
+        }
+    } catch (error) {
+        console.error('❌ Erro OAuth:', error);
+        showToast("Erro ao processar login", "error");
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
+    }
+}
+        
         // 🔥 PROCESSAMENTO PARA WEB
        async function processarOAuthWeb() {
     try {
@@ -1017,7 +1078,8 @@
             document.getElementById('secoesIA').style.display = 'none';
         }
 
-     async function init() {
+    // 🔥 CORREÇÃO: Função init simplificada e robusta
+async function init() {
     console.log('🚀 Iniciando app...');
     
     if (verificarCallbackOAuth()) {
@@ -1027,66 +1089,58 @@
     
     console.log('▶️ Continuando init normal...');
     
-    // 🔥 CORREÇÃO: Aplica máscara com delay
+    // Aplica máscara de telefone
     setTimeout(() => {
         const telefoneInput = document.getElementById('Telefone');
         if (telefoneInput && window.IMask) {
-            const phoneMask = IMask(telefoneInput, {
+            IMask(telefoneInput, {
                 mask: '(00) 00000-0000'
             });
-            console.log('✅ Máscara de telefone aplicada com sucesso!');
-        } else {
-            console.log('❌ Input de telefone não encontrado ou IMask não carregado');
+            console.log('✅ Máscara de telefone aplicada!');
         }
     }, 1000);
     
+    // Configura listeners
     configurarEventListenersModal();
     
-    // ✅ LISTENER CAPACITOR CORRIGIDO
-    if (window.Capacitor && window.Capacitor.Plugins?.App) {
-        window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-            console.log('🔗 App aberto via URL:', data.url);
-            
-            if (data.url.includes('auth-callback')) {
-                console.log('📱 Processando retorno OAuth no app...');
-                
-                // 🔥 EXTRAI OS PARÂMETROS DA URL DO APP
-                const url = new URL(data.url);
-                const hash = url.hash;
-                
-                if (hash) {
-                    // 🔥 CONVERTE PARA URL DO NAVEGADOR PARA PROCESSAR
-                    const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
-                    processarRetornoOAuth(webUrl);
-                }
-            }
-        });
-    }
-    
-    // ✅ VERIFICAÇÃO MUITO SIMPLES DE LOGIN
+    // ✅ VERIFICAÇÃO SIMPLES DE LOGIN
     const token = localStorage.getItem('userToken');
     console.log('🔑 Token no localStorage:', !!token);
     
     if (token) {
-        userToken = token;
-        // Usuário JÁ logado - mostra dashboard
-        loginSection.style.display = 'none';
-        form.style.display = 'block';
-        atualizarInterfacePosLogin(); // 🔥 GARANTIR QUE É CHAMADO
-        document.getElementById('secoesIA').style.display = 'block';
-        listarAgendamentos();
-        setTimeout(() => verificarConfiguracaoSheets(), 1000);
+        // Verifica se a sessão ainda é válida
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+            userToken = session.access_token;
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            atualizarInterfacePosLogin();
+            document.getElementById('secoesIA').style.display = 'block';
+            listarAgendamentos();
+            setTimeout(() => verificarConfiguracaoSheets(), 1000);
+        } else {
+            // Sessão inválida - limpa tudo
+            localStorage.removeItem('userToken');
+            userToken = null;
+            mostrarTelaLogin();
+        }
     } else {
-        // Usuário NÃO logado - mostra login
-        console.log('👤 Usuário não logado - mostrando tela de login');
-        loginSection.style.display = 'block';
-        form.style.display = 'none';
-        logoutBtn.style.display = 'none';
-        document.getElementById('secoesIA').style.display = 'none';
+        mostrarTelaLogin();
     }
     
-    // Garante que feather icons são carregados
     feather.replace();
+}
+
+        // 🔥 NOVA FUNÇÃO: Mostrar tela de login
+function mostrarTelaLogin() {
+    console.log('👤 Usuário não logado - mostrando tela de login');
+    loginSection.style.display = 'block';
+    form.style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'none';
+    document.getElementById('settingsBtn').style.display = 'none';
+    document.getElementById('gerarLinkBtn').style.display = 'none';
+    document.getElementById('secoesIA').style.display = 'none';
 }
 
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
@@ -3499,29 +3553,45 @@ window.sugerirHorarios = async function() {
         // ==================== SSE NO FRONTEND ====================
         let eventSource = null;
 
-        // 🔥 CORREÇÃO: Função SSE melhorada
-        function conectarSSE() {
-            if (!userToken) {
-                console.log('❌ SSE: Token não disponível');
-                return;
-            }
-            
+       // 🔥 CORREÇÃO: Função conectarSSE simplificada
+function conectarSSE() {
+    if (!userToken) {
+        console.log('❌ SSE: Token não disponível');
+        return;
+    }
+    
+    try {
+        // Usa EventSource nativo (mais confiável)
+        eventSource = new EventSource(`${API_BASE_URL}/api/updates?token=${encodeURIComponent(userToken)}`);
+        
+        eventSource.onopen = () => {
+            console.log('✅ SSE: Conectado com sucesso!');
+        };
+        
+        eventSource.onmessage = (event) => {
             try {
-                // Fecha conexão anterior se existir
-                if (eventSource) {
-                    console.log('🔄 SSE: Fechando conexão anterior');
-                    eventSource.close();
-                }
-                
-                console.log('🔗 SSE: Conectando...', `${API_BASE_URL}/api/updates`);
-                
-                // 🔥 CORREÇÃO: Usa fetch + stream em vez de EventSource nativo
-                conectarSSEComFetch();
-                
-            } catch (error) {
-                console.error('❌ SSE: Erro na conexão:', error);
+                const data = JSON.parse(event.data);
+                processarEventoSSE(data);
+            } catch (e) {
+                console.log('📨 SSE: Mensagem recebida:', event.data);
             }
-        }
+        };
+        
+        eventSource.onerror = (error) => {
+            console.error('❌ SSE: Erro na conexão:', error);
+            eventSource.close();
+            
+            // Reconexão automática
+            setTimeout(() => {
+                console.log('🔄 SSE: Tentando reconectar...');
+                conectarSSE();
+            }, 5000);
+        };
+        
+    } catch (error) {
+        console.error('❌ SSE: Erro na inicialização:', error);
+    }
+}
 
         // 🔥 NOVA: Conexão SSE usando fetch (mais confiável)
         async function conectarSSEComFetch() {
@@ -3822,6 +3892,23 @@ window.sugerirHorarios = async function() {
             }
         });
 
+
+        // 🔥 CORREÇÃO: Adicionar event listener para o botão de enviar IA
+document.addEventListener('DOMContentLoaded', function() {
+    const btnEnviarIA = document.getElementById('btn-enviar-ia');
+    if (btnEnviarIA) {
+        btnEnviarIA.addEventListener('click', perguntarIA);
+    }
+    
+    const inputPerguntaIA = document.getElementById('input-pergunta-ia');
+    if (inputPerguntaIA) {
+        inputPerguntaIA.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                perguntarIA();
+            }
+        });
+    }
+});
         // 🔥 ADICIONAR: Debounce para evitar múltiplos envios acidentais
         let iaDebounceTimer;
         function debounceIA() {
@@ -3918,6 +4005,7 @@ window.sugerirHorarios = async function() {
     </script>
 </body>
 </html>
+
 
 
 
