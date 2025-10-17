@@ -2254,17 +2254,24 @@ function atualizarInterfacePosLogin() {
                 const dataAgendamento = new Date(`${a.data}T${a.horario}`);
                 const hoje = new Date();
                 
-                if(diaSelecionado >= 0 && diaSelecionado <= 6) {
-                    return dataAgendamento.getDay() === diaSelecionado && 
-                           dataAgendamento >= new Date(hoje.setHours(0,0,0,0));
-                } else {
-                    const semanas = -diaSelecionado;
-                    const dataLimite = new Date();
-                    dataLimite.setDate(dataLimite.getDate() + semanas * 7);
-                    return dataAgendamento >= new Date(dataLimite.setHours(0,0,0,0)) && 
-                           dataAgendamento < new Date(hoje.setHours(0,0,0,0));
-                }
-            })
+               // 🔥 CORREÇÃO: Substitua esta parte na função renderAgendamentos()
+if(diaSelecionado >= 0 && diaSelecionado <= 6) {
+    return dataAgendamento.getDay() === diaSelecionado && 
+           dataAgendamento >= new Date(hoje.setHours(0,0,0,0));
+} else {
+    const semanas = -diaSelecionado;
+    const dataLimite = new Date();
+    
+    // 🔥 CORREÇÃO CRÍTICA: Para tabs de semanas passadas
+    if (semanas > 0) { // semanas é positivo (1, 2, 4)
+        dataLimite.setDate(dataLimite.getDate() - semanas * 7);
+        const dataLimiteFim = new Date(dataLimite);
+        dataLimiteFim.setDate(dataLimiteFim.getDate() + 7);
+        
+        return dataAgendamento >= dataLimite && 
+               dataAgendamento < dataLimiteFim;
+    }
+}
             .sort((a,b) => {
                 const dateA = new Date(`${a.data}T${a.horario}`);
                 const dateB = new Date(`${b.data}T${b.horario}`);
@@ -3813,6 +3820,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
