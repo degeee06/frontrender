@@ -14,7 +14,7 @@
     body {
         font-family: 'Inter', sans-serif;
         min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         color: white;
     }
   
@@ -67,17 +67,16 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
     <div class="container mx-auto px-4 py-8 max-w-6xl min-h-screen flex items-center justify-center">
-        <div class="glass-card rounded-3xl p-8 md:p-12 w-full max-w-md mx-auto animate-fade-in" data-aos="fade-up">
+        <div class="glass-card rounded-2xl p-6 md:p-8 w-full max-w-md mx-auto animate-fade-in" data-aos="fade-up">
             <!-- Header Elegante -->
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-600 to-cyan-500 shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
-                    <i data-feather="lock" class="w-10 h-10 text-white"></i>
+            <div class="flex items-center justify-center mb-6">
+                <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
+                    <i data-feather="lock" class="w-6 h-6 text-white"></i>
                 </div>
-                <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-300 bg-clip-text text-transparent mb-2">
-                    Oubook
-                </h1>
-                <p class="text-gray-300 text-lg">Conectando sua conta...</p>
             </div>
+
+            <h2 class="text-xl sm:text-2xl font-semibold text-center mb-2">Autenticando</h2>
+            <p class="text-center text-gray-300 mb-6">Conectando sua conta...</p>
 
             <!-- Spinner Central -->
             <div class="flex justify-center mb-6">
@@ -86,8 +85,7 @@
 
             <!-- Status e Informações -->
             <div class="text-center space-y-4">
-                <h2 class="text-xl font-semibold animate-pulse-slow">Autenticando</h2>
-                <p class="text-gray-300">Redirecionando de volta para o app</p>
+                <p class="text-gray-300 animate-pulse-slow">Redirecionando de volta para o app</p>
                 
                 <!-- Informações de Debug (apenas em desenvolvimento) -->
                 <div id="debugInfo" class="mt-6 p-4 bg-white/5 rounded-lg border border-white/10 text-left hidden">
@@ -102,8 +100,8 @@
 
                 <!-- Botão de Fallback -->
                 <div class="mt-6 pt-6 border-t border-white/10">
-                    <button id="manualRedirect" class="text-sm text-cyan-300 hover:text-cyan-200 transition-colors hidden">
-                        <i data-feather="refresh-cw" class="w-4 h-4 inline mr-1"></i>
+                    <button id="manualRedirect" class="text-sm text-cyan-300 hover:text-cyan-200 transition-colors hidden flex items-center justify-center gap-2 w-full">
+                        <i data-feather="refresh-cw" class="w-4 h-4"></i>
                         Redirecionar manualmente
                     </button>
                 </div>
