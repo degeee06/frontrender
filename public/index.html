@@ -522,40 +522,28 @@ select option {
     display: inline-block !important;
 }
 
-        /* 🔥 ESTILOS PARA TELA DE AUTENTICAÇÃO AZUL */
+ /* 🔥 ESTILOS PARA TELA DE AUTENTICAÇÃO ATUALIZADA */
 .auth-screen {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
-}
-
-.auth-container {
-    text-align: center;
-    padding: 40px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 24px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    width: 90%;
+    padding: 20px;
 }
 
 .spinner {
-    border: 4px solid rgba(59, 130, 246, 0.3);
+    border: 4px solid rgba(255,255,255,0.3);
     border-radius: 50%;
-    border-top: 4px solid #ffffff;
-    width: 60px;
-    height: 60px;
+    border-top: 4px solid white;
+    width: 40px;
+    height: 40px;
     animation: spin 1s linear infinite;
     margin: 0 auto;
 }
@@ -565,63 +553,57 @@ select option {
     100% { transform: rotate(360deg); }
 }
 
-/* Animação de pulso para o container */
-.auth-container {
-    animation: pulse-gentle 2s infinite;
+.animate-pulse-slow {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-@keyframes pulse-gentle {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
-}
-
-/* Responsividade */
-@media (max-width: 640px) {
-    .auth-container {
-        padding: 30px 20px;
-        margin: 20px;
-    }
-    
-    .spinner {
-        width: 50px;
-        height: 50px;
-    }
-    
-    h2 {
-        font-size: 1.5rem;
-    }
-    
-    p {
-        font-size: 1rem;
-    }
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
-  <!-- 🎯🎯🎯 TELA DE AUTENTICAÇÃO 🎯🎯🎯 -->
+<!-- 🎯🎯🎯 TELA DE AUTENTICAÇÃO 🎯🎯🎯 -->
 <div id="authCallbackScreen" class="auth-screen hidden">
-    <div class="auth-container">
-        <!-- Logo/Ícone Central -->
-        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
-            <i data-feather="lock" class="w-10 h-10 text-white"></i>
+    <div class="glass-card rounded-2xl p-6 md:p-8 w-full max-w-md mx-auto animate-fade-in" data-aos="fade-up">
+        <!-- Header Elegante -->
+        <div class="flex items-center justify-center mb-6">
+            <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
+                <i data-feather="lock" class="w-6 h-6 text-white"></i>
+            </div>
         </div>
-        
-        <!-- Spinner Estilizado -->
-        <div class="spinner mb-6 border-4 border-blue-300 border-t-white"></div>
-        
-        <!-- Textos -->
-        <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent mb-3">
-            Autenticando...
-        </h2>
-        <p class="text-blue-100 text-lg opacity-90">
-            Redirecionando de volta para o app
-        </p>
-        
-        <!-- Loading Dots Animados -->
-        <div class="flex justify-center space-x-1 mt-4">
-            <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-            <div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-            <div class="w-2 h-2 bg-blue-300 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+
+        <h2 class="text-xl sm:text-2xl font-semibold text-center mb-2">Autenticando</h2>
+        <p class="text-center text-gray-300 mb-6">Conectando sua conta...</p>
+
+        <!-- Spinner Central -->
+        <div class="flex justify-center mb-6">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Status e Informações -->
+        <div class="text-center space-y-4">
+            <p class="text-gray-300 animate-pulse-slow">Redirecionando de volta para o app</p>
+            
+            <!-- Informações de Debug (apenas em desenvolvimento) -->
+            <div id="debugInfo" class="mt-6 p-4 bg-white/5 rounded-lg border border-white/10 text-left hidden">
+                <h3 class="text-sm font-semibold mb-2">🔍 Informações de Conexão:</h3>
+                <div class="text-xs space-y-1">
+                    <div id="urlInfo"></div>
+                    <div id="hashInfo"></div>
+                    <div id="envInfo"></div>
+                    <div id="tokenInfo"></div>
+                </div>
+            </div>
+
+            <!-- Botão de Fallback -->
+            <div class="mt-6 pt-6 border-t border-white/10">
+                <button id="manualRedirect" class="text-sm text-cyan-300 hover:text-cyan-200 transition-colors hidden flex items-center justify-center gap-2 w-full">
+                    <i data-feather="refresh-cw" class="w-4 h-4"></i>
+                    Redirecionar manualmente
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -3805,6 +3787,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
