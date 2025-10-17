@@ -2719,7 +2719,7 @@ form.addEventListener('submit', async (e)=>{
                     renderAgendamentos();
                 });
             });
-            
+            } 
            
 
         // ---------------- FUNÇÃO AUXILIAR: Converter blob para base64 ----------------
@@ -3643,20 +3643,24 @@ function desconectarSSE() {
                 fecharModalLinkAgendamento();
             }
         });
-        
-        // 🔥 ADICIONAR: Debounce simples para melhorar performance
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
+       
+// 🔥 CORREÇÃO: Adicionar função debounce faltante
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+// 🔥 CORREÇÃO: Adicionar função forcarAtualizacaoAgendamentos faltante
+function forcarAtualizacaoAgendamentos() {
+    console.log('🔄 Forçando atualização de agendamentos...');
+    listarAgendamentos();
+}
 
         // 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
         function fecharConfiguracao() {
@@ -3676,6 +3680,7 @@ function desconectarSSE() {
     </script>
 </body>
 </html>
+
 
 
 
