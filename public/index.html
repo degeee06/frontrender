@@ -990,41 +990,37 @@ const horarioInput = document.getElementById("Horario");
             return `${d}/${m}/${y}`; 
         }
 
-        // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA - EVITA "CONECTANDO"
-        const token = localStorage.getItem('userToken');
-        console.log('🔑 Token no localStorage:', !!token);
+       // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA - EVITA "CONECTANDO"
+const token = localStorage.getItem('userToken');
+console.log('🔑 Token no localStorage:', !!token);
 
-        if (token) {
-            // SÓ verifica sessão Supabase se já tiver nosso token
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                if (session) {
-                    console.log('✅ Sessão válida - usuário logado');
-                    userToken = session.access_token;
-                    loginSection.style.display = 'none';
-                    form.style.display = 'block';
-                    atualizarInterfacePosLogin();
-                    document.getElementById('secoesIA').style.display = 'block';
-                    listarAgendamentos();
-                    setTimeout(() => verificarConfiguracaoSheets(), 1000);
-                } else {
-                    // 🔥 Sessão inválida - limpa tudo para evitar "conectando"
-                    console.log('❌ Sessão inválida - fazendo limpeza');
-                    localStorage.removeItem('userToken');
-                    localStorage.removeItem('supabase.auth.token');
-                    userToken = null;
-                    loginSection.style.display = 'block';
-                    form.style.display = 'none';
-                    logoutBtn.style.display = 'none';
-                }
-            });
+if (token) {
+    // SÓ verifica sessão Supabase se já tiver nosso token
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+            console.log('✅ Sessão válida - usuário logado');
+            userToken = session.access_token;
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            atualizarInterfacePosLogin();
+            document.getElementById('secoesIA').style.display = 'block';
+            listarAgendamentos();
+            setTimeout(() => verificarConfiguracaoSheets(), 1000);
         } else {
-            // 🔥 SEM token = mostra login diretamente (não tenta conectar)
-            console.log('👤 Sem token - mostrando tela de login');
-            loginSection.style.display = 'block';
-            form.style.display = 'none';
-            logoutBtn.style.display = 'none';
-            document.getElementById('secoesIA').style.display = 'none';
+            // 🔥 Sessão inválida - limpa tudo para evitar "conectando"
+            console.log('❌ Sessão inválida - fazendo limpeza');
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('supabase.auth.token');
+            userToken = null;
+            // 🔥 CORREÇÃO: Usa função centralizada para mostrar login
+            mostrarTelaLogin();
         }
+    });
+} else {
+    // 🔥 SEM token = mostra login diretamente (não tenta conectar)
+    console.log('👤 Sem token - mostrando tela de login');
+    mostrarTelaLogin();
+}
 
     // 🔥 CORREÇÃO: Função init simplificada e robusta
 async function init() {
@@ -2041,48 +2037,49 @@ function configurarBotaoSettings() {
             }
         }
 
-        async function verificarConfiguracaoSheets() {
-            try {
-                console.log('🔍 [DEBUG] Iniciando verificação Sheets...');
-                console.log('🔍 [DEBUG] Token presente:', !!userToken);
-                console.log('🔍 [DEBUG] API_BASE_URL:', API_BASE_URL);
-                
-                const response = await fetch(`${API_BASE_URL}/configuracao-sheets`, {
-                    headers: {
-                        'Authorization': `Bearer ${userToken}`
+       async function verificarConfiguracaoSheets() {
+    // 🔥 CORREÇÃO: Verifica se usuário está logado
+    if (!userToken) {
+        console.log('❌ verificarConfiguracaoSheets: Usuário não logado - abortando');
+        return;
+    }
+    
+    try {
+        console.log('🔍 [DEBUG] Iniciando verificação Sheets...');
+        
+        const response = await fetch(`${API_BASE_URL}/configuracao-sheets`, {
+            headers: {
+                'Authorization': `Bearer ${userToken}`
+            }
+        });
+        
+        // 🔥 CORREÇÃO: Se 401, faz logout
+        if (response.status === 401) {
+            await logoutSilencioso();
+            return;
+        }
+        
+        console.log('🔍 [DEBUG] Status da resposta:', response.status);
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            // 🔥 CORREÇÃO: Só abre modal se NÃO tiver configurado E usuário ainda estiver logado
+            if (!data.temSheetsConfigurado && userToken) {
+                console.log('🔍 [DEBUG] Usuário NÃO tem Sheets configurado - mostrando modal em 2 segundos...');
+                setTimeout(() => {
+                    // 🔥 VERIFICA NOVAMENTE se usuário ainda está logado
+                    if (userToken) {
+                        console.log('🔍 [DEBUG] Exibindo modal agora!');
+                        mostrarModalConfiguracao();
                     }
-                });
-                
-                console.log('🔍 [DEBUG] Status da resposta:', response.status);
-                console.log('🔍 [DEBUG] Resposta OK:', response.ok);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('🔍 [DEBUG] Dados recebidos:', data);
-                    
-                    // 🔥 CORREÇÃO: Só abre modal se NÃO tiver configurado
-                    if (!data.temSheetsConfigurado) {
-                        console.log('🔍 [DEBUG] Usuário NÃO tem Sheets configurado - mostrando modal em 2 segundos...');
-                        setTimeout(() => {
-                            console.log('🔍 [DEBUG] Exibindo modal agora!');
-                            mostrarModalConfiguracao();
-                        }, 2000);
-                    } else {
-                        console.log('🔍 [DEBUG] Usuário JÁ tem Sheets configurado - NÃO mostra modal');
-                    }
-                } else {
-                    const errorText = await response.text();
-                    console.error('🔍 [DEBUG] Erro na resposta:', response.status, errorText);
-                    
-                    // 🔥 EM CASO DE ERRO, NÃO ABRE O MODAL (seguro)
-                    console.log('🔍 [DEBUG] Erro na verificação - NÃO abrindo modal por segurança');
-                }
-            } catch (error) {
-                console.error('🔍 [DEBUG] Erro catch:', error);
-                // 🔥 EM CASO DE ERRO, NÃO ABRE O MODAL (seguro)
-                console.log('🔍 [DEBUG] Erro total - NÃO abrindo modal por segurança');
+                }, 2000);
             }
         }
+    } catch (error) {
+        console.error('🔍 [DEBUG] Erro catch:', error);
+    }
+}
 
         // ---------------- TOASTS ----------------
         let activeToasts = [];
@@ -2344,85 +2341,89 @@ function configurarBotaoSettings() {
             }
         }
 
-   // 🔥 SUBSTITUA a função logoutSilencioso por esta versão CORRIGIDA:
+  // 🔥 SUBSTITUA a função logoutSilencioso por esta versão CORRIGIDA:
 async function logoutSilencioso() {
     try {
+        console.log('🔒 Executando logout silencioso...');
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
         userToken = null;
         agendamentosCache = [];
         
-        // 🔥 CORREÇÃO: Atualiza interface usando a função existente
-        loginSection.style.display = 'block';
-        form.style.display = 'none';
-        meusAgendamentos.style.display = 'none';
-        document.getElementById('filtersSection').style.display = 'none';
-        document.getElementById('diasTabs').style.display = 'none';
-        atualizarInterfacePosLogin();
-        document.getElementById('secoesIA').style.display = 'none';
+        // 🔥 CORREÇÃO: Para todas as operações em andamento
+        desconectarSSE();
+        if (intervaloAtualizacao) {
+            clearInterval(intervaloAtualizacao);
+        }
         
+        // 🔥 CORREÇÃO: Usa função centralizada
+        mostrarTelaLogin();
+        
+        console.log('✅ Logout silencioso concluído');
     } catch (error) {
         console.log('Erro no logout silencioso:', error);
     }
 }
-
-        async function listarAgendamentos(){
-            try {
-                console.log('🔄 Frontend: Iniciando listarAgendamentos...');
-                console.log('🔑 Token:', userToken ? 'Presente' : 'Faltando');
-                console.log('🌐 API URL:', `${API_BASE_URL}/agendamentos`);
-                
-                // 🔥 VERIFICA TOKEN ANTES DE FAZER REQUISIÇÃO
-                const tokenValido = await verificarToken();
-                if (!tokenValido) {
-                    showToast("Sessão expirada. Faça login novamente.", "warning");
-                    return;
-                }
-
-                console.log('📡 Frontend: Fazendo requisição para API...');
-                const res = await fetch(`${API_BASE_URL}/agendamentos`, {
-                    headers: { "Authorization": `Bearer ${userToken}` }
-                });
-                
-                console.log('✅ Frontend: Resposta recebida - Status:', res.status);
-                
-                if (!res.ok) {
-                    if (res.status === 401) {
-                        console.log('🔐 Frontend: Token expirado, renovando...');
-                        // Token expirado - renova automaticamente
-                        await renovarToken();
-                        return listarAgendamentos(); // Tenta novamente
-                    }
-                    throw new Error(`Erro ${res.status}: ${res.statusText}`);
-                }
-                
-                const data = await res.json();
-                console.log('📦 Frontend: Dados recebidos:', data);
-                
-                if (data && data.agendamentos) {
-                    agendamentosCache = data.agendamentos;
-                    console.log('✅ Frontend: Agendamentos carregados:', agendamentosCache.length);
-                } else {
-                    agendamentosCache = [];
-                    console.log('❌ Frontend: Nenhum agendamento recebido');
-                }
-                
-                meusAgendamentos.style.display = 'block';
-                document.getElementById('filtersSection').style.display = 'block';
-                document.getElementById('diasTabs').style.display = 'flex';
-                initTabsDias();
-                renderAgendamentos(); 
-                
-                console.log('🎯 Frontend: Interface atualizada');
-            } catch(e){
-                console.error("❌ Frontend: Erro ao listar agendamentos:", e);
-                showToast("Erro ao carregar agendamentos","error");
-                agendamentosCache = [];
-                renderAgendamentos();
-            } finally {
-                limparCacheEstatisticas();
-            }
+       async function listarAgendamentos(){
+    // 🔥 CORREÇÃO: Verifica se usuário está logado ANTES de fazer qualquer coisa
+    if (!userToken) {
+        console.log('❌ listarAgendamentos: Usuário não logado - abortando');
+        return;
+    }
+    
+    try {
+        console.log('🔄 Frontend: Iniciando listarAgendamentos...');
+        
+        // 🔥 VERIFICA TOKEN ANTES DE FAZER REQUISIÇÃO
+        const tokenValido = await verificarToken();
+        if (!tokenValido) {
+            console.log('❌ Token inválido em listarAgendamentos');
+            return;
         }
+
+        console.log('📡 Frontend: Fazendo requisição para API...');
+        const res = await fetch(`${API_BASE_URL}/agendamentos`, {
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        
+        // 🔥 CORREÇÃO: Se 401, faz logout silencioso
+        if (res.status === 401) {
+            console.log('🔐 Token expirado durante listarAgendamentos');
+            await logoutSilencioso();
+            return;
+        }
+        
+        if (!res.ok) {
+            throw new Error(`Erro ${res.status}: ${res.statusText}`);
+        }
+        
+        const data = await res.json();
+        
+        if (data && data.agendamentos) {
+            agendamentosCache = data.agendamentos;
+            console.log('✅ Frontend: Agendamentos carregados:', agendamentosCache.length);
+        } else {
+            agendamentosCache = [];
+        }
+        
+        meusAgendamentos.style.display = 'block';
+        document.getElementById('filtersSection').style.display = 'block';
+        document.getElementById('diasTabs').style.display = 'flex';
+        initTabsDias();
+        renderAgendamentos(); 
+        
+    } catch(e){
+        console.error("❌ Frontend: Erro ao listar agendamentos:", e);
+        // 🔥 CORREÇÃO: Não mostra toast se usuário não está logado
+        if (userToken) {
+            showToast("Erro ao carregar agendamentos","error");
+        }
+        agendamentosCache = [];
+        renderAgendamentos();
+    } finally {
+        limparCacheEstatisticas();
+    }
+}
 
         // ---------------- RENOVAÇÃO DE TOKEN ----------------
         async function renovarToken() {
@@ -2501,13 +2502,18 @@ async function logoutSilencioso() {
             }
         });
 
-   // 🔥 SUBSTITUA o event listener do logoutBtn por esta versão CORRIGIDA:
+  // 🔥 SUBSTITUA o event listener do logoutBtn por esta versão CORRIGIDA:
 logoutBtn.addEventListener('click', async () => {
-    desconectarSSE();
     console.log('🚪 Iniciando logout...');
     
     try {
-        // Limpa storage primeiro
+        // Para todas as operações
+        desconectarSSE();
+        if (intervaloAtualizacao) {
+            clearInterval(intervaloAtualizacao);
+        }
+        
+        // Limpa storage
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
         
@@ -2515,8 +2521,6 @@ logoutBtn.addEventListener('click', async () => {
         const { error } = await supabase.auth.signOut();
         if (error) {
             console.log('⚠️ Erro no logout Supabase:', error);
-        } else {
-            console.log('✅ Logout Supabase realizado');
         }
         
     } catch (error) {
@@ -2526,13 +2530,11 @@ logoutBtn.addEventListener('click', async () => {
         userToken = null;
         agendamentosCache = [];
         
-        // 🔥 CORREÇÃO: Usa a função existente mostrarTelaLogin() em vez de função inexistente
+        // 🔥 CORREÇÃO: Usa função centralizada
         mostrarTelaLogin();
         
-        console.log('✅ Interface resetada');
+        console.log('✅ Logout realizado com sucesso');
         showToast("Logout realizado com sucesso", "info");
-        
-        // ✅ NÃO RECARREGA A PÁGINA - Mantém estado limpo sem refresh
     }
 });
 
@@ -3680,6 +3682,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
