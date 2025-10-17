@@ -990,35 +990,31 @@ const horarioInput = document.getElementById("Horario");
             return `${d}/${m}/${y}`; 
         }
 
-       // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA - EVITA "CONECTANDO"
+     // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA
 const token = localStorage.getItem('userToken');
 console.log('🔑 Token no localStorage:', !!token);
 
 if (token) {
-    // SÓ verifica sessão Supabase se já tiver nosso token
     supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
             console.log('✅ Sessão válida - usuário logado');
             userToken = session.access_token;
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
+            // 🔥 CORREÇÃO: Usa função centralizada
             atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
             listarAgendamentos();
             setTimeout(() => verificarConfiguracaoSheets(), 1000);
         } else {
-            // 🔥 Sessão inválida - limpa tudo para evitar "conectando"
             console.log('❌ Sessão inválida - fazendo limpeza');
             localStorage.removeItem('userToken');
             localStorage.removeItem('supabase.auth.token');
             userToken = null;
-            // 🔥 CORREÇÃO: Usa função centralizada para mostrar login
+            // 🔥 CORREÇÃO: Usa função centralizada
             mostrarTelaLogin();
         }
     });
 } else {
-    // 🔥 SEM token = mostra login diretamente (não tenta conectar)
     console.log('👤 Sem token - mostrando tela de login');
+    // 🔥 CORREÇÃO: Usa função centralizada
     mostrarTelaLogin();
 }
 
@@ -1076,22 +1072,42 @@ async function init() {
     feather.replace();
 }
 
-// 🔥 CORREÇÃO: Função mostrarTelaLogin atualizada
+// 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
 function mostrarTelaLogin() {
-    console.log('👤 Usuário não logado - mostrando tela de login');
-    const loginSection = document.getElementById('loginSection');
-    const form = document.getElementById('agendamentoForm');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
-    const secoesIA = document.getElementById('secoesIA');
+    console.log('👤 Mostrando tela de login - ocultando todas as seções do app');
     
+    // Mostra seção de login
+    const loginSection = document.getElementById('loginSection');
     if (loginSection) loginSection.style.display = 'block';
+    
+    // Oculta formulário de agendamento
+    const form = document.getElementById('agendamentoForm');
     if (form) form.style.display = 'none';
-    if (logoutBtn) logoutBtn.style.display = 'none';
-    if (settingsBtn) settingsBtn.style.display = 'none';
-    if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
+    
+    // 🔥 CORREÇÃO CRÍTICA: Oculta TODAS as seções do app logado
+    const filtersSection = document.getElementById('filtersSection');
+    if (filtersSection) filtersSection.style.display = 'none';
+    
+    const diasTabs = document.getElementById('diasTabs');
+    if (diasTabs) diasTabs.style.display = 'none';
+    
+    const meusAgendamentos = document.getElementById('meusAgendamentos');
+    if (meusAgendamentos) meusAgendamentos.style.display = 'none';
+    
+    const secoesIA = document.getElementById('secoesIA');
     if (secoesIA) secoesIA.style.display = 'none';
+    
+    // Oculta botões do usuário logado
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) settingsBtn.style.display = 'none';
+    
+    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
+    if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
+    
+    console.log('✅ Tela de login configurada completamente');
 }
 
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
@@ -1764,30 +1780,45 @@ function configurarBotaoSettings() {
 }
 
 
-        
-        // 🔥 ADICIONE: Função para mostrar/ocultar botões corretamente
-   function atualizarInterfacePosLogin() {
+    // 🔥 ATUALIZE: Função para mostrar interface do usuário logado
+function atualizarInterfacePosLogin() {
+    console.log('🎯 Atualizando interface para usuário LOGADO...');
+    
+    // Oculta login
+    const loginSection = document.getElementById('loginSection');
+    if (loginSection) loginSection.style.display = 'none';
+    
+    // Mostra formulário
+    const form = document.getElementById('agendamentoForm');
+    if (form) form.style.display = 'block';
+    
+    // 🔥 CORREÇÃO: Mostra TODAS as seções do app
+    const filtersSection = document.getElementById('filtersSection');
+    if (filtersSection) filtersSection.style.display = 'block';
+    
+    const diasTabs = document.getElementById('diasTabs');
+    if (diasTabs) diasTabs.style.display = 'flex';
+    
+    const meusAgendamentos = document.getElementById('meusAgendamentos');
+    if (meusAgendamentos) meusAgendamentos.style.display = 'block';
+    
+    const secoesIA = document.getElementById('secoesIA');
+    if (secoesIA) secoesIA.style.display = 'block';
+    
+    // Mostra botões do usuário logado
     const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'flex';
+    
     const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) settingsBtn.style.display = 'flex';
+    
     const gerarLinkBtn = document.getElementById('gerarLinkBtn');
+    if (gerarLinkBtn) gerarLinkBtn.style.display = 'flex';
     
-    console.log('🎯 Atualizando interface pós-login...');
+    // Configura botão settings
+    configurarBotaoSettings();
     
-    if (userToken) {
-        logoutBtn.style.display = 'flex';
-        settingsBtn.style.display = 'flex';
-        gerarLinkBtn.style.display = 'flex';
-        
-        // 🔥 CORREÇÃO CRÍTICA: Configurar o botão settings IMEDIATAMENTE
-        configurarBotaoSettings();
-        
-        // Verifica perfil depois de um delay
-        setTimeout(() => atualizarBadgePerfil(), 2000);
-    } else {
-        logoutBtn.style.display = 'none';
-        settingsBtn.style.display = 'none';
-        gerarLinkBtn.style.display = 'none';
-    }
+    console.log('✅ Interface do usuário logado configurada');
 }
 
 
@@ -2502,7 +2533,7 @@ async function logoutSilencioso() {
             }
         });
 
-  // 🔥 SUBSTITUA o event listener do logoutBtn por esta versão CORRIGIDA:
+// 🔥 SUBSTITUA o event listener do logoutBtn por esta versão CORRIGIDA:
 logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
     
@@ -2530,7 +2561,7 @@ logoutBtn.addEventListener('click', async () => {
         userToken = null;
         agendamentosCache = [];
         
-        // 🔥 CORREÇÃO: Usa função centralizada
+        // 🔥 CORREÇÃO: Usa função centralizada para garantir que TUDO seja ocultado
         mostrarTelaLogin();
         
         console.log('✅ Logout realizado com sucesso');
@@ -3682,6 +3713,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
