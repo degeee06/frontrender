@@ -1373,7 +1373,7 @@ showDailyLimitModal(dailyLimit) {
         // window.location.href = 'checkout.html';
     }
 
-   // ✅ ATUALIZAR BADGE - VERSÃO CORRIGIDA
+// ✅ ATUALIZAR BADGE - VERSÃO CORRIGIDA
 async updateUsageBadge() {
     const badge = document.getElementById('premiumBadge');
     if (!badge) return;
@@ -1404,12 +1404,14 @@ async updateUsageBadge() {
         badge.style.display = 'none';
     }
 }
-        console.log('🚀 Script carregado! Iniciando aplicação...');
-        
-        // 🔥 ADICIONAR: Alias para manter compatibilidade
-        function mostrarToast(message, type = "success") {
-            showToast(message, type);
-        }
+} // 🔥 FECHA A CLASSE PremiumManager - ESTAVA FALTANDO!
+
+console.log('🚀 Script carregado! Iniciando aplicação...');
+
+// 🔥 ADICIONAR: Alias para manter compatibilidade
+function mostrarToast(message, type = "success") {
+    showToast(message, type);
+}
         
 
 const form = document.getElementById('agendamentoForm');
@@ -4384,6 +4386,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
