@@ -1585,7 +1585,7 @@ async function init() {
     configurarBotaoSettings();
     
     // ✅ INICIAR TRIAL AUTOMATICAMENTE QUANDO USUÁRIO LOGAR
-    const token = localStorage.getItem('userToken');
+    const token = localStorage.getItem('userToken'); // 🔥 ÚNICA DECLARAÇÃO
     if (token) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
@@ -1599,7 +1599,7 @@ async function init() {
         }
     }
     
-    // ✅ LISTENER CAPACITOR CORRIGIDO - ADICIONE ESTE BLOCO
+    // ✅ LISTENER CAPACITOR
     if (window.Capacitor && window.Capacitor.Plugins?.App) {
         window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
             console.log('🔗 App aberto via URL:', data.url);
@@ -1607,12 +1607,10 @@ async function init() {
             if (data.url.includes('auth-callback')) {
                 console.log('📱 Processando retorno OAuth no app...');
                 
-                // 🔥 EXTRAI OS PARÂMETROS DA URL DO APP
                 const url = new URL(data.url);
                 const hash = url.hash;
                 
                 if (hash) {
-                    // 🔥 CONVERTE PARA URL DO NAVEGADOR PARA PROCESSAR
                     const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
                     processarRetornoOAuth(webUrl);
                 }
@@ -1620,8 +1618,7 @@ async function init() {
         });
     }
     
-    // ✅ VERIFICAÇÃO SIMPLES DE LOGIN
-    const token = localStorage.getItem('userToken');
+    // ✅ VERIFICAÇÃO DE LOGIN (USA token JÁ DECLARADO)
     console.log('🔑 Token no localStorage:', !!token);
     
     if (token) {
@@ -4443,6 +4440,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
