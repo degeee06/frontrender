@@ -1370,7 +1370,7 @@ async function registerScheduleUsage() {
     }
 }
 
-// 7. Modal para limite diário (VERSÃO CORRIGIDA COM UPGRADE)
+// 7. Modal para limite diário (VERSÃO CORRIGIDA COM EVENT LISTENERS)
 function showDailyLimitModal(dailyLimit) {
     console.log('🎯 MOSTRANDO MODAL DE LIMITE - Usos:', dailyLimit);
     
@@ -1387,11 +1387,11 @@ function showDailyLimitModal(dailyLimit) {
                 Os usos serão resetados à meia-noite!
             </p>
             <div class="space-y-3">
-                <button onclick="upgradeToPro()" 
+                <button id="upgradeBtn" 
                         class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
                     🚀 Fazer Upgrade para Ilimitado
                 </button>
-                <button onclick="this.closest('.fixed').remove()" 
+                <button id="closeModalBtn" 
                         class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
                     Entendi
                 </button>
@@ -1402,8 +1402,47 @@ function showDailyLimitModal(dailyLimit) {
     feather.replace();
     
     console.log('✅ Modal de upgrade criado com sucesso!');
+    
+    // 🔥 CORREÇÃO CRÍTICA: Adiciona event listeners após criar o modal
+    setTimeout(() => {
+        // Botão de Upgrade
+        const upgradeBtn = document.getElementById('upgradeBtn');
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener('click', function() {
+                console.log('🎯 Botão Upgrade clicado!');
+                upgradeToPro();
+            });
+        }
+        
+        // Botão Fechar
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', function() {
+                console.log('❌ Fechando modal...');
+                modal.remove();
+            });
+        }
+        
+        // Fechar clicando fora
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                console.log('❌ Fechando modal (clique fora)...');
+                modal.remove();
+            }
+        });
+        
+        // Fechar com ESC
+        const closeOnEscape = function(e) {
+            if (e.key === 'Escape') {
+                console.log('❌ Fechando modal (ESC)...');
+                modal.remove();
+                document.removeEventListener('keydown', closeOnEscape);
+            }
+        };
+        document.addEventListener('keydown', closeOnEscape);
+        
+    }, 100);
 }
-
 // 8. Atualizar badge do plano (ATUALIZADO)
 async function updatePlanBadge() {
     try {
@@ -1441,13 +1480,16 @@ async function updatePlanBadge() {
     }
 }
 
-// 9. Upgrade para Pro (VERSÃO COM URL CORRETA)
-function upgradeToPro() {
+// 9. Upgrade para Pro (GARANTIR QUE ESTÁ NO ESCOPO GLOBAL)
+window.upgradeToPro = function() {
     console.log('🔄 upgradeToPro() CHAMADA - Redirecionando para checkout...');
     
     // Remove todos os modais abertos
     const modals = document.querySelectorAll('.fixed.inset-0');
-    modals.forEach(modal => modal.remove());
+    modals.forEach(modal => {
+        console.log('🗑️ Removendo modal:', modal);
+        modal.remove();
+    });
     
     // 🔥 URL CORRETA DO SEU CHECKOUT ONLINE
     const checkoutUrl = 'https://oubook.vercel.app/checkout.html';
@@ -1457,9 +1499,11 @@ function upgradeToPro() {
     // Mostra loading enquanto redireciona
     showToast("Redirecionando para upgrade...", "info");
     
-    // Redireciona para checkout
-    window.location.href = checkoutUrl;
-}
+    // Pequeno delay para usuário ver o toast
+    setTimeout(() => {
+        window.location.href = checkoutUrl;
+    }, 800);
+};
 
 // 10. Iniciar trial (MESMA FUNÇÃO)
 async function startTrial() {
@@ -4433,6 +4477,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
