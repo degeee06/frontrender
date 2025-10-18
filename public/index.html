@@ -1583,7 +1583,7 @@ async function init() {
                 atualizarInterfacePosLogin();
                 document.getElementById('secoesIA').style.display = 'block';
                 listarAgendamentos();
-                setTimeout(() => verificarConfiguracaoSheets(), 1000);
+                setTimeout(() => verificarConfiguracaoSheets(), 500);
             } else {
                 // Sessão inválida - limpa tudo
                 localStorage.removeItem('userToken');
@@ -4476,6 +4476,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
