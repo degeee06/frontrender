@@ -1089,7 +1089,7 @@ async function processarCallbackOAuth() {
             listarAgendamentos();
             setTimeout(() => iniciarSistemaAtualizacao(), 1000);
             showToast("Login realizado com sucesso!", "success");
-
+            await saveTermsAcceptanceToDatabase();
             // 🔥 VERIFICAÇÃO DE LIMITE APÓS LOGIN
             setTimeout(async () => {
                 if (premiumManager && userToken) {
@@ -1628,6 +1628,7 @@ function showTermsModal() {
 }
 
 // 🔒 FUNÇÃO ACEITAR TERMOS (com banco)
+// 🔒 FUNÇÃO ACEITAR TERMOS (com banco)
 async function acceptTerms() {
     try {
         console.log('✅ Salvando aceitação de termos...');
@@ -1637,7 +1638,7 @@ async function acceptTerms() {
         localStorage.setItem('termsAcceptedAt', new Date().toISOString());
         localStorage.setItem('termsVersion', '1.0');
         
-        // 2️⃣ Salva no banco (segurança/legal)
+        // 2️⃣ Salva no banco (segurança/legal) - MAS SÓ SE USUÁRIO JÁ ESTIVER LOGADO
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
@@ -1647,7 +1648,6 @@ async function acceptTerms() {
                     user_id: user.id,
                     user_email: user.email,
                     terms_version: '1.0',
-                    ip_address: await getClientIP(), // função opcional
                     user_agent: navigator.userAgent
                 });
             
@@ -1667,7 +1667,40 @@ async function acceptTerms() {
     }
 }
 
-
+// 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
+async function saveTermsAcceptanceToDatabase() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user && localStorage.getItem('termsAccepted')) {
+            // Verifica se já não salvou antes
+            const { data: existing } = await supabase
+                .from('user_terms_acceptance')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('terms_version', '1.0')
+                .single();
+            
+            if (!existing) {
+                const { error } = await supabase
+                    .from('user_terms_acceptance')
+                    .insert({
+                        user_id: user.id,
+                        user_email: user.email,
+                        terms_version: '1.0',
+                        ip_address: await getClientIP(),
+                        user_agent: navigator.userAgent
+                    });
+                
+                if (!error) {
+                    console.log('📝 Termos salvos no banco para usuário:', user.email);
+                }
+            }
+        }
+    } catch (error) {
+        console.log('⚠️ Não foi possível salvar termos no banco:', error);
+    }
+}
 
 function declineTerms() {
     console.log('❌ Usuário recusou os termos');
@@ -4701,6 +4734,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
