@@ -619,23 +619,25 @@ select option {
             <h1 class="text-2xl sm:text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
                Agendamento
             </h1>
-            <!-- 🔥 BADGE MOVIDO para ao lado do título -->
-            <div id="premiumBadge" class="hidden bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2">
-                <span id="usageCount">0/5</span>
+            <!-- 🔥 BADGE TECNOLÓGICO E MODERNO -->
+            <div id="premiumBadge" class="hidden glass-card border border-white/20 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 shadow-lg">
+                <div class="w-1.5 h-1.5 bg-gradient-to-r from-green-400 to-cyan-400 rounded-full animate-pulse"></div>
+                <span id="usageCount" class="font-mono font-medium">0/5</span>
             </div>
         </div>
         <div class="flex gap-2 w-full sm:w-auto">
-            <!-- ❌ REMOVIDO daqui -->
             <button id="gerarLinkBtn" style="display:none;" 
-                    class="text-xs sm:text-sm bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                    class="text-xs sm:text-sm glass-card border border-white/20 hover:border-cyan-400/50 px-3 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-105">
                 <i data-feather="link" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                 Gerar Link
             </button>
-            <button id="settingsBtn" style="display:none;" class="text-xs sm:text-sm bg-gray-600 hover:bg-gray-700 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+            <button id="settingsBtn" style="display:none;" 
+                    class="text-xs sm:text-sm glass-card border border-white/20 hover:border-gray-400/50 px-3 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-105">
                 <i data-feather="settings" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                 Configurações
             </button>
-            <button id="logoutBtn" style="display:none;" class="text-xs sm:text-sm bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+            <button id="logoutBtn" style="display:none;" 
+                    class="text-xs sm:text-sm glass-card border border-white/20 hover:border-red-400/50 px-3 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-105">
                 <i data-feather="log-out" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                 Sair
             </button>
@@ -4478,6 +4480,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
