@@ -1224,7 +1224,7 @@ async function checkTrialStatus() {
         }
         
         // AGORA USA CONTAGEM DIÁRIA
-        const dailyUsage = await getDailyUsage(trial, 5);
+        const dailyUsage = await getDailyUsage(trial, 3);
         
         console.log('🔍 Free Trial encontrado:', {
             daily_usage_count: dailyUsage.dailyUsageCount,
@@ -4407,6 +4407,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
