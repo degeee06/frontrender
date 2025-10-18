@@ -2507,29 +2507,29 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
             }
         }
 
-  // 🔥 SUBSTITUA a função logoutSilencioso por esta versão CORRIGIDA:
+ // ---------------- LOGOUT SILENCIOSO ----------------
 async function logoutSilencioso() {
     try {
-        console.log('🔒 Executando logout silencioso...');
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
         userToken = null;
         agendamentosCache = [];
         
-        // 🔥 CORREÇÃO: Para todas as operações em andamento
-        desconectarSSE();
-        if (intervaloAtualizacao) {
-            clearInterval(intervaloAtualizacao);
-        }
+        // Atualiza interface
+        loginSection.style.display = 'block';
+        form.style.display = 'none';
+        meusAgendamentos.style.display = 'none';
+        document.getElementById('filtersSection').style.display = 'none';
+        document.getElementById('diasTabs').style.display = 'none';
+        atualizarInterfacePosLogin();
+        document.getElementById('secoesIA').style.display = 'none';
         
-        // 🔥 CORREÇÃO: Usa função centralizada
-        mostrarTelaLogin();
-        
-        console.log('✅ Logout silencioso concluído');
     } catch (error) {
         console.log('Erro no logout silencioso:', error);
     }
 }
+
+        
        async function listarAgendamentos(){
     // 🔥 CORREÇÃO: Verifica se usuário está logado ANTES de fazer qualquer coisa
     if (!userToken) {
@@ -2668,25 +2668,30 @@ async function logoutSilencioso() {
             }
         });
 
-// 🔥 SUBSTITUA o event listener do logoutBtn por esta versão CORRIGIDA:
+// ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
+    desconectarSSE();
     console.log('🚪 Iniciando logout...');
     
     try {
-        // Para todas as operações
-        desconectarSSE();
-        if (intervaloAtualizacao) {
-            clearInterval(intervaloAtualizacao);
+        // 🔥 CORREÇÃO: Remove event listeners específicos
+        if (searchInput && typeof renderAgendamentos === 'function') {
+            searchInput.removeEventListener("input", renderAgendamentos);
+        }
+        if (statusFilter && typeof renderAgendamentos === 'function') {
+            statusFilter.removeEventListener("change", renderAgendamentos);
         }
         
         // Limpa storage
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
         
-        // Logout no Supabase
+        // 🔥 DEPOIS FAZ LOGOUT NO SUPABASE
         const { error } = await supabase.auth.signOut();
         if (error) {
             console.log('⚠️ Erro no logout Supabase:', error);
+        } else {
+            console.log('✅ Logout Supabase realizado');
         }
         
     } catch (error) {
@@ -2696,11 +2701,24 @@ logoutBtn.addEventListener('click', async () => {
         userToken = null;
         agendamentosCache = [];
         
-        // 🔥 CORREÇÃO: Usa função centralizada para garantir que TUDO seja ocultado
-        mostrarTelaLogin();
+        // 🔥 REDEFINE A INTERFACE
+        loginSection.style.display = 'block';
+        form.style.display = 'none';
+        meusAgendamentos.style.display = 'none';
+        document.getElementById('filtersSection').style.display = 'none';
+        document.getElementById('diasTabs').style.display = 'none';
+        atualizarInterfacePosLogin();
+        document.getElementById('secoesIA').style.display = 'none';
         
-        console.log('✅ Logout realizado com sucesso');
+        // 🔥 LIMPA OS CAMPOS
+        document.getElementById('email').value = '';
+        document.getElementById('senha').value = '';
+        
+        console.log('✅ Interface resetada');
         showToast("Logout realizado com sucesso", "info");
+        
+        // 🔥 RECARREGA PARA GARANTIR CLEAN STATE
+        setTimeout(() => window.location.reload(), 500);
     }
 });
 
@@ -3922,6 +3940,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
