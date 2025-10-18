@@ -1094,7 +1094,189 @@ if (token) {
     mostrarTelaLogin();
 }
 
-  // ✅ ADICIONE ESTA LINHA na função init():
+
+// ✅ CORREÇÃO: Sistema de Subscription Completo
+
+// 1. Verificar limite de agendamentos
+async function checkScheduleLimit() {
+    if (!userToken) return { canSchedule: false, reason: 'not_logged_in' };
+    
+    try {
+        // Verificar assinatura ativa
+        const subscription = await getUserSubscription();
+        
+        let maxDailySchedules = 3; // Plano grátis
+        
+        if (subscription && subscription.status === 'active') {
+            maxDailySchedules = subscription.max_daily_schedules || 999;
+        }
+        
+        // Verificar usos hoje
+        const today = new Date().toISOString().split('T')[0];
+        const { data: todaySchedules, error } = await supabase
+            .from('user_usage_log')
+            .select('id')
+            .eq('user_id', (await supabase.auth.getUser()).data.user.id)
+            .eq('action_type', 'schedule')
+            .gte('used_at', today + 'T00:00:00')
+            .lte('used_at', today + 'T23:59:59');
+            
+        if (error) throw error;
+        
+        const usedToday = todaySchedules ? todaySchedules.length : 0;
+        const remaining = maxDailySchedules - usedToday;
+        
+        console.log(`📅 Agendamentos hoje: ${usedToday}/${maxDailySchedules}`);
+        
+        return {
+            canSchedule: remaining > 0,
+            remaining: remaining,
+            usedToday: usedToday,
+            maxDailySchedules: maxDailySchedules,
+            isPremium: subscription && subscription.status === 'active'
+        };
+        
+    } catch (error) {
+        console.error('❌ Erro ao verificar limite:', error);
+        return { canSchedule: false, reason: 'error' };
+    }
+}
+
+// 2. Buscar assinatura do usuário
+async function getUserSubscription() {
+    if (!userToken) return null;
+    
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
+        
+        const { data, error } = await supabase
+            .from('user_subscriptions')
+            .select('*')
+            .eq('user_email', user.email)
+            .eq('status', 'active')
+            .gte('ends_at', new Date().toISOString())
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+            
+        if (error && error.code !== 'PGRST116') {
+            console.error('❌ Erro ao buscar assinatura:', error);
+        }
+        
+        console.log('🔍 Assinatura encontrada:', data);
+        return data;
+    } catch (error) {
+        console.error('❌ Erro ao buscar assinatura:', error);
+        return null;
+    }
+}
+
+// 3. Registrar uso de agendamento
+async function registerScheduleUsage() {
+    if (!userToken) return false;
+    
+    try {
+        const limitCheck = await checkScheduleLimit();
+        
+        if (!limitCheck.canSchedule) {
+            showScheduleLimitModal(limitCheck);
+            return false;
+        }
+        
+        // Registrar o uso
+        const { data: { user } } = await supabase.auth.getUser();
+        const { error } = await supabase
+            .from('user_usage_log')
+            .insert([{
+                user_id: user.id,
+                action_type: 'schedule',
+                details: { type: 'new_appointment' }
+            }]);
+            
+        if (error) throw error;
+        
+        console.log('✅ Uso de agendamento registrado');
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Erro ao registrar uso:', error);
+        return false;
+    }
+}
+
+// 4. Modal de limite atingido
+function showScheduleLimitModal(limitInfo) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-feather="calendar" class="text-yellow-600 w-8 h-8"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite de Agendamentos</h3>
+            <p class="text-gray-600 mb-6">
+                Você já utilizou todos os <strong>${limitInfo.maxDailySchedules} agendamentos</strong> de hoje.
+                ${!limitInfo.isPremium ? 'Faça upgrade para agendar ilimitadamente!' : ''}
+            </p>
+            <div class="space-y-3">
+                ${!limitInfo.isPremium ? `
+                <button onclick="upgradeToPro()" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
+                    🚀 Fazer Upgrade - R$ 29,90/mês
+                </button>
+                ` : ''}
+                <button onclick="this.closest('.fixed').remove()" 
+                        class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    feather.replace();
+}
+
+// 5. Upgrade para Pro
+function upgradeToPro() {
+    console.log('🔄 Redirecionando para página de checkout...');
+    window.location.href = 'checkout.html';
+}
+
+// 6. Atualizar badge do plano
+async function updatePlanBadge() {
+    try {
+        const subscription = await getUserSubscription();
+        const limitCheck = await checkScheduleLimit();
+        
+        let planBadge = document.getElementById('planBadge');
+        
+        if (!planBadge) {
+            planBadge = document.createElement('span');
+            planBadge.id = 'planBadge';
+            
+            const headerContainer = document.querySelector('.flex.gap-2.w-full.sm\\:w-auto');
+            if (headerContainer) {
+                headerContainer.appendChild(planBadge);
+            }
+        }
+        
+        if (subscription && subscription.status === 'active') {
+            planBadge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-2 py-1 rounded-full ml-2';
+            planBadge.textContent = '🚀 Premium';
+        } else {
+            planBadge.className = 'bg-green-500 text-white text-xs px-2 py-1 rounded-full ml-2';
+            planBadge.textContent = `📝 ${limitCheck.remaining}/3`;
+        }
+        
+    } catch (error) {
+        console.error('Erro ao atualizar badge:', error);
+    }
+}
+
+
+        
+   // ✅ ATUALIZE a função init para incluir este código:
 async function init() {
     console.log('🚀 Iniciando app...');
     
@@ -1118,10 +1300,7 @@ async function init() {
     
     // Configura listeners
     configurarEventListenersModal();
-    
-    // 🔥 ADICIONE ESTA LINHA: Configurar botão settings
-    configurarBotaoSettings();
-    
+        configurarBotaoSettings();
     // ✅ LISTENER CAPACITOR CORRIGIDO - ADICIONE ESTE BLOCO
     if (window.Capacitor && window.Capacitor.Plugins?.App) {
         window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
@@ -1210,178 +1389,6 @@ function mostrarTelaLogin() {
     console.log('✅ Tela de login configurada completamente');
 }
 
-// ❌ SEU CÓDIGO ATUAL - está como métodos de classe, mas seu projeto não usa classe
-
-// ✅ CORREÇÃO - transforme em funções globais:
-async function checkScheduleLimit() {
-    if (!userToken) return { canSchedule: false, reason: 'not_logged_in' };
-    
-    try {
-        // ⭐⭐ VERIFICAR ASSINATURA ATIVA
-        const subscription = await getUserSubscription();
-        
-        let maxDailySchedules = 3; // Plano grátis
-        
-        if (subscription && subscription.status === 'active') {
-            maxDailySchedules = subscription.max_daily_schedules || 999; // Ilimitado para assinantes
-        }
-        
-        // ⭐⭐ VERIFICAR USOS HOJE
-        const today = new Date().toISOString().split('T')[0];
-        const { data: todaySchedules, error } = await supabase
-            .from('user_usage_log')
-            .select('id')
-            .eq('user_id', (await supabase.auth.getUser()).data.user.id)
-            .eq('action_type', 'schedule')
-            .gte('used_at', today + 'T00:00:00')
-            .lte('used_at', today + 'T23:59:59');
-            
-        if (error) throw error;
-        
-        const usedToday = todaySchedules ? todaySchedules.length : 0;
-        const remaining = maxDailySchedules - usedToday;
-        
-        console.log(`📅 Agendamentos hoje: ${usedToday}/${maxDailySchedules}`);
-        
-        return {
-            canSchedule: remaining > 0,
-            remaining: remaining,
-            usedToday: usedToday,
-            maxDailySchedules: maxDailySchedules,
-            isPremium: subscription && subscription.status === 'active'
-        };
-        
-    } catch (error) {
-        console.error('❌ Erro ao verificar limite:', error);
-        return { canSchedule: false, reason: 'error' };
-    }
-}
-
-// 2. Buscar assinatura do usuário
-async function getUserSubscription() {
-    if (!userToken) return null;
-    
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return null;
-        
-        const { data, error } = await supabase
-            .from('user_subscriptions')
-            .select('*')
-            .eq('user_email', user.email)
-            .eq('status', 'active')
-            .gte('ends_at', new Date().toISOString())
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-            
-        if (error && error.code !== 'PGRST116') {
-            console.error('❌ Erro ao buscar assinatura:', error);
-        }
-        
-        console.log('🔍 Assinatura encontrada:', data);
-        return data;
-    } catch (error) {
-        console.error('❌ Erro ao buscar assinatura:', error);
-        return null;
-    }
-}
-
-// ✅ REGISTRAR USO DE AGENDAMENTO
-async function registerScheduleUsage() {
-    if (!userToken) return false;
-    
-    try {
-        const limitCheck = await checkScheduleLimit();
-        
-        if (!limitCheck.canSchedule) {
-            showScheduleLimitModal(limitCheck);
-            return false;
-        }
-        
-        // Registrar o uso
-        const { data: { user } } = await supabase.auth.getUser();
-        const { error } = await supabase
-            .from('user_usage_log')
-            .insert([{
-                user_id: user.id,
-                action_type: 'schedule',
-                details: { type: 'new_appointment' }
-            }]);
-            
-        if (error) throw error;
-        
-        console.log('✅ Uso de agendamento registrado');
-        return true;
-        
-    } catch (error) {
-        console.error('❌ Erro ao registrar uso:', error);
-        return false;
-    }
-}
-
-
-// ✅ ADICIONE ESTA FUNÇÃO PARA CRIAR O BADGE DINAMICAMENTE
-function criarBadgePlano() {
-    // Remove badge existente se houver
-    const badgeExistente = document.getElementById('planBadge');
-    if (badgeExistente) {
-        badgeExistente.remove();
-    }
-    
-    // Cria novo badge
-    const planBadge = document.createElement('span');
-    planBadge.id = 'planBadge';
-    planBadge.className = 'text-xs px-2 py-1 rounded-full ml-2';
-    
-    // Adiciona ao header (antes do botão de configurações)
-    const settingsBtn = document.getElementById('settingsBtn');
-    if (settingsBtn && settingsBtn.parentNode) {
-        settingsBtn.parentNode.insertBefore(planBadge, settingsBtn);
-    }
-    
-    return planBadge;
-}
-        
-// ✅ MODAL DE LIMITE ATINGIDO
-function showScheduleLimitModal(limitInfo) {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    modal.innerHTML = `
-        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
-            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-feather="calendar" class="text-yellow-600 w-8 h-8"></i>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite de Agendamentos</h3>
-            <p class="text-gray-600 mb-6">
-                Você já utilizou todos os <strong>${limitInfo.maxDailySchedules} agendamentos</strong> de hoje.
-                ${!limitInfo.isPremium ? 'Faça upgrade para agendar ilimitadamente!' : ''}
-            </p>
-            <div class="space-y-3">
-                ${!limitInfo.isPremium ? `
-                <button onclick="window.upgradeToPro()" 
-                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
-                    🚀 Fazer Upgrade - R$ 29,90/mês
-                </button>
-                ` : ''}
-                <button onclick="this.closest('.fixed').remove()" 
-                        class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
-                    Entendi
-                </button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-    feather.replace();
-}
-
-// ✅ UPGRADE PARA PRO (igual ao CopyCraft)
-upgradeToPro() {
-    console.log('🔄 Redirecionando para página de checkout...');
-    window.location.href = 'checkout.html';
-}
-
-        
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
 
 // 🎯 FUNÇÃO: Menu de Configurações (ATUALIZADA)
@@ -2090,45 +2097,64 @@ function atualizarInterfacePosLogin() {
     // Configura botão settings
     configurarBotaoSettings();
     
-    console.log('✅ Interface do usuário logado configurada');
- // ✅ ADICIONE: Atualizar badge do plano
     setTimeout(() => {
         updatePlanBadge();
     }, 1000);
+    
+    console.log('✅ Interface do usuário logado configurada');
 }
 
-        
-// ✅ FUNÇÃO CORRIGIDA - SUBSTITUA A EXISTENTE
-async function updatePlanBadge() {
+
+        // 🔥 ADICIONE: Event listener para o botão gerar link
+        document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
+
+       async function gerarLinkAgendamento() {
     try {
-        const subscription = await getUserSubscription();
-        const limitCheck = await checkScheduleLimit();
-        
-        // 🔥 CORREÇÃO: Encontra ou cria o badge
-        let planBadge = document.getElementById('planBadge');
-        
-        if (!planBadge) {
-            planBadge = document.createElement('span');
-            planBadge.id = 'planBadge';
+        // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL
+        let temPerfil = false;
+        try {
+            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+                headers: { 'Authorization': `Bearer ${userToken}` }
+            });
             
-            // Adiciona ao header próximo aos outros botões
-            const headerContainer = document.querySelector('.flex.gap-2.w-full.sm\\:w-auto');
-            if (headerContainer) {
-                headerContainer.appendChild(planBadge);
+            if (perfilResponse.ok) {
+                const perfilData = await perfilResponse.json();
+                temPerfil = perfilData.success && perfilData.perfil;
             }
+        } catch (perfilError) {
+            console.error('Erro ao verificar perfil:', perfilError);
         }
         
-        // Atualiza o conteúdo
-        if (subscription && subscription.status === 'active') {
-            planBadge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-2 py-1 rounded-full ml-2';
-            planBadge.textContent = '🚀 Premium';
+        if (!temPerfil) {
+            showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
+            abrirMenuConfiguracoes();
+            return;
+        }
+
+        // 🔥 CONTINUA COM A GERAÇÃO DO LINK...
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user || !user.id) {
+            showToast("Erro: usuário não encontrado", "error");
+            return;
+        }
+
+        const userId = user.id;
+        
+        const response = await fetch(`${API_BASE_URL}/gerar-link/${userId}`, {
+            headers: { 'Authorization': `Bearer ${userToken}` }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarModalLinkAgendamento(result.link, result.qr_code);
         } else {
-            planBadge.className = 'bg-green-500 text-white text-xs px-2 py-1 rounded-full ml-2';
-            planBadge.textContent = `📝 ${limitCheck.remaining}/3`;
+            showToast("Erro ao gerar link: " + (result.msg || ""), "error");
         }
-        
     } catch (error) {
-        console.error('Erro ao atualizar badge:', error);
+        console.error('❌ Erro ao gerar link:', error);
+        showToast("Erro ao gerar link de agendamento", "error");
     }
 }
         
@@ -2699,13 +2725,6 @@ async function logoutSilencioso() {
     }
 }
 
-// 5. Upgrade para Pro
-function upgradeToPro() {
-    console.log('🔄 Redirecionando para página de checkout...');
-    window.location.href = 'checkout.html';
-}
-
-        
         
        async function listarAgendamentos(){
     // 🔥 CORREÇÃO: Verifica se usuário está logado ANTES de fazer qualquer coisa
@@ -2904,21 +2923,20 @@ logoutBtn.addEventListener('click', async () => {
     }
 });
 
-   // 🔥 ATUALIZE O EVENT LISTENER DO FORMULÁRIO
-form.addEventListener('submit', async (e) => {
+      // ---------------- AGENDAR ----------------
+form.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    
-    // ✅ PRIMEIRO verifica limite
+     // ✅ NOVO SISTEMA: Verificar limite antes de agendar
     const canSchedule = await registerScheduleUsage();
     if (!canSchedule) {
         return; // Não permite agendar se atingiu o limite
     }
     
-    // 🔥 CONTINUA COM O AGENDAMENTO NORMAL (seu código atual)
     const formData = new FormData(form);
     const dataToSend = {};
     formData.forEach((v,k) => dataToSend[k] = v);
 
+    // ✅ NOVO - Email opcional:
     if(!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
         showToast("Preencha todos os campos obrigatórios", "warning");
         return;
@@ -4129,12 +4147,6 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
-
-
-
-
-
-
 
 
 
