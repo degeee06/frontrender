@@ -2507,23 +2507,33 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
             }
         }
 
- // ---------------- LOGOUT SILENCIOSO ----------------
+// ---------------- LOGOUT SILENCIOSO ----------------
 async function logoutSilencioso() {
     try {
+        console.log('🔒 Executando logout silencioso...');
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
         userToken = null;
         agendamentosCache = [];
         
-        // Atualiza interface
+        // Para operações em andamento
+        desconectarSSE();
+        if (intervaloAtualizacao) {
+            clearInterval(intervaloAtualizacao);
+        }
+        
+        // 🔥 CORREÇÃO: Oculta TUDO e mostra apenas login
         loginSection.style.display = 'block';
         form.style.display = 'none';
         meusAgendamentos.style.display = 'none';
         document.getElementById('filtersSection').style.display = 'none';
         document.getElementById('diasTabs').style.display = 'none';
-        atualizarInterfacePosLogin();
         document.getElementById('secoesIA').style.display = 'none';
+        logoutBtn.style.display = 'none';
+        document.getElementById('settingsBtn').style.display = 'none';
+        document.getElementById('gerarLinkBtn').style.display = 'none';
         
+        console.log('✅ Logout silencioso concluído');
     } catch (error) {
         console.log('Erro no logout silencioso:', error);
     }
@@ -2670,28 +2680,23 @@ async function logoutSilencioso() {
 
 // ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
-    desconectarSSE();
     console.log('🚪 Iniciando logout...');
     
     try {
-        // 🔥 CORREÇÃO: Remove event listeners específicos
-        if (searchInput && typeof renderAgendamentos === 'function') {
-            searchInput.removeEventListener("input", renderAgendamentos);
-        }
-        if (statusFilter && typeof renderAgendamentos === 'function') {
-            statusFilter.removeEventListener("change", renderAgendamentos);
+        // Para todas as operações
+        desconectarSSE();
+        if (intervaloAtualizacao) {
+            clearInterval(intervaloAtualizacao);
         }
         
         // Limpa storage
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
         
-        // 🔥 DEPOIS FAZ LOGOUT NO SUPABASE
+        // Logout no Supabase
         const { error } = await supabase.auth.signOut();
         if (error) {
             console.log('⚠️ Erro no logout Supabase:', error);
-        } else {
-            console.log('✅ Logout Supabase realizado');
         }
         
     } catch (error) {
@@ -2701,24 +2706,34 @@ logoutBtn.addEventListener('click', async () => {
         userToken = null;
         agendamentosCache = [];
         
-        // 🔥 REDEFINE A INTERFACE
+        // 🔥 CORREÇÃO CRÍTICA: Oculta TODAS as seções do app
         loginSection.style.display = 'block';
         form.style.display = 'none';
         meusAgendamentos.style.display = 'none';
         document.getElementById('filtersSection').style.display = 'none';
         document.getElementById('diasTabs').style.display = 'none';
-        atualizarInterfacePosLogin();
         document.getElementById('secoesIA').style.display = 'none';
         
-        // 🔥 LIMPA OS CAMPOS
-        document.getElementById('email').value = '';
-        document.getElementById('senha').value = '';
+        // 🔥 CORREÇÃO: Oculta botões do usuário logado
+        logoutBtn.style.display = 'none';
+        document.getElementById('settingsBtn').style.display = 'none';
+        document.getElementById('gerarLinkBtn').style.display = 'none';
         
-        console.log('✅ Interface resetada');
+        // 🔥 CORREÇÃO: Limpa os campos de login
+        if (document.getElementById('email')) {
+            document.getElementById('email').value = '';
+        }
+        if (document.getElementById('senha')) {
+            document.getElementById('senha').value = '';
+        }
+        
+        console.log('✅ Logout realizado com sucesso - interface limpa');
         showToast("Logout realizado com sucesso", "info");
         
-        // 🔥 RECARREGA PARA GARANTIR CLEAN STATE
-        setTimeout(() => window.location.reload(), 500);
+        // 🔥 OPCIONAL: Recarrega para garantir clean state completo
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
     }
 });
 
@@ -3940,6 +3955,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
