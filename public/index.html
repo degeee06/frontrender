@@ -1508,31 +1508,32 @@ async function init() {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
-            userToken = session.access_token;
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            
-            // 🔥 ADICIONAR: Inicializar Premium Manager ANTES de usar
-            premiumManager = new PremiumManager();
-            await premiumManager.startTrial(); // Inicia trial se necessário
-            
-            // 🔥 CORREÇÃO CRÍTICA: Verificar se JÁ ESTÁ NO LIMITE no login
-            const status = await premiumManager.checkTrialStatus();
-            console.log('📊 Status do trial no login:', status);
-            
-            // Se NÃO tem trial ou ZERO usos restantes → MOSTRA MODAL
-            if (!status.hasTrial || status.dailyUsagesLeft <= 0) {
-                console.log('🚫 Usuário SEM usos disponíveis no login - mostrando modal');
-                const limit = status.isPremiumTrial ? 15 : 5;
-                premiumManager.showDailyLimitModal(limit);
-            }
-            
-            await premiumManager.updateUsageBadge(); // Atualiza badge
-            
-            atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
-            listarAgendamentos();
-            setTimeout(() => verificarConfiguracaoSheets(), 1000);
+    userToken = session.access_token;
+    loginSection.style.display = 'none';
+    form.style.display = 'block';
+    
+    // 🔥 CORREÇÃO: Inicializar Premium Manager UMA VEZ
+    premiumManager = new PremiumManager();
+    await premiumManager.startTrial();
+    
+    // 🔥 CORREÇÃO CRÍTICA: Verificação CORRETA do limite
+    const status = await premiumManager.checkTrialStatus();
+    console.log('📊 Status do trial no login:', status);
+    
+    // 🔥 CORREÇÃO: Só mostra modal se TEM trial mas ZERO usos
+    if (status.hasTrial && status.dailyUsagesLeft <= 0) {
+        console.log('🚫 Usuário COM trial mas SEM usos disponíveis - mostrando modal');
+        const limit = status.isPremiumTrial ? 15 : 5;
+        premiumManager.showDailyLimitModal(limit);
+    }
+    
+    await premiumManager.updateUsageBadge();
+    
+    // 🔥 REMOVER a inicialização duplicada desta função
+    atualizarInterfacePosLogin();
+    document.getElementById('secoesIA').style.display = 'block';
+    listarAgendamentos();
+    setTimeout(() => verificarConfiguracaoSheets(), 1000);
         } else {
             // Sessão inválida - limpa tudo
             localStorage.removeItem('userToken');
@@ -2261,8 +2262,8 @@ function configurarBotaoSettings() {
 }
 
 
-  // 🔥 CORREÇÃO: Função para mostrar interface do usuário logado
-async function atualizarInterfacePosLogin() {  // ← Adicionar async aqui
+ // 🔥 CORREÇÃO: Função para mostrar interface do usuário logado
+async function atualizarInterfacePosLogin() {
     console.log('🎯 Atualizando interface para usuário LOGADO...');
     
     // Oculta login
@@ -2295,19 +2296,10 @@ async function atualizarInterfacePosLogin() {  // ← Adicionar async aqui
     
     const gerarLinkBtn = document.getElementById('gerarLinkBtn');
     if (gerarLinkBtn) gerarLinkBtn.style.display = 'flex';
-
-     // 🔥 NOVO: INICIALIZAR PREMIUM MANAGER
-    premiumManager = new PremiumManager();
     
-    // 🔥 NOVO: INICIAR TRIAL E ATUALIZAR BADGE
+    // 🔥 APENAS atualiza o badge se o Premium Manager já existir
     if (premiumManager) {
-        try {
-            await premiumManager.startTrial();  // ← Agora está dentro de async
-            await premiumManager.updateUsageBadge();
-            console.log('✅ Premium Manager inicializado e trial iniciado');
-        } catch (error) {
-            console.error('❌ Erro ao iniciar premium manager:', error);
-        }
+        await premiumManager.updateUsageBadge();
     }
     
     // Configura botão settings
@@ -2315,7 +2307,6 @@ async function atualizarInterfacePosLogin() {  // ← Adicionar async aqui
     
     console.log('✅ Interface do usuário logado configurada');
 }
-
 
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
@@ -4374,6 +4365,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
