@@ -1566,7 +1566,36 @@ if (token) {
     mostrarTelaLogin();
 }
 
+// DEBUG - descubra o que está causando o rosa
+function debugUpgradeButton() {
+    setTimeout(() => {
+        const upgradeBtn = document.querySelector('.upgrade-btn-custom');
+        if (upgradeBtn) {
+            console.log('🔍 DEBUG BOTÃO UPGRADE:');
+            console.log('Elemento:', upgradeBtn);
+            console.log('Background computado:', window.getComputedStyle(upgradeBtn).background);
+            console.log('BackgroundImage:', window.getComputedStyle(upgradeBtn).backgroundImage);
+            console.log('Todas as classes:', upgradeBtn.className);
+            
+            // Verifica estilos aplicados
+            const styles = window.getComputedStyle(upgradeBtn);
+            console.log('Todos os estilos aplicados:');
+            for (let i = 0; i < styles.length; i++) {
+                const prop = styles[i];
+                if (prop.includes('background') || prop.includes('gradient')) {
+                    console.log(prop + ':', styles.getPropertyValue(prop));
+                }
+            }
+        }
+    }, 500);
+}
 
+// Chama o debug quando abrir o modal
+const originalAbrirMenu = abrirMenuConfiguracoes;
+abrirMenuConfiguracoes = function() {
+    originalAbrirMenu();
+    debugUpgradeButton();
+};
 
         
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
@@ -4543,6 +4572,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
