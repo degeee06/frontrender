@@ -1728,36 +1728,41 @@ async function checkTermsAcceptance() {
     return false;
 }
         
+
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
     
-    // 🔍 VERIFICAR SE JÁ ESTÁ LOGADO PRIMEIRO
-    const token = localStorage.getItem('userToken');
+    // 🔍 ADICIONE APENAS ISSO (VERIFICAÇÃO DE TERMOS)
     const termsAccepted = localStorage.getItem('termsAccepted');
-    
-    if (token) {
-        // 🔥 USUÁRIO JÁ LOGADO - VERIFICA SESSÃO
-        console.log('🔑 Usuário potencialmente logado - verificando sessão...');
-        // SEU CÓDIGO ATUAL DE VERIFICAÇÃO DE SESSÃO CONTINUA AQUI
-        
-    } else if (!termsAccepted) {
-        // 🔐 NÃO LOGADO E NÃO ACEITOU TERMOS - MOSTRA TERMOS
+    if (!termsAccepted) {
+        // MOSTRA TERMOS PRIMEIRO
         console.log('📝 Mostrando termos (usuário não logado)');
         document.getElementById('termsModal').classList.remove('hidden');
         document.getElementById('loginSection').classList.add('hidden');
-    } else {
-        // 🔐 NÃO LOGADO MAS JÁ ACEITOU TERMOS - MOSTRA LOGIN
-        console.log('👤 Mostrando login (termos já aceitos)');
-        document.getElementById('termsModal').classList.add('hidden');
-        document.getElementById('loginSection').classList.remove('hidden');
     }
+    // FIM DA ADIÇÃO
     
-    // 🔍 SEU CÓDIGO EXISTENTE CONTINUA...
+    // 🔍 SEU CÓDIGO ORIGINAL CONTINUA DAQUI PRA BAIXO (NÃO ALTERE!)
     if (verificarCallbackOAuth()) {
         console.log('⏸️ Parando init - é callback OAuth');
         return;
     }
+    
+    console.log('▶️ Continuando init normal...');
+    
+    // Aplica máscara de telefone
+    setTimeout(() => {
+        const telefoneInput = document.getElementById('Telefone');
+        if (telefoneInput && window.IMask) {
+            IMask(telefoneInput, {
+                mask: '(00) 00000-0000'
+            });
+            console.log('✅ Máscara de telefone aplicada!');
+        }
+    }, 1000);
+    
+    // ... TODO O RESTO DO SEU CÓDIGO ORIGINAL (NÃO MEXE!)
     
     console.log('▶️ Continuando init normal...');
     
@@ -4752,6 +4757,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
