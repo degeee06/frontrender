@@ -1766,16 +1766,6 @@ async function checkTermsAcceptance() {
 async function init() {
     console.log('🚀 Iniciando app...');
     
-    // 🔍 ADICIONE APENAS ISSO (VERIFICAÇÃO DE TERMOS)
-    const termsAccepted = localStorage.getItem('termsAccepted');
-    if (!termsAccepted) {
-        // MOSTRA TERMOS PRIMEIRO
-        console.log('📝 Mostrando termos (usuário não logado)');
-        document.getElementById('termsModal').classList.remove('hidden');
-        document.getElementById('loginSection').classList.add('hidden');
-    }
-    // FIM DA ADIÇÃO
-    
     // 🔍 SEU CÓDIGO ORIGINAL CONTINUA DAQUI PRA BAIXO (NÃO ALTERE!)
     if (verificarCallbackOAuth()) {
         console.log('⏸️ Parando init - é callback OAuth');
@@ -4790,6 +4780,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
