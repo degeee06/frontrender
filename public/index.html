@@ -1507,29 +1507,28 @@ async function init() {
         // Verifica se a sessão ainda é válida
         const { data: { session } } = await supabase.auth.getSession();
         
-        if (session) {
+      if (session) {
     userToken = session.access_token;
     loginSection.style.display = 'none';
     form.style.display = 'block';
     
-    // 🔥 CORREÇÃO: Inicializar Premium Manager UMA VEZ
+    // 🔥 ADICIONAR: Inicializar Premium Manager ANTES de usar
     premiumManager = new PremiumManager();
-    await premiumManager.startTrial();
+    await premiumManager.startTrial(); // Inicia trial se necessário
     
-    // 🔥 CORREÇÃO CRÍTICA: Verificação CORRETA do limite
+    // 🔥 CORREÇÃO CRÍTICA: Verificar se JÁ ESTÁ NO LIMITE no login
     const status = await premiumManager.checkTrialStatus();
     console.log('📊 Status do trial no login:', status);
     
     // 🔥 CORREÇÃO: Só mostra modal se TEM trial mas ZERO usos
     if (status.hasTrial && status.dailyUsagesLeft <= 0) {
-        console.log('🚫 Usuário COM trial mas SEM usos disponíveis - mostrando modal');
+        console.log('🚫 Usuário COM trial mas SEM usos disponíveis no login - mostrando modal');
         const limit = status.isPremiumTrial ? 15 : 5;
         premiumManager.showDailyLimitModal(limit);
     }
     
-    await premiumManager.updateUsageBadge();
+    await premiumManager.updateUsageBadge(); // Atualiza badge
     
-    // 🔥 REMOVER a inicialização duplicada desta função
     atualizarInterfacePosLogin();
     document.getElementById('secoesIA').style.display = 'block';
     listarAgendamentos();
@@ -4365,6 +4364,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
