@@ -1373,31 +1373,35 @@ showDailyLimitModal(dailyLimit) {
         // window.location.href = 'checkout.html';
     }
 
-    // ✅ ATUALIZAR BADGE
-    async updateUsageBadge() {
-        const badge = document.getElementById('premiumBadge');
-        if (!badge) return;
+   // ✅ ATUALIZAR BADGE - VERSÃO CORRIGIDA
+async updateUsageBadge() {
+    const badge = document.getElementById('premiumBadge');
+    if (!badge) return;
+    
+    try {
+        const status = await this.checkTrialStatus();
         
-        try {
-            const status = await this.checkTrialStatus();
-            
-            if (status.unlimited) {
-                badge.innerHTML = '<span>🚀 Premium</span>';
-                badge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
-                badge.style.display = 'flex';
-            } else if (status.dailyUsagesLeft > 0) {
-                const used = (status.isPremiumTrial ? 15 : 5) - status.dailyUsagesLeft;
-                const total = status.isPremiumTrial ? 15 : 5;
-                badge.innerHTML = `<span>🎯 ${used}/${total}</span>`;
-                badge.className = 'bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Erro ao atualizar badge:', error);
-            badge.style.display = 'none';
+        if (status.unlimited) {
+            badge.innerHTML = '<span>🚀 Premium</span>';
+            badge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            badge.style.display = 'flex';
+        } else if (status.dailyUsagesLeft > 0) {
+            // 🔥 USOS DISPONÍVEIS - Verde
+            const used = (status.isPremiumTrial ? 15 : 5) - status.dailyUsagesLeft;
+            const total = status.isPremiumTrial ? 15 : 5;
+            badge.innerHTML = `<span>🎯 ${used}/${total}</span>`;
+            badge.className = 'bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            badge.style.display = 'flex';
+        } else {
+            // 🔥 LIMITE ATINGIDO - Vermelho (NÃO ESCONDE)
+            const total = status.isPremiumTrial ? 15 : 5;
+            badge.innerHTML = `<span>🚫 ${total}/${total}</span>`;
+            badge.className = 'bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            badge.style.display = 'flex';
         }
+    } catch (error) {
+        console.error('Erro ao atualizar badge:', error);
+        badge.style.display = 'none';
     }
 }
         console.log('🚀 Script carregado! Iniciando aplicação...');
@@ -4380,6 +4384,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
