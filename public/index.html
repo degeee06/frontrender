@@ -954,7 +954,7 @@ function verificarCallbackOAuth() {
 }
 
         
-// 🔥 CORREÇÃO: Função única para processar callback
+// 🔥 CORREÇÃO: Função processarCallbackOAuth CORRIGIDA
 async function processarCallbackOAuth() {
     try {
         console.log('🔄 Processando callback OAuth...');
@@ -992,6 +992,23 @@ async function processarCallbackOAuth() {
             showToast("Login realizado com sucesso!", "success");
             
             setTimeout(() => verificarConfiguracaoSheets(), 1500);
+
+            // 🔥🔥🔥 ADICIONE ISSO AQUI:
+            setTimeout(async () => {
+                if (premiumManager && userToken) {
+                    const status = await premiumManager.checkTrialStatus();
+                    console.log('📊 Status no login OAuth:', status);
+                    
+                    if (status.hasTrial && status.dailyUsagesLeft <= 0) {
+                        console.log('🚫 Usuário logou já sem usos disponíveis');
+                        const limit = status.isPremiumTrial ? 15 : 5;
+                        premiumManager.showDailyLimitModal(limit);
+                    }
+                    
+                    await premiumManager.updateUsageBadge();
+                }
+            }, 2000);
+
         } else {
             throw new Error('Sessão não encontrada');
         }
@@ -1475,7 +1492,10 @@ if (token) {
     mostrarTelaLogin();
 }
 
-  // ✅ ATUALIZE a função init para incluir este código:
+
+
+        
+// ✅ FUNÇÃO init COMPLETA E CORRIGIDA
 async function init() {
     console.log('🚀 Iniciando app...');
     
@@ -1500,7 +1520,7 @@ async function init() {
     // Configura listeners
     configurarEventListenersModal();
     
-    // ✅ LISTENER CAPACITOR CORRIGIDO - ADICIONE ESTE BLOCO
+    // ✅ LISTENER CAPACITOR CORRIGIDO
     if (window.Capacitor && window.Capacitor.Plugins?.App) {
         window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
             console.log('🔗 App aberto via URL:', data.url);
@@ -1508,12 +1528,10 @@ async function init() {
             if (data.url.includes('auth-callback')) {
                 console.log('📱 Processando retorno OAuth no app...');
                 
-                // 🔥 EXTRAI OS PARÂMETROS DA URL DO APP
                 const url = new URL(data.url);
                 const hash = url.hash;
                 
                 if (hash) {
-                    // 🔥 CONVERTE PARA URL DO NAVEGADOR PARA PROCESSAR
                     const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
                     processarRetornoOAuth(webUrl);
                 }
@@ -1526,37 +1544,44 @@ async function init() {
     console.log('🔑 Token no localStorage:', !!token);
     
     if (token) {
-        // Verifica se a sessão ainda é válida
-        const { data: { session } } = await supabase.auth.getSession();
-        
-      if (session) {
-    userToken = session.access_token;
-    loginSection.style.display = 'none';
-    form.style.display = 'block';
-    
-    // 🔥 ADICIONAR: Inicializar Premium Manager ANTES de usar
-    premiumManager = new PremiumManager();
-    await premiumManager.startTrial(); // Inicia trial se necessário
-    
-    // 🔥 CORREÇÃO CRÍTICA: Verificar se JÁ ESTÁ NO LIMITE no login
-    const status = await premiumManager.checkTrialStatus();
-    console.log('📊 Status do trial no login:', status);
-    
-    // 🔥 CORREÇÃO: Só mostra modal se TEM trial mas ZERO usos
-    if (status.hasTrial && status.dailyUsagesLeft <= 0) {
-        console.log('🚫 Usuário COM trial mas SEM usos disponíveis no login - mostrando modal');
-        const limit = status.isPremiumTrial ? 15 : 5;
-        premiumManager.showDailyLimitModal(limit);
-    }
-    
-    await premiumManager.updateUsageBadge(); // Atualiza badge
-    
-    atualizarInterfacePosLogin();
-    document.getElementById('secoesIA').style.display = 'block';
-    listarAgendamentos();
-    setTimeout(() => verificarConfiguracaoSheets(), 1000);
-        } else {
-            // Sessão inválida - limpa tudo
+        try {
+            // Verifica se a sessão ainda é válida
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                userToken = session.access_token;
+                loginSection.style.display = 'none';
+                form.style.display = 'block';
+                
+                // 🔥 ADICIONAR: Inicializar Premium Manager ANTES de usar
+                premiumManager = new PremiumManager();
+                await premiumManager.startTrial(); // Inicia trial se necessário
+                
+                // 🔥 VERIFICAÇÃO DE LIMITE NO LOGIN
+                const status = await premiumManager.checkTrialStatus();
+                console.log('📊 Status do trial no login:', status);
+                
+                // 🔥 CORREÇÃO: Só mostra modal se TEM trial mas ZERO usos
+                if (status.hasTrial && status.dailyUsagesLeft <= 0) {
+                    console.log('🚫 Usuário COM trial mas SEM usos disponíveis no login - mostrando modal');
+                    const limit = status.isPremiumTrial ? 15 : 5;
+                    premiumManager.showDailyLimitModal(limit);
+                }
+                
+                await premiumManager.updateUsageBadge(); // Atualiza badge
+                
+                atualizarInterfacePosLogin();
+                document.getElementById('secoesIA').style.display = 'block';
+                listarAgendamentos();
+                setTimeout(() => verificarConfiguracaoSheets(), 1000);
+            } else {
+                // Sessão inválida - limpa tudo
+                localStorage.removeItem('userToken');
+                userToken = null;
+                mostrarTelaLogin();
+            }
+        } catch (error) {
+            console.error('❌ Erro ao verificar sessão:', error);
             localStorage.removeItem('userToken');
             userToken = null;
             mostrarTelaLogin();
@@ -1566,8 +1591,8 @@ async function init() {
     }
     
     feather.replace();
-} // 🔥 FIM DA FUNÇÃO INIT - ESTAVA FALTANDO ESTE FECHAMENTO
-
+} // 🔥 FIM DA FUNÇÃO INIT
+        
 // 🔥 ADICIONAR APENAS ISSO: Monitoramento do badge (FORA da função init)
 setInterval(async () => {
     if (premiumManager && userToken) {
@@ -1575,6 +1600,9 @@ setInterval(async () => {
     }
 }, 60000); // Atualiza badge a cada 1 minuto
 
+
+
+        
 // 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
 function mostrarTelaLogin() {
     console.log('👤 Mostrando tela de login - ocultando todas as seções do app');
@@ -4323,7 +4351,6 @@ function desconectarSSE() {
             }
         });
 
-// 🔥 ADICIONAR ESTA FUNÇÃO QUE ESTÁ FALTANDO - Processar retorno OAuth para mobile
 async function processarRetornoOAuth(url) {
     try {
         console.log('🔄 Processando URL OAuth:', url);
@@ -4354,6 +4381,22 @@ async function processarRetornoOAuth(url) {
                             console.log('Browser já fechado');
                         }
                     }
+                    
+                    // 🔥 VERIFICAÇÃO DE USOS NO LOGIN MOBILE
+                    setTimeout(async () => {
+                        if (premiumManager && userToken) {
+                            const status = await premiumManager.checkTrialStatus();
+                            console.log('📊 Status no login mobile:', status);
+                            
+                            if (status.hasTrial && status.dailyUsagesLeft <= 0) {
+                                console.log('🚫 Usuário mobile logou sem usos');
+                                const limit = status.isPremiumTrial ? 15 : 5;
+                                premiumManager.showDailyLimitModal(limit);
+                            }
+                            
+                            await premiumManager.updateUsageBadge();
+                        }
+                    }, 2000);
                     
                     // 🔥 CORREÇÃO: Atualiza interface COMPLETAMENTE
                     loginSection.style.display = 'none';
@@ -4409,6 +4452,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
