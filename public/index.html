@@ -1332,35 +1332,45 @@ class PremiumManager {
         }
     }
 
-    // ✅ MODAL DE LIMITE
-    showDailyLimitModal(dailyLimit) {
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        modal.innerHTML = `
-            <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
-                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-feather="clock" class="text-yellow-600 w-8 h-8"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite Diário Atingido</h3>
-                <p class="text-gray-600 mb-6">
-                    Você utilizou todos os ${dailyLimit} agendamentos de hoje.
-                    Os usos serão resetados à meia-noite!
-                </p>
-                <div class="space-y-3">
-                    <button onclick="premiumManager.upgradeToPro()" 
-                            class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
-                        🚀 Fazer Upgrade
-                    </button>
-                    <button onclick="this.closest('.fixed').remove()" 
-                            class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
-                        Entendi
-                    </button>
-                </div>
+   // ✅ MODAL DE LIMITE - VERSÃO CORRIGIDA (NÃO FECHA AUTOMATICAMENTE)
+showDailyLimitModal(dailyLimit) {
+    // Remove modal existente se houver
+    const existingModal = document.querySelector('.fixed.inset-0.bg-black');
+    if (existingModal) existingModal.remove();
+    
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-feather="clock" class="text-yellow-600 w-8 h-8"></i>
             </div>
-        `;
-        document.body.appendChild(modal);
-        feather.replace();
-    }
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite Diário Atingido</h3>
+            <p class="text-gray-600 mb-6">
+                Você utilizou todos os ${dailyLimit} agendamentos de hoje.
+                Os usos serão resetados à meia-noite!
+            </p>
+            <div class="space-y-3">
+                <button onclick="premiumManager.upgradeToPro()" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
+                    🚀 Fazer Upgrade
+                </button>
+                <button onclick="fecharModalLimite()" 
+                        class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    feather.replace();
+}
+
+// 🔥 ADICIONE esta função para fechar o modal
+function fecharModalLimite() {
+    const modal = document.querySelector('.fixed.inset-0.bg-black');
+    if (modal) modal.remove();
+}
 
     // ✅ UPGRADE PARA PRO
     upgradeToPro() {
@@ -3131,12 +3141,15 @@ logoutBtn.addEventListener('click', async () => {
 form.addEventListener('submit', async (e)=>{
     e.preventDefault();
     
-    // 🔥 NOVO: VERIFICAÇÃO DE USO PREMIUM
+    // 🔥 NOVO: VERIFICAÇÃO DE USO PREMIUM (SÓ VERIFICA, NÃO REGISTRA AINDA)
     if (premiumManager && userToken) {
-        const canUse = await premiumManager.registerUsage();
-        if (!canUse) {
-            // O modal já é mostrado automaticamente no registerUsage
-            console.log('❌ Uso não permitido - limite atingido');
+        const status = await premiumManager.checkTrialStatus();
+        
+        // 🔥 BLOQUEIA SE JÁ ESTIVER NO LIMITE
+        if (status.dailyUsagesLeft <= 0) {
+            console.log('🚫 Limite atingido - bloqueando agendamento');
+            const limit = status.isPremiumTrial ? 15 : 5;
+            premiumManager.showDailyLimitModal(limit);
             return;
         }
     } else if (!userToken) {
@@ -3148,13 +3161,12 @@ form.addEventListener('submit', async (e)=>{
     const dataToSend = {};
     formData.forEach((v,k) => dataToSend[k] = v);
 
-    // ✅ NOVO - Email opcional:
+    // Validação dos campos
     if(!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
         showToast("Preencha todos os campos obrigatórios", "warning");
         return;
     }
 
-    // 🔥 Se email estiver vazio, define um valor padrão
     if(!dataToSend.Email || dataToSend.Email.trim() === '') {
         dataToSend.Email = 'Não informado';
     }
@@ -3175,15 +3187,25 @@ form.addEventListener('submit', async (e)=>{
         });
         
         if(response.ok){ 
+            // 🔥 SÓ REGISTRA USO SE O AGENDAMENTO FOR BEM-SUCEDIDO
+            if (premiumManager && userToken) {
+                const canUse = await premiumManager.registerUsage();
+                if (!canUse) {
+                    // Se não puder usar (limite atingido durante o processo)
+                    showToast("Limite atingido durante o agendamento", "error");
+                    return;
+                }
+            }
+            
             showToast("Agendado com sucesso!", "success"); 
             form.reset(); 
             listarAgendamentos(); 
             
-            // 🔥 NOVO: ATUALIZAR BADGE APÓS AGENDAMENTO BEM-SUCEDIDO
+            // 🔥 ATUALIZA BADGE APÓS AGENDAMENTO BEM-SUCEDIDO
             if (premiumManager) {
                 await premiumManager.updateUsageBadge();
             }
-       } else {
+        } else {
     const data = await response.json();
     
     // 🔥 TRATAMENTO DE ERRO MELHORADO
@@ -4364,6 +4386,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
