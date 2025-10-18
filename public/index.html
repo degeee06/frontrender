@@ -2098,34 +2098,37 @@ function atualizarInterfacePosLogin() {
 }
 
         
-// ✅ FUNÇÃO ATUALIZADA - SUBSTITUA A EXISTENTE
+// ✅ FUNÇÃO CORRIGIDA - SUBSTITUA A EXISTENTE
 async function updatePlanBadge() {
     try {
         const subscription = await getUserSubscription();
         const limitCheck = await checkScheduleLimit();
         
+        // 🔥 CORREÇÃO: Encontra ou cria o badge
         let planBadge = document.getElementById('planBadge');
         
-        // Se não existe, cria o badge
         if (!planBadge) {
-            planBadge = criarBadgePlano();
+            planBadge = document.createElement('span');
+            planBadge.id = 'planBadge';
+            
+            // Adiciona ao header próximo aos outros botões
+            const headerContainer = document.querySelector('.flex.gap-2.w-full.sm\\:w-auto');
+            if (headerContainer) {
+                headerContainer.appendChild(planBadge);
+            }
         }
         
-        // Atualiza conteúdo do badge
+        // Atualiza o conteúdo
         if (subscription && subscription.status === 'active') {
             planBadge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-2 py-1 rounded-full ml-2';
             planBadge.textContent = '🚀 Premium';
-            planBadge.title = 'Plano Premium - Agendamentos Ilimitados';
         } else {
             planBadge.className = 'bg-green-500 text-white text-xs px-2 py-1 rounded-full ml-2';
             planBadge.textContent = `📝 ${limitCheck.remaining}/3`;
-            planBadge.title = `${limitCheck.remaining} agendamentos restantes hoje`;
         }
         
-        console.log('✅ Badge atualizado:', planBadge.textContent);
-        
     } catch (error) {
-        console.error('❌ Erro ao atualizar badge:', error);
+        console.error('Erro ao atualizar badge:', error);
     }
 }
         
@@ -4119,6 +4122,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
