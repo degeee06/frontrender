@@ -1093,13 +1093,11 @@ async function processarCallbackOAuth() {
 
 
         // ---------------- CONFIGURAÇÃO BACKEND ----------------
-const API_BASE_URL = window.API_BASE_URL || 'https://agendamento-ynxr.onrender.com';
+        const API_BASE_URL = window.API_BASE_URL || 'https://agendamento-ynxr.onrender.com';
 
- const SUPABASE_URL = "https://otyxjcxxqwjotnuyrvmc.supabase.co";
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
+        const SUPABASE_URL = "https://otyxjcxxqwjotnuyrvmc.supabase.co";
+        const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
 
-        const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-        const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let userToken = null;
@@ -4570,6 +4568,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
