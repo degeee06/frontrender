@@ -1298,14 +1298,9 @@ if (token) {
 async function init() {
     console.log('🚀 Iniciando app...');
     
-    // 🔥 CORREÇÃO CAPACITOR: Verificar auth primeiro
-    if (verificarAuthCapacitor()) {
-        console.log('⏸️ Parando init - processando OAuth Capacitor');
-        return;
-    }
-    
+    // 🔥 VERIFICAÇÃO SIMPLES - SEM DETECÇÃO COMPLEXA DE AMBIENTE
     if (verificarCallbackOAuth()) {
-        console.log('⏸️ Parando init - é callback OAuth Web');
+        console.log('⏸️ Parando init - é callback OAuth');
         return;
     }
     
@@ -1353,64 +1348,8 @@ async function init() {
     
     feather.replace();
 }
-// 🔥 SOLUÇÃO CAPACITOR: Verificar se está no app e processar OAuth
-function verificarAuthCapacitor() {
-    const isApp = isCapacitorApp();
-    const hasHash = window.location.hash.includes('access_token') || 
-                    window.location.hash.includes('error') ||
-                    window.location.search.includes('access_token');
-    
-    console.log('📱 Capacitor Debug:', { 
-        isApp, 
-        hasHash, 
-        hash: window.location.hash,
-        search: window.location.search 
-    });
-    
-    if (isApp && hasHash) {
-        console.log('🎯 Capacitor: Detectado callback OAuth no app');
-        
-        // Mostra tela de autenticação
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
-        
-        // Processa o OAuth
-        processarCallbackOAuthCapacitor();
-        return true;
-    }
-    return false;
-}
-    // 🔥 INICIALIZAÇÃO CAPACITOR - Executa imediatamente ao carregar
-(function initCapacitorAuth() {
-    console.log('🔍 Verificando ambiente Capacitor...');
-    
-    const isApp = isCapacitorApp();
-    const hasOAuthParams = window.location.hash.includes('access_token') || 
-                          window.location.hash.includes('error') ||
-                          window.location.search.includes('access_token');
-    
-    console.log('📱 Capacitor Init Debug:', { 
-        isApp, 
-        hasOAuthParams,
-        hash: window.location.hash,
-        search: window.location.search
-    });
-    
-    // Mostra informações de ambiente
-    const envValue = document.getElementById('envValue');
-    if (envValue) {
-        envValue.textContent = isApp ? 'CAPACITOR_APP' : 'WEB';
-    }
-    
-    if (isApp && hasOAuthParams) {
-        console.log('🎯 Capacitor OAuth detectado - processando imediatamente...');
-        
-        // Processa imediatamente
-        setTimeout(() => {
-            verificarAuthCapacitor();
-        }, 500);
-    }
-})();
+
+  
 
         
 // 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
@@ -4117,6 +4056,7 @@ function forcarAtualizacaoAgendamentos() {
 
 </body>
 </html>
+
 
 
 
