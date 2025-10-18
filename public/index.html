@@ -1379,16 +1379,45 @@ showDailyLimitModal(dailyLimit) {
                 <p class="text-red-300 text-sm mt-1">Os usos resetam à meia-noite! 🕛</p>
             </div>
 
-           <!-- Botões -->
+         <!-- Botão Personalizado Hotmart -->
 <div class="space-y-3">
-    <a href="https://pay.hotmart.com/U102480243K?bid=1760814930914" 
-       target="_blank"
-       onclick="this.closest('.fixed').remove()"
-       class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-lg block text-center">
+    <!-- 🔥 WIDGET HOTMART PERSONALIZADO -->
+    <button id="hotmartCheckoutBtn" 
+            class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-lg">
         <i data-feather="star" class="w-4 h-4"></i>
-        🚀 Fazer Upgrade Ilimitado
-    </a>
+        🚀 Fazer Upgrade Ilimitado - R$ 29,90/mês
+    </button>
     
+<!-- 🔥 SCRIPT DO WIDGET HOTMART - ADICIONE AQUI -->
+<script type="text/javascript">
+    function importHotmart(){ 
+        var imported = document.createElement('script'); 
+        imported.src = 'https://static.hotmart.com/checkout/widget.min.js'; 
+        document.head.appendChild(imported); 
+        var link = document.createElement('link'); 
+        link.rel = 'stylesheet'; 
+        link.type = 'text/css'; 
+        link.href = 'https://static.hotmart.com/css/hotmart-fb.min.css'; 
+        document.head.appendChild(link);
+    } 
+    
+    // Inicializar Hotmart
+    importHotmart();
+    
+    // Configurar clique do botão
+    document.getElementById('hotmartCheckoutBtn').addEventListener('click', function() {
+        // Abre checkout Hotmart NA SUA PÁGINA
+        Hotmart.Checkout.open({
+            product: "U102480243K",
+            checkoutMode: 2, // Modo embed/embedido
+            callback: function(data) {
+                console.log('✅ Compra concluída:', data);
+                // Fecha o modal após compra
+                document.querySelector('.fixed.inset-0.bg-black')?.remove();
+            }
+        });
+    });
+</script>
     
     <button onclick="this.closest('.fixed').remove()" 
             class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 text-gray-300 font-medium transition-all flex items-center justify-center gap-2">
@@ -4488,6 +4517,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
