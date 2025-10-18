@@ -969,112 +969,67 @@ const horarioInput = document.getElementById("Horario");
         }
 
 
-// 🔥 SOLUÇÃO CAPACITOR: Detecção específica para app
+
+// 🔥 CORREÇÃO: Detecção correta do ambiente Capacitor
 function isCapacitorApp() {
-    return !!(window.Capacitor || window.cordova);
+    return !!(window.Capacitor || window.cordova || 
+              /capacitor/i.test(navigator.userAgent) ||
+              window.CapacitorWeb);
 }
 
-// 🔥 SOLUÇÃO CAPACITOR: Verificar se está no app e processar OAuth
-function verificarAuthCapacitor() {
-    const isApp = isCapacitorApp();
-    const hasHash = window.location.hash.includes('access_token') || 
-                    window.location.hash.includes('error');
-    
-    console.log('📱 Capacitor Debug:', { isApp, hasHash, hash: window.location.hash });
-    
-    if (isApp && hasHash) {
-        console.log('🎯 Capacitor: Detectado callback OAuth no app');
-        
-        // Mostra tela de autenticação
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
-        
-        // Processa o OAuth
-        processarCallbackOAuthCapacitor();
-        return true;
-    }
-    return false;
-}
 
-// 🔥 CORREÇÃO: Função processarCallbackOAuth para WEB
-async function processarCallbackOAuth() {
-    try {
-        console.log('🔄 Processando callback OAuth Web...');
+// 🔥 VERIFICAÇÃO SIMPLIFICADA DE CALLBACK OAUTH
+function verificarCallbackOAuth() {
+    console.log('🔄 Verificando callback OAuth...');
+    
+    const hasOAuthParams = window.location.hash.includes('access_token') || 
+                          window.location.hash.includes('error') ||
+                          window.location.search.includes('access_token');
+    
+    console.log('📍 URL:', window.location.href);
+    console.log('🔑 Hash:', window.location.hash);
+    console.log('🔍 Search:', window.location.search);
+    console.log('📱 É Capacitor?', isCapacitorApp());
+    console.log('🎯 Tem params OAuth?', hasOAuthParams);
+    
+    if (hasOAuthParams) {
+        console.log('🎯 Detectado callback OAuth - processando...');
         
         // MOSTRA TELA DE AUTENTICAÇÃO
         document.getElementById('authCallbackScreen').classList.remove('hidden');
         document.getElementById('mainAppContent').classList.add('hidden');
         
-        // Aguarda o Supabase processar a sessão
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-            throw error;
-        }
-        
-        if (session) {
-            console.log('✅ Sessão OAuth Web restaurada!');
-            
-            userToken = session.access_token;
-            localStorage.setItem('userToken', userToken);
-            
-            // Limpa a URL apenas na web
-            window.history.replaceState(null, '', window.location.pathname);
-            
-            // Mostra app normal
-            document.getElementById('authCallbackScreen').classList.add('hidden');
-            document.getElementById('mainAppContent').classList.remove('hidden');
-            
-            // Atualiza interface
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
-            
-            listarAgendamentos();
-            setTimeout(() => iniciarSistemaAtualizacao(), 1000);
-            showToast("Login realizado com sucesso!", "success");
-            
-            setTimeout(() => verificarConfiguracaoSheets(), 1500);
-        } else {
-            throw new Error('Sessão não encontrada');
-        }
-    } catch (error) {
-        console.error('❌ Erro OAuth Web:', error);
-        showToast("Erro ao processar login", "error");
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 2000);
+        // Processa OAuth independente do ambiente
+        processarCallbackOAuth();
+        return true;
     }
+    
+    return false;
 }
 
-// 🔥 SOLUÇÃO CAPACITOR: Processamento específico para app
-async function processarCallbackOAuthCapacitor() {
+
+// 🔥 PROCESSAMENTO ÚNICO E SIMPLIFICADO DO OAUTH
+async function processarCallbackOAuth() {
     try {
-        console.log('🔄 Capacitor: Processando callback OAuth...');
+        console.log('🔄 Processando callback OAuth...');
         
-        // MOSTRA TELA DE AUTENTICAÇÃO POR MAIS TEMPO
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
-        
-        // 🔥 AGUARDA MAIS TEMPO PARA CAPACITOR PROCESSAR
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // Aguarda o Supabase processar automaticamente
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
+            console.error('❌ Erro ao obter sessão:', error);
             throw error;
         }
         
         if (session) {
-            console.log('✅ Capacitor: Sessão OAuth restaurada!');
+            console.log('✅ Sessão OAuth restaurada!');
             
             userToken = session.access_token;
             localStorage.setItem('userToken', userToken);
             
-            // 🔥 CAPACITOR: Não limpa URL (importante para app)
+            // Limpa a URL (apenas na web)
             if (!isCapacitorApp()) {
                 window.history.replaceState(null, '', window.location.pathname);
             }
@@ -1095,81 +1050,258 @@ async function processarCallbackOAuthCapacitor() {
             
             setTimeout(() => verificarConfiguracaoSheets(), 1500);
             
-            // 🔥 CAPACITOR: Fecha browser se estiver no app
+            // 🔥 CORREÇÃO CRÍTICA: Fecha browser apenas se for Capacitor
             if (isCapacitorApp()) {
-                setTimeout(() => fecharBrowserCapacitor(), 1500);
+                console.log('📱 Fechando browser do Capacitor...');
+                setTimeout(() => fecharBrowserCapacitor(), 2000);
             }
         } else {
-            throw new Error('Sessão não encontrada');
+            throw new Error('Sessão não encontrada após processamento');
         }
+        
+    } catch (error) {
+        console.error('❌ Erro ao processar OAuth:', error);
+        showToast("Erro ao processar login", "error");
+        
+        // Fallback: redireciona após erro
+        setTimeout(() => {
+            if (isCapacitorApp()) {
+                fecharBrowserCapacitor();
+            } else {
+                window.location.href = '/';
+            }
+        }, 3000);
+    }
+}
+
+// 🔥 SOLUÇÃO CAPACITOR: Processamento específico para app
+async function processarCallbackOAuthCapacitor() {
+    try {
+        console.log('🔄 Capacitor: Processando callback OAuth...');
+        
+        // MOSTRA TELA DE AUTENTICAÇÃO
+        document.getElementById('authCallbackScreen').classList.remove('hidden');
+        document.getElementById('mainAppContent').classList.add('hidden');
+        
+        // 🔥 CORREÇÃO: Aguarda o Supabase processar a URL
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Processa a URL atual para extrair tokens
+        const currentUrl = window.location.href;
+        console.log('🔗 URL atual:', currentUrl);
+        
+        // Extrai parâmetros da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        
+        const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
+        
+        console.log('🔑 Tokens encontrados:', { accessToken: !!accessToken, refreshToken: !!refreshToken });
+        
+        if (accessToken) {
+            // 🔥 CORREÇÃO: Define a sessão manualmente se necessário
+            const { data: { session }, error } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+            });
+            
+            if (error) {
+                console.error('❌ Erro ao definir sessão:', error);
+                throw error;
+            }
+            
+            if (session) {
+                console.log('✅ Capacitor: Sessão OAuth configurada!');
+                
+                userToken = session.access_token;
+                localStorage.setItem('userToken', userToken);
+                
+                // Limpa a URL para evitar novos processamentos
+                window.history.replaceState({}, document.title, window.location.pathname);
+                
+                // Mostra app normal
+                document.getElementById('authCallbackScreen').classList.add('hidden');
+                document.getElementById('mainAppContent').classList.remove('hidden');
+                
+                // Atualiza interface
+                loginSection.style.display = 'none';
+                form.style.display = 'block';
+                atualizarInterfacePosLogin();
+                document.getElementById('secoesIA').style.display = 'block';
+                
+                listarAgendamentos();
+                setTimeout(() => iniciarSistemaAtualizacao(), 1000);
+                showToast("Login realizado com sucesso!", "success");
+                
+                setTimeout(() => verificarConfiguracaoSheets(), 1500);
+                
+                // 🔥 CORREÇÃO: Fecha browser se estiver no app
+                if (isCapacitorApp()) {
+                    setTimeout(() => fecharBrowserCapacitor(), 2000);
+                }
+            } else {
+                throw new Error('Falha ao criar sessão');
+            }
+        } else {
+            throw new Error('Token de acesso não encontrado na URL');
+        }
+        
     } catch (error) {
         console.error('❌ Capacitor: Erro OAuth:', error);
         showToast("Erro ao processar login no app", "error");
         
-        // 🔥 CAPACITOR: Redireciona de volta para app com erro
+        // 🔥 CORREÇÃO: Mostra informações de debug
+        const debugInfo = document.getElementById('debugInfo');
+        if (debugInfo) {
+            debugInfo.classList.remove('hidden');
+            document.getElementById('urlInfo').textContent = `URL: ${window.location.href}`;
+            document.getElementById('hashInfo').textContent = `Hash: ${window.location.hash}`;
+            document.getElementById('tokenInfo').textContent = `Erro: ${error.message}`;
+        }
+        
+        // Mostra botão de fallback
+        document.getElementById('manualRedirect').classList.remove('hidden');
+        
+        // 🔥 CORREÇÃO: Redireciona de volta para app com erro
         if (isCapacitorApp()) {
-            setTimeout(() => fecharBrowserCapacitor(), 2000);
-        } else {
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 2000);
+            setTimeout(() => fecharBrowserCapacitor(), 5000);
         }
     }
 }
 
-// 🔥 FUNÇÃO PARA FECHAR BROWSER NO CAPACITOR
+
+// 🔥 FUNÇÃO PARA FECHAR BROWSER CORRIGIDA
 async function fecharBrowserCapacitor() {
-    console.log('🎯 Tentando fechar browser Capacitor...');
+    console.log('🎯 Fechando browser Capacitor...');
     
-    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+    // Tenta diferentes métodos de fechar
+    if (window.Capacitor?.Plugins?.Browser) {
         try {
-            console.log('✅ Usando Capacitor Browser.close()');
             await window.Capacitor.Plugins.Browser.close();
+            console.log('✅ Browser fechado via Capacitor');
             return;
         } catch (error) {
             console.log('❌ Capacitor Browser.close() falhou:', error);
         }
     }
     
-    // Fallback para outros métodos
-    try {
-        if (window.cordova && window.cordova.InAppBrowser) {
+    if (window.cordova?.InAppBrowser) {
+        try {
             window.cordova.InAppBrowser.close();
-        } else {
-            window.close();
+            console.log('✅ Browser fechado via Cordova');
+            return;
+        } catch (error) {
+            console.log('❌ Cordova InAppBrowser.close() falhou:', error);
         }
+    }
+    
+    // Fallback final
+    try {
+        window.close();
+        console.log('✅ Browser fechado via window.close()');
     } catch (error) {
-        console.log('❌ Fallback close também falhou:', error);
+        console.log('❌ window.close() também falhou:', error);
+        // Última tentativa: redireciona para URL vazia
+        window.location.href = 'about:blank';
     }
 }
 
-// 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
+// 🔥 VERIFICAÇÃO DE CALLBACK OAUTH - EXECUTA PRIMEIRO
 function verificarCallbackOAuth() {
     console.log('🔄 Verificando se é callback OAuth...');
+    console.log('📍 URL:', window.location.href);
+    console.log('🔑 Hash:', window.location.hash);
     
     const isCallback = window.location.hash.includes('access_token') || 
                        window.location.hash.includes('error');
     
-    // 🔥 IGNORA SE FOR CAPACITOR (já foi tratado)
-    if (isCapacitorApp() && isCallback) {
-        console.log('📱 Capacitor: Callback já tratado pela função específica');
-        return false;
-    }
-    
-    if (isCallback && !isCapacitorApp()) {
-        console.log('🎯 Web: Detectado callback OAuth - processando...');
+    if (isCallback) {
+        console.log('🎯 Detectado callback OAuth - processando...');
         
         // MOSTRA TELA DE AUTENTICAÇÃO
         document.getElementById('authCallbackScreen').classList.remove('hidden');
         document.getElementById('mainAppContent').classList.add('hidden');
         
-        // Processa o callback
-        processarCallbackOAuth();
-        return true;
+        // 🔥 DETECTA AMBIENTE
+        const isWeb = !(window.Browser || window.cordova || 
+                       navigator.userAgent.includes('Capacitor') ||
+                       navigator.userAgent.includes('Cordova'));
+        console.log('Ambiente:', isWeb ? 'WEB' : 'APP');
+        
+        if (isWeb) {
+            // 💻 WEB: Processa e redireciona
+            console.log('🌐 Processando para web...');
+            processarOAuthWeb();
+        } else {
+            // 📱 APP: Redireciona para app e fecha
+            console.log('📱 Processando para app...');
+            processarOAuthApp();
+        }
+        
+        return true; // É um callback, para a execução normal
     }
     
-    return false;
+    return false; // Não é callback, continua normal
 }
+
+        // 🔥 PROCESSAMENTO PARA WEB
+async function processarOAuthWeb() {
+    try {
+        // Aguarda um pouco para processar a sessão
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+            console.log('✅ Sessão OAuth restaurada no web!');
+            
+            // Salva o token
+            userToken = session.access_token;
+            localStorage.setItem('userToken', userToken);
+            
+            // Limpa a URL
+            window.history.replaceState(null, '', window.location.pathname);
+            
+            // Mostra app normal
+            document.getElementById('authCallbackScreen').classList.add('hidden');
+            document.getElementById('mainAppContent').classList.remove('hidden');
+            
+            // Atualiza interface - 🔥 CORREÇÃO: CHAMAR atualizarInterfacePosLogin()
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            atualizarInterfacePosLogin(); // 🔥 LINHA CRÍTICA ADICIONADA
+            document.getElementById('secoesIA').style.display = 'block';
+            
+            listarAgendamentos();
+            // 🔥 ADICIONE: Conectar SSE após login
+            setTimeout(() => iniciarSistemaAtualizacao(), 1000);
+            showToast("Login realizado com sucesso!", "success");
+            
+            // 🔥 ADICIONAR: Verificar configuração sheets
+            setTimeout(() => verificarConfiguracaoSheets(), 1500);
+        }
+    } catch (error) {
+        console.error('❌ Erro OAuth web:', error);
+        window.location.href = '/';
+    }
+}
+
+
+        // 🔥 PROCESSAMENTO PARA APP
+function processarOAuthApp() {
+    console.log('📱 Redirecionando para app...');
+    
+    // 1. Tenta redirecionar para o app
+    const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
+    window.location.href = appUrl;
+    
+    // 2. Fecha o browser após 1 segundo
+    setTimeout(() => {
+        fecharBrowserCapacitor();
+    }, 1000);
+}
+
         
      // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA
 const token = localStorage.getItem('userToken');
@@ -1259,23 +1391,35 @@ async function init() {
     feather.replace();
 }
 
-        // 🔥 INICIALIZAÇÃO CAPACITOR - Executa imediatamente ao carregar
+    // 🔥 INICIALIZAÇÃO CAPACITOR - Executa imediatamente ao carregar
 (function initCapacitorAuth() {
     console.log('🔍 Verificando ambiente Capacitor...');
     
-    const isApp = !!(window.Capacitor || window.cordova);
-    const hasOAuthHash = window.location.hash.includes('access_token') || 
-                         window.location.hash.includes('error');
+    const isApp = isCapacitorApp();
+    const hasOAuthParams = window.location.hash.includes('access_token') || 
+                          window.location.hash.includes('error') ||
+                          window.location.search.includes('access_token');
     
-    console.log('📱 Capacitor Init Debug:', { isApp, hasOAuthHash });
+    console.log('📱 Capacitor Init Debug:', { 
+        isApp, 
+        hasOAuthParams,
+        hash: window.location.hash,
+        search: window.location.search
+    });
     
-    if (isApp && hasOAuthHash) {
+    // Mostra informações de ambiente
+    const envValue = document.getElementById('envValue');
+    if (envValue) {
+        envValue.textContent = isApp ? 'CAPACITOR_APP' : 'WEB';
+    }
+    
+    if (isApp && hasOAuthParams) {
         console.log('🎯 Capacitor OAuth detectado - processando imediatamente...');
         
-        // Processa imediatamente sem esperar DOM
+        // Processa imediatamente
         setTimeout(() => {
             verificarAuthCapacitor();
-        }, 100);
+        }, 500);
     }
 })();
 
@@ -2724,7 +2868,7 @@ async function logoutSilencioso() {
 
       
 
-     // ✅ LOGIN GOOGLE CORRIGIDO PARA CAPACITOR
+// ✅ LOGIN GOOGLE CORRIGIDO PARA AMBOS OS AMBIENTES
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const btn = document.getElementById('googleLoginBtn');
     const originalText = btn.innerHTML;
@@ -2735,13 +2879,12 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
     try {
         console.log('🔐 Iniciando autenticação Google...');
         
-        // 🔥 DETECÇÃO CORRETA DE AMBIENTE CAPACITOR
         const isApp = isCapacitorApp();
         console.log('📱 Ambiente:', isApp ? 'APP CAPACITOR' : 'WEB');
         
-        // 🔥 URL DE REDIRECT CORRETA PARA CAPACITOR
+        // 🔥 URL DE REDIRECT CORRETA
         const redirectUrl = isApp 
-            ? 'com.oubook.agendamento://auth-callback'
+            ? 'https://frontrender-iota.vercel.app/' // 🔥 MESMA URL PARA AMBOS
             : 'https://frontrender-iota.vercel.app/';
         
         console.log('🎯 Redirect URL:', redirectUrl);
@@ -2756,24 +2899,14 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         
         if (error) throw error;
         
-        console.log('🌐 URL de autenticação gerada');
+        console.log('🌐 Redirecionando para URL de autenticação...');
         
-        // 🔥 ABRE O BROWSER CORRETAMENTE PARA CAPACITOR
-        if (isApp && window.Capacitor?.Plugins?.Browser) {
-            console.log('📱 Abrindo no Capacitor Browser...');
-            await window.Capacitor.Plugins.Browser.open({ 
-                url: data.url,
-                windowName: '_self'
-            });
-        } else {
-            console.log('🌐 Redirecionando para URL...');
-            window.location.href = data.url;
-        }
+        // 🔥 SEMPRE REDIRECIONA - O SUPABASE DETECTA O AMBIENTE AUTOMATICAMENTE
+        window.location.href = data.url;
         
     } catch (error) {
         console.error('❌ Erro no login Google:', error);
         showToast("Erro ao conectar com Google", "error");
-    } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
@@ -3995,6 +4128,7 @@ function forcarAtualizacaoAgendamentos() {
 
 </body>
 </html>
+
 
 
 
