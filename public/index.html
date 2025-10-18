@@ -1355,13 +1355,8 @@ async checkTrialStatus() {
         }
     }
 
-// 🔥 SOLUÇÃO SIMPLES: Adicionar esta função global separada
-window.upgradeFromModal = function() {
-    console.log('🎯 Botão upgrade do modal clicado - redirecionando...');
-    window.location.href = 'https://oubook.vercel.app/checkout.html';
-};
 
-// 🔥 ADICIONE APENAS ISSO: Modificação mínima no método showDailyLimitModal
+// 🔥 SOLUÇÃO DIRETA: Apenas mude o onclick do botão no modal
 showDailyLimitModal(dailyLimit) {
     const modalExistente = document.querySelector('.fixed.inset-0.bg-black');
     if (modalExistente) modalExistente.remove();
@@ -1382,7 +1377,7 @@ showDailyLimitModal(dailyLimit) {
                 Os usos serão resetados à meia-noite!
             </p>
             <div class="space-y-3">
-                <button onclick="window.upgradeFromModal()" 
+                <button onclick="window.location.href='https://oubook.vercel.app/checkout.html'" 
                         class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
                     🚀 Fazer Upgrade para Ilimitado
                 </button>
@@ -4485,6 +4480,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
