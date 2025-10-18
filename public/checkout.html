@@ -311,13 +311,59 @@
             }
         }
 
-        // 🔥 VOLTAR PARA O APP
-        function voltarParaApp() {
-            window.location.href = 'https://oubook.vercel.app/';
-        }
 
-        // Inicializar feather icons
-        feather.replace();
-    </script>
-</body>
-</html>
+     // 🔥 VOLTAR PARA O APP - SISTEMA IDÊNTICO AO CÓDIGO ORIGINAL
+    function voltarParaApp() {
+        console.log('🔄 Verificando ambiente para voltar ao app...');
+        
+        // 🔥 DETECÇÃO IDÊNTICA AO SEU CÓDIGO ORIGINAL
+        const isMobileApp = !!(window.Capacitor || window.cordova);
+        console.log('📱 Ambiente detectado:', isMobileApp ? 'APP' : 'WEB');
+        
+        if (isMobileApp) {
+            console.log('📱 Está no app - fechando browser...');
+            
+            // 🔥 MESMA LÓGICA DO SEU CÓDIGO ORIGINAL
+            if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+                window.Capacitor.Plugins.Browser.close().then(() => {
+                    console.log('✅ Browser do Capacitor fechado com sucesso');
+                }).catch(error => {
+                    console.log('❌ Erro ao fechar browser:', error);
+                    // Fallback do código original
+                    try {
+                        window.close();
+                    } catch (e) {
+                        window.location.href = 'about:blank';
+                    }
+                });
+            } else {
+                // Fallback para outros apps
+                try {
+                    window.close();
+                } catch (e) {
+                    window.location.href = 'about:blank';
+                }
+            }
+        } else {
+            // 🔥 COMPORTAMENTO WEB - MESMO DO SEU CÓDIGO
+            console.log('🌐 Está no navegador - redirecionando...');
+            
+            // Mostra mensagem igual ao código original
+            alert('✅ Compra realizada!\n\nVolte manualmente para o app.\n\nO app deve detectar automaticamente seu upgrade.');
+            
+            // Tenta fechar a janela igual ao código original
+            setTimeout(() => {
+                try {
+                    window.close();
+                } catch (e) {
+                    console.log('Não foi possível fechar a janela automaticamente');
+                    // Redireciona para o app
+                    window.location.href = 'https://oubook.vercel.app/';
+                }
+            }, 3000);
+        }
+    }
+
+    // Inicializar feather icons
+    feather.replace();
+</script>
