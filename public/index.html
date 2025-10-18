@@ -1441,7 +1441,7 @@ async function updatePlanBadge() {
     }
 }
 
-// 9. Upgrade para Pro (VERIFIQUE SE ESTÁ SENDO CHAMADA)
+// 9. Upgrade para Pro (VERSÃO CORRIGIDA COM REDIRECIONAMENTO)
 function upgradeToPro() {
     console.log('🔄 upgradeToPro() CHAMADA - Redirecionando para checkout...');
     
@@ -1449,8 +1449,13 @@ function upgradeToPro() {
     const modals = document.querySelectorAll('.fixed.inset-0');
     modals.forEach(modal => modal.remove());
     
+    // 🔥 URL CORRETA DO CHECKOUT
+    const checkoutUrl = 'https://frontrender-iota.vercel.app/checkout.html';
+    
+    console.log('🎯 Redirecionando para:', checkoutUrl);
+    
     // Redireciona para checkout
-    window.location.href = 'checkout.html';
+    window.location.href = checkoutUrl;
 }
 
 // 10. Iniciar trial (MESMA FUNÇÃO)
@@ -4425,6 +4430,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
