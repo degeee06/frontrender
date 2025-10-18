@@ -589,6 +589,23 @@ button[onclick="fazerUpgrade()"]:hover {
 button.bg-gradient-to-r {
     background-image: linear-gradient(135deg, #6366f1, #06b6d4) !important;
 }
+        /* 🔥 CORREÇÃO DEFINITIVA: Botão de Upgrade - MATA o rosa */
+button[onclick="fazerUpgrade()"] {
+    background: linear-gradient(135deg, #6366f1, #06b6d4) !important;
+    background-image: linear-gradient(135deg, #6366f1, #06b6d4) !important;
+    border: none !important;
+}
+
+button[onclick="fazerUpgrade()"]:hover {
+    background: linear-gradient(135deg, #4f46e5, #0891b2) !important;
+    background-image: linear-gradient(135deg, #4f46e5, #0891b2) !important;
+}
+
+/* 🔥 MATA especificamente as classes roxas do Tailwind */
+.bg-gradient-to-r.from-purple-500.to-pink-500 {
+    background: linear-gradient(135deg, #6366f1, #06b6d4) !important;
+    background-image: linear-gradient(135deg, #6366f1, #06b6d4) !important;
+}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -1784,10 +1801,9 @@ function abrirMenuConfiguracoes() {
                     </button>
                     
                    <!-- 🔥 NOVO: Botão de Upgrade -->
-<!-- 🔥 BOTÃO DE UPGRADE CORRIGIDO - ESTILO INLINE -->
+<!-- 🔥 BOTÃO CORRIGIDO - CLASSES AZUIS -->
 <button onclick="fazerUpgrade()" 
-        style="background: linear-gradient(135deg, #6366f1, #06b6d4) !important; border: none !important; color: white !important;"
-        class="w-full px-4 py-3 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
+        class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
     <i data-feather="star" class="w-4 h-4"></i>
     🚀 Fazer Upgrade
 </button>
@@ -4574,6 +4590,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
