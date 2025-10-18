@@ -3,117 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Agendamento Pro</title>
+    <title>Upgrade Premium - Agendamento</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🔥 SCRIPT OFICIAL DA HOTMART -->
+    <script src="https://static.hotmart.com/checkout/widget.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-    <div class="container mx-auto px-4 py-16">
-        <div class="max-w-2xl mx-auto">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold text-gray-800 mb-4">Faça Upgrade para Pro</h1>
-                <p class="text-xl text-gray-600">Agendamentos ilimitados e recursos exclusivos</p>
-            </div>
-            
-            <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-purple-500 transform hover:scale-105 transition duration-300 max-w-md mx-auto">
-                <div class="text-center mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Plano Pro</h3>
-                    <div class="text-4xl font-bold text-purple-600 mb-4">
-                        R$ 29,90<span class="text-lg text-gray-500">/mês</span>
-                    </div>
+<body class="min-h-screen bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <div class="p-4 rounded-full bg-white/20">
+                    <i data-feather="star" class="w-12 h-12 text-yellow-300"></i>
                 </div>
-                
-                <ul class="space-y-4 mb-8">
-                    <li class="flex items-center">
-                        <i data-feather="check" class="text-green-500 mr-3"></i>
-                        <span>Agendamentos ilimitados</span>
+            </div>
+            <h1 class="text-4xl font-bold mb-2">🚀 Upgrade Premium</h1>
+            <p class="text-xl opacity-90">Desbloqueie agendamentos ilimitados e recursos exclusivos</p>
+        </header>
+
+        <!-- Planos -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <!-- Plano Free -->
+            <div class="glass-card rounded-2xl p-6 bg-white/10 backdrop-blur-lg">
+                <h3 class="text-2xl font-bold mb-2">📝 Plano Free</h3>
+                <div class="text-3xl font-bold mb-4">Grátis</div>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-center gap-2">
+                        <i data-feather="check" class="w-4 h-4 text-green-400"></i>
+                        <span>3 agendamentos por dia</span>
                     </li>
-                    <li class="flex items-center">
-                        <i data-feather="check" class="text-green-500 mr-3"></i>
-                        <span>Estatísticas avançadas</span>
+                    <li class="flex items-center gap-2">
+                        <i data-feather="check" class="w-4 h-4 text-green-400"></i>
+                        <span>Gestão básica</span>
                     </li>
-                    <li class="flex items-center">
-                        <i data-feather="check" class="text-green-500 mr-3"></i>
+                    <li class="flex items-center gap-2">
+                        <i data-feather="x" class="w-4 h-4 text-red-400"></i>
+                        <span class="opacity-60">Sem analytics avançados</span>
+                    </li>
+                </ul>
+                <div class="text-center text-sm opacity-70">Seu plano atual</div>
+            </div>
+
+            <!-- Plano Premium -->
+            <div class="glass-card rounded-2xl p-6 bg-gradient-to-br from-yellow-400 to-orange-500 text-gray-900 relative">
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span class="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold">RECOMENDADO</span>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">⭐ Plano Premium</h3>
+                <div class="text-3xl font-bold mb-1">R$ 29,90<span class="text-lg font-normal">/mês</span></div>
+                <div class="text-sm opacity-80 mb-4">ou R$ 299/ano (2 meses grátis)</div>
+                <ul class="space-y-2 mb-6">
+                    <li class="flex items-center gap-2">
+                        <i data-feather="check" class="w-4 h-4 text-green-600"></i>
+                        <span class="font-semibold">Agendamentos ILIMITADOS</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i data-feather="check" class="w-4 h-4 text-green-600"></i>
+                        <span>Analytics avançados</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i data-feather="check" class="w-4 h-4 text-green-600"></i>
                         <span>Suporte prioritário</span>
                     </li>
-                    <li class="flex items-center">
-                        <i data-feather="check" class="text-green-500 mr-3"></i>
+                    <li class="flex items-center gap-2">
+                        <i data-feather="check" class="w-4 h-4 text-green-600"></i>
                         <span>Relatórios detalhados</span>
                     </li>
                 </ul>
                 
-                <button onclick="processHotmartPayment()" 
-                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg">
-                    🚀 Assinar Agora - R$ 29,90/mês
+                <!-- 🔥 BOTÃO HOTMART CORRETO -->
+                <button onclick="abrirCheckoutHotmart()" 
+                        class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
+                    <i data-feather="shopping-cart" class="w-5 h-5"></i>
+                    🚀 Assinar Agora
                 </button>
                 
-                <p class="text-center text-gray-500 text-sm mt-4">
-                    Cancelamento a qualquer momento • 7 dias de garantia
-                </p>
-            </div>
-
-            <div class="text-center mt-12">
-                <div class="bg-white rounded-2xl shadow-sm p-6 max-w-2xl mx-auto">
-                    <div class="flex items-center justify-center mb-4">
-                        <i data-feather="shield" class="text-green-500 w-8 h-8 mr-3"></i>
-                        <h3 class="text-xl font-bold text-gray-800">Garantia de 7 Dias</h3>
-                    </div>
-                    <p class="text-gray-600">
-                        Experimente sem riscos. Cancele em 7 dias e receba 100% do valor de volta.
-                    </p>
+                <!-- 🔥 OU USE ESTE MÉTODO ALTERNATIVO -->
+                <div class="mt-4 text-center">
+                    <a href="https://pay.hotmart.com/SEU_CODIGO_AQUI" 
+                       class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all">
+                       🔗 Link Direto Hotmart
+                    </a>
                 </div>
             </div>
+        </div>
+
+        <!-- 🔥 SEÇÃO DE CHECKOUT HOTMART (Aparece após clicar) -->
+        <div id="hotmartCheckout" class="hidden">
+            <div class="glass-card rounded-2xl p-6 bg-white/10 backdrop-blur-lg text-center">
+                <h3 class="text-2xl font-bold mb-4">🛒 Finalizar Compra</h3>
+                <p class="mb-4">Redirecionando para checkout seguro...</p>
+                <div class="loading-spinner mx-auto mb-4"></div>
+            </div>
+        </div>
+
+        <!-- Voltar -->
+        <div class="text-center mt-8">
+            <button onclick="voltarParaApp()" class="px-6 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition-all">
+                ← Voltar para o App
+            </button>
         </div>
     </div>
 
     <script>
-        // ⭐⭐ INTEGRAÇÃO HOTMART (igual ao CopyCraft)
-        function processHotmartPayment() {
-            const HOTMART_PRODUCT_CODE = "SEU_CODIGO_AQUI"; // Substitua pelo seu código
+        // 🔥 CONFIGURAÇÃO DA HOTMART - SUBSTITUA COM SEUS DADOS REAIS!
+        const hotmartConfig = {
+            // 🔴 SUBSTITUA pelo seu código real da Hotmart
+            productCode: "U102480243K", // Exemplo: "A12345678B"
             
-            const redirectUrl = `${window.location.origin}/index.html?paymentSuccess=true`;
-            const checkoutUrl = `https://pay.hotmart.com/${HOTMART_PRODUCT_CODE}?checkoutMode=2&callback=${encodeURIComponent(redirectUrl)}`;
-            
-            console.log('🔄 Redirecionando para Hotmart...');
-            window.location.href = checkoutUrl;
-        }
+            // Opcional: Configurações adicionais
+            affiliateCode: "", // Código de afiliado (se tiver)
+            price: "29.90",
+            currency: "BRL"
+        };
 
-        function checkPaymentStatus() {
-            const urlParams = new URLSearchParams(window.location.search);
+        // 🔥 FUNÇÃO PRINCIPAL PARA ABRIR CHECKOUT
+        function abrirCheckoutHotmart() {
+            console.log('🛒 Iniciando checkout Hotmart...');
             
-            if (urlParams.get('paymentSuccess') === 'true') {
-                showSuccessMessage();
+            if (!hotmartConfig.productCode || hotmartConfig.productCode === "SEU_CODIGO_DO_PRODUTO_AQUI") {
+                alert("❌ Configure o código do produto Hotmart primeiro!");
+                console.error("Código do produto Hotmart não configurado");
+                return;
+            }
+
+            // Mostra loading
+            document.getElementById('hotmartCheckout').classList.remove('hidden');
+            
+            // Método 1: Widget oficial da Hotmart (Recomendado)
+            try {
+                Hotmart.Checkout.open({
+                    product: hotmartConfig.productCode,
+                    affiliate: hotmartConfig.affiliateCode,
+                    price: hotmartConfig.price,
+                    currency: hotmartConfig.currency,
+                    callback: function(data) {
+                        console.log('✅ Checkout concluído:', data);
+                        // Aqui você pode redirecionar de volta para o app após sucesso
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Erro no widget Hotmart:', error);
+                
+                // Método 2: Fallback - Link direto
+                setTimeout(() => {
+                    window.location.href = `https://pay.hotmart.com/${hotmartConfig.productCode}`;
+                }, 2000);
             }
         }
 
-        function showSuccessMessage() {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            modal.innerHTML = `
-                <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
-                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i data-feather="check" class="text-green-600 w-8 h-8"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">🎉 Parabéns!</h3>
-                    <p class="text-gray-600 mb-6">Sua assinatura foi ativada com sucesso!</p>
-                    <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                        <p class="text-green-800 text-sm">✅ Agora você tem agendamentos ilimitados</p>
-                    </div>
-                    <button onclick="window.location.href = 'index.html'" 
-                            class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
-                        🚀 Voltar ao App
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            feather.replace();
+        // 🔥 MÉTODO ALTERNATIVO: Link direto
+        function abrirCheckoutDireto() {
+            if (!hotmartConfig.productCode || hotmartConfig.productCode === "SEU_CODIGO_DO_PRODUTO_AQUI") {
+                alert("❌ Configure o código do produto Hotmart primeiro!");
+                return;
+            }
+            
+            window.location.href = `https://pay.hotmart.com/${hotmartConfig.productCode}`;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            checkPaymentStatus();
-            feather.replace();
-        });
+        function voltarParaApp() {
+            window.history.back();
+            // Ou: window.location.href = 'https://oubook.vercel.app/';
+        }
+
+        // Estilo para loading
+        const style = document.createElement('style');
+        style.textContent = `
+            .loading-spinner {
+                border: 4px solid rgba(255,255,255,0.3);
+                border-radius: 50%;
+                border-top: 4px solid white;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        feather.replace();
     </script>
 </body>
 </html>
