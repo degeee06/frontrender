@@ -1731,11 +1731,29 @@ async function checkTermsAcceptance() {
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
-    // 🔍 VERIFICAR SE USUÁRIO JÁ ACEITOU TERMOS (apenas info)
-const termsAccepted = localStorage.getItem('termsAccepted');
-if (termsAccepted) {
-    console.log('📝 Termos aceitos em:', localStorage.getItem('termsAcceptedAt'));
-}
+    
+    // 🔍 VERIFICAR SE JÁ ESTÁ LOGADO PRIMEIRO
+    const token = localStorage.getItem('userToken');
+    const termsAccepted = localStorage.getItem('termsAccepted');
+    
+    if (token) {
+        // 🔥 USUÁRIO JÁ LOGADO - VERIFICA SESSÃO
+        console.log('🔑 Usuário potencialmente logado - verificando sessão...');
+        // SEU CÓDIGO ATUAL DE VERIFICAÇÃO DE SESSÃO CONTINUA AQUI
+        
+    } else if (!termsAccepted) {
+        // 🔐 NÃO LOGADO E NÃO ACEITOU TERMOS - MOSTRA TERMOS
+        console.log('📝 Mostrando termos (usuário não logado)');
+        document.getElementById('termsModal').classList.remove('hidden');
+        document.getElementById('loginSection').classList.add('hidden');
+    } else {
+        // 🔐 NÃO LOGADO MAS JÁ ACEITOU TERMOS - MOSTRA LOGIN
+        console.log('👤 Mostrando login (termos já aceitos)');
+        document.getElementById('termsModal').classList.add('hidden');
+        document.getElementById('loginSection').classList.remove('hidden');
+    }
+    
+    // 🔍 SEU CÓDIGO EXISTENTE CONTINUA...
     if (verificarCallbackOAuth()) {
         console.log('⏸️ Parando init - é callback OAuth');
         return;
@@ -4734,6 +4752,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
