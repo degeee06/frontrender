@@ -313,7 +313,7 @@
         }
 
 
- // 🔥 VOLTAR PARA O APP - SISTEMA IDÊNTICO AO CÓDIGO ORIGINAL
+// 🔥 VOLTAR PARA O APP - SISTEMA IDÊNTICO AO CÓDIGO ORIGINAL
 function voltarParaApp() {
     console.log('🔄 Verificando ambiente para voltar ao app...');
     
@@ -334,7 +334,7 @@ function voltarParaApp() {
                 try {
                     window.close();
                 } catch (e) {
-                    window.location.href = 'about:blank';
+                    window.location.href = 'https://oubook.vercel.app/';
                 }
             });
         } else {
@@ -342,29 +342,17 @@ function voltarParaApp() {
             try {
                 window.close();
             } catch (e) {
-                window.location.href = 'about:blank';
+                window.location.href = 'https://oubook.vercel.app/';
             }
         }
     } else {
-        // 🔥 COMPORTAMENTO WEB - MESMO DO SEU CÓDIGO ORIGINAL
-        console.log('🌐 Está no navegador - redirecionando...');
+        // 🔥 COMPORTAMENTO WEB - REDIRECIONAMENTO DIRETO IGUAL AO ORIGINAL
+        console.log('🌐 Está no navegador - redirecionando para frontend...');
         
-        // 🔥 MENSAGEM SIMPLES DE REDIRECIONAMENTO
-        alert('🔄 Voltando para o app...');
-        
-        // 🔥 MESMO COMPORTAMENTO DO CÓDIGO ORIGINAL
-        setTimeout(() => {
-            try {
-                window.close();
-            } catch (e) {
-                console.log('Não foi possível fechar a janela automaticamente');
-                // Redireciona para o app principal
-                window.location.href = 'https://oubook.vercel.app/';
-            }
-        }, 1000);
+        // 🔥 REDIRECIONAMENTO DIRETO - SEM ALERT, SEM DELAY
+        window.location.href = 'https://oubook.vercel.app/';
     }
 }
-
     // Inicializar feather icons
     feather.replace();
 </script>
