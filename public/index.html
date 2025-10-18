@@ -737,6 +737,9 @@ select option {
         <p class="text-gray-400 text-lg">Entre com sua conta Google</p>
     </div>
 
+
+
+    
     <!-- Botão Google Moderno -->
     <div class="max-w-sm mx-auto space-y-6">
         <button id="googleLoginBtn" class="w-full group bg-white text-gray-800 py-4 px-8 rounded-2xl font-semibold hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg border border-gray-200 hover:border-blue-300 hover:scale-[1.02] active:scale-[0.98]">
@@ -750,6 +753,26 @@ select option {
             <span class="text-gray-700 group-hover:text-gray-900 transition-colors duration-300">Continuar com Google</span>
         </button>
 
+          <!-- ✅ CHECKBOX TERMOS AQUI -->
+    <div class="max-w-sm mx-auto mb-6">
+        <div class="p-4 bg-white/5 rounded-lg border border-white/10">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" id="aceiteTermos" required 
+                       class="mt-1 rounded bg-white/10 border-white/20 focus:ring-2 focus:ring-cyan-500">
+                <span class="text-sm text-gray-300">
+                    Concordo com os 
+                    <button type="button" onclick="abrirModalTermos()" class="text-cyan-400 hover:text-cyan-300 underline">
+                        Termos de Uso
+                    </button> 
+                    e 
+                    <button type="button" onclick="abrirModalPrivacidade()" class="text-cyan-400 hover:text-cyan-300 underline">
+                        Política de Privacidade
+                    </button>
+                </span>
+            </label>
+        </div>
+    </div>
+        
         <!-- Aviso de Segurança Moderno -->
         <div class="text-center p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl border border-blue-500/20">
             <p class="text-gray-400 text-sm flex items-center justify-center gap-2">
@@ -895,29 +918,6 @@ select option {
 </p>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                </div> <!-- Fecha a div dos campos de data/horário -->
-              
-                <!-- ✅ ADICIONE O CHECKBOX AQUI -->
-                <div class="max-w-md mx-auto mt-6">
-                    <!-- 🔒 CHECKBOX TERMOS -->
-                    <div class="p-4 bg-white/5 rounded-lg border border-white/10 mb-4">
-                        <label class="flex items-start gap-3 cursor-pointer">
-                            <input type="checkbox" id="aceiteTermos" required 
-                                   class="mt-1 rounded bg-white/10 border-white/20 focus:ring-2 focus:ring-cyan-500">
-                            <span class="text-sm text-gray-300">
-                                Concordo com os 
-                                <button type="button" onclick="abrirModalTermos()" class="text-cyan-400 hover:text-cyan-300 underline">
-                                    Termos de Uso
-                                </button> 
-                                e 
-                                <button type="button" onclick="abrirModalPrivacidade()" class="text-cyan-400 hover:text-cyan-300 underline">
-                                    Política de Privacidade
-                                </button>
-                            </span>
-                        </label>
                     </div>
                 </div>
 
@@ -3409,6 +3409,12 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         console.log('⏸️ Login pausado - termos não aceitos');
         return;
     }
+
+     // 🔒 VERIFICAR TERMOS PRIMEIRO (agora funciona)
+    if (!checkTermsAcceptance()) {
+        console.log('⏸️ Login pausado - termos não aceitos');
+        return;
+    }
     
     const btn = document.getElementById('googleLoginBtn');
     const originalText = btn.innerHTML;
@@ -4795,6 +4801,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
