@@ -762,7 +762,57 @@ select option {
     </div>
 </div>
 
-            
+        
+<!-- 🔒 MODAL DE TERMOS DE USO -->
+<div id="termsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="glass-card rounded-2xl p-6 max-w-2xl max-h-[80vh] overflow-y-auto mx-4">
+        <!-- Header -->
+        <div class="flex items-center justify-center mb-6">
+            <div class="p-3 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
+                <i data-feather="file-text" class="w-6 h-6 text-white"></i>
+            </div>
+        </div>
+        
+        <h3 class="text-xl font-semibold text-center mb-2">📝 Termos de Uso</h3>
+        <p class="text-center text-gray-300 mb-6">Leia e aceite para continuar</p>
+        
+        <!-- Conteúdo dos Termos -->
+        <div class="bg-white/5 rounded-lg p-4 mb-6 max-h-60 overflow-y-auto">
+            <div class="text-sm space-y-3 text-gray-200">
+                <p><strong>Última atualização:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+                
+                <h4 class="font-semibold text-cyan-300">1. Uso do Serviço</h4>
+                <p>Você concorda em usar o sistema de agendamentos apenas para fins legais e de forma responsável.</p>
+                
+                <h4 class="font-semibold text-cyan-300">2. Privacidade de Dados</h4>
+                <p>Seus dados de agendamento são armazenados com segurança e não compartilhados com terceiros.</p>
+                
+                <h4 class="font-semibold text-cyan-300">3. Responsabilidades</h4>
+                <p>Você é responsável pelas informações cadastradas e pelos agendamentos realizados.</p>
+                
+                <h4 class="font-semibold text-cyan-300">4. Limitações</h4>
+                <p>O serviço pode ter limitações de uso de acordo com seu plano (free trial ou premium).</p>
+                
+                <p class="text-xs text-gray-400 mt-4">
+                    Ao clicar em "Aceitar e Continuar", você concorda com nossos Termos de Uso e Política de Privacidade.
+                </p>
+            </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex gap-3">
+            <button onclick="declineTerms()" class="flex-1 px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white font-medium">
+                Recusar
+            </button>
+            <button onclick="acceptTerms()" class="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 transition-all text-white font-medium">
+                ✅ Aceitar e Continuar
+            </button>
+        </div>
+    </div>
+</div>
+
+
+        
             <!-- Appointment Form (Hidden Initially) -->
             <form id="agendamentoForm" style="display:none;" class="glass-card rounded-2xl p-4 sm:p-6 md:p-8 mb-6 md:mb-8" data-aos="fade-up">
                 <div class="flex items-center justify-center mb-4 md:mb-6">
@@ -1570,12 +1620,89 @@ if (token) {
 }
 
 
+// 🔒 FUNÇÕES DE TERMOS DE USO
+function showTermsModal() {
+    console.log('📝 Mostrando modal de termos...');
+    document.getElementById('termsModal').classList.remove('hidden');
+    document.getElementById('loginSection').classList.add('hidden');
+}
 
+// 🔒 FUNÇÃO ACEITAR TERMOS (com banco)
+async function acceptTerms() {
+    try {
+        console.log('✅ Salvando aceitação de termos...');
+        
+        // 1️⃣ Salva no localStorage (performance)
+        localStorage.setItem('termsAccepted', 'true');
+        localStorage.setItem('termsAcceptedAt', new Date().toISOString());
+        localStorage.setItem('termsVersion', '1.0');
+        
+        // 2️⃣ Salva no banco (segurança/legal)
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+            const { error } = await supabase
+                .from('user_terms_acceptance')
+                .insert({
+                    user_id: user.id,
+                    user_email: user.email,
+                    terms_version: '1.0',
+                    ip_address: await getClientIP(), // função opcional
+                    user_agent: navigator.userAgent
+                });
+            
+            if (error) throw error;
+            console.log('📝 Termos salvos no banco com sucesso!');
+        }
+        
+        // Fecha modal e mostra login
+        document.getElementById('termsModal').classList.add('hidden');
+        document.getElementById('loginSection').classList.remove('hidden');
+        showToast('Termos aceitos com sucesso!', 'success');
+        
+    } catch (error) {
+        console.error('❌ Erro ao salvar termos:', error);
+        showToast('Termos aceitos localmente!', 'success');
+        // Continua mesmo com erro no banco
+    }
+}
+
+
+
+function declineTerms() {
+    console.log('❌ Usuário recusou os termos');
+    showToast('Para usar o sistema, é necessário aceitar os Termos de Uso.', 'error');
+}
+
+// 🔍 VERIFICAR TERMOS ANTES DO LOGIN
+async function checkTermsAcceptance() {
+    // ✅ Primeiro verifica localStorage (rápido)
+    const localTerms = localStorage.getItem('termsAccepted');
+    if (localTerms) return true;
+    
+    // ✅ Se não tem local, verifica banco
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.user_metadata?.terms_accepted_at) {
+            // Sincroniza localStorage
+            localStorage.setItem('termsAccepted', 'true');
+            return true;
+        }
+    } catch (error) {
+        console.log('Erro ao verificar termos no banco:', error);
+    }
+    
+    return false;
+}
         
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
-    
+    // 🔍 VERIFICAR SE USUÁRIO JÁ ACEITOU TERMOS (apenas info)
+const termsAccepted = localStorage.getItem('termsAccepted');
+if (termsAccepted) {
+    console.log('📝 Termos aceitos em:', localStorage.getItem('termsAcceptedAt'));
+}
     if (verificarCallbackOAuth()) {
         console.log('⏸️ Parando init - é callback OAuth');
         return;
@@ -3181,60 +3308,66 @@ async function logoutSilencioso() {
 
       
 
-        // ✅ LOGIN GOOGLE CORRIGIDO
-        document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('googleLoginBtn');
-            const originalText = btn.innerHTML;
-            
-            btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
-            btn.disabled = true;
-            
-            try {
-                console.log('🔐 Iniciando autenticação Google...');
-                
-                // 🔥 DETECÇÃO CORRETA DE AMBIENTE
-                const isMobileApp = !!(window.Capacitor || window.cordova);
-                console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
-                
-                // 🔥 URL DE REDIRECT CORRETA
-                const redirectUrl = isMobileApp 
-                    ? 'com.oubook.agendamento://auth-callback'
-                    : 'https://frontrender-iota.vercel.app/';
-                
-                console.log('🎯 Redirect URL:', redirectUrl);
-                
-                const { data, error } = await supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                        redirectTo: redirectUrl,
-                        skipBrowserRedirect: false
-                    }
-                });
-                
-                if (error) throw error;
-                
-                console.log('🌐 URL de autenticação:', data.url);
-                
-                // 🔥 ABRE O BROWSER CORRETAMENTE
-                if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
-                    console.log('📱 Abrindo no Capacitor Browser...');
-                    await window.Capacitor.Plugins.Browser.open({ 
-                        url: data.url,
-                        windowName: '_self'
-                    });
-                } else {
-                    console.log('🌐 Redirecionando para URL...');
-                    window.location.href = data.url;
-                }
-                
-            } catch (error) {
-                console.error('❌ Erro no login Google:', error);
-                showToast("Erro ao conectar com Google", "error");
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+      // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS
+document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+    // 🔒 VERIFICAR TERMOS PRIMEIRO
+    if (!checkTermsAcceptance()) {
+        console.log('⏸️ Login pausado - termos não aceitos');
+        return;
+    }
+    
+    const btn = document.getElementById('googleLoginBtn');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
+    btn.disabled = true;
+    
+    try {
+        console.log('🔐 Iniciando autenticação Google...');
+        
+        // 🔥 DETECÇÃO CORRETA DE AMBIENTE
+        const isMobileApp = !!(window.Capacitor || window.cordova);
+        console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
+        
+        // 🔥 URL DE REDIRECT CORRETA
+        const redirectUrl = isMobileApp 
+            ? 'com.oubook.agendamento://auth-callback'
+            : 'https://frontrender-iota.vercel.app/';
+        
+        console.log('🎯 Redirect URL:', redirectUrl);
+        
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: redirectUrl,
+                skipBrowserRedirect: false
             }
         });
+        
+        if (error) throw error;
+        
+        console.log('🌐 URL de autenticação:', data.url);
+        
+        // 🔥 ABRE O BROWSER CORRETAMENTE
+        if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
+            console.log('📱 Abrindo no Capacitor Browser...');
+            await window.Capacitor.Plugins.Browser.open({ 
+                url: data.url,
+                windowName: '_self'
+            });
+        } else {
+            console.log('🌐 Redirecionando para URL...');
+            window.location.href = data.url;
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro no login Google:', error);
+        showToast("Erro ao conectar com Google", "error");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+});
 
 // ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
@@ -4568,6 +4701,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
