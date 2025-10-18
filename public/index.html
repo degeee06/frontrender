@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendamento</title>
+     <!-- 🔒 ADICIONE ESTE BLOCO AQUI -->
+    <script>
+    window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk";
+    window.API_BASE_URL = "https://agendamento-ynxr.onrender.com";
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -1086,8 +1091,12 @@ async function processarCallbackOAuth() {
             }
         }
 
+
         // ---------------- CONFIGURAÇÃO BACKEND ----------------
-        const API_BASE_URL = 'https://agendamento-ynxr.onrender.com';
+const API_BASE_URL = window.API_BASE_URL || 'https://agendamento-ynxr.onrender.com';
+
+ const SUPABASE_URL = "https://otyxjcxxqwjotnuyrvmc.supabase.co";
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
 
         const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
         const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -4561,6 +4570,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
