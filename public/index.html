@@ -1095,9 +1095,7 @@ if (token) {
 }
 
 
-// ✅ CORREÇÃO: Sistema de Subscription Completo
-
-// 🔥 CORREÇÃO: Função checkScheduleLimit mais robusta
+// 🔥 CORREÇÃO: Usar used_at em vez de created_at
 async function checkScheduleLimit() {
     if (!userToken) return { canSchedule: false, reason: 'not_logged_in' };
     
@@ -1114,21 +1112,21 @@ async function checkScheduleLimit() {
             console.log('📝 Usuário Free - limite:', maxDailySchedules);
         }
         
-        // Verificar usos hoje - CORREÇÃO: usa data correta
+        // 🔥 CORREÇÃO CRÍTICA: Usar used_at em vez de created_at
         const today = new Date().toISOString().split('T')[0];
         console.log('📅 Data de hoje para verificação:', today);
         
         const { data: todaySchedules, error } = await supabase
             .from('user_usage_log')
-            .select('id, created_at')
+            .select('id, used_at')
             .eq('user_id', (await supabase.auth.getUser()).data.user.id)
             .eq('action_type', 'schedule')
-            .gte('created_at', today + 'T00:00:00')
-            .lte('created_at', today + 'T23:59:59');
+            .gte('used_at', today + 'T00:00:00')
+            .lte('used_at', today + 'T23:59:59');
             
         if (error) {
             console.error('❌ Erro ao buscar usos:', error);
-            // Em caso de erro, permite agendar
+            console.error('Detalhes do erro:', error);
             return { canSchedule: true, reason: 'error_but_allowed' };
         }
         
@@ -1136,6 +1134,7 @@ async function checkScheduleLimit() {
         const remaining = maxDailySchedules - usedToday;
         
         console.log(`📊 Agendamentos hoje: ${usedToday}/${maxDailySchedules} | Restantes: ${remaining}`);
+        console.log('📋 Registros encontrados:', todaySchedules);
         
         const canSchedule = remaining > 0;
         
@@ -1153,7 +1152,6 @@ async function checkScheduleLimit() {
         
     } catch (error) {
         console.error('❌ Erro ao verificar limite:', error);
-        // Em caso de erro crítico, permite agendar (fail open)
         return { canSchedule: true, reason: 'critical_error_but_allowed' };
     }
 }
@@ -1188,12 +1186,12 @@ async function getUserSubscription() {
     }
 }
 
-// 🔥 CORREÇÃO CRÍTICA: Função registerScheduleUsage atualizada
+// 🔥 CORREÇÃO: Função registerScheduleUsage atualizada
 async function registerScheduleUsage() {
     if (!userToken) return false;
     
     try {
-        // ✅ PRIMEIRO verifica o limite ANTES de registrar
+        // ✅ PRIMEIRO verifica o limite
         const limitCheck = await checkScheduleLimit();
         
         console.log('📊 Verificação de limite:', limitCheck);
@@ -1211,20 +1209,21 @@ async function registerScheduleUsage() {
                 user_id: user.id,
                 action_type: 'schedule',
                 details: { type: 'new_appointment' }
+                // 🔥 used_at é automaticamente NOW() por default
             }]);
             
         if (error) {
             console.error('❌ Erro ao registrar uso:', error);
+            console.error('Detalhes do erro:', error);
             // Mesmo com erro, permite agendar (fail open)
             return true;
         }
         
-        console.log('✅ Uso de agendamento registrado');
+        console.log('✅ Uso de agendamento registrado com sucesso');
         return true;
         
     } catch (error) {
         console.error('❌ Erro ao verificar/registrar uso:', error);
-        // Em caso de erro, permite agendar (fail open)
         return true;
     }
 }
@@ -4171,6 +4170,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
