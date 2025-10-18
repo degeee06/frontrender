@@ -561,6 +561,37 @@ select option {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
 }
+        /* 🔥 FORÇAR DESIGN DO SEU BOTÃO SOBRE O HOTMART */
+.hotmart-fb.hotmart__button-checkout {
+    background: linear-gradient(to right, #f59e0b, #ea580c) !important;
+    background-color: transparent !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+    text-decoration: none !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+.hotmart-fb.hotmart__button-checkout:hover {
+    background: linear-gradient(to right, #d97706, #dc2626) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 🔥 REMOVER ESTILOS PADRÃO DO HOTMART */
+.hotmart-fb.hotmart__button-checkout:before,
+.hotmart-fb.hotmart__button-checkout:after {
+    display: none !important;
+}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -1381,10 +1412,10 @@ showDailyLimitModal(dailyLimit) {
 
             <!-- Botões -->
             <div class="space-y-3">
-                <!-- 🔥 BOTÃO COM WIDGET EMBEDIDO - CLASSES DO HOTMART + SEU DESIGN -->
+                <!-- 🔥 BOTÃO COM WIDGET EMBEDIDO -->
                 <a onclick="return false;" 
                    href="https://pay.hotmart.com/U102480243K?checkoutMode=2" 
-                   class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-lg block text-center">
+                   class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-lg">
                     <i data-feather="star" class="w-4 h-4"></i>
                     🚀 Fazer Upgrade Ilimitado
                 </a>
@@ -4505,6 +4536,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
