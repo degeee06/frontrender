@@ -1048,60 +1048,58 @@ class PremiumManager {
         this.cache = new Map();
     }
 
-    // ✅ VERIFICAR STATUS DO TRIAL
-    async checkTrialStatus() {
-        if (!userToken) {
+   // ✅ VERIFICAÇÃO: Garantir que hasTrial continua true mesmo sem usos
+async checkTrialStatus() {
+    if (!userToken) {
+        return { hasTrial: false, dailyUsagesLeft: 0 };
+    }
+    
+    try {
+        const trial = await this.getUserTrial();
+        if (!trial) {
             return { hasTrial: false, dailyUsagesLeft: 0 };
         }
         
-        try {
-            const trial = await this.getUserTrial();
-            if (!trial) {
-                return { hasTrial: false, dailyUsagesLeft: 0 };
+        const subscription = await this.getUserSubscription();
+        if (subscription && subscription.status === 'active') {
+            const subscriptionDays = Math.floor((new Date() - new Date(subscription.starts_at)) / (1000 * 60 * 60 * 24));
+            
+            if (subscriptionDays < 7) {
+                const dailyUsage = await this.getDailyUsage(trial, 15);
+                return {
+                    hasTrial: true, // 🔥 SEMPRE true se tem trial
+                    isPremiumTrial: true,
+                    dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
+                    unlimited: false
+                };
+            } else {
+                return {
+                    hasTrial: true, // 🔥 SEMPRE true se tem trial  
+                    unlimited: true,
+                    dailyUsagesLeft: 999
+                };
             }
-            
-            const subscription = await this.getUserSubscription();
-            if (subscription && subscription.status === 'active') {
-                const subscriptionDays = Math.floor((new Date() - new Date(subscription.starts_at)) / (1000 * 60 * 60 * 24));
-                
-                if (subscriptionDays < 7) {
-                    const dailyUsage = await this.getDailyUsage(trial, 15);
-                    return {
-                        hasTrial: true,
-                        isPremiumTrial: true,
-                        dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
-                        unlimited: false
-                    };
-                } else {
-                    return {
-                        hasTrial: true,
-                        unlimited: true,
-                        dailyUsagesLeft: 999
-                    };
-                }
-            }
-            
-            const dailyUsage = await this.getDailyUsage(trial, 5);
-            
-            if (trial.status !== 'active') {
-                return { hasTrial: false, dailyUsagesLeft: 0 };
-            }
-            
-            if (dailyUsage.dailyUsagesLeft <= 0) {
-                return { hasTrial: false, dailyUsagesLeft: 0 };
-            }
-            
-            return {
-                hasTrial: true,
-                isFreeTrial: true,
-                dailyUsagesLeft: dailyUsage.dailyUsagesLeft
-            };
-            
-        } catch (error) {
-            console.error('❌ Erro ao verificar trial:', error);
+        }
+        
+        const dailyUsage = await this.getDailyUsage(trial, 5);
+        
+        // 🔥 CORREÇÃO: hasTrial continua true mesmo sem usos disponíveis
+        if (trial.status !== 'active') {
             return { hasTrial: false, dailyUsagesLeft: 0 };
         }
+        
+        // 🔥 MANTÉM hasTrial: true MESMO QUANDO dailyUsagesLeft = 0
+        return {
+            hasTrial: true, // 🔥 ESTA É A CORREÇÃO PRINCIPAL
+            isFreeTrial: true,
+            dailyUsagesLeft: dailyUsage.dailyUsagesLeft
+        };
+        
+    } catch (error) {
+        console.error('❌ Erro ao verificar trial:', error);
+        return { hasTrial: false, dailyUsagesLeft: 0 };
     }
+}
 
     // ✅ REGISTRAR USO
     async registerUsage() {
@@ -1332,20 +1330,22 @@ class PremiumManager {
         }
     }
 
-// ✅ MODAL DE LIMITE - VERSÃO SIMPLIFICADA
+// ✅ ATUALIZAÇÃO: Modal mostra "5/5 usados hoje"
 showDailyLimitModal(dailyLimit) {
-    // Remove modal existente se houver
-    const existingModal = document.querySelector('.fixed.inset-0.bg-black');
-    if (existingModal) existingModal.remove();
+    const modalExistente = document.querySelector('.fixed.inset-0.bg-black');
+    if (modalExistente) modalExistente.remove();
     
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
     modal.innerHTML = `
         <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
-            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-feather="clock" class="text-yellow-600 w-8 h-8"></i>
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-feather="clock" class="text-red-600 w-8 h-8"></i>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite Diário Atingido</h3>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <p class="text-red-700 font-semibold">${dailyLimit}/${dailyLimit} usos realizados hoje</p>
+            </div>
             <p class="text-gray-600 mb-6">
                 Você utilizou todos os ${dailyLimit} agendamentos de hoje.
                 Os usos serão resetados à meia-noite!
@@ -1353,7 +1353,7 @@ showDailyLimitModal(dailyLimit) {
             <div class="space-y-3">
                 <button onclick="premiumManager.upgradeToPro()" 
                         class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
-                    🚀 Fazer Upgrade
+                    🚀 Fazer Upgrade para Ilimitado
                 </button>
                 <button onclick="this.closest('.fixed').remove()" 
                         class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
@@ -1365,7 +1365,6 @@ showDailyLimitModal(dailyLimit) {
     document.body.appendChild(modal);
     feather.replace();
 }
-
     // ✅ UPGRADE PARA PRO
     upgradeToPro() {
         console.log('🔄 Redirecionando para página de checkout...');
@@ -1373,7 +1372,7 @@ showDailyLimitModal(dailyLimit) {
         // window.location.href = 'checkout.html';
     }
 
-// ✅ ATUALIZAR BADGE - VERSÃO CORRIGIDA
+// ✅ CORREÇÃO: Função updateUsageBadge - MOSTRA 5/5 QUANDO LIMITE ATINGIDO
 async updateUsageBadge() {
     const badge = document.getElementById('premiumBadge');
     if (!badge) return;
@@ -1381,31 +1380,41 @@ async updateUsageBadge() {
     try {
         const status = await this.checkTrialStatus();
         
+        console.log('📊 Status do badge:', status);
+        
         if (status.unlimited) {
             badge.innerHTML = '<span>🚀 Premium</span>';
             badge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             badge.style.display = 'flex';
-        } else if (status.dailyUsagesLeft > 0) {
-            // 🔥 USOS DISPONÍVEIS - Verde
-            const used = (status.isPremiumTrial ? 15 : 5) - status.dailyUsagesLeft;
+        } else if (status.hasTrial) {
+            // 🔥 CORREÇÃO: Calcula usado/total CORRETAMENTE
             const total = status.isPremiumTrial ? 15 : 5;
+            const used = total - status.dailyUsagesLeft; // Isso já dá o número correto de usos
+            
+            // 🔥 AGORA SEMPRE MOSTRA, MESMO QUANDO 5/5
             badge.innerHTML = `<span>🎯 ${used}/${total}</span>`;
-            badge.className = 'bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            
+            // Muda a cor baseado no status
+            if (status.dailyUsagesLeft <= 0) {
+                badge.className = 'bg-gradient-to-r from-red-500 to-rose-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            } else if (status.dailyUsagesLeft <= 2) {
+                badge.className = 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            } else {
+                badge.className = 'bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            }
+            
             badge.style.display = 'flex';
+            
         } else {
-            // 🔥 LIMITE ATINGIDO - Vermelho (NÃO ESCONDE)
-            const total = status.isPremiumTrial ? 15 : 5;
-            badge.innerHTML = `<span>🚫 ${total}/${total}</span>`;
-            badge.className = 'bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
-            badge.style.display = 'flex';
+            // Só esconde se não tiver trial ativo
+            badge.style.display = 'none';
         }
     } catch (error) {
         console.error('Erro ao atualizar badge:', error);
         badge.style.display = 'none';
     }
 }
-} // 🔥 FECHA A CLASSE PremiumManager - ESTAVA FALTANDO!
-
+}
 console.log('🚀 Script carregado! Iniciando aplicação...');
 
 // 🔥 ADICIONAR: Alias para manter compatibilidade
@@ -4386,6 +4395,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
