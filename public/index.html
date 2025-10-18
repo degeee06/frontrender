@@ -571,6 +571,24 @@ button[onclick="fazerUpgrade()"]:hover {
     background: linear-gradient(135deg, #4f46e5, #0891b2) !important;
     transform: scale(1.02);
 }
+
+        /* 🔥 CORREÇÃO URGENTE: Botão de Upgrade - FORÇADO */
+button[onclick="fazerUpgrade()"] {
+    background: linear-gradient(135deg, #6366f1, #06b6d4) !important;
+    background-image: linear-gradient(135deg, #6366f1, #06b6d4) !important;
+    border: none !important;
+    color: white !important;
+}
+
+button[onclick="fazerUpgrade()"]:hover {
+    background: linear-gradient(135deg, #4f46e5, #0891b2) !important;
+    background-image: linear-gradient(135deg, #4f46e5, #0891b2) !important;
+}
+
+/* 🔥 MATA qualquer gradiente rosa em botões */
+button.bg-gradient-to-r {
+    background-image: linear-gradient(135deg, #6366f1, #06b6d4) !important;
+}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -4494,6 +4512,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
