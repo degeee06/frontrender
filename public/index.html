@@ -1176,9 +1176,11 @@ async function getDailyUsage(trial, dailyLimit) {
     };
 }
 
-// 4. Verificar status do trial (ATUALIZADO para 3 usos)
+// 4. Verificar status do trial (VERSÃO CORRIGIDA - BUG CRÍTICO)
 async function checkTrialStatus() {
     try {
+        console.log('🔍 [DEBUG] Iniciando checkTrialStatus...');
+        
         // PRIMEIRO verificar se tem assinatura ativa
         const subscription = await getUserSubscription();
         if (subscription && subscription.status === 'active') {
@@ -1191,7 +1193,7 @@ async function checkTrialStatus() {
                 
                 console.log('🎯 Plano Premium Trial - 15 usos/dia');
                 return {
-                    hasTrial: true,
+                    hasTrial: true, // 🔥 CORREÇÃO: SEMPRE true para premium trial
                     hasSubscription: true,
                     isPremiumTrial: true,
                     message: `Premium Trial - ${dailyUsage.dailyUsagesLeft}/15 usos hoje`,
@@ -1202,7 +1204,7 @@ async function checkTrialStatus() {
                 // PREMIUM - após 7 dias (ilimitado)
                 console.log('🚀 Plano Premium - Ilimitado');
                 return {
-                    hasTrial: true,
+                    hasTrial: true, // 🔥 CORREÇÃO: SEMPRE true para premium
                     hasSubscription: true,
                     isPremium: true,
                     message: 'Premium - Ilimitado',
@@ -1215,6 +1217,7 @@ async function checkTrialStatus() {
         // FREE TRIAL - sem assinatura (🔥 3 usos/dia)
         const trial = await getUserTrial();
         if (!trial) {
+            console.log('❌ [DEBUG] Nenhum trial encontrado');
             return { 
                 hasTrial: false,
                 isFreeTrial: false,
@@ -1224,14 +1227,16 @@ async function checkTrialStatus() {
         }
         
         // AGORA USA CONTAGEM DIÁRIA (3 usos)
-        const dailyUsage = await getDailyUsage(trial, 3); // 🔥 MUDOU PARA 3
+        const dailyUsage = await getDailyUsage(trial, 3);
         
-        console.log('🔍 Free Trial encontrado:', {
+        console.log('🔍 [DEBUG] Free Trial encontrado:', {
             daily_usage_count: dailyUsage.dailyUsageCount,
-            last_usage_date: dailyUsage.lastUsageDate
+            last_usage_date: dailyUsage.lastUsageDate,
+            dailyUsagesLeft: dailyUsage.dailyUsagesLeft
         });
         
         if (trial.status !== 'active') {
+            console.log('❌ [DEBUG] Trial não está ativo');
             return { 
                 hasTrial: false,
                 isFreeTrial: false,
@@ -1240,21 +1245,25 @@ async function checkTrialStatus() {
             };
         }
         
-        console.log(`📊 Free Trial: ${dailyUsage.dailyUsageCount}/3 | Restantes hoje: ${dailyUsage.dailyUsagesLeft}`);
+        console.log(`📊 [DEBUG] Free Trial: ${dailyUsage.dailyUsageCount}/3 | Restantes hoje: ${dailyUsage.dailyUsagesLeft}`);
         
+        // 🔥 CORREÇÃO CRÍTICA: Mesmo sem usos restantes, o trial ainda existe!
         if (dailyUsage.dailyUsagesLeft <= 0) {
+            console.log('🚫 [DEBUG] Usos diários esgotados, mas trial ainda existe');
             return { 
-                hasTrial: false,
+                hasTrial: true, // 🔥 CORREÇÃO: Trial ainda existe, só sem usos!
                 isFreeTrial: true,
                 message: 'Usos diários esgotados',
-                dailyUsagesLeft: 0
+                dailyUsagesLeft: 0,
+                usageCount: dailyUsage.dailyUsageCount
             };
         }
         
+        console.log('✅ [DEBUG] Trial ativo com usos disponíveis');
         return {
             hasTrial: true,
             isFreeTrial: true,
-            message: `Free Trial - ${dailyUsage.dailyUsagesLeft}/3 usos hoje`, // 🔥 MUDOU PARA 3
+            message: `Free Trial - ${dailyUsage.dailyUsagesLeft}/3 usos hoje`,
             dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
             usageCount: dailyUsage.dailyUsageCount
         };
@@ -1268,7 +1277,6 @@ async function checkTrialStatus() {
         };
     }
 }
-
 // 5. Registrar uso diário (MESMA LÓGICA)
 async function registerDailyUsage(dailyLimit) {
     const trial = await getUserTrial();
@@ -4417,6 +4425,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
