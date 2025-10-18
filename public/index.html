@@ -1391,14 +1391,15 @@ showDailyLimitModal(dailyLimit) {
     feather.replace();
 }
     
-   // ✅ CORREÇÃO: Função upgradeToPro redireciona para checkout
+// ✅ CORREÇÃO: Função upgradeToPro redireciona para SEU checkout
 upgradeToPro() {
     console.log('🔄 Redirecionando para página de checkout...');
     showToast('Redirecionando para página de upgrade...', 'info');
     
-    // 🔥 REDIRECIONAMENTO PARA SUA PÁGINA DE CHECKOUT
+    // 🔥 CORREÇÃO: Redirecionamento para SUA PÁGINA DE CHECKOUT
     window.location.href = 'https://oubook.vercel.app/checkout.html';
 }
+
 
 // ✅ CORREÇÃO: Função updateUsageBadge - MOSTRA 5/5 QUANDO LIMITE ATINGIDO
 async updateUsageBadge() {
@@ -1740,8 +1741,10 @@ function fecharMenuConfig() {
 // ✅ FUNÇÃO GLOBAL para upgrade (pode ser chamada de qualquer lugar)
 window.fazerUpgrade = function() {
     console.log('🔄 Redirecionando para checkout...');
+    
+    // 🔥 CORREÇÃO: Usa a mesma URL do seu checkout
     window.location.href = 'https://oubook.vercel.app/checkout.html';
-};        
+};   
 
 // 🎯 FUNÇÃO: Modal do Perfil do Negócio (VERSÃO CORRIGIDA - SEM DUPLICAÇÃO)
 function abrirModalPerfil() {
@@ -4476,6 +4479,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
