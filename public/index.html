@@ -1094,7 +1094,473 @@ if (token) {
     mostrarTelaLogin();
 }
 
-  async function init() {
+// ==================== SISTEMA DE SUBSCRIPTION IDÊNTICO AO COPYCRAFT ====================
+
+// 1. Verificar assinatura ativa (MESMA FUNÇÃO)
+async function getUserSubscription() {
+    if (!userToken) return null;
+    
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
+        
+        const { data, error } = await supabase
+            .from('user_subscriptions')
+            .select('*')
+            .eq('user_email', user.email)
+            .eq('status', 'active')
+            .gte('ends_at', new Date().toISOString())
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+            
+        if (error && error.code !== 'PGRST116') {
+            console.error('❌ Erro ao buscar assinatura:', error);
+        }
+        
+        console.log('🔍 Assinatura encontrada:', data);
+        return data;
+    } catch (error) {
+        console.error('❌ Erro ao buscar assinatura:', error);
+        return null;
+    }
+}
+
+// 2. Verificar trial do usuário (MESMA FUNÇÃO)
+async function getUserTrial() {
+    if (!userToken) return null;
+    
+    try {
+        const { data, error } = await supabase
+            .from('user_trials')
+            .select('*')
+            .eq('user_id', (await supabase.auth.getUser()).data.user.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+            
+        if (error) {
+            if (error.code === 'PGRST116') {
+                console.log('📝 Nenhum trial encontrado para o usuário');
+                return null;
+            }
+            console.error('❌ Erro ao buscar trial:', error);
+            return null;
+        }
+        
+        console.log('✅ Trial encontrado:', data);
+        return data;
+    } catch (error) {
+        console.error('❌ Erro ao buscar trial:', error);
+        return null;
+    }
+}
+
+// 3. Sistema de uso diário (MESMA LÓGICA)
+async function getDailyUsage(trial, dailyLimit) {
+    if (!trial) return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
+    
+    // Buscar dados atualizados do banco
+    const { data: freshTrial, error } = await supabase
+        .from('user_trials')
+        .select('daily_usage_count, last_usage_date')
+        .eq('id', trial.id)
+        .single();
+    
+    if (error) {
+        console.error('❌ Erro ao buscar dados atualizados:', error);
+        return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
+    }
+    
+    const today = new Date().toISOString().split('T')[0];
+    const lastUsageDate = freshTrial.last_usage_date ? new Date(freshTrial.last_usage_date).toISOString().split('T')[0] : null;
+    
+    let dailyUsageCount = freshTrial.daily_usage_count || 0;
+    
+    // Resetar se for novo dia
+    if (lastUsageDate !== today) {
+        dailyUsageCount = 0;
+        console.log('🔄 Novo dia - Resetando contador diário');
+        
+        await supabase
+            .from('user_trials')
+            .update({ 
+                daily_usage_count: 0,
+                last_usage_date: today
+            })
+            .eq('id', trial.id);
+    }
+    
+    const dailyUsagesLeft = Math.max(0, dailyLimit - dailyUsageCount);
+    
+    console.log(`📊 Uso diário: ${dailyUsageCount}/${dailyLimit} | Restantes: ${dailyUsagesLeft}`);
+    
+    return {
+        dailyUsageCount: dailyUsageCount,
+        dailyUsagesLeft: dailyUsagesLeft,
+        lastUsageDate: lastUsageDate
+    };
+}
+
+// 4. Verificar status do trial (MESMA LÓGICA)
+async function checkTrialStatus() {
+    try {
+        // PRIMEIRO verificar se tem assinatura ativa
+        const subscription = await getUserSubscription();
+        if (subscription && subscription.status === 'active') {
+            const subscriptionDays = Math.floor((new Date() - new Date(subscription.starts_at)) / (1000 * 60 * 60 * 24));
+            
+            if (subscriptionDays < 7) {
+                // PREMIUM TRIAL - primeiros 7 dias (15 usos/dia)
+                const trial = await getUserTrial();
+                const dailyUsage = await getDailyUsage(trial, 15);
+                
+                console.log('🎯 Plano Premium Trial - 15 usos/dia');
+                return {
+                    hasTrial: true,
+                    hasSubscription: true,
+                    isPremiumTrial: true,
+                    message: `Premium Trial - ${dailyUsage.dailyUsagesLeft}/15 usos hoje`,
+                    dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
+                    unlimited: false
+                };
+            } else {
+                // PREMIUM - após 7 dias (ilimitado)
+                console.log('🚀 Plano Premium - Ilimitado');
+                return {
+                    hasTrial: true,
+                    hasSubscription: true,
+                    isPremium: true,
+                    message: 'Premium - Ilimitado',
+                    unlimited: true,
+                    dailyUsagesLeft: 999
+                };
+            }
+        }
+
+        // FREE TRIAL - sem assinatura (5 usos/dia)
+        const trial = await getUserTrial();
+        if (!trial) {
+            return { 
+                hasTrial: false,
+                isFreeTrial: false,
+                message: 'Sem trial ativo',
+                dailyUsagesLeft: 0
+            };
+        }
+        
+        // AGORA USA CONTAGEM DIÁRIA
+        const dailyUsage = await getDailyUsage(trial, 5);
+        
+        console.log('🔍 Free Trial encontrado:', {
+            daily_usage_count: dailyUsage.dailyUsageCount,
+            last_usage_date: dailyUsage.lastUsageDate
+        });
+        
+        if (trial.status !== 'active') {
+            return { 
+                hasTrial: false,
+                isFreeTrial: false,
+                message: 'Trial expirado',
+                dailyUsagesLeft: 0
+            };
+        }
+        
+        console.log(`📊 Free Trial: ${dailyUsage.dailyUsageCount}/5 | Restantes hoje: ${dailyUsage.dailyUsagesLeft}`);
+        
+        if (dailyUsage.dailyUsagesLeft <= 0) {
+            return { 
+                hasTrial: false,
+                isFreeTrial: true,
+                message: 'Usos diários esgotados',
+                dailyUsagesLeft: 0
+            };
+        }
+        
+        return {
+            hasTrial: true,
+            isFreeTrial: true,
+            message: `Free Trial - ${dailyUsage.dailyUsagesLeft}/5 usos hoje`,
+            dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
+            usageCount: dailyUsage.dailyUsageCount
+        };
+        
+    } catch (error) {
+        console.error('❌ Erro ao verificar status:', error);
+        return { 
+            hasTrial: false,
+            message: 'Erro ao verificar',
+            dailyUsagesLeft: 0
+        };
+    }
+}
+
+// 5. Registrar uso diário (MESMA LÓGICA)
+async function registerDailyUsage(dailyLimit) {
+    const trial = await getUserTrial();
+    if (!trial) return false;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const lastUsageDate = trial.last_usage_date ? new Date(trial.last_usage_date).toISOString().split('T')[0] : null;
+    
+    let dailyUsageCount = trial.daily_usage_count || 0;
+    
+    // RESETAR contador se for um novo dia
+    if (lastUsageDate !== today) {
+        dailyUsageCount = 0;
+        console.log('🔄 Novo dia - Resetando contador diário');
+    }
+    
+    // VERIFICAR LIMITE DIÁRIO
+    if (dailyUsageCount >= dailyLimit) {
+        console.log(`🚫 Limite diário de ${dailyLimit} usos atingido`);
+        showDailyLimitModal(dailyLimit);
+        return false;
+    }
+    
+    const newDailyUsageCount = dailyUsageCount + 1;
+    const newTotalUsageCount = (trial.usage_count || 0) + 1;
+    
+    // ATUALIZAR NO BANCO
+    const { error } = await supabase
+        .from('user_trials')
+        .update({ 
+            usage_count: newTotalUsageCount,
+            daily_usage_count: newDailyUsageCount,
+            last_usage_date: today
+        })
+        .eq('id', trial.id);
+    
+    if (error) {
+        console.error('❌ Erro ao atualizar uso diário:', error);
+        return false;
+    }
+    
+    console.log(`✅ Uso diário registrado: ${newDailyUsageCount}/${dailyLimit}`);
+    await updatePlanBadge();
+    return true;
+}
+
+// 6. Registrar uso de agendamento (ADAPTADO)
+async function registerScheduleUsage() {
+    if (!userToken) return false;
+    
+    try {
+        // VERIFICAR STATUS ATUAL
+        const status = await checkTrialStatus();
+        
+        // PREMIUM (após 7 dias) - SEMPRE PERMITE
+        if (status.unlimited) {
+            console.log('🚀 Usuário Premium - Agendamento ilimitado permitido');
+            return true;
+        }
+        
+        // PREMIUM TRIAL (primeiros 7 dias) - 15 usos/dia
+        if (status.isPremiumTrial) {
+            if (status.dailyUsagesLeft > 0) {
+                console.log('🎯 Premium Trial - Usando 1 dos', status.dailyUsagesLeft, 'restantes');
+                return await registerDailyUsage(15); // 15 usos/dia
+            } else {
+                console.log('🚫 Premium Trial - Limite diário de 15 agendamentos atingido');
+                showDailyLimitModal(15);
+                return false;
+            }
+        }
+        
+        // FREE TRIAL - 5 usos/dia
+        if (status.isFreeTrial && status.hasTrial) {
+            if (status.dailyUsagesLeft > 0) {
+                console.log('📝 Free Trial - Usando 1 dos', status.dailyUsagesLeft, 'restantes');
+                return await registerDailyUsage(5); // 5 usos/dia
+            } else {
+                console.log('🚫 Free Trial - Limite diário de 5 agendamentos atingido');
+                showDailyLimitModal(5);
+                return false;
+            }
+        }
+        
+        console.log('❌ Nenhum uso disponível');
+        return false;
+        
+    } catch (error) {
+        console.error('❌ Erro no registerUsage:', error);
+        return false;
+    }
+}
+
+// 7. Modal para limite diário (MESMO DESIGN)
+function showDailyLimitModal(dailyLimit) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-feather="clock" class="text-yellow-600 w-8 h-8"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite Diário Atingido</h3>
+            <p class="text-gray-600 mb-6">
+                Você utilizou todos os ${dailyLimit} agendamentos de hoje.
+                Os usos serão resetados à meia-noite!
+            </p>
+            <div class="space-y-3">
+                <button onclick="upgradeToPro()" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
+                    🚀 Fazer Upgrade
+                </button>
+                <button onclick="this.closest('.fixed').remove()" 
+                        class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    feather.replace();
+}
+
+// 8. Atualizar badge do plano (ADAPTADO)
+async function updatePlanBadge() {
+    try {
+        const subscription = await getUserSubscription();
+        const status = await checkTrialStatus();
+        
+        let planBadge = document.getElementById('planBadge');
+        
+        if (!planBadge) {
+            planBadge = document.createElement('span');
+            planBadge.id = 'planBadge';
+            
+            const headerContainer = document.querySelector('.flex.gap-2.w-full.sm\\:w-auto');
+            if (headerContainer) {
+                headerContainer.appendChild(planBadge);
+            }
+        }
+        
+        if (status.unlimited) {
+            planBadge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-2 py-1 rounded-full ml-2';
+            planBadge.textContent = '🚀 Premium';
+        } else if (status.isPremiumTrial) {
+            planBadge.className = 'bg-blue-500 text-white text-xs px-2 py-1 rounded-full ml-2';
+            planBadge.textContent = `🎯 ${15 - status.dailyUsagesLeft}/15`;
+        } else if (status.hasTrial) {
+            planBadge.className = 'bg-green-500 text-white text-xs px-2 py-1 rounded-full ml-2';
+            planBadge.textContent = `📝 ${5 - status.dailyUsagesLeft}/5`;
+        } else {
+            planBadge.className = 'bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2';
+            planBadge.textContent = '💔 Sem usos';
+        }
+        
+    } catch (error) {
+        console.error('Erro ao atualizar badge:', error);
+    }
+}
+
+// 9. Upgrade para Pro (MESMA FUNÇÃO)
+function upgradeToPro() {
+    console.log('🔄 Redirecionando para página de checkout...');
+    window.location.href = 'checkout.html';
+}
+
+// 10. Iniciar trial (MESMA FUNÇÃO)
+async function startTrial() {
+    if (!userToken) return;
+    
+    try {
+        // Buscar trial existente
+        const existingTrial = await getUserTrial();
+        
+        if (existingTrial) {
+            console.log('✅ Trial já existe:', existingTrial);
+            
+            // Se tem mais de 5 usos, forçar status expired
+            if (existingTrial.usage_count >= 5) {
+                console.log('🚫 Trial com usos esgotados, mantendo expirado');
+                
+                // Garantir que está como expired
+                if (existingTrial.status !== 'expired') {
+                    await supabase
+                        .from('user_trials')
+                        .update({
+                            status: 'expired',
+                            ended_at: new Date().toISOString()
+                        })
+                        .eq('id', existingTrial.id);
+                }
+                return existingTrial;
+            }
+            
+            // Se o trial está ativo, manter
+            if (existingTrial.status === 'active') {
+                console.log('🔄 Trial ativo mantido com usos atuais');
+                return existingTrial;
+            }
+            
+            // Se o trial está expirado mas tem menos de 5 usos, reativar
+            if (existingTrial.status === 'expired' && existingTrial.usage_count < 5) {
+                console.log('🔄 Reativando trial expirado com usos disponíveis');
+                
+                const { data, error } = await supabase
+                    .from('user_trials')
+                    .update({
+                        status: 'active',
+                        ended_at: null
+                    })
+                    .eq('id', existingTrial.id)
+                    .select()
+                    .single();
+                    
+                if (error) throw error;
+                return data;
+            }
+            
+            return existingTrial;
+        }
+        
+        // Só criar novo trial se não existir nenhum
+        console.log('🔄 Criando NOVO trial...');
+        return await createNewTrial();
+        
+    } catch (error) {
+        console.error('❌ Erro ao iniciar trial:', error);
+        return null;
+    }
+}
+
+// 11. Criar novo trial (MESMA FUNÇÃO)
+async function createNewTrial() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        const { data, error } = await supabase
+            .from('user_trials')
+            .insert([{ 
+                user_id: user.id,
+                user_email: user.email,
+                started_at: new Date().toISOString(),
+                ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                status: 'active',
+                usage_count: 0,
+                max_usages: 5,
+                usage_limit_type: 'usages'
+            }])
+            .select()
+            .single();
+            
+        if (error) throw error;
+        
+        console.log('🎉 NOVO Trial criado:', data);
+        return data;
+        
+    } catch (error) {
+        console.error('❌ Erro ao criar trial:', error);
+        return null;
+    }
+}
+
+
+
+        
+async function init() {
     console.log('🚀 Iniciando app...');
     
     if (verificarCallbackOAuth()) {
@@ -3941,471 +4407,6 @@ async function processarRetornoOAuth(url) {
         showToast("Erro ao finalizar login", "error");
     }
 }
-
-// ==================== SISTEMA DE SUBSCRIPTION IDÊNTICO AO COPYCRAFT ====================
-
-// 1. Verificar assinatura ativa (MESMA FUNÇÃO)
-async function getUserSubscription() {
-    if (!userToken) return null;
-    
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return null;
-        
-        const { data, error } = await supabase
-            .from('user_subscriptions')
-            .select('*')
-            .eq('user_email', user.email)
-            .eq('status', 'active')
-            .gte('ends_at', new Date().toISOString())
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-            
-        if (error && error.code !== 'PGRST116') {
-            console.error('❌ Erro ao buscar assinatura:', error);
-        }
-        
-        console.log('🔍 Assinatura encontrada:', data);
-        return data;
-    } catch (error) {
-        console.error('❌ Erro ao buscar assinatura:', error);
-        return null;
-    }
-}
-
-// 2. Verificar trial do usuário (MESMA FUNÇÃO)
-async function getUserTrial() {
-    if (!userToken) return null;
-    
-    try {
-        const { data, error } = await supabase
-            .from('user_trials')
-            .select('*')
-            .eq('user_id', (await supabase.auth.getUser()).data.user.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-            
-        if (error) {
-            if (error.code === 'PGRST116') {
-                console.log('📝 Nenhum trial encontrado para o usuário');
-                return null;
-            }
-            console.error('❌ Erro ao buscar trial:', error);
-            return null;
-        }
-        
-        console.log('✅ Trial encontrado:', data);
-        return data;
-    } catch (error) {
-        console.error('❌ Erro ao buscar trial:', error);
-        return null;
-    }
-}
-
-// 3. Sistema de uso diário (MESMA LÓGICA)
-async function getDailyUsage(trial, dailyLimit) {
-    if (!trial) return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
-    
-    // Buscar dados atualizados do banco
-    const { data: freshTrial, error } = await supabase
-        .from('user_trials')
-        .select('daily_usage_count, last_usage_date')
-        .eq('id', trial.id)
-        .single();
-    
-    if (error) {
-        console.error('❌ Erro ao buscar dados atualizados:', error);
-        return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
-    }
-    
-    const today = new Date().toISOString().split('T')[0];
-    const lastUsageDate = freshTrial.last_usage_date ? new Date(freshTrial.last_usage_date).toISOString().split('T')[0] : null;
-    
-    let dailyUsageCount = freshTrial.daily_usage_count || 0;
-    
-    // Resetar se for novo dia
-    if (lastUsageDate !== today) {
-        dailyUsageCount = 0;
-        console.log('🔄 Novo dia - Resetando contador diário');
-        
-        await supabase
-            .from('user_trials')
-            .update({ 
-                daily_usage_count: 0,
-                last_usage_date: today
-            })
-            .eq('id', trial.id);
-    }
-    
-    const dailyUsagesLeft = Math.max(0, dailyLimit - dailyUsageCount);
-    
-    console.log(`📊 Uso diário: ${dailyUsageCount}/${dailyLimit} | Restantes: ${dailyUsagesLeft}`);
-    
-    return {
-        dailyUsageCount: dailyUsageCount,
-        dailyUsagesLeft: dailyUsagesLeft,
-        lastUsageDate: lastUsageDate
-    };
-}
-
-// 4. Verificar status do trial (MESMA LÓGICA)
-async function checkTrialStatus() {
-    try {
-        // PRIMEIRO verificar se tem assinatura ativa
-        const subscription = await getUserSubscription();
-        if (subscription && subscription.status === 'active') {
-            const subscriptionDays = Math.floor((new Date() - new Date(subscription.starts_at)) / (1000 * 60 * 60 * 24));
-            
-            if (subscriptionDays < 7) {
-                // PREMIUM TRIAL - primeiros 7 dias (15 usos/dia)
-                const trial = await getUserTrial();
-                const dailyUsage = await getDailyUsage(trial, 15);
-                
-                console.log('🎯 Plano Premium Trial - 15 usos/dia');
-                return {
-                    hasTrial: true,
-                    hasSubscription: true,
-                    isPremiumTrial: true,
-                    message: `Premium Trial - ${dailyUsage.dailyUsagesLeft}/15 usos hoje`,
-                    dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
-                    unlimited: false
-                };
-            } else {
-                // PREMIUM - após 7 dias (ilimitado)
-                console.log('🚀 Plano Premium - Ilimitado');
-                return {
-                    hasTrial: true,
-                    hasSubscription: true,
-                    isPremium: true,
-                    message: 'Premium - Ilimitado',
-                    unlimited: true,
-                    dailyUsagesLeft: 999
-                };
-            }
-        }
-
-        // FREE TRIAL - sem assinatura (5 usos/dia)
-        const trial = await getUserTrial();
-        if (!trial) {
-            return { 
-                hasTrial: false,
-                isFreeTrial: false,
-                message: 'Sem trial ativo',
-                dailyUsagesLeft: 0
-            };
-        }
-        
-        // AGORA USA CONTAGEM DIÁRIA
-        const dailyUsage = await getDailyUsage(trial, 5);
-        
-        console.log('🔍 Free Trial encontrado:', {
-            daily_usage_count: dailyUsage.dailyUsageCount,
-            last_usage_date: dailyUsage.lastUsageDate
-        });
-        
-        if (trial.status !== 'active') {
-            return { 
-                hasTrial: false,
-                isFreeTrial: false,
-                message: 'Trial expirado',
-                dailyUsagesLeft: 0
-            };
-        }
-        
-        console.log(`📊 Free Trial: ${dailyUsage.dailyUsageCount}/5 | Restantes hoje: ${dailyUsage.dailyUsagesLeft}`);
-        
-        if (dailyUsage.dailyUsagesLeft <= 0) {
-            return { 
-                hasTrial: false,
-                isFreeTrial: true,
-                message: 'Usos diários esgotados',
-                dailyUsagesLeft: 0
-            };
-        }
-        
-        return {
-            hasTrial: true,
-            isFreeTrial: true,
-            message: `Free Trial - ${dailyUsage.dailyUsagesLeft}/5 usos hoje`,
-            dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
-            usageCount: dailyUsage.dailyUsageCount
-        };
-        
-    } catch (error) {
-        console.error('❌ Erro ao verificar status:', error);
-        return { 
-            hasTrial: false,
-            message: 'Erro ao verificar',
-            dailyUsagesLeft: 0
-        };
-    }
-}
-
-// 5. Registrar uso diário (MESMA LÓGICA)
-async function registerDailyUsage(dailyLimit) {
-    const trial = await getUserTrial();
-    if (!trial) return false;
-    
-    const today = new Date().toISOString().split('T')[0];
-    const lastUsageDate = trial.last_usage_date ? new Date(trial.last_usage_date).toISOString().split('T')[0] : null;
-    
-    let dailyUsageCount = trial.daily_usage_count || 0;
-    
-    // RESETAR contador se for um novo dia
-    if (lastUsageDate !== today) {
-        dailyUsageCount = 0;
-        console.log('🔄 Novo dia - Resetando contador diário');
-    }
-    
-    // VERIFICAR LIMITE DIÁRIO
-    if (dailyUsageCount >= dailyLimit) {
-        console.log(`🚫 Limite diário de ${dailyLimit} usos atingido`);
-        showDailyLimitModal(dailyLimit);
-        return false;
-    }
-    
-    const newDailyUsageCount = dailyUsageCount + 1;
-    const newTotalUsageCount = (trial.usage_count || 0) + 1;
-    
-    // ATUALIZAR NO BANCO
-    const { error } = await supabase
-        .from('user_trials')
-        .update({ 
-            usage_count: newTotalUsageCount,
-            daily_usage_count: newDailyUsageCount,
-            last_usage_date: today
-        })
-        .eq('id', trial.id);
-    
-    if (error) {
-        console.error('❌ Erro ao atualizar uso diário:', error);
-        return false;
-    }
-    
-    console.log(`✅ Uso diário registrado: ${newDailyUsageCount}/${dailyLimit}`);
-    await updatePlanBadge();
-    return true;
-}
-
-// 6. Registrar uso de agendamento (ADAPTADO)
-async function registerScheduleUsage() {
-    if (!userToken) return false;
-    
-    try {
-        // VERIFICAR STATUS ATUAL
-        const status = await checkTrialStatus();
-        
-        // PREMIUM (após 7 dias) - SEMPRE PERMITE
-        if (status.unlimited) {
-            console.log('🚀 Usuário Premium - Agendamento ilimitado permitido');
-            return true;
-        }
-        
-        // PREMIUM TRIAL (primeiros 7 dias) - 15 usos/dia
-        if (status.isPremiumTrial) {
-            if (status.dailyUsagesLeft > 0) {
-                console.log('🎯 Premium Trial - Usando 1 dos', status.dailyUsagesLeft, 'restantes');
-                return await registerDailyUsage(15); // 15 usos/dia
-            } else {
-                console.log('🚫 Premium Trial - Limite diário de 15 agendamentos atingido');
-                showDailyLimitModal(15);
-                return false;
-            }
-        }
-        
-        // FREE TRIAL - 5 usos/dia
-        if (status.isFreeTrial && status.hasTrial) {
-            if (status.dailyUsagesLeft > 0) {
-                console.log('📝 Free Trial - Usando 1 dos', status.dailyUsagesLeft, 'restantes');
-                return await registerDailyUsage(5); // 5 usos/dia
-            } else {
-                console.log('🚫 Free Trial - Limite diário de 5 agendamentos atingido');
-                showDailyLimitModal(5);
-                return false;
-            }
-        }
-        
-        console.log('❌ Nenhum uso disponível');
-        return false;
-        
-    } catch (error) {
-        console.error('❌ Erro no registerUsage:', error);
-        return false;
-    }
-}
-
-// 7. Modal para limite diário (MESMO DESIGN)
-function showDailyLimitModal(dailyLimit) {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    modal.innerHTML = `
-        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
-            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-feather="clock" class="text-yellow-600 w-8 h-8"></i>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite Diário Atingido</h3>
-            <p class="text-gray-600 mb-6">
-                Você utilizou todos os ${dailyLimit} agendamentos de hoje.
-                Os usos serão resetados à meia-noite!
-            </p>
-            <div class="space-y-3">
-                <button onclick="upgradeToPro()" 
-                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
-                    🚀 Fazer Upgrade
-                </button>
-                <button onclick="this.closest('.fixed').remove()" 
-                        class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
-                    Entendi
-                </button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-    feather.replace();
-}
-
-// 8. Atualizar badge do plano (ADAPTADO)
-async function updatePlanBadge() {
-    try {
-        const subscription = await getUserSubscription();
-        const status = await checkTrialStatus();
-        
-        let planBadge = document.getElementById('planBadge');
-        
-        if (!planBadge) {
-            planBadge = document.createElement('span');
-            planBadge.id = 'planBadge';
-            
-            const headerContainer = document.querySelector('.flex.gap-2.w-full.sm\\:w-auto');
-            if (headerContainer) {
-                headerContainer.appendChild(planBadge);
-            }
-        }
-        
-        if (status.unlimited) {
-            planBadge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-2 py-1 rounded-full ml-2';
-            planBadge.textContent = '🚀 Premium';
-        } else if (status.isPremiumTrial) {
-            planBadge.className = 'bg-blue-500 text-white text-xs px-2 py-1 rounded-full ml-2';
-            planBadge.textContent = `🎯 ${15 - status.dailyUsagesLeft}/15`;
-        } else if (status.hasTrial) {
-            planBadge.className = 'bg-green-500 text-white text-xs px-2 py-1 rounded-full ml-2';
-            planBadge.textContent = `📝 ${5 - status.dailyUsagesLeft}/5`;
-        } else {
-            planBadge.className = 'bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2';
-            planBadge.textContent = '💔 Sem usos';
-        }
-        
-    } catch (error) {
-        console.error('Erro ao atualizar badge:', error);
-    }
-}
-
-// 9. Upgrade para Pro (MESMA FUNÇÃO)
-function upgradeToPro() {
-    console.log('🔄 Redirecionando para página de checkout...');
-    window.location.href = 'checkout.html';
-}
-
-// 10. Iniciar trial (MESMA FUNÇÃO)
-async function startTrial() {
-    if (!userToken) return;
-    
-    try {
-        // Buscar trial existente
-        const existingTrial = await getUserTrial();
-        
-        if (existingTrial) {
-            console.log('✅ Trial já existe:', existingTrial);
-            
-            // Se tem mais de 5 usos, forçar status expired
-            if (existingTrial.usage_count >= 5) {
-                console.log('🚫 Trial com usos esgotados, mantendo expirado');
-                
-                // Garantir que está como expired
-                if (existingTrial.status !== 'expired') {
-                    await supabase
-                        .from('user_trials')
-                        .update({
-                            status: 'expired',
-                            ended_at: new Date().toISOString()
-                        })
-                        .eq('id', existingTrial.id);
-                }
-                return existingTrial;
-            }
-            
-            // Se o trial está ativo, manter
-            if (existingTrial.status === 'active') {
-                console.log('🔄 Trial ativo mantido com usos atuais');
-                return existingTrial;
-            }
-            
-            // Se o trial está expirado mas tem menos de 5 usos, reativar
-            if (existingTrial.status === 'expired' && existingTrial.usage_count < 5) {
-                console.log('🔄 Reativando trial expirado com usos disponíveis');
-                
-                const { data, error } = await supabase
-                    .from('user_trials')
-                    .update({
-                        status: 'active',
-                        ended_at: null
-                    })
-                    .eq('id', existingTrial.id)
-                    .select()
-                    .single();
-                    
-                if (error) throw error;
-                return data;
-            }
-            
-            return existingTrial;
-        }
-        
-        // Só criar novo trial se não existir nenhum
-        console.log('🔄 Criando NOVO trial...');
-        return await createNewTrial();
-        
-    } catch (error) {
-        console.error('❌ Erro ao iniciar trial:', error);
-        return null;
-    }
-}
-
-// 11. Criar novo trial (MESMA FUNÇÃO)
-async function createNewTrial() {
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        const { data, error } = await supabase
-            .from('user_trials')
-            .insert([{ 
-                user_id: user.id,
-                user_email: user.email,
-                started_at: new Date().toISOString(),
-                ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                status: 'active',
-                usage_count: 0,
-                max_usages: 5,
-                usage_limit_type: 'usages'
-            }])
-            .select()
-            .single();
-            
-        if (error) throw error;
-        
-        console.log('🎉 NOVO Trial criado:', data);
-        return data;
-        
-    } catch (error) {
-        console.error('❌ Erro ao criar trial:', error);
-        return null;
-    }
-}
-
-
         
 // 🔥 CORREÇÃO: Adicionar função debounce faltante
 function debounce(func, wait) {
