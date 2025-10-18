@@ -978,35 +978,60 @@ function isCapacitorApp() {
 }
 
 
-// 🔥 VERIFICAÇÃO SIMPLIFICADA DE CALLBACK OAUTH
+// 🔥 VERIFICAÇÃO DE CALLBACK OAUTH - EXECUTA PRIMEIRO
 function verificarCallbackOAuth() {
-    console.log('🔄 Verificando callback OAuth...');
-    
-    const hasOAuthParams = window.location.hash.includes('access_token') || 
-                          window.location.hash.includes('error') ||
-                          window.location.search.includes('access_token');
-    
+    console.log('🔄 Verificando se é callback OAuth...');
     console.log('📍 URL:', window.location.href);
     console.log('🔑 Hash:', window.location.hash);
-    console.log('🔍 Search:', window.location.search);
-    console.log('📱 É Capacitor?', isCapacitorApp());
-    console.log('🎯 Tem params OAuth?', hasOAuthParams);
     
-    if (hasOAuthParams) {
+    const isCallback = window.location.hash.includes('access_token') || 
+                       window.location.hash.includes('error');
+    
+    if (isCallback) {
         console.log('🎯 Detectado callback OAuth - processando...');
         
         // MOSTRA TELA DE AUTENTICAÇÃO
         document.getElementById('authCallbackScreen').classList.remove('hidden');
         document.getElementById('mainAppContent').classList.add('hidden');
         
-        // Processa OAuth independente do ambiente
-        processarCallbackOAuth();
-        return true;
+        // 🔥 DETECTA AMBIENTE (MESMA LÓGICA DO SCRIPT 1)
+        const isWeb = !(window.Browser || window.cordova || 
+                       navigator.userAgent.includes('Capacitor') ||
+                       navigator.userAgent.includes('Cordova'));
+        console.log('Ambiente:', isWeb ? 'WEB' : 'APP');
+        
+        if (isWeb) {
+            // 💻 WEB: Processa e redireciona
+            console.log('🌐 Processando para web...');
+            processarOAuthWeb();
+        } else {
+            // 📱 APP: Redireciona para app e fecha
+            console.log('📱 Processando para app...');
+            processarOAuthApp();
+        }
+        
+        return true; // É um callback, para a execução normal
     }
     
-    return false;
+    return false; // Não é callback, continua normal
 }
 
+
+// 🔥 PROCESSAMENTO PARA APP (igual ao Script 1)
+function processarOAuthApp() {
+    console.log('📱 Redirecionando para app...');
+    
+    // 1. Tenta redirecionar para o app
+    const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
+    window.location.href = appUrl;
+    
+    // 2. Fecha o browser após 1 segundo
+    setTimeout(() => {
+        fecharBrowserCapacitor();
+    }, 1000);
+}
+
+        
 // 🔥 PROCESSAMENTO ÚNICO E SIMPLIFICADO DO OAUTH
 async function processarCallbackOAuth() {
     try {
@@ -1208,7 +1233,7 @@ async function fecharBrowserCapacitor() {
 
 
 
-        // 🔥 PROCESSAMENTO PARA WEB
+      // 🔥 PROCESSAMENTO PARA WEB (igual ao Script 1)
 async function processarOAuthWeb() {
     try {
         // Aguarda um pouco para processar a sessão
@@ -1230,19 +1255,15 @@ async function processarOAuthWeb() {
             document.getElementById('authCallbackScreen').classList.add('hidden');
             document.getElementById('mainAppContent').classList.remove('hidden');
             
-            // Atualiza interface - 🔥 CORREÇÃO: CHAMAR atualizarInterfacePosLogin()
+            // Atualiza interface
             loginSection.style.display = 'none';
             form.style.display = 'block';
-            atualizarInterfacePosLogin(); // 🔥 LINHA CRÍTICA ADICIONADA
+            atualizarInterfacePosLogin();
             document.getElementById('secoesIA').style.display = 'block';
             
             listarAgendamentos();
-            // 🔥 ADICIONE: Conectar SSE após login
             setTimeout(() => iniciarSistemaAtualizacao(), 1000);
             showToast("Login realizado com sucesso!", "success");
-            
-            // 🔥 ADICIONAR: Verificar configuração sheets
-            setTimeout(() => verificarConfiguracaoSheets(), 1500);
         }
     } catch (error) {
         console.error('❌ Erro OAuth web:', error);
@@ -1250,20 +1271,6 @@ async function processarOAuthWeb() {
     }
 }
 
-
-        // 🔥 PROCESSAMENTO PARA APP
-function processarOAuthApp() {
-    console.log('📱 Redirecionando para app...');
-    
-    // 1. Tenta redirecionar para o app
-    const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
-    window.location.href = appUrl;
-    
-    // 2. Fecha o browser após 1 segundo
-    setTimeout(() => {
-        fecharBrowserCapacitor();
-    }, 1000);
-}
 
         
      // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA
@@ -4056,6 +4063,7 @@ function forcarAtualizacaoAgendamentos() {
 
 </body>
 </html>
+
 
 
 
