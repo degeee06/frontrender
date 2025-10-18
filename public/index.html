@@ -1511,6 +1511,11 @@ async function init() {
             userToken = session.access_token;
             loginSection.style.display = 'none';
             form.style.display = 'block';
+             // 🔥 ADICIONAR: Inicializar Premium Manager ANTES de usar
+        premiumManager = new PremiumManager();
+        await premiumManager.startTrial(); // Inicia trial se necessário
+        await premiumManager.updateUsageBadge(); // Atualiza badge
+            
             atualizarInterfacePosLogin();
             document.getElementById('secoesIA').style.display = 'block';
             listarAgendamentos();
@@ -4349,6 +4354,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
