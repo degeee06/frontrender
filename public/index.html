@@ -1176,7 +1176,7 @@ async function getDailyUsage(trial, dailyLimit) {
     };
 }
 
-// 4. Verificar status do trial (MESMA LÓGICA)
+// 4. Verificar status do trial (ATUALIZADO para 3 usos)
 async function checkTrialStatus() {
     try {
         // PRIMEIRO verificar se tem assinatura ativa
@@ -1212,7 +1212,7 @@ async function checkTrialStatus() {
             }
         }
 
-        // FREE TRIAL - sem assinatura (5 usos/dia)
+        // FREE TRIAL - sem assinatura (🔥 3 usos/dia)
         const trial = await getUserTrial();
         if (!trial) {
             return { 
@@ -1223,8 +1223,8 @@ async function checkTrialStatus() {
             };
         }
         
-        // AGORA USA CONTAGEM DIÁRIA
-        const dailyUsage = await getDailyUsage(trial, 3);
+        // AGORA USA CONTAGEM DIÁRIA (3 usos)
+        const dailyUsage = await getDailyUsage(trial, 3); // 🔥 MUDOU PARA 3
         
         console.log('🔍 Free Trial encontrado:', {
             daily_usage_count: dailyUsage.dailyUsageCount,
@@ -1240,7 +1240,7 @@ async function checkTrialStatus() {
             };
         }
         
-        console.log(`📊 Free Trial: ${dailyUsage.dailyUsageCount}/5 | Restantes hoje: ${dailyUsage.dailyUsagesLeft}`);
+        console.log(`📊 Free Trial: ${dailyUsage.dailyUsageCount}/3 | Restantes hoje: ${dailyUsage.dailyUsagesLeft}`);
         
         if (dailyUsage.dailyUsagesLeft <= 0) {
             return { 
@@ -1254,7 +1254,7 @@ async function checkTrialStatus() {
         return {
             hasTrial: true,
             isFreeTrial: true,
-            message: `Free Trial - ${dailyUsage.dailyUsagesLeft}/5 usos hoje`,
+            message: `Free Trial - ${dailyUsage.dailyUsagesLeft}/3 usos hoje`, // 🔥 MUDOU PARA 3
             dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
             usageCount: dailyUsage.dailyUsageCount
         };
@@ -1315,7 +1315,7 @@ async function registerDailyUsage(dailyLimit) {
     return true;
 }
 
-// 6. Registrar uso de agendamento (ADAPTADO)
+// 6. Registrar uso de agendamento (ATUALIZADO)
 async function registerScheduleUsage() {
     if (!userToken) return false;
     
@@ -1341,14 +1341,14 @@ async function registerScheduleUsage() {
             }
         }
         
-        // FREE TRIAL - 5 usos/dia
+        // FREE TRIAL - 🔥 3 usos/dia
         if (status.isFreeTrial && status.hasTrial) {
             if (status.dailyUsagesLeft > 0) {
                 console.log('📝 Free Trial - Usando 1 dos', status.dailyUsagesLeft, 'restantes');
-                return await registerDailyUsage(5); // 5 usos/dia
+                return await registerDailyUsage(3); // 🔥 MUDOU PARA 3
             } else {
-                console.log('🚫 Free Trial - Limite diário de 5 agendamentos atingido');
-                showDailyLimitModal(5);
+                console.log('🚫 Free Trial - Limite diário de 3 agendamentos atingido'); // 🔥 MUDOU PARA 3
+                showDailyLimitModal(3); // 🔥 MUDOU PARA 3
                 return false;
             }
         }
@@ -1362,7 +1362,7 @@ async function registerScheduleUsage() {
     }
 }
 
-// 7. Modal para limite diário (MESMO DESIGN)
+// 7. Modal para limite diário (ATUALIZADO)
 function showDailyLimitModal(dailyLimit) {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
@@ -1392,7 +1392,7 @@ function showDailyLimitModal(dailyLimit) {
     feather.replace();
 }
 
-// 8. Atualizar badge do plano (ADAPTADO)
+// 8. Atualizar badge do plano (ATUALIZADO)
 async function updatePlanBadge() {
     try {
         const subscription = await getUserSubscription();
@@ -1418,7 +1418,7 @@ async function updatePlanBadge() {
             planBadge.textContent = `🎯 ${15 - status.dailyUsagesLeft}/15`;
         } else if (status.hasTrial) {
             planBadge.className = 'bg-green-500 text-white text-xs px-2 py-1 rounded-full ml-2';
-            planBadge.textContent = `📝 ${5 - status.dailyUsagesLeft}/5`;
+            planBadge.textContent = `📝 ${3 - status.dailyUsagesLeft}/3`; // 🔥 MUDOU PARA 3
         } else {
             planBadge.className = 'bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2';
             planBadge.textContent = '💔 Sem usos';
@@ -1500,7 +1500,7 @@ async function startTrial() {
     }
 }
 
-// 11. Criar novo trial (MESMA FUNÇÃO)
+// 11. Criar novo trial (ATUALIZADO)
 async function createNewTrial() {
     try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -1514,7 +1514,7 @@ async function createNewTrial() {
                 ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
                 status: 'active',
                 usage_count: 0,
-                max_usages: 5,
+                max_usages: 3, // 🔥 MUDOU PARA 3
                 usage_limit_type: 'usages'
             }])
             .select()
@@ -4407,6 +4407,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
