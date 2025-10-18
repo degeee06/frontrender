@@ -1042,6 +1042,360 @@ async function processarCallbackOAuth() {
         let telefoneMask = null;
         let premiumManager = null;
 
+    // 🔥 ADICIONAR CLASSE COMPLETA DO PREMIUM MANAGER
+class PremiumManager {
+    constructor() {
+        this.cache = new Map();
+    }
+
+    // ✅ VERIFICAR STATUS DO TRIAL
+    async checkTrialStatus() {
+        if (!userToken) {
+            return { hasTrial: false, dailyUsagesLeft: 0 };
+        }
+        
+        try {
+            const trial = await this.getUserTrial();
+            if (!trial) {
+                return { hasTrial: false, dailyUsagesLeft: 0 };
+            }
+            
+            const subscription = await this.getUserSubscription();
+            if (subscription && subscription.status === 'active') {
+                const subscriptionDays = Math.floor((new Date() - new Date(subscription.starts_at)) / (1000 * 60 * 60 * 24));
+                
+                if (subscriptionDays < 7) {
+                    const dailyUsage = await this.getDailyUsage(trial, 15);
+                    return {
+                        hasTrial: true,
+                        isPremiumTrial: true,
+                        dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
+                        unlimited: false
+                    };
+                } else {
+                    return {
+                        hasTrial: true,
+                        unlimited: true,
+                        dailyUsagesLeft: 999
+                    };
+                }
+            }
+            
+            const dailyUsage = await this.getDailyUsage(trial, 5);
+            
+            if (trial.status !== 'active') {
+                return { hasTrial: false, dailyUsagesLeft: 0 };
+            }
+            
+            if (dailyUsage.dailyUsagesLeft <= 0) {
+                return { hasTrial: false, dailyUsagesLeft: 0 };
+            }
+            
+            return {
+                hasTrial: true,
+                isFreeTrial: true,
+                dailyUsagesLeft: dailyUsage.dailyUsagesLeft
+            };
+            
+        } catch (error) {
+            console.error('❌ Erro ao verificar trial:', error);
+            return { hasTrial: false, dailyUsagesLeft: 0 };
+        }
+    }
+
+    // ✅ REGISTRAR USO
+    async registerUsage() {
+        if (!userToken) return false;
+        
+        try {
+            const status = await this.checkTrialStatus();
+            
+            if (status.unlimited) {
+                console.log('🚀 Usuário Premium - Uso ilimitado permitido');
+                return true;
+            }
+            
+            if (status.isPremiumTrial) {
+                if (status.dailyUsagesLeft > 0) {
+                    console.log('🎯 Premium Trial - Usando 1 dos', status.dailyUsagesLeft, 'restantes');
+                    return await this.registerDailyUsage(15);
+                } else {
+                    console.log('🚫 Premium Trial - Limite diário de 15 usos atingido');
+                    this.showDailyLimitModal(15);
+                    return false;
+                }
+            }
+            
+            if (status.isFreeTrial && status.hasTrial) {
+                if (status.dailyUsagesLeft > 0) {
+                    console.log('📝 Free Trial - Usando 1 dos', status.dailyUsagesLeft, 'restantes');
+                    return await this.registerDailyUsage(5);
+                } else {
+                    console.log('🚫 Free Trial - Limite diário de 5 usos atingido');
+                    this.showDailyLimitModal(5);
+                    return false;
+                }
+            }
+            
+            console.log('❌ Nenhum uso disponível');
+            return false;
+            
+        } catch (error) {
+            console.error('❌ Erro no registerUsage:', error);
+            return false;
+        }
+    }
+
+    // ✅ REGISTRAR USO DIÁRIO
+    async registerDailyUsage(dailyLimit) {
+        const trial = await this.getUserTrial();
+        if (!trial) return false;
+        
+        const today = new Date().toISOString().split('T')[0];
+        const lastUsageDate = trial.last_usage_date ? new Date(trial.last_usage_date).toISOString().split('T')[0] : null;
+        
+        let dailyUsageCount = trial.daily_usage_count || 0;
+        
+        if (lastUsageDate !== today) {
+            dailyUsageCount = 0;
+            console.log('🔄 Novo dia - Resetando contador diário');
+        }
+        
+        if (dailyUsageCount >= dailyLimit) {
+            console.log(`🚫 Limite diário de ${dailyLimit} usos atingido`);
+            this.showDailyLimitModal(dailyLimit);
+            return false;
+        }
+        
+        const newDailyUsageCount = dailyUsageCount + 1;
+        const newTotalUsageCount = (trial.usage_count || 0) + 1;
+        
+        const { error } = await supabase
+            .from('user_trials')
+            .update({ 
+                usage_count: newTotalUsageCount,
+                daily_usage_count: newDailyUsageCount,
+                last_usage_date: today
+            })
+            .eq('id', trial.id);
+        
+        if (error) {
+            console.error('❌ Erro ao atualizar uso diário:', error);
+            return false;
+        }
+        
+        console.log(`✅ Uso diário registrado: ${newDailyUsageCount}/${dailyLimit}`);
+        await this.updateUsageBadge();
+        return true;
+    }
+
+    // ✅ BUSCAR TRIAL DO USUÁRIO
+    async getUserTrial() {
+        if (!userToken) return null;
+        
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return null;
+
+            const { data, error } = await supabase
+                .from('user_trials')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single();
+                
+            if (error) {
+                if (error.code === 'PGRST116') return null;
+                throw error;
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('❌ Erro ao buscar trial:', error);
+            return null;
+        }
+    }
+
+    // ✅ BUSCAR ASSINATURA
+    async getUserSubscription() {
+        if (!userToken) return null;
+        
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return null;
+
+            const { data, error } = await supabase
+                .from('user_subscriptions')
+                .select('*')
+                .eq('user_email', user.email)
+                .eq('status', 'active')
+                .gte('ends_at', new Date().toISOString())
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single();
+                
+            if (error && error.code !== 'PGRST116') {
+                console.error('❌ Erro ao buscar assinatura:', error);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('❌ Erro ao buscar assinatura:', error);
+            return null;
+        }
+    }
+
+    // ✅ USO DIÁRIO
+    async getDailyUsage(trial, dailyLimit) {
+        if (!trial) return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
+        
+        const { data: freshTrial, error } = await supabase
+            .from('user_trials')
+            .select('daily_usage_count, last_usage_date')
+            .eq('id', trial.id)
+            .single();
+        
+        if (error) {
+            console.error('❌ Erro ao buscar dados atualizados:', error);
+            return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
+        }
+        
+        const today = new Date().toISOString().split('T')[0];
+        const lastUsageDate = freshTrial.last_usage_date ? new Date(freshTrial.last_usage_date).toISOString().split('T')[0] : null;
+        
+        let dailyUsageCount = freshTrial.daily_usage_count || 0;
+        
+        if (lastUsageDate !== today) {
+            dailyUsageCount = 0;
+            console.log('🔄 Novo dia - Resetando contador diário');
+            
+            await supabase
+                .from('user_trials')
+                .update({ 
+                    daily_usage_count: 0,
+                    last_usage_date: today
+                })
+                .eq('id', trial.id);
+        }
+        
+        const dailyUsagesLeft = Math.max(0, dailyLimit - dailyUsageCount);
+        
+        console.log(`📊 Uso diário: ${dailyUsageCount}/${dailyLimit} | Restantes: ${dailyUsagesLeft}`);
+        
+        return {
+            dailyUsageCount: dailyUsageCount,
+            dailyUsagesLeft: dailyUsagesLeft,
+            lastUsageDate: lastUsageDate
+        };
+    }
+
+    // ✅ INICIAR TRIAL
+    async startTrial() {
+        if (!userToken) return;
+        
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const existingTrial = await this.getUserTrial();
+            
+            if (existingTrial) {
+                console.log('✅ Trial já existe:', existingTrial);
+                return existingTrial;
+            }
+            
+            console.log('🔄 Criando NOVO trial...');
+            const { data, error } = await supabase
+                .from('user_trials')
+                .insert([{ 
+                    user_id: user.id,
+                    user_email: user.email,
+                    started_at: new Date().toISOString(),
+                    ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'active',
+                    usage_count: 0,
+                    daily_usage_count: 0,
+                    max_usages: 5
+                }])
+                .select()
+                .single();
+                
+            if (error) throw error;
+            
+            console.log('🎉 NOVO Trial criado:', data);
+            return data;
+            
+        } catch (error) {
+            console.error('❌ Erro ao iniciar trial:', error);
+            return null;
+        }
+    }
+
+    // ✅ MODAL DE LIMITE
+    showDailyLimitModal(dailyLimit) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="clock" class="text-yellow-600 w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite Diário Atingido</h3>
+                <p class="text-gray-600 mb-6">
+                    Você utilizou todos os ${dailyLimit} agendamentos de hoje.
+                    Os usos serão resetados à meia-noite!
+                </p>
+                <div class="space-y-3">
+                    <button onclick="premiumManager.upgradeToPro()" 
+                            class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
+                        🚀 Fazer Upgrade
+                    </button>
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
+                        Entendi
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        feather.replace();
+    }
+
+    // ✅ UPGRADE PARA PRO
+    upgradeToPro() {
+        console.log('🔄 Redirecionando para página de checkout...');
+        showToast('Redirecionando para página de upgrade...', 'info');
+        // window.location.href = 'checkout.html';
+    }
+
+    // ✅ ATUALIZAR BADGE
+    async updateUsageBadge() {
+        const badge = document.getElementById('premiumBadge');
+        if (!badge) return;
+        
+        try {
+            const status = await this.checkTrialStatus();
+            
+            if (status.unlimited) {
+                badge.innerHTML = '<span>🚀 Premium</span>';
+                badge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.style.display = 'flex';
+            } else if (status.dailyUsagesLeft > 0) {
+                const used = (status.isPremiumTrial ? 15 : 5) - status.dailyUsagesLeft;
+                const total = status.isPremiumTrial ? 15 : 5;
+                badge.innerHTML = `<span>🎯 ${used}/${total}</span>`;
+                badge.className = 'bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar badge:', error);
+            badge.style.display = 'none';
+        }
+    }
+}
         console.log('🚀 Script carregado! Iniciando aplicação...');
         
         // 🔥 ADICIONAR: Alias para manter compatibilidade
@@ -1882,8 +2236,8 @@ function configurarBotaoSettings() {
 }
 
 
-    // 🔥 ATUALIZE: Função para mostrar interface do usuário logado
-function atualizarInterfacePosLogin() {
+  // 🔥 CORREÇÃO: Função para mostrar interface do usuário logado
+async function atualizarInterfacePosLogin() {  // ← Adicionar async aqui
     console.log('🎯 Atualizando interface para usuário LOGADO...');
     
     // Oculta login
@@ -1917,13 +2271,13 @@ function atualizarInterfacePosLogin() {
     const gerarLinkBtn = document.getElementById('gerarLinkBtn');
     if (gerarLinkBtn) gerarLinkBtn.style.display = 'flex';
 
-      // 🔥 NOVO: INICIALIZAR PREMIUM MANAGER
+     // 🔥 NOVO: INICIALIZAR PREMIUM MANAGER
     premiumManager = new PremiumManager();
     
     // 🔥 NOVO: INICIAR TRIAL E ATUALIZAR BADGE
     if (premiumManager) {
         try {
-            await premiumManager.startTrial();
+            await premiumManager.startTrial();  // ← Agora está dentro de async
             await premiumManager.updateUsageBadge();
             console.log('✅ Premium Manager inicializado e trial iniciado');
         } catch (error) {
@@ -2756,360 +3110,7 @@ logoutBtn.addEventListener('click', async () => {
     }
 });
 
-// 🔥 ADICIONAR CLASSE COMPLETA DO PREMIUM MANAGER
-class PremiumManager {
-    constructor() {
-        this.cache = new Map();
-    }
 
-    // ✅ VERIFICAR STATUS DO TRIAL
-    async checkTrialStatus() {
-        if (!userToken) {
-            return { hasTrial: false, dailyUsagesLeft: 0 };
-        }
-        
-        try {
-            const trial = await this.getUserTrial();
-            if (!trial) {
-                return { hasTrial: false, dailyUsagesLeft: 0 };
-            }
-            
-            const subscription = await this.getUserSubscription();
-            if (subscription && subscription.status === 'active') {
-                const subscriptionDays = Math.floor((new Date() - new Date(subscription.starts_at)) / (1000 * 60 * 60 * 24));
-                
-                if (subscriptionDays < 7) {
-                    const dailyUsage = await this.getDailyUsage(trial, 15);
-                    return {
-                        hasTrial: true,
-                        isPremiumTrial: true,
-                        dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
-                        unlimited: false
-                    };
-                } else {
-                    return {
-                        hasTrial: true,
-                        unlimited: true,
-                        dailyUsagesLeft: 999
-                    };
-                }
-            }
-            
-            const dailyUsage = await this.getDailyUsage(trial, 5);
-            
-            if (trial.status !== 'active') {
-                return { hasTrial: false, dailyUsagesLeft: 0 };
-            }
-            
-            if (dailyUsage.dailyUsagesLeft <= 0) {
-                return { hasTrial: false, dailyUsagesLeft: 0 };
-            }
-            
-            return {
-                hasTrial: true,
-                isFreeTrial: true,
-                dailyUsagesLeft: dailyUsage.dailyUsagesLeft
-            };
-            
-        } catch (error) {
-            console.error('❌ Erro ao verificar trial:', error);
-            return { hasTrial: false, dailyUsagesLeft: 0 };
-        }
-    }
-
-    // ✅ REGISTRAR USO
-    async registerUsage() {
-        if (!userToken) return false;
-        
-        try {
-            const status = await this.checkTrialStatus();
-            
-            if (status.unlimited) {
-                console.log('🚀 Usuário Premium - Uso ilimitado permitido');
-                return true;
-            }
-            
-            if (status.isPremiumTrial) {
-                if (status.dailyUsagesLeft > 0) {
-                    console.log('🎯 Premium Trial - Usando 1 dos', status.dailyUsagesLeft, 'restantes');
-                    return await this.registerDailyUsage(15);
-                } else {
-                    console.log('🚫 Premium Trial - Limite diário de 15 usos atingido');
-                    this.showDailyLimitModal(15);
-                    return false;
-                }
-            }
-            
-            if (status.isFreeTrial && status.hasTrial) {
-                if (status.dailyUsagesLeft > 0) {
-                    console.log('📝 Free Trial - Usando 1 dos', status.dailyUsagesLeft, 'restantes');
-                    return await this.registerDailyUsage(5);
-                } else {
-                    console.log('🚫 Free Trial - Limite diário de 5 usos atingido');
-                    this.showDailyLimitModal(5);
-                    return false;
-                }
-            }
-            
-            console.log('❌ Nenhum uso disponível');
-            return false;
-            
-        } catch (error) {
-            console.error('❌ Erro no registerUsage:', error);
-            return false;
-        }
-    }
-
-    // ✅ REGISTRAR USO DIÁRIO
-    async registerDailyUsage(dailyLimit) {
-        const trial = await this.getUserTrial();
-        if (!trial) return false;
-        
-        const today = new Date().toISOString().split('T')[0];
-        const lastUsageDate = trial.last_usage_date ? new Date(trial.last_usage_date).toISOString().split('T')[0] : null;
-        
-        let dailyUsageCount = trial.daily_usage_count || 0;
-        
-        if (lastUsageDate !== today) {
-            dailyUsageCount = 0;
-            console.log('🔄 Novo dia - Resetando contador diário');
-        }
-        
-        if (dailyUsageCount >= dailyLimit) {
-            console.log(`🚫 Limite diário de ${dailyLimit} usos atingido`);
-            this.showDailyLimitModal(dailyLimit);
-            return false;
-        }
-        
-        const newDailyUsageCount = dailyUsageCount + 1;
-        const newTotalUsageCount = (trial.usage_count || 0) + 1;
-        
-        const { error } = await supabase
-            .from('user_trials')
-            .update({ 
-                usage_count: newTotalUsageCount,
-                daily_usage_count: newDailyUsageCount,
-                last_usage_date: today
-            })
-            .eq('id', trial.id);
-        
-        if (error) {
-            console.error('❌ Erro ao atualizar uso diário:', error);
-            return false;
-        }
-        
-        console.log(`✅ Uso diário registrado: ${newDailyUsageCount}/${dailyLimit}`);
-        await this.updateUsageBadge();
-        return true;
-    }
-
-    // ✅ BUSCAR TRIAL DO USUÁRIO
-    async getUserTrial() {
-        if (!userToken) return null;
-        
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return null;
-
-            const { data, error } = await supabase
-                .from('user_trials')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
-                
-            if (error) {
-                if (error.code === 'PGRST116') return null;
-                throw error;
-            }
-            
-            return data;
-        } catch (error) {
-            console.error('❌ Erro ao buscar trial:', error);
-            return null;
-        }
-    }
-
-    // ✅ BUSCAR ASSINATURA
-    async getUserSubscription() {
-        if (!userToken) return null;
-        
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return null;
-
-            const { data, error } = await supabase
-                .from('user_subscriptions')
-                .select('*')
-                .eq('user_email', user.email)
-                .eq('status', 'active')
-                .gte('ends_at', new Date().toISOString())
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
-                
-            if (error && error.code !== 'PGRST116') {
-                console.error('❌ Erro ao buscar assinatura:', error);
-            }
-            
-            return data;
-        } catch (error) {
-            console.error('❌ Erro ao buscar assinatura:', error);
-            return null;
-        }
-    }
-
-    // ✅ USO DIÁRIO
-    async getDailyUsage(trial, dailyLimit) {
-        if (!trial) return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
-        
-        const { data: freshTrial, error } = await supabase
-            .from('user_trials')
-            .select('daily_usage_count, last_usage_date')
-            .eq('id', trial.id)
-            .single();
-        
-        if (error) {
-            console.error('❌ Erro ao buscar dados atualizados:', error);
-            return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
-        }
-        
-        const today = new Date().toISOString().split('T')[0];
-        const lastUsageDate = freshTrial.last_usage_date ? new Date(freshTrial.last_usage_date).toISOString().split('T')[0] : null;
-        
-        let dailyUsageCount = freshTrial.daily_usage_count || 0;
-        
-        if (lastUsageDate !== today) {
-            dailyUsageCount = 0;
-            console.log('🔄 Novo dia - Resetando contador diário');
-            
-            await supabase
-                .from('user_trials')
-                .update({ 
-                    daily_usage_count: 0,
-                    last_usage_date: today
-                })
-                .eq('id', trial.id);
-        }
-        
-        const dailyUsagesLeft = Math.max(0, dailyLimit - dailyUsageCount);
-        
-        console.log(`📊 Uso diário: ${dailyUsageCount}/${dailyLimit} | Restantes: ${dailyUsagesLeft}`);
-        
-        return {
-            dailyUsageCount: dailyUsageCount,
-            dailyUsagesLeft: dailyUsagesLeft,
-            lastUsageDate: lastUsageDate
-        };
-    }
-
-    // ✅ INICIAR TRIAL
-    async startTrial() {
-        if (!userToken) return;
-        
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
-
-            const existingTrial = await this.getUserTrial();
-            
-            if (existingTrial) {
-                console.log('✅ Trial já existe:', existingTrial);
-                return existingTrial;
-            }
-            
-            console.log('🔄 Criando NOVO trial...');
-            const { data, error } = await supabase
-                .from('user_trials')
-                .insert([{ 
-                    user_id: user.id,
-                    user_email: user.email,
-                    started_at: new Date().toISOString(),
-                    ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                    status: 'active',
-                    usage_count: 0,
-                    daily_usage_count: 0,
-                    max_usages: 5
-                }])
-                .select()
-                .single();
-                
-            if (error) throw error;
-            
-            console.log('🎉 NOVO Trial criado:', data);
-            return data;
-            
-        } catch (error) {
-            console.error('❌ Erro ao iniciar trial:', error);
-            return null;
-        }
-    }
-
-    // ✅ MODAL DE LIMITE
-    showDailyLimitModal(dailyLimit) {
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        modal.innerHTML = `
-            <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
-                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-feather="clock" class="text-yellow-600 w-8 h-8"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite Diário Atingido</h3>
-                <p class="text-gray-600 mb-6">
-                    Você utilizou todos os ${dailyLimit} agendamentos de hoje.
-                    Os usos serão resetados à meia-noite!
-                </p>
-                <div class="space-y-3">
-                    <button onclick="premiumManager.upgradeToPro()" 
-                            class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
-                        🚀 Fazer Upgrade
-                    </button>
-                    <button onclick="this.closest('.fixed').remove()" 
-                            class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
-                        Entendi
-                    </button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        feather.replace();
-    }
-
-    // ✅ UPGRADE PARA PRO
-    upgradeToPro() {
-        console.log('🔄 Redirecionando para página de checkout...');
-        showToast('Redirecionando para página de upgrade...', 'info');
-        // window.location.href = 'checkout.html';
-    }
-
-    // ✅ ATUALIZAR BADGE
-    async updateUsageBadge() {
-        const badge = document.getElementById('premiumBadge');
-        if (!badge) return;
-        
-        try {
-            const status = await this.checkTrialStatus();
-            
-            if (status.unlimited) {
-                badge.innerHTML = '<span>🚀 Premium</span>';
-                badge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
-                badge.style.display = 'flex';
-            } else if (status.dailyUsagesLeft > 0) {
-                const used = (status.isPremiumTrial ? 15 : 5) - status.dailyUsagesLeft;
-                const total = status.isPremiumTrial ? 15 : 5;
-                badge.innerHTML = `<span>🎯 ${used}/${total}</span>`;
-                badge.className = 'bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Erro ao atualizar badge:', error);
-            badge.style.display = 'none';
-        }
-    }
-}
         
     // 🔥 ATUALIZAR FUNÇÃO AGENDAR EXISTENTE - ADICIONAR VERIFICAÇÃO DE USO
 form.addEventListener('submit', async (e)=>{
@@ -4348,6 +4349,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
