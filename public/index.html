@@ -1207,6 +1207,149 @@ function mostrarTelaLogin() {
     console.log('✅ Tela de login configurada completamente');
 }
 
+// ✅ SISTEMA DE PLANOS E LIMITES
+async checkScheduleLimit() {
+    if (!this.user) return { canSchedule: false, reason: 'not_logged_in' };
+    
+    try {
+        // ⭐⭐ VERIFICAR ASSINATURA ATIVA
+        const subscription = await this.getUserSubscription();
+        
+        let maxDailySchedules = 3; // Plano grátis
+        
+        if (subscription && subscription.status === 'active') {
+            maxDailySchedules = subscription.max_daily_schedules || 999; // Ilimitado para assinantes
+        }
+        
+        // ⭐⭐ VERIFICAR USOS HOJE
+        const today = new Date().toISOString().split('T')[0];
+        const { data: todaySchedules, error } = await this.supabase
+            .from('user_usage_log')
+            .select('id')
+            .eq('user_id', this.user.id)
+            .eq('action_type', 'schedule')
+            .gte('used_at', today + 'T00:00:00')
+            .lte('used_at', today + 'T23:59:59');
+            
+        if (error) throw error;
+        
+        const usedToday = todaySchedules ? todaySchedules.length : 0;
+        const remaining = maxDailySchedules - usedToday;
+        
+        console.log(`📅 Agendamentos hoje: ${usedToday}/${maxDailySchedules}`);
+        
+        return {
+            canSchedule: remaining > 0,
+            remaining: remaining,
+            usedToday: usedToday,
+            maxDailySchedules: maxDailySchedules,
+            isPremium: subscription && subscription.status === 'active'
+        };
+        
+    } catch (error) {
+        console.error('❌ Erro ao verificar limite:', error);
+        return { canSchedule: false, reason: 'error' };
+    }
+}
+
+// ✅ VERIFICAR ASSINATURA (igual ao CopyCraft)
+async getUserSubscription() {
+    if (!this.user) return null;
+    
+    try {
+        const { data, error } = await this.supabase
+            .from('user_subscriptions')
+            .select('*')
+            .eq('user_email', this.user.email)
+            .eq('status', 'active')
+            .gte('ends_at', new Date().toISOString())
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+            
+        if (error && error.code !== 'PGRST116') {
+            console.error('❌ Erro ao buscar assinatura:', error);
+        }
+        
+        console.log('🔍 Assinatura encontrada:', data);
+        return data;
+    } catch (error) {
+        console.error('❌ Erro ao buscar assinatura:', error);
+        return null;
+    }
+}
+
+// ✅ REGISTRAR USO DE AGENDAMENTO
+async registerScheduleUsage() {
+    if (!this.user) return false;
+    
+    try {
+        const limitCheck = await this.checkScheduleLimit();
+        
+        if (!limitCheck.canSchedule) {
+            this.showScheduleLimitModal(limitCheck);
+            return false;
+        }
+        
+        // Registrar o uso
+        const { error } = await this.supabase
+            .from('user_usage_log')
+            .insert([{
+                user_id: this.user.id,
+                action_type: 'schedule',
+                details: { type: 'new_appointment' }
+            }]);
+            
+        if (error) throw error;
+        
+        console.log('✅ Uso de agendamento registrado');
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Erro ao registrar uso:', error);
+        return false;
+    }
+}
+
+// ✅ MODAL DE LIMITE ATINGIDO
+showScheduleLimitModal(limitInfo) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-feather="calendar" class="text-yellow-600 w-8 h-8"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite de Agendamentos</h3>
+            <p class="text-gray-600 mb-6">
+                Você já utilizou todos os <strong>${limitInfo.maxDailySchedules} agendamentos</strong> de hoje.
+                ${!limitInfo.isPremium ? 'Faça upgrade para agendar ilimitadamente!' : ''}
+            </p>
+            <div class="space-y-3">
+                ${!limitInfo.isPremium ? `
+                <button onclick="window.upgradeToPro()" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
+                    🚀 Fazer Upgrade - R$ 29,90/mês
+                </button>
+                ` : ''}
+                <button onclick="this.closest('.fixed').remove()" 
+                        class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    feather.replace();
+}
+
+// ✅ UPGRADE PARA PRO (igual ao CopyCraft)
+upgradeToPro() {
+    console.log('🔄 Redirecionando para página de checkout...');
+    window.location.href = 'checkout.html';
+}
+
+        
 // ==================== SISTEMA DE PERFIS COM MENU (ADICIONAR AO FRONTEND) ====================
 
 // 🎯 FUNÇÃO: Menu de Configurações (ATUALIZADA)
@@ -1916,9 +2059,40 @@ function atualizarInterfacePosLogin() {
     configurarBotaoSettings();
     
     console.log('✅ Interface do usuário logado configurada');
+ // ✅ ADICIONE: Atualizar badge do plano
+    setTimeout(() => {
+        updatePlanBadge();
+    }, 1000);
 }
 
-
+        
+// ✅ FUNÇÃO PARA ATUALIZAR BADGE DO PLANO
+async function updatePlanBadge() {
+    try {
+        const subscription = await getUserSubscription();
+        const limitCheck = await checkScheduleLimit();
+        
+        const userInfoElement = document.querySelector('#userInfo'); // Ajuste o seletor conforme seu HTML
+        
+        if (userInfoElement) {
+            if (subscription && subscription.status === 'active') {
+                userInfoElement.innerHTML += `
+                    <span class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-2 py-1 rounded-full ml-2">
+                        🚀 Premium
+                    </span>
+                `;
+            } else {
+                userInfoElement.innerHTML += `
+                    <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full ml-2">
+                        📝 ${limitCheck.remaining}/3
+                    </span>
+                `;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar badge:', error);
+    }
+}
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
@@ -2737,14 +2911,21 @@ logoutBtn.addEventListener('click', async () => {
     }
 });
 
-      // ---------------- AGENDAR ----------------
-form.addEventListener('submit', async (e)=>{
+     // 🔥 ATUALIZE o event listener do formulário para incluir verificação de limite
+form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // ✅ PRIMEIRO verifica limite
+    const canSchedule = await registerScheduleUsage();
+    if (!canSchedule) {
+        return; // Não permite agendar se atingiu o limite
+    }
+    
+    // 🔥 CONTINUA COM O AGENDAMENTO NORMAL (seu código atual)
     const formData = new FormData(form);
     const dataToSend = {};
     formData.forEach((v,k) => dataToSend[k] = v);
 
-    // ✅ NOVO - Email opcional:
     if(!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
         showToast("Preencha todos os campos obrigatórios", "warning");
         return;
@@ -3955,6 +4136,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
