@@ -996,6 +996,60 @@ function verificarAuthCapacitor() {
     return false;
 }
 
+// 🔥 CORREÇÃO: Função processarCallbackOAuth para WEB
+async function processarCallbackOAuth() {
+    try {
+        console.log('🔄 Processando callback OAuth Web...');
+        
+        // MOSTRA TELA DE AUTENTICAÇÃO
+        document.getElementById('authCallbackScreen').classList.remove('hidden');
+        document.getElementById('mainAppContent').classList.add('hidden');
+        
+        // Aguarda o Supabase processar a sessão
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+            throw error;
+        }
+        
+        if (session) {
+            console.log('✅ Sessão OAuth Web restaurada!');
+            
+            userToken = session.access_token;
+            localStorage.setItem('userToken', userToken);
+            
+            // Limpa a URL apenas na web
+            window.history.replaceState(null, '', window.location.pathname);
+            
+            // Mostra app normal
+            document.getElementById('authCallbackScreen').classList.add('hidden');
+            document.getElementById('mainAppContent').classList.remove('hidden');
+            
+            // Atualiza interface
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            atualizarInterfacePosLogin();
+            document.getElementById('secoesIA').style.display = 'block';
+            
+            listarAgendamentos();
+            setTimeout(() => iniciarSistemaAtualizacao(), 1000);
+            showToast("Login realizado com sucesso!", "success");
+            
+            setTimeout(() => verificarConfiguracaoSheets(), 1500);
+        } else {
+            throw new Error('Sessão não encontrada');
+        }
+    } catch (error) {
+        console.error('❌ Erro OAuth Web:', error);
+        showToast("Erro ao processar login", "error");
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
+    }
+}
+
 // 🔥 SOLUÇÃO CAPACITOR: Processamento específico para app
 async function processarCallbackOAuthCapacitor() {
     try {
@@ -1088,7 +1142,6 @@ async function fecharBrowserCapacitor() {
         console.log('❌ Fallback close também falhou:', error);
     }
 }
-
 
 // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
 function verificarCallbackOAuth() {
@@ -3942,6 +3995,7 @@ function forcarAtualizacaoAgendamentos() {
 
 </body>
 </html>
+
 
 
 
