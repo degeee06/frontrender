@@ -1499,39 +1499,59 @@ async function init() {
         });
     }
     
-    // ✅ VERIFICAÇÃO SIMPLES DE LOGIN
-    const token = localStorage.getItem('userToken');
-    console.log('🔑 Token no localStorage:', !!token);
+ // ✅ VERIFICAÇÃO SIMPLES DE LOGIN
+const token = localStorage.getItem('userToken');
+console.log('🔑 Token no localStorage:', !!token);
+
+if (token) {
+    // Verifica se a sessão ainda é válida
+    const { data: { session } } = await supabase.auth.getSession();
     
-    if (token) {
-        // Verifica se a sessão ainda é válida
-        const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        userToken = session.access_token;
+        loginSection.style.display = 'none';
+        form.style.display = 'block';
         
-        if (session) {
-            userToken = session.access_token;
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-             // 🔥 ADICIONAR: Inicializar Premium Manager ANTES de usar
+        // 🔥 ADICIONAR: Inicializar Premium Manager ANTES de usar
         premiumManager = new PremiumManager();
         await premiumManager.startTrial(); // Inicia trial se necessário
-        await premiumManager.updateUsageBadge(); // Atualiza badge
-            
-            atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
-            listarAgendamentos();
-            setTimeout(() => verificarConfiguracaoSheets(), 1000);
-        } else {
-            // Sessão inválida - limpa tudo
-            localStorage.removeItem('userToken');
-            userToken = null;
-            mostrarTelaLogin();
+        
+        // 🔥 CORREÇÃO CRÍTICA: Verificar se JÁ ESTÁ NO LIMITE no login
+        const status = await premiumManager.checkTrialStatus();
+        console.log('📊 Status do trial no login:', status);
+        
+        // Se NÃO tem trial ou ZERO usos restantes → MOSTRA MODAL
+        if (!status.hasTrial || status.dailyUsagesLeft <= 0) {
+            console.log('🚫 Usuário SEM usos disponíveis no login - mostrando modal');
+            const limit = status.isPremiumTrial ? 15 : 5;
+            premiumManager.showDailyLimitModal(limit);
         }
+        
+        await premiumManager.updateUsageBadge(); // Atualiza badge
+        
+        atualizarInterfacePosLogin();
+        document.getElementById('secoesIA').style.display = 'block';
+        listarAgendamentos();
+        setTimeout(() => verificarConfiguracaoSheets(), 1000);
     } else {
+        // Sessão inválida - limpa tudo
+        localStorage.removeItem('userToken');
+        userToken = null;
         mostrarTelaLogin();
     }
-    
-    feather.replace();
+} else {
+    mostrarTelaLogin();
 }
+
+feather.replace();
+
+// 🔥 ADICIONAR APENAS ISSO: Monitoramento do badge
+setInterval(async () => {
+    if (premiumManager && userToken) {
+        await premiumManager.updateUsageBadge();
+    }
+}, 60000); // Atualiza badge a cada 1 minuto
+    
 
 // 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
 function mostrarTelaLogin() {
@@ -4354,6 +4374,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
