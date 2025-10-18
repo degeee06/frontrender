@@ -954,7 +954,7 @@ function verificarCallbackOAuth() {
 }
 
         
-// 🔥 CORREÇÃO: Função processarCallbackOAuth CORRIGIDA
+// 🔥 CORREÇÃO: Função processarCallbackOAuth atualizada para carregar usos
 async function processarCallbackOAuth() {
     try {
         console.log('🔄 Processando callback OAuth...');
@@ -974,6 +974,12 @@ async function processarCallbackOAuth() {
             userToken = session.access_token;
             localStorage.setItem('userToken', userToken);
             
+            // 🔥 INICIALIZAÇÃO IMEDIATA DO PREMIUM MANAGER
+            if (!premiumManager) {
+                premiumManager = new PremiumManager();
+                await premiumManager.startTrial();
+            }
+            
             // Limpa a URL
             window.history.replaceState(null, '', window.location.pathname);
             
@@ -984,6 +990,10 @@ async function processarCallbackOAuth() {
             // Atualiza interface
             loginSection.style.display = 'none';
             form.style.display = 'block';
+            
+            // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
+            await premiumManager.updateUsageBadge();
+            
             atualizarInterfacePosLogin();
             document.getElementById('secoesIA').style.display = 'block';
             
@@ -993,7 +1003,7 @@ async function processarCallbackOAuth() {
             
             setTimeout(() => verificarConfiguracaoSheets(), 1500);
 
-            // 🔥🔥🔥 ADICIONE ISSO AQUI:
+            // 🔥 VERIFICAÇÃO DE LIMITE APÓS LOGIN
             setTimeout(async () => {
                 if (premiumManager && userToken) {
                     const status = await premiumManager.checkTrialStatus();
@@ -1004,8 +1014,6 @@ async function processarCallbackOAuth() {
                         const limit = status.isPremiumTrial ? 15 : 5;
                         premiumManager.showDailyLimitModal(limit);
                     }
-                    
-                    await premiumManager.updateUsageBadge();
                 }
             }, 2000);
 
@@ -1495,7 +1503,7 @@ if (token) {
 
 
         
-// ✅ FUNÇÃO init COMPLETA E CORRIGIDA
+// 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
     
@@ -1539,7 +1547,7 @@ async function init() {
         });
     }
     
-    // ✅ VERIFICAÇÃO SIMPLES DE LOGIN
+    // ✅ VERIFICAÇÃO SIMPLES DE LOGIN - COM CARREGAMENTO IMEDIATO DO PREMIUM
     const token = localStorage.getItem('userToken');
     console.log('🔑 Token no localStorage:', !!token);
     
@@ -1553,11 +1561,16 @@ async function init() {
                 loginSection.style.display = 'none';
                 form.style.display = 'block';
                 
-                // 🔥 ADICIONAR: Inicializar Premium Manager ANTES de usar
+                // 🔥 CORREÇÃO CRÍTICA: Inicializar Premium Manager ANTES de usar
                 premiumManager = new PremiumManager();
-                await premiumManager.startTrial(); // Inicia trial se necessário
                 
-                // 🔥 VERIFICAÇÃO DE LIMITE NO LOGIN
+                // 🔥 NOVA SEQUÊNCIA: Iniciar trial E ATUALIZAR BADGE IMEDIATAMENTE
+                await premiumManager.startTrial();
+                
+                // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
+                await premiumManager.updateUsageBadge();
+                
+                // 🔥 VERIFICAÇÃO DE LIMITE NO LOGIN (APÓS badge atualizado)
                 const status = await premiumManager.checkTrialStatus();
                 console.log('📊 Status do trial no login:', status);
                 
@@ -1567,8 +1580,6 @@ async function init() {
                     const limit = status.isPremiumTrial ? 15 : 5;
                     premiumManager.showDailyLimitModal(limit);
                 }
-                
-                await premiumManager.updateUsageBadge(); // Atualiza badge
                 
                 atualizarInterfacePosLogin();
                 document.getElementById('secoesIA').style.display = 'block';
@@ -1591,7 +1602,7 @@ async function init() {
     }
     
     feather.replace();
-} // 🔥 FIM DA FUNÇÃO INIT
+}
         
 // 🔥 ADICIONAR APENAS ISSO: Monitoramento do badge (FORA da função init)
 setInterval(async () => {
@@ -2322,7 +2333,7 @@ function configurarBotaoSettings() {
 }
 
 
- // 🔥 CORREÇÃO: Função para mostrar interface do usuário logado
+// 🔥 CORREÇÃO: Função atualizarInterfacePosLogin atualizada para garantir badge
 async function atualizarInterfacePosLogin() {
     console.log('🎯 Atualizando interface para usuário LOGADO...');
     
@@ -2357,10 +2368,14 @@ async function atualizarInterfacePosLogin() {
     const gerarLinkBtn = document.getElementById('gerarLinkBtn');
     if (gerarLinkBtn) gerarLinkBtn.style.display = 'flex';
     
-    // 🔥 APENAS atualiza o badge se o Premium Manager já existir
-    if (premiumManager) {
-        await premiumManager.updateUsageBadge();
+    // 🔥 CORREÇÃO CRÍTICA: Garantir que o Premium Manager existe e atualiza o badge
+    if (!premiumManager) {
+        premiumManager = new PremiumManager();
+        await premiumManager.startTrial();
     }
+    
+    // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
+    await premiumManager.updateUsageBadge();
     
     // Configura botão settings
     configurarBotaoSettings();
@@ -2368,6 +2383,7 @@ async function atualizarInterfacePosLogin() {
     console.log('✅ Interface do usuário logado configurada');
 }
 
+    
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
@@ -4351,6 +4367,7 @@ function desconectarSSE() {
             }
         });
 
+// 🔥 CORREÇÃO: Função processarRetornoOAuth atualizada
 async function processarRetornoOAuth(url) {
     try {
         console.log('🔄 Processando URL OAuth:', url);
@@ -4373,6 +4390,12 @@ async function processarRetornoOAuth(url) {
                     userToken = data.session.access_token;
                     localStorage.setItem('userToken', userToken);
                     
+                    // 🔥 INICIALIZAÇÃO IMEDIATA DO PREMIUM MANAGER
+                    if (!premiumManager) {
+                        premiumManager = new PremiumManager();
+                        await premiumManager.startTrial();
+                    }
+                    
                     // Fecha browser do Capacitor
                     if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
                         try {
@@ -4381,6 +4404,9 @@ async function processarRetornoOAuth(url) {
                             console.log('Browser já fechado');
                         }
                     }
+                    
+                    // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
+                    await premiumManager.updateUsageBadge();
                     
                     // 🔥 VERIFICAÇÃO DE USOS NO LOGIN MOBILE
                     setTimeout(async () => {
@@ -4393,8 +4419,6 @@ async function processarRetornoOAuth(url) {
                                 const limit = status.isPremiumTrial ? 15 : 5;
                                 premiumManager.showDailyLimitModal(limit);
                             }
-                            
-                            await premiumManager.updateUsageBadge();
                         }
                     }, 2000);
                     
@@ -4452,6 +4476,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
