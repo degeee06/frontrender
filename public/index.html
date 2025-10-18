@@ -1584,11 +1584,14 @@ async function init() {
     configurarEventListenersModal();
     configurarBotaoSettings();
     
-    // ✅ INICIAR TRIAL AUTOMATICAMENTE QUANDO USUÁRIO LOGAR
-    const token = localStorage.getItem('userToken'); // 🔥 ÚNICA DECLARAÇÃO
+    // ✅ VERIFICAÇÃO DE SESSÃO - AGORA DENTRO DO init()
+    const token = localStorage.getItem('userToken');
+    console.log('🔑 Token no localStorage:', !!token);
+
     if (token) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
+            console.log('✅ Sessão válida - usuário logado');
             userToken = session.access_token;
             
             // ✅ INICIAR SISTEMA DE TRIAL
@@ -1596,7 +1599,21 @@ async function init() {
                 await startTrial();
                 await updatePlanBadge();
             }, 1000);
+            
+            atualizarInterfacePosLogin();
+            document.getElementById('secoesIA').style.display = 'block';
+            listarAgendamentos();
+            setTimeout(() => verificarConfiguracaoSheets(), 1000);
+        } else {
+            console.log('❌ Sessão inválida - fazendo limpeza');
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('supabase.auth.token');
+            userToken = null;
+            mostrarTelaLogin();
         }
+    } else {
+        console.log('👤 Sem token - mostrando tela de login');
+        mostrarTelaLogin();
     }
     
     // ✅ LISTENER CAPACITOR
@@ -1616,31 +1633,6 @@ async function init() {
                 }
             }
         });
-    }
-    
-    // ✅ VERIFICAÇÃO DE LOGIN (USA token JÁ DECLARADO)
-    console.log('🔑 Token no localStorage:', !!token);
-    
-    if (token) {
-        // Verifica se a sessão ainda é válida
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session) {
-            userToken = session.access_token;
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
-            listarAgendamentos();
-            setTimeout(() => verificarConfiguracaoSheets(), 1000);
-        } else {
-            // Sessão inválida - limpa tudo
-            localStorage.removeItem('userToken');
-            userToken = null;
-            mostrarTelaLogin();
-        }
-    } else {
-        mostrarTelaLogin();
     }
     
     feather.replace();
@@ -4440,6 +4432,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
