@@ -1379,7 +1379,7 @@ showDailyLimitModal(dailyLimit) {
                 <p class="text-red-300 text-sm mt-1">Os usos resetam à meia-noite! 🕛</p>
             </div>
 
-         <!-- Botão Personalizado Hotmart -->
+<!-- Botão Personalizado Hotmart -->
 <div class="space-y-3">
     <!-- 🔥 WIDGET HOTMART PERSONALIZADO -->
     <button id="hotmartCheckoutBtn" 
@@ -1388,7 +1388,21 @@ showDailyLimitModal(dailyLimit) {
         🚀 Fazer Upgrade Ilimitado - R$ 29,90/mês
     </button>
     
-<!-- 🔥 SCRIPT DO WIDGET HOTMART - ADICIONE AQUI -->
+    <button onclick="this.closest('.fixed').remove()" 
+            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 text-gray-300 font-medium transition-all flex items-center justify-center gap-2">
+        <i data-feather="clock" class="w-4 h-4"></i>
+        Entendi, aguardar reset
+    </button>
+</div>
+
+<!-- Footer Informativo -->
+<div class="mt-6 pt-4 border-t border-white/10 text-center">
+    <p class="text-xs text-gray-400">
+        💡 <strong>Upgrade:</strong> Agendamentos ilimitados + recursos premium
+    </p>
+</div>
+
+<!-- 🔥 SCRIPT DO WIDGET HOTMART - COM TIMING CORRIGIDO -->
 <script type="text/javascript">
     function importHotmart(){ 
         var imported = document.createElement('script'); 
@@ -1404,40 +1418,32 @@ showDailyLimitModal(dailyLimit) {
     // Inicializar Hotmart
     importHotmart();
     
-    // Configurar clique do botão
-    document.getElementById('hotmartCheckoutBtn').addEventListener('click', function() {
-        // Abre checkout Hotmart NA SUA PÁGINA
-        Hotmart.Checkout.open({
-            product: "U102480243K",
-            checkoutMode: 2, // Modo embed/embedido
-            callback: function(data) {
-                console.log('✅ Compra concluída:', data);
-                // Fecha o modal após compra
-                document.querySelector('.fixed.inset-0.bg-black')?.remove();
-            }
-        });
-    });
+    // 🔥 CONFIGURAR CLIQUE APÓS O MODAL SER CRIADO
+    function configurarBotaoHotmart() {
+        const btn = document.getElementById('hotmartCheckoutBtn');
+        if (btn) {
+            btn.onclick = function() {
+                if (typeof Hotmart !== 'undefined') {
+                    Hotmart.Checkout.open({
+                        product: "U102480243K",
+                        checkoutMode: 2,
+                        callback: function(data) {
+                            console.log('✅ Compra concluída:', data);
+                            document.querySelector('.fixed.inset-0.bg-black')?.remove();
+                        }
+                    });
+                } else {
+                    console.log('❌ Hotmart não carregou ainda');
+                    // Fallback: link direto
+                    window.open('https://pay.hotmart.com/U102480243K?checkoutMode=2', '_blank');
+                }
+            };
+        }
+    }
+    
+    // Executar após o modal ser injetado
+    setTimeout(configurarBotaoHotmart, 500);
 </script>
-    
-    <button onclick="this.closest('.fixed').remove()" 
-            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 text-gray-300 font-medium transition-all flex items-center justify-center gap-2">
-        <i data-feather="clock" class="w-4 h-4"></i>
-        Entendi, aguardar reset
-    </button>
-</div>
-
-            <!-- Footer Informativo -->
-            <div class="mt-6 pt-4 border-t border-white/10 text-center">
-                <p class="text-xs text-gray-400">
-                    💡 <strong>Upgrade:</strong> Agendamentos ilimitados + recursos premium
-                </p>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-    feather.replace();
-}
-    
 
 
 // ✅ CORREÇÃO: Função updateUsageBadge - MOSTRA 5/5 QUANDO LIMITE ATINGIDO
@@ -4517,8 +4523,6 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
-
-
 
 
 
