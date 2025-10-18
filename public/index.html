@@ -639,40 +639,43 @@ select option {
     </div>
 </div>
 
-    <!-- 🎯🎯🎯 CONTEÚDO PRINCIPAL 🎯🎯🎯 -->
-    <div id="mainAppContent">
+  <!-- 🎯🎯🎯 CONTEÚDO PRINCIPAL 🎯🎯🎯 -->
+<div id="mainAppContent">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+      
+        <!-- 🔥 HEADER CORRIGIDO -->
         <header class="text-center mb-8 md:mb-12" data-aos="fade-down">
-    <!-- 🔥 BADGE ACIMA DO TÍTULO -->
-    <div class="flex justify-center mb-3">
-        <div id="premiumBadge" class="hidden bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2">
-            <span id="usageCount">0/5</span>
-        </div>
-    </div>
-    
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
-        <h1 class="text-2xl sm:text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
-           Agendamento
-        </h1>
-        <div class="flex gap-2 w-full sm:w-auto">
-            <button id="gerarLinkBtn" style="display:none;" 
-                    class="text-xs sm:text-sm bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
-                <i data-feather="link" class="w-3 h-3 sm:w-4 sm:h-4"></i>
-                Gerar Link
-            </button>
-            <button id="settingsBtn" style="display:none;" class="text-xs sm:text-sm bg-gray-600 hover:bg-gray-700 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
-                <i data-feather="settings" class="w-3 h-3 sm:w-4 sm:h-4"></i>
-                Configurações
-            </button>
-            <button id="logoutBtn" style="display:none;" class="text-xs sm:text-sm bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
-                <i data-feather="log-out" class="w-3 h-3 sm:w-4 sm:h-4"></i>
-                Sair
-            </button>
-        </div>
-    </div>
-    <p class="text-sm sm:text-lg opacity-90 max-w-2xl mx-auto px-2">
-        Gerencie seus compromissos com uma interface intuitiva e elegante
-    </p>
-</header>
+            <!-- 🔥 BADGE ACIMA DO TÍTULO -->
+            <div class="flex justify-center mb-3">
+                <div id="premiumBadge" class="hidden bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2">
+                    <span id="usageCount">0/5</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
+                <h1 class="text-2xl sm:text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
+                   Agendamento
+                </h1>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button id="gerarLinkBtn" style="display:none;" 
+                            class="text-xs sm:text-sm bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                        <i data-feather="link" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                        Gerar Link
+                    </button>
+                    <button id="settingsBtn" style="display:none;" class="text-xs sm:text-sm bg-gray-600 hover:bg-gray-700 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                        <i data-feather="settings" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                        Configurações
+                    </button>
+                    <button id="logoutBtn" style="display:none;" class="text-xs sm:text-sm bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                        <i data-feather="log-out" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                        Sair
+                    </button>
+                </div>
+            </div>
+            <p class="text-sm sm:text-lg opacity-90 max-w-2xl mx-auto px-2">
+                Gerencie seus compromissos com uma interface intuitiva e elegante
+            </p>
+        </header>
 
             <!-- 🔐 SESSÕES IA (APÓS LOGIN) -->
             <div id="secoesIA" style="display: none;">
@@ -4557,6 +4560,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
