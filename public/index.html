@@ -1332,7 +1332,7 @@ class PremiumManager {
         }
     }
 
-// ✅ MODAL DE LIMITE - VERSÃO CORRIGIDA (NÃO FECHA AUTOMATICAMENTE)
+// ✅ MODAL DE LIMITE - VERSÃO SIMPLIFICADA
 showDailyLimitModal(dailyLimit) {
     // Remove modal existente se houver
     const existingModal = document.querySelector('.fixed.inset-0.bg-black');
@@ -1355,7 +1355,7 @@ showDailyLimitModal(dailyLimit) {
                         class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
                     🚀 Fazer Upgrade
                 </button>
-                <button onclick="window.fecharModalLimite()" 
+                <button onclick="this.closest('.fixed').remove()" 
                         class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
                     Entendi
                 </button>
@@ -1364,12 +1364,6 @@ showDailyLimitModal(dailyLimit) {
     `;
     document.body.appendChild(modal);
     feather.replace();
-}
-
-// 🔥 ADICIONE esta função para fechar o modal (GLOBAL)
-window.fecharModalLimite = function() {
-    const modal = document.querySelector('.fixed.inset-0.bg-black');
-    if (modal) modal.remove();
 }
 
     // ✅ UPGRADE PARA PRO
@@ -4386,6 +4380,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
