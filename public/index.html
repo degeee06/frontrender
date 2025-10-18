@@ -1000,8 +1000,6 @@ async function processarCallbackOAuth() {
             listarAgendamentos();
             setTimeout(() => iniciarSistemaAtualizacao(), 1000);
             showToast("Login realizado com sucesso!", "success");
-            
-            setTimeout(() => verificarConfiguracaoSheets(), 1500);
 
             // 🔥 VERIFICAÇÃO DE LIMITE APÓS LOGIN
             setTimeout(async () => {
@@ -1486,7 +1484,6 @@ if (token) {
             // 🔥 CORREÇÃO: Usa função centralizada
             atualizarInterfacePosLogin();
             listarAgendamentos();
-            setTimeout(() => verificarConfiguracaoSheets(), 1000);
         } else {
             console.log('❌ Sessão inválida - fazendo limpeza');
             localStorage.removeItem('userToken');
@@ -4434,7 +4431,6 @@ async function processarRetornoOAuth(url) {
                     setTimeout(() => atualizarBadgePerfil(), 2000);
                     listarAgendamentos();
                     showToast("Login com Google realizado!", "success");
-                    setTimeout(() => verificarConfiguracaoSheets(), 1500);
                 }
             }
         }
@@ -4480,6 +4476,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
