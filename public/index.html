@@ -1257,7 +1257,7 @@ async function checkScheduleLimit() {
     }
 }
 
-// ✅ VERIFICAR ASSINATURA (adaptada)
+// 2. Buscar assinatura do usuário
 async function getUserSubscription() {
     if (!userToken) return null;
     
@@ -2699,6 +2699,13 @@ async function logoutSilencioso() {
     }
 }
 
+// 5. Upgrade para Pro
+function upgradeToPro() {
+    console.log('🔄 Redirecionando para página de checkout...');
+    window.location.href = 'checkout.html';
+}
+
+        
         
        async function listarAgendamentos(){
     // 🔥 CORREÇÃO: Verifica se usuário está logado ANTES de fazer qualquer coisa
@@ -4122,6 +4129,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
