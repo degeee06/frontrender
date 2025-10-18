@@ -1007,7 +1007,6 @@ function verificarCallbackOAuth() {
     return false;
 }
 
-
 // 🔥 PROCESSAMENTO ÚNICO E SIMPLIFICADO DO OAUTH
 async function processarCallbackOAuth() {
     try {
@@ -1207,43 +1206,7 @@ async function fecharBrowserCapacitor() {
     }
 }
 
-// 🔥 VERIFICAÇÃO DE CALLBACK OAUTH - EXECUTA PRIMEIRO
-function verificarCallbackOAuth() {
-    console.log('🔄 Verificando se é callback OAuth...');
-    console.log('📍 URL:', window.location.href);
-    console.log('🔑 Hash:', window.location.hash);
-    
-    const isCallback = window.location.hash.includes('access_token') || 
-                       window.location.hash.includes('error');
-    
-    if (isCallback) {
-        console.log('🎯 Detectado callback OAuth - processando...');
-        
-        // MOSTRA TELA DE AUTENTICAÇÃO
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
-        
-        // 🔥 DETECTA AMBIENTE
-        const isWeb = !(window.Browser || window.cordova || 
-                       navigator.userAgent.includes('Capacitor') ||
-                       navigator.userAgent.includes('Cordova'));
-        console.log('Ambiente:', isWeb ? 'WEB' : 'APP');
-        
-        if (isWeb) {
-            // 💻 WEB: Processa e redireciona
-            console.log('🌐 Processando para web...');
-            processarOAuthWeb();
-        } else {
-            // 📱 APP: Redireciona para app e fecha
-            console.log('📱 Processando para app...');
-            processarOAuthApp();
-        }
-        
-        return true; // É um callback, para a execução normal
-    }
-    
-    return false; // Não é callback, continua normal
-}
+
 
         // 🔥 PROCESSAMENTO PARA WEB
 async function processarOAuthWeb() {
@@ -4128,6 +4091,7 @@ function forcarAtualizacaoAgendamentos() {
 
 </body>
 </html>
+
 
 
 
