@@ -978,7 +978,7 @@ function isCapacitorApp() {
 }
 
 
-// 🔥 VERIFICAÇÃO DE CALLBACK OAUTH - EXECUTA PRIMEIRO
+// 🔥 CORREÇÃO DEFINITIVA: Substitua a função verificarCallbackOAuth por esta
 function verificarCallbackOAuth() {
     console.log('🔄 Verificando se é callback OAuth...');
     console.log('📍 URL:', window.location.href);
@@ -994,26 +994,38 @@ function verificarCallbackOAuth() {
         document.getElementById('authCallbackScreen').classList.remove('hidden');
         document.getElementById('mainAppContent').classList.add('hidden');
         
-        // 🔥 DETECTA AMBIENTE (MESMA LÓGICA DO SCRIPT 1)
+        // 🔥 DETECÇÃO SIMPLES E DIRETA (igual ao Script 1 que funciona)
         const isWeb = !(window.Browser || window.cordova || 
                        navigator.userAgent.includes('Capacitor') ||
                        navigator.userAgent.includes('Cordova'));
         console.log('Ambiente:', isWeb ? 'WEB' : 'APP');
         
         if (isWeb) {
-            // 💻 WEB: Processa e redireciona
+            // 💻 WEB: Processa normalmente
             console.log('🌐 Processando para web...');
             processarOAuthWeb();
         } else {
-            // 📱 APP: Redireciona para app e fecha
-            console.log('📱 Processando para app...');
-            processarOAuthApp();
+            // 📱 APP: REDIRECIONAMENTO IMEDIATO (igual ao Script 1)
+            console.log('📱 APP - Redirecionando IMEDIATAMENTE para app...');
+            
+            // 🔥 REDIRECIONAMENTO DIRETO - MESMO CÓDIGO DO SCRIPT 1 QUE FUNCIONA
+            const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
+            console.log('🎯 URL do app:', appUrl);
+            
+            // Redireciona IMEDIATAMENTE
+            window.location.href = appUrl;
+            
+            // 🔥 FECHA O BROWSER DEPOIS DE REDIRECIONAR
+            setTimeout(() => {
+                console.log('🔒 Fechando browser...');
+                fecharBrowserCapacitor();
+            }, 1000);
         }
         
-        return true; // É um callback, para a execução normal
+        return true;
     }
     
-    return false; // Não é callback, continua normal
+    return false;
 }
 
 
@@ -1032,167 +1044,6 @@ function processarOAuthApp() {
 }
 
         
-// 🔥 PROCESSAMENTO ÚNICO E SIMPLIFICADO DO OAUTH
-async function processarCallbackOAuth() {
-    try {
-        console.log('🔄 Processando callback OAuth...');
-        
-        // Aguarda o Supabase processar automaticamente
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-            console.error('❌ Erro ao obter sessão:', error);
-            throw error;
-        }
-        
-        if (session) {
-            console.log('✅ Sessão OAuth restaurada!');
-            
-            userToken = session.access_token;
-            localStorage.setItem('userToken', userToken);
-            
-            // Limpa a URL (apenas na web)
-            if (!isCapacitorApp()) {
-                window.history.replaceState(null, '', window.location.pathname);
-            }
-            
-            // Mostra app normal
-            document.getElementById('authCallbackScreen').classList.add('hidden');
-            document.getElementById('mainAppContent').classList.remove('hidden');
-            
-            // Atualiza interface
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
-            
-            listarAgendamentos();
-            setTimeout(() => iniciarSistemaAtualizacao(), 1000);
-            showToast("Login realizado com sucesso!", "success");
-            
-            setTimeout(() => verificarConfiguracaoSheets(), 1500);
-            
-            // 🔥 CORREÇÃO CRÍTICA: Fecha browser apenas se for Capacitor
-            if (isCapacitorApp()) {
-                console.log('📱 Fechando browser do Capacitor...');
-                setTimeout(() => fecharBrowserCapacitor(), 2000);
-            }
-        } else {
-            throw new Error('Sessão não encontrada após processamento');
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro ao processar OAuth:', error);
-        showToast("Erro ao processar login", "error");
-        
-        // Fallback: redireciona após erro
-        setTimeout(() => {
-            if (isCapacitorApp()) {
-                fecharBrowserCapacitor();
-            } else {
-                window.location.href = '/';
-            }
-        }, 3000);
-    }
-}
-
-// 🔥 SOLUÇÃO CAPACITOR: Processamento específico para app
-async function processarCallbackOAuthCapacitor() {
-    try {
-        console.log('🔄 Capacitor: Processando callback OAuth...');
-        
-        // MOSTRA TELA DE AUTENTICAÇÃO
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
-        
-        // 🔥 CORREÇÃO: Aguarda o Supabase processar a URL
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Processa a URL atual para extrair tokens
-        const currentUrl = window.location.href;
-        console.log('🔗 URL atual:', currentUrl);
-        
-        // Extrai parâmetros da URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        
-        const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
-        const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
-        
-        console.log('🔑 Tokens encontrados:', { accessToken: !!accessToken, refreshToken: !!refreshToken });
-        
-        if (accessToken) {
-            // 🔥 CORREÇÃO: Define a sessão manualmente se necessário
-            const { data: { session }, error } = await supabase.auth.setSession({
-                access_token: accessToken,
-                refresh_token: refreshToken
-            });
-            
-            if (error) {
-                console.error('❌ Erro ao definir sessão:', error);
-                throw error;
-            }
-            
-            if (session) {
-                console.log('✅ Capacitor: Sessão OAuth configurada!');
-                
-                userToken = session.access_token;
-                localStorage.setItem('userToken', userToken);
-                
-                // Limpa a URL para evitar novos processamentos
-                window.history.replaceState({}, document.title, window.location.pathname);
-                
-                // Mostra app normal
-                document.getElementById('authCallbackScreen').classList.add('hidden');
-                document.getElementById('mainAppContent').classList.remove('hidden');
-                
-                // Atualiza interface
-                loginSection.style.display = 'none';
-                form.style.display = 'block';
-                atualizarInterfacePosLogin();
-                document.getElementById('secoesIA').style.display = 'block';
-                
-                listarAgendamentos();
-                setTimeout(() => iniciarSistemaAtualizacao(), 1000);
-                showToast("Login realizado com sucesso!", "success");
-                
-                setTimeout(() => verificarConfiguracaoSheets(), 1500);
-                
-                // 🔥 CORREÇÃO: Fecha browser se estiver no app
-                if (isCapacitorApp()) {
-                    setTimeout(() => fecharBrowserCapacitor(), 2000);
-                }
-            } else {
-                throw new Error('Falha ao criar sessão');
-            }
-        } else {
-            throw new Error('Token de acesso não encontrado na URL');
-        }
-        
-    } catch (error) {
-        console.error('❌ Capacitor: Erro OAuth:', error);
-        showToast("Erro ao processar login no app", "error");
-        
-        // 🔥 CORREÇÃO: Mostra informações de debug
-        const debugInfo = document.getElementById('debugInfo');
-        if (debugInfo) {
-            debugInfo.classList.remove('hidden');
-            document.getElementById('urlInfo').textContent = `URL: ${window.location.href}`;
-            document.getElementById('hashInfo').textContent = `Hash: ${window.location.hash}`;
-            document.getElementById('tokenInfo').textContent = `Erro: ${error.message}`;
-        }
-        
-        // Mostra botão de fallback
-        document.getElementById('manualRedirect').classList.remove('hidden');
-        
-        // 🔥 CORREÇÃO: Redireciona de volta para app com erro
-        if (isCapacitorApp()) {
-            setTimeout(() => fecharBrowserCapacitor(), 5000);
-        }
-    }
-}
 
 
 // 🔥 FUNÇÃO PARA FECHAR BROWSER CORRIGIDA
@@ -4063,6 +3914,7 @@ function forcarAtualizacaoAgendamentos() {
 
 </body>
 </html>
+
 
 
 
