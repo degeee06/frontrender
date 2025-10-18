@@ -1067,31 +1067,6 @@ const horarioInput = document.getElementById("Horario");
         }
 
 
-console.log('🔑 Token no localStorage:', !!token);
-
-if (token) {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-            console.log('✅ Sessão válida - usuário logado');
-            userToken = session.access_token;
-            // 🔥 CORREÇÃO: Usa função centralizada
-            atualizarInterfacePosLogin();
-            listarAgendamentos();
-            setTimeout(() => verificarConfiguracaoSheets(), 1000);
-        } else {
-            console.log('❌ Sessão inválida - fazendo limpeza');
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('supabase.auth.token');
-            userToken = null;
-            // 🔥 CORREÇÃO: Usa função centralizada
-            mostrarTelaLogin();
-        }
-    });
-} else {
-    console.log('👤 Sem token - mostrando tela de login');
-    // 🔥 CORREÇÃO: Usa função centralizada
-    mostrarTelaLogin();
-}
 
 // ==================== SISTEMA DE SUBSCRIPTION IDÊNTICO AO COPYCRAFT ====================
 
@@ -4432,6 +4407,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
