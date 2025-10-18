@@ -639,17 +639,15 @@ select option {
     </div>
 </div>
 
-  <!-- 🎯🎯🎯 CONTEÚDO PRINCIPAL 🎯🎯🎯 -->
+<!-- 🎯🎯🎯 CONTEÚDO PRINCIPAL 🎯🎯🎯 -->
 <div id="mainAppContent">
     <div class="container mx-auto px-4 py-8 max-w-6xl">
       
-        <!-- 🔥 HEADER CORRIGIDO -->
-        <header class="text-center mb-8 md:mb-12" data-aos="fade-down">
-            <!-- 🔥 BADGE ACIMA DO TÍTULO -->
-            <div class="flex justify-center mb-3">
-                <div id="premiumBadge" class="hidden bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2">
-                    <span id="usageCount">0/5</span>
-                </div>
+        <!-- 🔥 HEADER COM BADGE NO CANTO SUPERIOR -->
+        <header class="text-center mb-8 md:mb-12 relative" data-aos="fade-down">
+            <!-- 🔥 BADGE NO CANTO SUPERIOR DIREITO -->
+            <div id="premiumBadge" class="hidden absolute top-0 right-0 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2 shadow-lg">
+                <span id="usageCount">0/5</span>
             </div>
             
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
@@ -4560,6 +4558,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
