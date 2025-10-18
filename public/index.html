@@ -927,109 +927,6 @@ select option {
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
- // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
-function verificarCallbackOAuth() {
-    console.log('🔄 Verificando se é callback OAuth...');
-    
-    const isCallback = window.location.hash.includes('access_token') || 
-                       window.location.hash.includes('error');
-    
-    // 🔥 IGNORA SE FOR CAPACITOR (já foi tratado)
-    if (isCapacitorApp() && isCallback) {
-        console.log('📱 Capacitor: Callback já tratado pela função específica');
-        return false;
-    }
-    
-    if (isCallback && !isCapacitorApp()) {
-        console.log('🎯 Web: Detectado callback OAuth - processando...');
-        
-        // MOSTRA TELA DE AUTENTICAÇÃO
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
-        
-        // Processa o callback
-        processarCallbackOAuth();
-        return true;
-    }
-    
-    return false;
-}
-        
-// 🔥 CORREÇÃO: Função única para processar callback
-async function processarCallbackOAuth() {
-    try {
-        console.log('🔄 Processando callback OAuth...');
-        
-        // Aguarda o Supabase processar a sessão
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-            throw error;
-        }
-        
-        if (session) {
-            console.log('✅ Sessão OAuth restaurada!');
-            
-            userToken = session.access_token;
-            localStorage.setItem('userToken', userToken);
-            
-            // Limpa a URL
-            window.history.replaceState(null, '', window.location.pathname);
-            
-            // Mostra app normal
-            document.getElementById('authCallbackScreen').classList.add('hidden');
-            document.getElementById('mainAppContent').classList.remove('hidden');
-            
-            // Atualiza interface
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
-            
-            listarAgendamentos();
-            setTimeout(() => iniciarSistemaAtualizacao(), 1000);
-            showToast("Login realizado com sucesso!", "success");
-            
-            setTimeout(() => verificarConfiguracaoSheets(), 1500);
-        } else {
-            throw new Error('Sessão não encontrada');
-        }
-    } catch (error) {
-        console.error('❌ Erro OAuth:', error);
-        showToast("Erro ao processar login", "error");
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 2000);
-    }
-}
-        
-      
-
-       
-
-        // 🔥 FUNÇÃO PARA FECHAR BROWSER
-        async function fecharBrowserCapacitor() {
-            console.log('🎯 Tentando fechar browser...');
-            
-            if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-                try {
-                    console.log('✅ Usando Capacitor Browser.close()');
-                    await window.Capacitor.Plugins.Browser.close();
-                    return;
-                } catch (error) {
-                    console.log('❌ Capacitor Browser.close() falhou:', error);
-                }
-            }
-            
-            try {
-                window.close();
-            } catch (error) {
-                window.location.href = 'about:blank';
-            }
-        }
-
         // ---------------- CONFIGURAÇÃO BACKEND ----------------
         const API_BASE_URL = 'https://agendamento-ynxr.onrender.com';
 
@@ -1071,113 +968,7 @@ const horarioInput = document.getElementById("Horario");
             return `${d}/${m}/${y}`; 
         }
 
-     // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA
-const token = localStorage.getItem('userToken');
-console.log('🔑 Token no localStorage:', !!token);
 
-if (token) {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-            console.log('✅ Sessão válida - usuário logado');
-            userToken = session.access_token;
-            // 🔥 CORREÇÃO: Usa função centralizada
-            atualizarInterfacePosLogin();
-            listarAgendamentos();
-            setTimeout(() => verificarConfiguracaoSheets(), 1000);
-        } else {
-            console.log('❌ Sessão inválida - fazendo limpeza');
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('supabase.auth.token');
-            userToken = null;
-            // 🔥 CORREÇÃO: Usa função centralizada
-            mostrarTelaLogin();
-        }
-    });
-} else {
-    console.log('👤 Sem token - mostrando tela de login');
-    // 🔥 CORREÇÃO: Usa função centralizada
-    mostrarTelaLogin();
-}
-
-   // 🔥 CORREÇÃO: Função init atualizada para Capacitor
-async function init() {
-    console.log('🚀 Iniciando app...');
-    
-    // 🔥 CORREÇÃO CAPACITOR: Verificar auth primeiro
-    if (verificarAuthCapacitor()) {
-        console.log('⏸️ Parando init - processando OAuth Capacitor');
-        return;
-    }
-    
-    if (verificarCallbackOAuth()) {
-        console.log('⏸️ Parando init - é callback OAuth Web');
-        return;
-    }
-    
-    console.log('▶️ Continuando init normal...');
-    
-    // Aplica máscara de telefone
-    setTimeout(() => {
-        const telefoneInput = document.getElementById('Telefone');
-        if (telefoneInput && window.IMask) {
-            IMask(telefoneInput, {
-                mask: '(00) 00000-0000'
-            });
-            console.log('✅ Máscara de telefone aplicada!');
-        }
-    }, 1000);
-    
-    // Configura listeners
-    configurarEventListenersModal();
-    
-    // ✅ VERIFICAÇÃO SIMPLES DE LOGIN
-    const token = localStorage.getItem('userToken');
-    console.log('🔑 Token no localStorage:', !!token);
-    
-    if (token) {
-        // Verifica se a sessão ainda é válida
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session) {
-            userToken = session.access_token;
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
-            listarAgendamentos();
-            setTimeout(() => verificarConfiguracaoSheets(), 1000);
-        } else {
-            // Sessão inválida - limpa tudo
-            localStorage.removeItem('userToken');
-            userToken = null;
-            mostrarTelaLogin();
-        }
-    } else {
-        mostrarTelaLogin();
-    }
-    
-    feather.replace();
-}
-
-        // 🔥 INICIALIZAÇÃO CAPACITOR - Executa imediatamente ao carregar
-(function initCapacitorAuth() {
-    console.log('🔍 Verificando ambiente Capacitor...');
-    
-    const isApp = !!(window.Capacitor || window.cordova);
-    const hasOAuthHash = window.location.hash.includes('access_token') || 
-                         window.location.hash.includes('error');
-    
-    console.log('📱 Capacitor Init Debug:', { isApp, hasOAuthHash });
-    
-    if (isApp && hasOAuthHash) {
-        console.log('🎯 Capacitor OAuth detectado - processando imediatamente...');
-        
-        // Processa imediatamente sem esperar DOM
-        setTimeout(() => {
-            verificarAuthCapacitor();
-        }, 100);
-    }
-})();
 // 🔥 SOLUÇÃO CAPACITOR: Detecção específica para app
 function isCapacitorApp() {
     return !!(window.Capacitor || window.cordova);
@@ -1298,6 +1089,146 @@ async function fecharBrowserCapacitor() {
     }
 }
 
+
+// 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
+function verificarCallbackOAuth() {
+    console.log('🔄 Verificando se é callback OAuth...');
+    
+    const isCallback = window.location.hash.includes('access_token') || 
+                       window.location.hash.includes('error');
+    
+    // 🔥 IGNORA SE FOR CAPACITOR (já foi tratado)
+    if (isCapacitorApp() && isCallback) {
+        console.log('📱 Capacitor: Callback já tratado pela função específica');
+        return false;
+    }
+    
+    if (isCallback && !isCapacitorApp()) {
+        console.log('🎯 Web: Detectado callback OAuth - processando...');
+        
+        // MOSTRA TELA DE AUTENTICAÇÃO
+        document.getElementById('authCallbackScreen').classList.remove('hidden');
+        document.getElementById('mainAppContent').classList.add('hidden');
+        
+        // Processa o callback
+        processarCallbackOAuth();
+        return true;
+    }
+    
+    return false;
+}
+        
+     // ✅ VERIFICAÇÃO DE SESSÃO CORRIGIDA
+const token = localStorage.getItem('userToken');
+console.log('🔑 Token no localStorage:', !!token);
+
+if (token) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+            console.log('✅ Sessão válida - usuário logado');
+            userToken = session.access_token;
+            // 🔥 CORREÇÃO: Usa função centralizada
+            atualizarInterfacePosLogin();
+            listarAgendamentos();
+            setTimeout(() => verificarConfiguracaoSheets(), 1000);
+        } else {
+            console.log('❌ Sessão inválida - fazendo limpeza');
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('supabase.auth.token');
+            userToken = null;
+            // 🔥 CORREÇÃO: Usa função centralizada
+            mostrarTelaLogin();
+        }
+    });
+} else {
+    console.log('👤 Sem token - mostrando tela de login');
+    // 🔥 CORREÇÃO: Usa função centralizada
+    mostrarTelaLogin();
+}
+
+   // 🔥 CORREÇÃO: Função init atualizada para Capacitor
+async function init() {
+    console.log('🚀 Iniciando app...');
+    
+    // 🔥 CORREÇÃO CAPACITOR: Verificar auth primeiro
+    if (verificarAuthCapacitor()) {
+        console.log('⏸️ Parando init - processando OAuth Capacitor');
+        return;
+    }
+    
+    if (verificarCallbackOAuth()) {
+        console.log('⏸️ Parando init - é callback OAuth Web');
+        return;
+    }
+    
+    console.log('▶️ Continuando init normal...');
+    
+    // Aplica máscara de telefone
+    setTimeout(() => {
+        const telefoneInput = document.getElementById('Telefone');
+        if (telefoneInput && window.IMask) {
+            IMask(telefoneInput, {
+                mask: '(00) 00000-0000'
+            });
+            console.log('✅ Máscara de telefone aplicada!');
+        }
+    }, 1000);
+    
+    // Configura listeners
+    configurarEventListenersModal();
+    
+    // ✅ VERIFICAÇÃO SIMPLES DE LOGIN
+    const token = localStorage.getItem('userToken');
+    console.log('🔑 Token no localStorage:', !!token);
+    
+    if (token) {
+        // Verifica se a sessão ainda é válida
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+            userToken = session.access_token;
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            atualizarInterfacePosLogin();
+            document.getElementById('secoesIA').style.display = 'block';
+            listarAgendamentos();
+            setTimeout(() => verificarConfiguracaoSheets(), 1000);
+        } else {
+            // Sessão inválida - limpa tudo
+            localStorage.removeItem('userToken');
+            userToken = null;
+            mostrarTelaLogin();
+        }
+    } else {
+        mostrarTelaLogin();
+    }
+    
+    feather.replace();
+}
+
+        // 🔥 INICIALIZAÇÃO CAPACITOR - Executa imediatamente ao carregar
+(function initCapacitorAuth() {
+    console.log('🔍 Verificando ambiente Capacitor...');
+    
+    const isApp = !!(window.Capacitor || window.cordova);
+    const hasOAuthHash = window.location.hash.includes('access_token') || 
+                         window.location.hash.includes('error');
+    
+    console.log('📱 Capacitor Init Debug:', { isApp, hasOAuthHash });
+    
+    if (isApp && hasOAuthHash) {
+        console.log('🎯 Capacitor OAuth detectado - processando imediatamente...');
+        
+        // Processa imediatamente sem esperar DOM
+        setTimeout(() => {
+            verificarAuthCapacitor();
+        }, 100);
+    }
+})();
+// 🔥 SOLUÇÃO CAPACITOR: Detecção específica para app
+function isCapacitorApp() {
+    return !!(window.Capacitor || window.cordova);
+}
 
         
 // 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
@@ -2744,7 +2675,7 @@ async function logoutSilencioso() {
 
       
 
-      // ✅ LOGIN GOOGLE CORRIGIDO PARA CAPACITOR
+     // ✅ LOGIN GOOGLE CORRIGIDO PARA CAPACITOR
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const btn = document.getElementById('googleLoginBtn');
     const originalText = btn.innerHTML;
@@ -4015,6 +3946,7 @@ function forcarAtualizacaoAgendamentos() {
 
 </body>
 </html>
+
 
 
 
