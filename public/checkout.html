@@ -294,12 +294,13 @@
                     price: hotmartConfig.price,
                     currency: hotmartConfig.currency,
                     callback: function(data) {
-                        console.log('✅ Checkout concluído:', data);
-                        // Redireciona de volta para o app após sucesso
-                        setTimeout(() => {
-                            window.location.href = 'https://oubook.vercel.app/';
-                        }, 2000);
-                    }
+    console.log('✅ Checkup concluído:', data);
+    
+    // 🔥 USA A MESMA FUNÇÃO PARA VOLTAR APÓS COMPRA
+    setTimeout(() => {
+        voltarParaApp();
+    }, 2000);
+}
                 });
             } catch (error) {
                 console.error('❌ Erro no widget Hotmart:', error);
@@ -312,57 +313,57 @@
         }
 
 
-     // 🔥 VOLTAR PARA O APP - SISTEMA IDÊNTICO AO CÓDIGO ORIGINAL
-    function voltarParaApp() {
-        console.log('🔄 Verificando ambiente para voltar ao app...');
+  // 🔥 VOLTAR PARA O APP - SISTEMA IDÊNTICO AO CÓDIGO ORIGINAL
+function voltarParaApp() {
+    console.log('🔄 Verificando ambiente para voltar ao app...');
+    
+    // 🔥 DETECÇÃO IDÊNTICA AO SEU CÓDIGO ORIGINAL
+    const isMobileApp = !!(window.Capacitor || window.cordova);
+    console.log('📱 Ambiente detectado:', isMobileApp ? 'APP' : 'WEB');
+    
+    if (isMobileApp) {
+        console.log('📱 Está no app - fechando browser...');
         
-        // 🔥 DETECÇÃO IDÊNTICA AO SEU CÓDIGO ORIGINAL
-        const isMobileApp = !!(window.Capacitor || window.cordova);
-        console.log('📱 Ambiente detectado:', isMobileApp ? 'APP' : 'WEB');
-        
-        if (isMobileApp) {
-            console.log('📱 Está no app - fechando browser...');
-            
-            // 🔥 MESMA LÓGICA DO SEU CÓDIGO ORIGINAL
-            if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-                window.Capacitor.Plugins.Browser.close().then(() => {
-                    console.log('✅ Browser do Capacitor fechado com sucesso');
-                }).catch(error => {
-                    console.log('❌ Erro ao fechar browser:', error);
-                    // Fallback do código original
-                    try {
-                        window.close();
-                    } catch (e) {
-                        window.location.href = 'about:blank';
-                    }
-                });
-            } else {
-                // Fallback para outros apps
+        // 🔥 MESMA LÓGICA DO SEU CÓDIGO ORIGINAL - Capacitor Browser
+        if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+            window.Capacitor.Plugins.Browser.close().then(() => {
+                console.log('✅ Browser do Capacitor fechado com sucesso');
+            }).catch(error => {
+                console.log('❌ Erro ao fechar browser:', error);
+                // Fallback do código original
                 try {
                     window.close();
                 } catch (e) {
                     window.location.href = 'about:blank';
                 }
-            }
+            });
         } else {
-            // 🔥 COMPORTAMENTO WEB - MESMO DO SEU CÓDIGO
-            console.log('🌐 Está no navegador - redirecionando...');
-            
-            // Mostra mensagem igual ao código original
-            alert('✅ Compra realizada!\n\nVolte manualmente para o app.\n\nO app deve detectar automaticamente seu upgrade.');
-            
-            // Tenta fechar a janela igual ao código original
-            setTimeout(() => {
-                try {
-                    window.close();
-                } catch (e) {
-                    console.log('Não foi possível fechar a janela automaticamente');
-                    // Redireciona para o app
-                    window.location.href = 'https://oubook.vercel.app/';
-                }
-            }, 3000);
+            // Fallback para outros apps
+            try {
+                window.close();
+            } catch (e) {
+                window.location.href = 'about:blank';
+            }
         }
+    } else {
+        // 🔥 COMPORTAMENTO WEB - MESMO DO SEU CÓDIGO ORIGINAL
+        console.log('🌐 Está no navegador - mostrando instruções...');
+        
+        // 🔥 MENSAGEM IDÊNTICA À DO SEU CÓDIGO
+        alert('✅ Compra realizada!\n\nVolte manualmente para o app.\n\nO app deve detectar automaticamente seu upgrade.');
+        
+        // 🔥 MESMO COMPORTAMENTO DO CÓDIGO ORIGINAL
+        setTimeout(() => {
+            try {
+                window.close();
+            } catch (e) {
+                console.log('Não foi possível fechar a janela automaticamente');
+                // Redireciona para o app principal
+                window.location.href = 'https://oubook.vercel.app/';
+            }
+        }, 3000);
     }
+}
 
     // Inicializar feather icons
     feather.replace();
