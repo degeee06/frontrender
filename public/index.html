@@ -561,6 +561,28 @@ select option {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
 }
+        // ADICIONE este CSS para mobile:
+@media (max-width: 640px) {
+    .header-buttons-mobile {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .header-buttons-mobile button {
+        width: 100% !important;
+        font-size: 11px !important;
+        padding: 8px 6px !important;
+    }
+    
+    #premiumBadge {
+        order: -1; /* Coloca o badge primeiro */
+        grid-column: 1 / -1; /* Ocupa toda a linha */
+        justify-self: center;
+        margin-bottom: 8px;
+    }
+}
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -4479,6 +4501,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
