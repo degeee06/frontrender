@@ -1353,7 +1353,33 @@ async function init() {
     
     feather.replace();
 }
-
+// 🔥 SOLUÇÃO CAPACITOR: Verificar se está no app e processar OAuth
+function verificarAuthCapacitor() {
+    const isApp = isCapacitorApp();
+    const hasHash = window.location.hash.includes('access_token') || 
+                    window.location.hash.includes('error') ||
+                    window.location.search.includes('access_token');
+    
+    console.log('📱 Capacitor Debug:', { 
+        isApp, 
+        hasHash, 
+        hash: window.location.hash,
+        search: window.location.search 
+    });
+    
+    if (isApp && hasHash) {
+        console.log('🎯 Capacitor: Detectado callback OAuth no app');
+        
+        // Mostra tela de autenticação
+        document.getElementById('authCallbackScreen').classList.remove('hidden');
+        document.getElementById('mainAppContent').classList.add('hidden');
+        
+        // Processa o OAuth
+        processarCallbackOAuthCapacitor();
+        return true;
+    }
+    return false;
+}
     // 🔥 INICIALIZAÇÃO CAPACITOR - Executa imediatamente ao carregar
 (function initCapacitorAuth() {
     console.log('🔍 Verificando ambiente Capacitor...');
@@ -4091,6 +4117,7 @@ function forcarAtualizacaoAgendamentos() {
 
 </body>
 </html>
+
 
 
 
