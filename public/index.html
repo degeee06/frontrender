@@ -1362,8 +1362,10 @@ async function registerScheduleUsage() {
     }
 }
 
-// 7. Modal para limite diário (ATUALIZADO)
+// 7. Modal para limite diário (VERSÃO CORRIGIDA COM UPGRADE)
 function showDailyLimitModal(dailyLimit) {
+    console.log('🎯 MOSTRANDO MODAL DE LIMITE - Usos:', dailyLimit);
+    
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
     modal.innerHTML = `
@@ -1379,7 +1381,7 @@ function showDailyLimitModal(dailyLimit) {
             <div class="space-y-3">
                 <button onclick="upgradeToPro()" 
                         class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
-                    🚀 Fazer Upgrade
+                    🚀 Fazer Upgrade para Ilimitado
                 </button>
                 <button onclick="this.closest('.fixed').remove()" 
                         class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
@@ -1390,6 +1392,8 @@ function showDailyLimitModal(dailyLimit) {
     `;
     document.body.appendChild(modal);
     feather.replace();
+    
+    console.log('✅ Modal de upgrade criado com sucesso!');
 }
 
 // 8. Atualizar badge do plano (ATUALIZADO)
@@ -1429,9 +1433,15 @@ async function updatePlanBadge() {
     }
 }
 
-// 9. Upgrade para Pro (MESMA FUNÇÃO)
+// 9. Upgrade para Pro (VERIFIQUE SE ESTÁ SENDO CHAMADA)
 function upgradeToPro() {
-    console.log('🔄 Redirecionando para página de checkout...');
+    console.log('🔄 upgradeToPro() CHAMADA - Redirecionando para checkout...');
+    
+    // Remove todos os modais abertos
+    const modals = document.querySelectorAll('.fixed.inset-0');
+    modals.forEach(modal => modal.remove());
+    
+    // Redireciona para checkout
     window.location.href = 'checkout.html';
 }
 
@@ -4407,6 +4417,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
