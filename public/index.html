@@ -1207,13 +1207,15 @@ function mostrarTelaLogin() {
     console.log('✅ Tela de login configurada completamente');
 }
 
-// ✅ SISTEMA DE PLANOS E LIMITES
-async checkScheduleLimit() {
-    if (!this.user) return { canSchedule: false, reason: 'not_logged_in' };
+// ❌ SEU CÓDIGO ATUAL - está como métodos de classe, mas seu projeto não usa classe
+
+// ✅ CORREÇÃO - transforme em funções globais:
+async function checkScheduleLimit() {
+    if (!userToken) return { canSchedule: false, reason: 'not_logged_in' };
     
     try {
         // ⭐⭐ VERIFICAR ASSINATURA ATIVA
-        const subscription = await this.getUserSubscription();
+        const subscription = await getUserSubscription();
         
         let maxDailySchedules = 3; // Plano grátis
         
@@ -1223,10 +1225,10 @@ async checkScheduleLimit() {
         
         // ⭐⭐ VERIFICAR USOS HOJE
         const today = new Date().toISOString().split('T')[0];
-        const { data: todaySchedules, error } = await this.supabase
+        const { data: todaySchedules, error } = await supabase
             .from('user_usage_log')
             .select('id')
-            .eq('user_id', this.user.id)
+            .eq('user_id', (await supabase.auth.getUser()).data.user.id)
             .eq('action_type', 'schedule')
             .gte('used_at', today + 'T00:00:00')
             .lte('used_at', today + 'T23:59:59');
@@ -1252,15 +1254,18 @@ async checkScheduleLimit() {
     }
 }
 
-// ✅ VERIFICAR ASSINATURA (igual ao CopyCraft)
-async getUserSubscription() {
-    if (!this.user) return null;
+// ✅ VERIFICAR ASSINATURA (adaptada)
+async function getUserSubscription() {
+    if (!userToken) return null;
     
     try {
-        const { data, error } = await this.supabase
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
+        
+        const { data, error } = await supabase
             .from('user_subscriptions')
             .select('*')
-            .eq('user_email', this.user.email)
+            .eq('user_email', user.email)
             .eq('status', 'active')
             .gte('ends_at', new Date().toISOString())
             .order('created_at', { ascending: false })
@@ -1280,22 +1285,23 @@ async getUserSubscription() {
 }
 
 // ✅ REGISTRAR USO DE AGENDAMENTO
-async registerScheduleUsage() {
-    if (!this.user) return false;
+async function registerScheduleUsage() {
+    if (!userToken) return false;
     
     try {
-        const limitCheck = await this.checkScheduleLimit();
+        const limitCheck = await checkScheduleLimit();
         
         if (!limitCheck.canSchedule) {
-            this.showScheduleLimitModal(limitCheck);
+            showScheduleLimitModal(limitCheck);
             return false;
         }
         
         // Registrar o uso
-        const { error } = await this.supabase
+        const { data: { user } } = await supabase.auth.getUser();
+        const { error } = await supabase
             .from('user_usage_log')
             .insert([{
-                user_id: this.user.id,
+                user_id: user.id,
                 action_type: 'schedule',
                 details: { type: 'new_appointment' }
             }]);
@@ -1311,6 +1317,43 @@ async registerScheduleUsage() {
     }
 }
 
+        // ✅ MODAL DE LIMITE ATINGIDO (FALTANTE)
+function showScheduleLimitModal(limitInfo) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-feather="calendar" class="text-yellow-600 w-8 h-8"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Limite de Agendamentos</h3>
+            <p class="text-gray-600 mb-6">
+                Você já utilizou todos os <strong>${limitInfo.maxDailySchedules} agendamentos</strong> de hoje.
+                ${!limitInfo.isPremium ? 'Faça upgrade para agendar ilimitadamente!' : ''}
+            </p>
+            <div class="space-y-3">
+                ${!limitInfo.isPremium ? `
+                <button onclick="upgradeToPro()" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all">
+                    🚀 Fazer Upgrade - R$ 29,90/mês
+                </button>
+                ` : ''}
+                <button onclick="this.closest('.fixed').remove()" 
+                        class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    feather.replace();
+}
+
+// ✅ FUNÇÃO UPGRADE
+function upgradeToPro() {
+    console.log('🔄 Redirecionando para página de checkout...');
+    window.location.href = 'checkout.html';
+}
 // ✅ MODAL DE LIMITE ATINGIDO
 showScheduleLimitModal(limitInfo) {
     const modal = document.createElement('div');
