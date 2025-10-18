@@ -12,121 +12,263 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
         
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+        }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+<body class="min-h-screen text-white">
+    <!-- 🎯 CONTEÚDO PRINCIPAL -->
     <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <div class="flex justify-center mb-4">
-                <div class="p-4 rounded-full bg-white/20">
-                    <i data-feather="star" class="w-12 h-12 text-yellow-300"></i>
+        
+        <!-- Header Elegante -->
+        <header class="text-center mb-12" data-aos="fade-down">
+            <div class="flex items-center justify-center mb-6">
+                <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
+                    <i data-feather="zap" class="w-8 h-8 text-white"></i>
                 </div>
             </div>
-            <h1 class="text-4xl font-bold mb-2">🚀 Upgrade Premium</h1>
-            <p class="text-xl opacity-90">Desbloqueie agendamentos ilimitados e recursos exclusivos</p>
+            <h1 class="text-4xl md:text-5xl font-bold gradient-text mb-4">
+                Upgrade Premium
+            </h1>
+            <p class="text-lg opacity-90 max-w-2xl mx-auto">
+                Desbloqueie todo o potencial do seu negócio com agendamentos ilimitados
+            </p>
         </header>
 
-        <!-- Planos -->
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
-            <!-- Plano Free -->
-            <div class="glass-card rounded-2xl p-6 bg-white/10 backdrop-blur-lg">
-                <h3 class="text-2xl font-bold mb-2">📝 Plano Free</h3>
-                <div class="text-3xl font-bold mb-4">Grátis</div>
-                <ul class="space-y-2 mb-6">
-                    <li class="flex items-center gap-2">
-                        <i data-feather="check" class="w-4 h-4 text-green-400"></i>
-                        <span>3 agendamentos por dia</span>
+        <!-- Grid de Planos -->
+        <div class="grid lg:grid-cols-2 gap-8 mb-12">
+            
+            <!-- Plano Free (Atual) -->
+            <div class="glass-card rounded-2xl p-8 animate-fade-in">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="user" class="w-8 h-8 text-gray-400"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-2">Plano Free</h3>
+                    <div class="text-3xl font-bold text-gray-300 mb-2">Grátis</div>
+                    <div class="text-sm text-gray-400">Plano atual</div>
+                </div>
+
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-center gap-3">
+                        <i data-feather="check" class="w-5 h-5 text-green-400"></i>
+                        <span class="text-gray-300">3 agendamentos por dia</span>
                     </li>
-                    <li class="flex items-center gap-2">
-                        <i data-feather="check" class="w-4 h-4 text-green-400"></i>
-                        <span>Gestão básica</span>
+                    <li class="flex items-center gap-3">
+                        <i data-feather="check" class="w-5 h-5 text-green-400"></i>
+                        <span class="text-gray-300">Gestão básica de agenda</span>
                     </li>
-                    <li class="flex items-center gap-2">
-                        <i data-feather="x" class="w-4 h-4 text-red-400"></i>
-                        <span class="opacity-60">Sem analytics avançados</span>
+                    <li class="flex items-center gap-3">
+                        <i data-feather="x" class="w-5 h-5 text-red-400"></i>
+                        <span class="text-gray-400">Sem analytics avançados</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i data-feather="x" class="w-5 h-5 text-red-400"></i>
+                        <span class="text-gray-400">Suporte por email</span>
                     </li>
                 </ul>
-                <div class="text-center text-sm opacity-70">Seu plano atual</div>
+
+                <div class="text-center p-4 bg-white/5 rounded-xl border border-white/10">
+                    <p class="text-sm text-gray-300">Ideal para testar o sistema</p>
+                </div>
             </div>
 
             <!-- Plano Premium -->
-            <div class="glass-card rounded-2xl p-6 bg-gradient-to-br from-yellow-400 to-orange-500 text-gray-900 relative">
-                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span class="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold">RECOMENDADO</span>
+            <div class="glass-card rounded-2xl p-8 border-2 border-cyan-500/30 relative animate-fade-in" style="animation-delay: 0.2s;">
+                <!-- Badge Destaque -->
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                        MAIS POPULAR
+                    </span>
                 </div>
-                <h3 class="text-2xl font-bold mb-2">⭐ Plano Premium</h3>
-                <div class="text-3xl font-bold mb-1">R$ 29,90<span class="text-lg font-normal">/mês</span></div>
-                <div class="text-sm opacity-80 mb-4">ou R$ 299/ano (2 meses grátis)</div>
-                <ul class="space-y-2 mb-6">
-                    <li class="flex items-center gap-2">
-                        <i data-feather="check" class="w-4 h-4 text-green-600"></i>
-                        <span class="font-semibold">Agendamentos ILIMITADOS</span>
+
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="star" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-2">Plano Premium</h3>
+                    <div class="text-4xl font-bold gradient-text mb-1">R$ 29,90</div>
+                    <div class="text-gray-300 mb-2">por mês</div>
+                    <div class="text-sm text-cyan-300">Economize R$ 60/ano</div>
+                </div>
+
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-center gap-3">
+                        <i data-feather="check" class="w-5 h-5 text-cyan-400"></i>
+                        <span class="text-white font-medium">Agendamentos ILIMITADOS</span>
                     </li>
-                    <li class="flex items-center gap-2">
-                        <i data-feather="check" class="w-4 h-4 text-green-600"></i>
-                        <span>Analytics avançados</span>
+                    <li class="flex items-center gap-3">
+                        <i data-feather="check" class="w-5 h-5 text-cyan-400"></i>
+                        <span class="text-white">Analytics e relatórios detalhados</span>
                     </li>
-                    <li class="flex items-center gap-2">
-                        <i data-feather="check" class="w-4 h-4 text-green-600"></i>
-                        <span>Suporte prioritário</span>
+                    <li class="flex items-center gap-3">
+                        <i data-feather="check" class="w-5 h-5 text-cyan-400"></i>
+                        <span class="text-white">Suporte prioritário 24/7</span>
                     </li>
-                    <li class="flex items-center gap-2">
-                        <i data-feather="check" class="w-4 h-4 text-green-600"></i>
-                        <span>Relatórios detalhados</span>
+                    <li class="flex items-center gap-3">
+                        <i data-feather="check" class="w-5 h-5 text-cyan-400"></i>
+                        <span class="text-white">Recursos avançados de IA</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <i data-feather="check" class="w-5 h-5 text-cyan-400"></i>
+                        <span class="text-white">Personalização total</span>
                     </li>
                 </ul>
-                
-                <!-- 🔥 BOTÃO HOTMART CORRETO -->
+
+                <!-- 🔥 BOTÃO PRINCIPAL HOTMART -->
                 <button onclick="abrirCheckoutHotmart()" 
-                        class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
-                    <i data-feather="shopping-cart" class="w-5 h-5"></i>
-                    🚀 Assinar Agora
+                        class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 mb-4">
+                    <i data-feather="zap" class="w-5 h-5"></i>
+                    🚀 Fazer Upgrade Agora
                 </button>
-                
-                <!-- 🔥 OU USE ESTE MÉTODO ALTERNATIVO -->
-                <div class="mt-4 text-center">
-                    <a href="https://pay.hotmart.com/SEU_CODIGO_AQUI" 
-                       class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all">
-                       🔗 Link Direto Hotmart
+
+                <!-- Link alternativo -->
+                <div class="text-center">
+                    <a href="https://pay.hotmart.com/U102480243K" 
+                       class="inline-flex items-center gap-2 text-cyan-300 hover:text-cyan-200 transition-colors text-sm">
+                        <i data-feather="external-link" class="w-4 h-4"></i>
+                        Link direto para pagamento
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- 🔥 SEÇÃO DE CHECKOUT HOTMART (Aparece após clicar) -->
-        <div id="hotmartCheckout" class="hidden">
-            <div class="glass-card rounded-2xl p-6 bg-white/10 backdrop-blur-lg text-center">
-                <h3 class="text-2xl font-bold mb-4">🛒 Finalizar Compra</h3>
-                <p class="mb-4">Redirecionando para checkout seguro...</p>
+        <!-- 🔥 SEÇÃO DE CHECKOUT HOTMART -->
+        <div id="hotmartCheckout" class="hidden animate-fade-in">
+            <div class="glass-card rounded-2xl p-8 text-center max-w-md mx-auto">
+                <div class="w-16 h-16 rounded-full bg-cyan-500/20 flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="shopping-cart" class="w-8 h-8 text-cyan-400"></i>
+                </div>
+                <h3 class="text-2xl font-semibold mb-3">🛒 Finalizando Compra</h3>
+                <p class="text-gray-300 mb-6">Redirecionando para checkout seguro...</p>
                 <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-sm text-gray-400">Aguarde um momento</p>
             </div>
         </div>
 
-        <!-- Voltar -->
-        <div class="text-center mt-8">
-            <button onclick="voltarParaApp()" class="px-6 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition-all">
-                ← Voltar para o App
+        <!-- Comparação de Recursos -->
+        <div class="glass-card rounded-2xl p-8 mb-8">
+            <h3 class="text-2xl font-semibold text-center mb-8 gradient-text">📊 Comparação Completa</h3>
+            
+            <div class="grid md:grid-cols-3 gap-6 text-center">
+                <div class="p-4">
+                    <div class="text-2xl mb-2">📅</div>
+                    <h4 class="font-semibold mb-2">Agendamentos</h4>
+                    <p class="text-sm text-gray-300">Free: 3/dia<br>Premium: Ilimitados</p>
+                </div>
+                <div class="p-4">
+                    <div class="text-2xl mb-2">📈</div>
+                    <h4 class="font-semibold mb-2">Analytics</h4>
+                    <p class="text-sm text-gray-300">Free: Básico<br>Premium: Avançado + IA</p>
+                </div>
+                <div class="p-4">
+                    <div class="text-2xl mb-2">⚡</div>
+                    <h4 class="font-semibold mb-2">Suporte</h4>
+                    <p class="text-sm text-gray-300">Free: Email<br>Premium: Prioritário 24/7</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="glass-card rounded-2xl p-8">
+            <h3 class="text-2xl font-semibold text-center mb-8 gradient-text">❓ Perguntas Frequentes</h3>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <h4 class="font-semibold mb-2 flex items-center gap-2">
+                            <i data-feather="help-circle" class="w-4 h-4 text-cyan-400"></i>
+                            Posso cancelar quando quiser?
+                        </h4>
+                        <p class="text-sm text-gray-300">Sim! Cancelamento instantâneo a qualquer momento sem taxas.</p>
+                    </div>
+                    
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <h4 class="font-semibold mb-2 flex items-center gap-2">
+                            <i data-feather="shield" class="w-4 h-4 text-cyan-400"></i>
+                            É seguro?
+                        </h4>
+                        <p class="text-sm text-gray-300">Pagamento 100% seguro via Hotmart, líder em infoprodutos.</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <h4 class="font-semibold mb-2 flex items-center gap-2">
+                            <i data-feather="refresh-cw" class="w-4 h-4 text-cyan-400"></i>
+                            Tem garantia?
+                        </h4>
+                        <p class="text-sm text-gray-300">7 dias de garantia. </p>
+                    </div>
+                    
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <h4 class="font-semibold mb-2 flex items-center gap-2">
+                            <i data-feather="credit-card" class="w-4 h-4 text-cyan-400"></i>
+                            Quais formas de pagamento?
+                        </h4>
+                        <p class="text-sm text-gray-300">Cartão, PIX, boleto. Parcele em até 12x.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão Voltar -->
+        <div class="text-center mt-12">
+            <button onclick="voltarParaApp()" 
+                    class="glass-card px-8 py-3 rounded-xl font-medium hover:bg-white/10 transition-all duration-300 flex items-center gap-2 mx-auto">
+                <i data-feather="arrow-left" class="w-4 h-4"></i>
+                Voltar para o App
             </button>
         </div>
     </div>
 
     <script>
-        // 🔥 CONFIGURAÇÃO DA HOTMART - SUBSTITUA COM SEUS DADOS REAIS!
+        // 🔥 CONFIGURAÇÃO DA HOTMART
         const hotmartConfig = {
-            // 🔴 SUBSTITUA pelo seu código real da Hotmart
-            productCode: "U102480243K", // Exemplo: "A12345678B"
-            
-            // Opcional: Configurações adicionais
-            affiliateCode: "", // Código de afiliado (se tiver)
+            productCode: "U102480243K",
+            affiliateCode: "",
             price: "29.90",
             currency: "BRL"
         };
@@ -135,7 +277,7 @@
         function abrirCheckoutHotmart() {
             console.log('🛒 Iniciando checkout Hotmart...');
             
-            if (!hotmartConfig.productCode || hotmartConfig.productCode === "SEU_CODIGO_DO_PRODUTO_AQUI") {
+            if (!hotmartConfig.productCode) {
                 alert("❌ Configure o código do produto Hotmart primeiro!");
                 console.error("Código do produto Hotmart não configurado");
                 return;
@@ -153,7 +295,10 @@
                     currency: hotmartConfig.currency,
                     callback: function(data) {
                         console.log('✅ Checkout concluído:', data);
-                        // Aqui você pode redirecionar de volta para o app após sucesso
+                        // Redireciona de volta para o app após sucesso
+                        setTimeout(() => {
+                            window.location.href = 'https://oubook.vercel.app/';
+                        }, 2000);
                     }
                 });
             } catch (error) {
@@ -162,43 +307,16 @@
                 // Método 2: Fallback - Link direto
                 setTimeout(() => {
                     window.location.href = `https://pay.hotmart.com/${hotmartConfig.productCode}`;
-                }, 2000);
+                }, 1500);
             }
         }
 
-        // 🔥 MÉTODO ALTERNATIVO: Link direto
-        function abrirCheckoutDireto() {
-            if (!hotmartConfig.productCode || hotmartConfig.productCode === "SEU_CODIGO_DO_PRODUTO_AQUI") {
-                alert("❌ Configure o código do produto Hotmart primeiro!");
-                return;
-            }
-            
-            window.location.href = `https://pay.hotmart.com/${hotmartConfig.productCode}`;
-        }
-
+        // 🔥 VOLTAR PARA O APP
         function voltarParaApp() {
-            window.history.back();
-            // Ou: window.location.href = 'https://oubook.vercel.app/';
+            window.location.href = 'https://oubook.vercel.app/';
         }
 
-        // Estilo para loading
-        const style = document.createElement('style');
-        style.textContent = `
-            .loading-spinner {
-                border: 4px solid rgba(255,255,255,0.3);
-                border-radius: 50%;
-                border-top: 4px solid white;
-                width: 40px;
-                height: 40px;
-                animation: spin 1s linear infinite;
-            }
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(style);
-
+        // Inicializar feather icons
         feather.replace();
     </script>
 </body>
