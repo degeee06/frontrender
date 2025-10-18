@@ -626,21 +626,22 @@ select option {
             </div>
         </div>
         <div class="flex gap-2 w-full sm:w-auto">
-            <button id="gerarLinkBtn" style="display:none;" 
-                    class="text-xs sm:text-sm glass-card border border-white/20 hover:border-cyan-400/50 px-3 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-105">
-                <i data-feather="link" class="w-3 h-3 sm:w-4 sm:h-4"></i>
-                Gerar Link
-            </button>
-            <button id="settingsBtn" style="display:none;" 
-                    class="text-xs sm:text-sm glass-card border border-white/20 hover:border-gray-400/50 px-3 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-105">
-                <i data-feather="settings" class="w-3 h-3 sm:w-4 sm:h-4"></i>
-                Configurações
-            </button>
-            <button id="logoutBtn" style="display:none;" 
-                    class="text-xs sm:text-sm glass-card border border-white/20 hover:border-red-400/50 px-3 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-105">
-                <i data-feather="log-out" class="w-3 h-3 sm:w-4 sm:h-4"></i>
-                Sair
-            </button>
+           // ✅ ATUALIZE os botões no header
+<button id="gerarLinkBtn" style="display:none;" 
+        class="text-xs sm:text-sm glass-card border border-white/20 hover:border-cyan-400/50 px-3 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-105">
+    <i data-feather="link" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+    Gerar Link
+</button>
+<button id="settingsBtn" style="display:none;" 
+        class="text-xs sm:text-sm glass-card border border-white/20 hover:border-gray-400/50 px-3 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-105">
+    <i data-feather="settings" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+    Configurações
+</button>
+<button id="logoutBtn" style="display:none;" 
+        class="text-xs sm:text-sm glass-card border border-white/20 hover:border-red-400/50 px-3 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-105">
+    <i data-feather="log-out" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+    Sair
+</button>
         </div>
     </div>
     <p class="text-sm sm:text-lg opacity-90 max-w-2xl mx-auto px-2">
@@ -1404,7 +1405,7 @@ upgradeToPro() {
 }
 
 
-// ✅ CORREÇÃO: Função updateUsageBadge - MOSTRA 5/5 QUANDO LIMITE ATINGIDO
+// ✅ ATUALIZE a função updateUsageBadge no PremiumManager
 async updateUsageBadge() {
     const badge = document.getElementById('premiumBadge');
     if (!badge) return;
@@ -1415,30 +1416,32 @@ async updateUsageBadge() {
         console.log('📊 Status do badge:', status);
         
         if (status.unlimited) {
-            badge.innerHTML = '<span>🚀 Premium</span>';
-            badge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            badge.innerHTML = `
+                <div class="w-1.5 h-1.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse"></div>
+                <span class="font-mono font-medium">🚀 Premium</span>
+            `;
+            badge.className = 'glass-card border border-white/20 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 shadow-lg';
             badge.style.display = 'flex';
         } else if (status.hasTrial) {
-            // 🔥 CORREÇÃO: Calcula usado/total CORRETAMENTE
             const total = status.isPremiumTrial ? 15 : 5;
-            const used = total - status.dailyUsagesLeft; // Isso já dá o número correto de usos
+            const used = total - status.dailyUsagesLeft;
             
-            // 🔥 AGORA SEMPRE MOSTRA, MESMO QUANDO 5/5
-            badge.innerHTML = `<span>🎯 ${used}/${total}</span>`;
+            badge.innerHTML = `
+                <div class="w-1.5 h-1.5 bg-gradient-to-r from-green-400 to-cyan-400 rounded-full animate-pulse"></div>
+                <span class="font-mono font-medium">${used}/${total}</span>
+            `;
             
             // Muda a cor baseado no status
             if (status.dailyUsagesLeft <= 0) {
-                badge.className = 'bg-gradient-to-r from-red-500 to-rose-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.className = 'glass-card border border-red-400/50 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 shadow-lg';
             } else if (status.dailyUsagesLeft <= 2) {
-                badge.className = 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.className = 'glass-card border border-yellow-400/50 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 shadow-lg';
             } else {
-                badge.className = 'bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.className = 'glass-card border border-green-400/50 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 shadow-lg';
             }
             
             badge.style.display = 'flex';
-            
         } else {
-            // Só esconde se não tiver trial ativo
             badge.style.display = 'none';
         }
     } catch (error) {
@@ -1446,7 +1449,7 @@ async updateUsageBadge() {
         badge.style.display = 'none';
     }
 }
-}
+    }
 console.log('🚀 Script carregado! Iniciando aplicação...');
 
 // 🔥 ADICIONAR: Alias para manter compatibilidade
@@ -4480,6 +4483,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
