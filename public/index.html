@@ -89,10 +89,10 @@
     }
 
     .mensagem.ia {
-        background: rgba(139, 92, 246, 0.3);
-        margin-right: auto;
-        border: 1px solid rgba(139, 92, 246, 0.5);
-    }
+    background: rgba(59, 130, 246, 0.3); /* #3b82f6 é AZUL */
+    margin-right: auto;
+    border: 1px solid rgba(59, 130, 246, 0.5);
+}
 
     .mensagem.erro {
         background: rgba(239, 68, 68, 0.3);
@@ -2680,7 +2680,7 @@ async function atualizarInterfacePosLogin() {
         function showToast(message, type = "success") {
             const colors = {
                 success: "bg-gradient-to-r from-green-500 to-teal-400",
-                error: "bg-gradient-to-r from-red-500 to-pink-500",
+                error: "bg-gradient-to-r from-red-500 to-rose-500",
                 info: "bg-gradient-to-r from-blue-500 to-cyan-400",
                 warning: "bg-gradient-to-r from-yellow-500 to-amber-400"
             };
@@ -4280,7 +4280,7 @@ function desconectarSSE() {
             <!-- 💼 ANÁLISE IA - VERSÃO MELHORADA -->
             <div class="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-purple-500/30 p-3 mb-4" style="max-height: 250px; overflow-y: auto;">
                 <div class="flex items-center gap-2 mb-3">
-                    <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                    <div class="w-6 h-6 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-full flex items-center justify-center">
                         <span class="text-white text-xs">IA</span>
                     </div>
                     <h4 class="font-semibold text-purple-400 text-sm">💼 Análise do Seu Negócio</h4>
@@ -4476,6 +4476,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
