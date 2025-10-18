@@ -1094,7 +1094,7 @@ if (token) {
     mostrarTelaLogin();
 }
 
-    // 🔥 CORREÇÃO: Função init simplificada e robusta
+   // ✅ ATUALIZE a função init para incluir este código:
 async function init() {
     console.log('🚀 Iniciando app...');
     
@@ -1118,6 +1118,27 @@ async function init() {
     
     // Configura listeners
     configurarEventListenersModal();
+    
+    // ✅ LISTENER CAPACITOR CORRIGIDO - ADICIONE ESTE BLOCO
+    if (window.Capacitor && window.Capacitor.Plugins?.App) {
+        window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
+            console.log('🔗 App aberto via URL:', data.url);
+            
+            if (data.url.includes('auth-callback')) {
+                console.log('📱 Processando retorno OAuth no app...');
+                
+                // 🔥 EXTRAI OS PARÂMETROS DA URL DO APP
+                const url = new URL(data.url);
+                const hash = url.hash;
+                
+                if (hash) {
+                    // 🔥 CONVERTE PARA URL DO NAVEGADOR PARA PROCESSAR
+                    const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
+                    processarRetornoOAuth(webUrl);
+                }
+            }
+        });
+    }
     
     // ✅ VERIFICAÇÃO SIMPLES DE LOGIN
     const token = localStorage.getItem('userToken');
@@ -3814,7 +3835,57 @@ function desconectarSSE() {
                 fecharModalLinkAgendamento();
             }
         });
-       
+
+// 🔥 ADICIONAR ESTA FUNÇÃO QUE ESTÁ FALTANDO - Processar retorno OAuth para mobile
+async function processarRetornoOAuth(url) {
+    try {
+        console.log('🔄 Processando URL OAuth:', url);
+        
+        const urlObj = new URL(url);
+        const hash = urlObj.hash.substring(1);
+        
+        if (hash) {
+            const params = new URLSearchParams(hash);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            
+            if (accessToken) {
+                const { data, error } = await supabase.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: refreshToken
+                });
+                
+                if (!error && data.session) {
+                    userToken = data.session.access_token;
+                    localStorage.setItem('userToken', userToken);
+                    
+                    // Fecha browser do Capacitor
+                    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+                        try {
+                            await window.Capacitor.Plugins.Browser.close();
+                        } catch (e) {
+                            console.log('Browser já fechado');
+                        }
+                    }
+                    
+                    // 🔥 CORREÇÃO: Atualiza interface COMPLETAMENTE
+                    loginSection.style.display = 'none';
+                    form.style.display = 'block';
+                    atualizarInterfacePosLogin();
+                    document.getElementById('secoesIA').style.display = 'block';
+                    setTimeout(() => atualizarBadgePerfil(), 2000);
+                    listarAgendamentos();
+                    showToast("Login com Google realizado!", "success");
+                    setTimeout(() => verificarConfiguracaoSheets(), 1500);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('❌ Erro ao processar OAuth:', error);
+        showToast("Erro ao finalizar login", "error");
+    }
+}
+        
 // 🔥 CORREÇÃO: Adicionar função debounce faltante
 function debounce(func, wait) {
     let timeout;
@@ -3851,6 +3922,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
