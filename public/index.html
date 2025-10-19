@@ -595,194 +595,200 @@
 </div>
 
             
-            <form id="agendamentoForm" style="display:none;" class="glass-card rounded-2xl p-4 sm:p-6 md:p-8 mb-6 md:mb-8" data-aos="fade-up">
-                <div class="flex items-center justify-center mb-4 md:mb-6">
-                    <div class="p-2 sm:p-3 rounded-full">
-                        <i data-feather="calendar" class="w-4 h-4 sm:w-6 sm:h-6 text-white"></i>
-                    </div>
+           <!-- Appointment Form (Hidden Initially) -->
+        <form id="agendamentoForm" style="display:none;" class="glass-card rounded-2xl p-4 sm:p-6 md:p-8 mb-6 md:mb-8" data-aos="fade-up">
+            <div class="flex items-center justify-center mb-4 md:mb-6">
+                <div class="p-2 sm:p-3 rounded-full bg-black-light border border-gray-steel shadow-lg">
+                    <i data-feather="calendar" class="w-4 h-4 sm:w-6 sm:h-6 text-white-ice"></i>
                 </div>
-                <h2 class="text-xl sm:text-2xl font-semibold text-center mb-4 md:mb-6">Novo Agendamento</h2>
-                <div class="grid grid-cols-1 gap-4 sm:gap-5 max-w-4xl mx-auto">
-                    <div class="space-y-4 sm:space-y-5">
-                        <div>
-                            <label for="Nome" class="block mb-2 text-sm font-medium">Nome Completo</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="user" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                </div>
-                                <input type="text" name="Nome" placeholder="Seu nome" required 
-                                       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg focus:outline-none input-field text-sm sm:text-base">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="Email" class="block mb-2 text-sm font-medium">Email</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="mail" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                </div>
-                               <input type="email" name="Email" placeholder="Email (opcional)" 
-       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg focus:outline-none input-field text-sm sm:text-base">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-4 sm:space-y-5">
-                 <div>
-                    <label for="telefone" class="block mb-2 text-sm font-medium">Telefone</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-feather="phone" class="w-5 h-5"></i>
-                        </div>
-                       <input type="tel" id="Telefone" name="Telefone" placeholder="(00) 00000-0000" required 
-       class="w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none input-field">
-                    </div>
-                </div>
-                        <div class="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
-                            <div>
-                                <label for="Data" class="block mb-2 text-sm font-medium">Data</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i data-feather="calendar" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                    </div>
-                                    <input type="date" id="Data" name="Data" placeholder="Data do Agendamento" required 
-                                           class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg focus:outline-none input-field text-sm sm:text-base">
-                                </div>
-                            </div>
-                            <div>
-                                <label for="Horario" class="block mb-2 text-sm font-medium">Horário</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i data-feather="clock" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                    </div>
-                                    <input type="time" id="Horario" name="Horario" placeholder="Horário" required 
-                                           class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg focus:outline-none input-field text-sm sm:text-base">
-                                </div>
-                                <p class="text-xs mt-1 flex items-center gap-1">
-    <i data-feather="info" class="w-3 h-3"></i>
-    <span>Dica: Horários flexíveis disponíveis (ex: 09:25, 14:45)</span>
-</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="max-w-md mx-auto mt-6 md:mt-8">
-                  <button type="submit" class="w-full py-2 sm:py-3 px-6 rounded-lg font-medium transition-all flex items-center justify-center gap-2 text-sm sm:text-base">
-    <i data-feather="plus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-    <span id="agendarText">Agendar</span>
-    <div id="agendarSpinner" class="loading-spinner hidden"></div>
-</button>
-                </div>
-            </form>
-            
-            <div id="filtersSection" style="display:none;" class="glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
-                <div class="flex flex-col md:flex-row gap-4 items-center">
-                    <div class="flex-1 w-full">
-                        <label for="searchInput" class="sr-only">Pesquisar</label>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-semibold text-center mb-4 md:mb-6 title-gradient">Novo Agendamento</h2>
+            <div class="grid grid-cols-1 gap-4 sm:gap-5 max-w-4xl mx-auto">
+                <div class="space-y-4 sm:space-y-5">
+                    <div>
+                        <label for="Nome" class="block mb-2 text-sm font-medium text-white-ice">Nome Completo</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-feather="search" class="w-5 h-5"></i>
+                                <i data-feather="user" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
                             </div>
-                            <input type="text" id="searchInput" placeholder="Pesquisar por nome ou email" 
-                                   class="w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none input-field">
+                            <input type="text" name="Nome" placeholder="Seu nome" required 
+                                   class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
                         </div>
                     </div>
-                    <div class="w-full md:w-48 relative">
-                        <label for="statusFilter" class="sr-only">Status</label>
+                    <div>
+                        <label for="Email" class="block mb-2 text-sm font-medium text-white-ice">Email</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-feather="mail" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
+                            </div>
+                           <input type="email" name="Email" placeholder="Email (opcional)" 
+       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4 sm:space-y-5">
+                    <!-- Telefone -->
+                    <div>
+                        <label for="telefone" class="block mb-2 text-sm font-medium text-white-ice">Telefone</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-feather="phone" class="w-5 h-5 text-gray-steel"></i>
+                            </div>
+                           <input type="tel" id="Telefone" name="Telefone" placeholder="(00) 00000-0000" required 
+       class="w-full pl-10 pr-4 py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                            <label for="Data" class="block mb-2 text-sm font-medium text-white-ice">Data</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-feather="calendar" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
+                                </div>
+                                <input type="date" id="Data" name="Data" placeholder="Data do Agendamento" required 
+                                       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="Horario" class="block mb-2 text-sm font-medium text-white-ice">Horário</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-feather="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
+                                </div>
+                                <input type="time" id="Horario" name="Horario" placeholder="Horário" required 
+                                       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
+                            </div>
+                            <p class="text-xs text-gray-steel mt-1 flex items-center gap-1">
+                                <i data-feather="info" class="w-3 h-3"></i>
+                                <span>Dica: Horários flexíveis disponíveis (ex: 09:25, 14:45)</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-md mx-auto mt-6 md:mt-8">
+              <button type="submit" class="btn-premium">
+                <i data-feather="plus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                <span id="agendarText">Agendar</span>
+                <div id="agendarSpinner" class="loading-spinner-premium hidden"></div>
+              </button>
+            </div>
+        </form>
+        
+        <!-- Filters Section -->
+        <div id="filtersSection" style="display:none;" class="glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="flex-1 w-full">
+                    <label for="searchInput" class="sr-only">Pesquisar</label>
+                    <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-feather="filter" class="w-5 h-5"></i>
+                            <i data-feather="search" class="w-5 h-5 text-gray-steel"></i>
                         </div>
-                        <select id="statusFilter" 
-                            class="w-full appearance-none pl-10 pr-4 py-3 rounded-lg focus:outline-none input-field">
-                            <option value="">Todos os status</option>
-                            <option value="pendente">Pendente</option>
-                            <option value="confirmado">Confirmado</option>
-                            <option value="cancelado">Cancelado</option>
-                        </select>
+                        <input type="text" id="searchInput" placeholder="Pesquisar por nome ou email" 
+                               class="w-full pl-10 pr-4 py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field">
                     </div>
-                    <div class="flex gap-2 mobile-w-full mobile-flex-col md:flex-row">
-                        <button id="exportCSVBtn" class="px-4 py-3 rounded-lg transition-all flex items-center justify-center gap-2 mobile-w-full">
-                            <i data-feather="download" class="w-5 h-5"></i>
-                            <span class="hidden md:inline">CSV</span>
-                        </button>
-                        <button id="exportPDFBtn" class="px-4 py-3 rounded-lg transition-all flex items-center justify-center gap-2 mobile-w-full">
-                            <i data-feather="file-text" class="w-5 h-5"></i>
-                            <span class="hidden md:inline">PDF</span>
-                        </button>
+                </div>
+                <div class="w-full md:w-48 relative">
+                    <label for="statusFilter" class="sr-only">Status</label>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="filter" class="w-5 h-5 text-gray-steel"></i>
                     </div>
+                    <select id="statusFilter" 
+                        class="w-full appearance-none pl-10 pr-4 py-3 rounded-lg bg-black-medium border border-black-light text-white-ice focus:outline-none input-field">
+                        <option value="" class="text-black-deep">Todos os status</option>
+                        <option value="pendente" class="text-black-deep">Pendente</option>
+                        <option value="confirmado" class="text-black-deep">Confirmado</option>
+                        <option value="cancelado" class="text-black-deep">Cancelado</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 mobile-w-full mobile-flex-col md:flex-row">
+                    <button id="exportCSVBtn" class="px-4 py-3 rounded-lg bg-black-medium border border-black-light hover:bg-black-light transition-all flex items-center justify-center gap-2 mobile-w-full">
+                        <i data-feather="download" class="w-5 h-5"></i>
+                        <span class="hidden md:inline">CSV</span>
+                    </button>
+                    <button id="exportPDFBtn" class="px-4 py-3 rounded-lg bg-black-medium border border-black-light hover:bg-black-light transition-all flex items-center justify-center gap-2 mobile-w-full">
+                        <i data-feather="file-text" class="w-5 h-5"></i>
+                        <span class="hidden md:inline">PDF</span>
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <div id="diasTabs" style="display:none;" class="flex flex-col gap-4 mb-6" data-aos="fade-up">
-                <div class="flex justify-center gap-2 overflow-x-auto pb-2">
-                    <button data-dia="0" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Dom</button>
-                    <button data-dia="1" class="tab-dia active px-5 py-2.5 rounded-xl text-white font-medium whitespace-nowrap">Seg</button>
-                    <button data-dia="2" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Ter</button>
-                    <button data-dia="3" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Qua</button>
-                    <button data-dia="4" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Qui</button>
-                    <button data-dia="5" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Sex</button>
-                    <button data-dia="6" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Sáb</button>
-                </div>
-                <div class="flex justify-center gap-2 overflow-x-auto pb-2">
-                    <button data-semana="-1" class="tab-semana px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Sem Passada</button>
-                    <button data-semana="-2" class="tab-semana px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">2 Semanas</button>
-                    <button data-semana="-4" class="tab-semana px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">1 Mês</button>
-                </div>
+        <!-- 📅 TABS DIAS DA SEMANA -->
+        <div id="diasTabs" style="display:none;" class="flex flex-col gap-4 mb-6" data-aos="fade-up">
+            <div class="flex justify-center gap-2 overflow-x-auto pb-2">
+                <button data-dia="0" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Dom</button>
+                <button data-dia="1" class="tab-dia active px-5 py-2.5 rounded-xl bg-black-light text-white-pure font-medium whitespace-nowrap border border-silver-accent">Seg</button>
+                <button data-dia="2" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Ter</button>
+                <button data-dia="3" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Qua</button>
+                <button data-dia="4" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Qui</button>
+                <button data-dia="5" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Sex</button>
+                <button data-dia="6" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Sáb</button>
             </div>
+            <div class="flex justify-center gap-2 overflow-x-auto pb-2">
+                <button data-semana="-1" class="tab-semana px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Sem Passada</button>
+                <button data-semana="-2" class="tab-semana px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">2 Semanas</button>
+                <button data-semana="-4" class="tab-semana px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">1 Mês</button>
+            </div>
+        </div>
 
-            <div id="meusAgendamentos" class="glass-card p-6 max-h-[500px] overflow-y-auto scrollbar-custom mx-auto max-w-4xl" style="display:none;" data-aos="fade-up">
-                <div class="text-center py-8">
-                    <div class="p-4 rounded-full inline-block mb-4">
-                        <i data-feather="calendar" class="w-8 h-8"></i>
-                    </div>
-                    <p>Nenhum agendamento encontrado</p>
+        <!-- 📋 LISTA DE AGENDAMENTOS -->
+        <div id="meusAgendamentos" class="glass-card p-6 max-h-[500px] overflow-y-auto scrollbar-custom mx-auto max-w-4xl" style="display:none;" data-aos="fade-up">
+            <div class="text-center py-8">
+                <div class="p-4 rounded-full bg-black-medium inline-block mb-4">
+                    <i data-feather="calendar" class="w-8 h-8 text-gray-steel"></i>
                 </div>
+                <p class="text-gray-steel">Nenhum agendamento encontrado</p>
             </div>
         </div>
     </div>
+</div>
 
-   <div id="configSheetsModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-    <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4 animate-fade-in">
+<!-- Modal de Configuração do Google Sheets - VERSÃO SIMPLIFICADA -->
+<div id="configSheetsModal" class="modal-overlay hidden">
+    <div class="modal-content">
         <div class="flex items-center justify-center mb-6">
-            <div class="p-3 rounded-full">
-                <i data-feather="file-text" class="w-6 h-6 text-white"></i>
+            <div class="p-3 rounded-full bg-black-light border border-gray-steel shadow-lg">
+                <i data-feather="file-text" class="w-6 h-6 text-white-ice"></i>
             </div>
         </div>
         
-        <h3 class="text-2xl font-semibold text-center mb-2">🎯 Configurar Google Planilhas</h3>
-        <p class="text-center mb-6">Escolha como deseja sincronizar seus agendamentos</p>
+        <h3 class="text-2xl font-semibold text-center mb-2 title-gradient">🎯 Configurar Google Planilhas</h3>
+        <p class="text-center text-white-ice mb-6">Escolha como deseja sincronizar seus agendamentos</p>
         
         <div class="space-y-6">
-            <div class="config-option p-4 rounded-lg">
-                <h4 class="font-semibold mb-2 flex items-center gap-2">
-                    <i data-feather="link" class="w-4 h-4"></i>
+            <div class="config-option p-4 rounded-lg bg-black-deep border border-black-light">
+                <h4 class="font-semibold mb-2 flex items-center gap-2 text-white-ice">
+                    <i data-feather="link" class="w-4 h-4 text-silver-accent"></i>
                      Usar Minha Planilha Existente
                 </h4>
-                <p class="text-sm mb-3">Cole o ID da sua planilha do Google Planilhas</p>
+                <p class="text-sm text-white-ice mb-3">Cole o ID da sua planilha do Google Planilhas</p>
                 <input type="text" id="spreadsheetIdInput" 
                        placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-                       class="w-full px-3 py-2 rounded-lg focus:outline-none mb-2 text-sm">
-                <button class="w-full text-white py-2 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2">
+                       class="w-full px-3 py-2 rounded-lg bg-black-medium border border-black-light focus:outline-none mb-2 text-sm text-white-ice">
+                <button class="w-full bg-black-light hover:bg-gray-steel text-white-ice py-2 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 border border-black-light">
                     <i data-feather="save" class="w-4 h-4"></i>
                     💾 Usar Esta Planilha
                 </button>
             </div>
 
-            <div class="config-option p-4 rounded-lg">
-                <h4 class="font-semibold mb-2 flex items-center gap-2">
-                    <i data-feather="clock" class="w-4 h-4"></i>
+            <div class="config-option p-4 rounded-lg bg-black-deep border border-black-light">
+                <h4 class="font-semibold mb-2 flex items-center gap-2 text-white-ice">
+                    <i data-feather="clock" class="w-4 h-4 text-silver-accent"></i>
                     ⏭️ Configurar Depois
                 </h4>
-                <p class="text-sm mb-3">Você pode agendar normalmente e configurar depois</p>
-                <button class="w-full bg-gray-500 text-white py-2 px-4 rounded-lg font-medium transition-all">
+                <p class="text-sm text-white-ice mb-3">Você pode agendar normalmente e configurar depois</p>
+                <button class="w-full bg-black-light hover:bg-gray-steel text-white-ice py-2 px-4 rounded-lg font-medium transition-all border border-black-light">
                     Pular por enquanto
                 </button>
             </div>
         </div>
 
         <div class="mt-4 text-center">
-            <p class="text-xs">
+            <p class="text-xs text-gray-steel">
                 💡 <strong>Como encontrar o ID da planilha:</strong><br>
                 Abra sua planilha no Google Planilhas e veja na URL:<br>
-                <code class="bg-black/30 px-1 rounded">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
+                <code class="bg-black-deep px-1 rounded text-silver-accent">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
             </p>
         </div>
     </div>
@@ -4597,6 +4603,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
