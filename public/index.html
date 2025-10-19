@@ -1707,7 +1707,25 @@ if (token) {
 }
 
 
-
+// ✅ EVENT LISTENER PARA CHECKBOX AUTOMÁTICO
+document.addEventListener('DOMContentLoaded', function() {
+    const aceiteTermos = document.getElementById('aceiteTermos');
+    if (aceiteTermos) {
+        aceiteTermos.addEventListener('change', function() {
+            if (this.checked) {
+                localStorage.setItem('termsAccepted', 'true');
+                localStorage.setItem('termsAcceptedAt', new Date().toISOString());
+                localStorage.setItem('termsVersion', '1.0');
+                console.log('✅ Termos aceitos via checkbox');
+            }
+        });
+        
+        // ✅ SE JÁ ACEITOU ANTES, MARCA CHECKBOX AUTOMATICAMENTE
+        if (localStorage.getItem('termsAccepted')) {
+            aceiteTermos.checked = true;
+        }
+    }
+});
         
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
@@ -4748,6 +4766,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
