@@ -2911,49 +2911,65 @@ async function testePerfil() {
         
 async function gerarLinkAgendamento() {
     try {
-        console.log('🔍 VERIFICAÇÃO DE PERFIL INICIADA...');
+        console.log('🔍 VERIFICAÇÃO FORÇADA DE PERFIL...');
         
-        // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL
+        // ✅ VERIFICAÇÃO ULTRA-RIGOROSA
         let temPerfil = false;
         let perfilData = null;
         
         try {
-            console.log('📡 Fazendo requisição para /api/meu-perfil...');
-            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+            console.log('📡 Fazendo requisição FORÇADA para /api/meu-perfil...');
+            
+            // 🔥 ADICIONA TIMESTAMP PARA EVITAR CACHE
+            const timestamp = Date.now();
+            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil?t=${timestamp}`, {
+                method: 'GET',
                 headers: { 
                     'Authorization': `Bearer ${userToken}`,
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                },
+                cache: 'no-store'
             });
             
-            console.log('📊 Status da resposta do perfil:', perfilResponse.status);
+            console.log('📊 Status da resposta:', perfilResponse.status);
             
             if (perfilResponse.ok) {
                 perfilData = await perfilResponse.json();
-                console.log('📦 Dados COMPLETOS do perfil:', perfilData);
+                console.log('📦 Dados COMPLETOS do perfil (FORÇADO):', perfilData);
                 
-                // 🔥 VERIFICAÇÃO DEFINITIVA - O perfil só existe se tiver ID
-                temPerfil = perfilData.success && perfilData.perfil && perfilData.perfil.id;
+                // 🔥 VERIFICAÇÃO ULTRA-RIGOROSA
+                // O perfil só existe se tiver ID E nome_negocio (campos obrigatórios)
+                const perfilValido = perfilData.perfil && 
+                                   perfilData.perfil.id && 
+                                   perfilData.perfil.nome_negocio &&
+                                   perfilData.perfil.tipo_negocio;
                 
-                console.log('✅ Resultado da verificação:', {
+                temPerfil = perfilData.success && perfilValido;
+                
+                console.log('✅ Resultado da verificação FORÇADA:', {
                     success: perfilData.success,
-                    hasPerfil: !!perfilData.perfil,
+                    perfil: perfilData.perfil,
                     perfilId: perfilData.perfil?.id,
+                    nomeNegocio: perfilData.perfil?.nome_negocio,
+                    tipoNegocio: perfilData.perfil?.tipo_negocio,
+                    perfilValido: perfilValido,
                     temPerfil: temPerfil
                 });
                 
             } else {
-                console.log('❌ Erro HTTP ao verificar perfil:', perfilResponse.status);
+                console.log('❌ Erro HTTP:', perfilResponse.status);
                 temPerfil = false;
             }
         } catch (perfilError) {
-            console.error('❌ Erro ao verificar perfil:', perfilError);
+            console.error('❌ Erro na requisição:', perfilError);
             temPerfil = false;
         }
         
-        // 🔥 BLOQUEIO COMPLETO SE NÃO TIVER PERFIL
+        // 🔥 BLOQUEIO ABSOLUTO SE NÃO TIVER PERFIL VÁLIDO
         if (!temPerfil) {
-            console.log('🚫 BLOQUEADO: Usuário não tem perfil válido');
+            console.log('🚫 BLOQUEADO ABSOLUTO: Nenhum perfil válido encontrado');
             showToast("❌ Crie um perfil do estabelecimento antes de gerar links", "error");
             
             // Abre o menu para criar perfil
@@ -2964,7 +2980,7 @@ async function gerarLinkAgendamento() {
             return;
         }
 
-        console.log('✅ PERFIL VALIDADO - Gerando link...');
+        console.log('✅ PERFIL CONFIRMADO - Gerando link...');
 
         // 🔥 CONTINUA COM A GERAÇÃO DO LINK...
         const { data: { user } } = await supabase.auth.getUser();
@@ -5077,6 +5093,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
