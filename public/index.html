@@ -1176,20 +1176,67 @@
     background: none !important;
 }
 
-    
+    /* ESTILO APENAS PARA O BOTÃO DO FORMULÁRIO */
+#agendamentoForm button[type="submit"] {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3) !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    padding: 16px 32px !important;
+    min-height: 56px !important;
+    width: 100% !important;
+    max-width: 400px !important;
+    margin: 0 auto !important;
+    font-size: 18px !important;
+}
 
-/* Efeitos Hover para Prata Metálico */
-#gerarLinkBtn:hover, #agendamentoForm button[type="submit"]:hover {
+/* ESTILO APENAS PARA O BOTÃO GERAR LINK (quando visível) */
+#gerarLinkBtn {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3) !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+}
+
+/* Quando o botão gerar link estiver visível */
+#gerarLinkBtn:not(.hidden) {
+    display: flex !important;
+}
+
+/* Efeitos Hover para Prata Metálico - SOMENTE quando visível */
+#gerarLinkBtn:not(.hidden):hover, 
+#agendamentoForm button[type="submit"]:hover {
     background: linear-gradient(135deg, #E0E0E0 0%, #C0C0C0 100%) !important;
     border-color: #FFFFFF !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 6px 16px rgba(192, 192, 192, 0.4) !important;
 }
 
-/* Efeito Active */
-#gerarLinkBtn:active, #agendamentoForm button[type="submit"]:active {
+/* Efeito Active - SOMENTE quando visível */
+#gerarLinkBtn:not(.hidden):active, 
+#agendamentoForm button[type="submit"]:active {
     transform: translateY(0) !important;
     box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3) !important;
+}
+
+/* Classe para esconder elementos */
+.hidden {
+    display: none !important;
 }
 
 /* Estilos específicos para cada botão */
@@ -2416,7 +2463,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
-    
+    document.getElementById('gerarLinkBtn').classList.add('hidden');
     if (verificarCallbackOAuth()) {
         console.log('⏸️ Parando init - é callback OAuth');
         return;
@@ -2527,7 +2574,9 @@ setInterval(async () => {
 // 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
 function mostrarTelaLogin() {
     console.log('👤 Mostrando tela de login - ocultando todas as seções do app');
-    
+    // Na função mostrarTelaLogin() - procure esta função e adicione:
+document.getElementById('gerarLinkBtn').classList.add('hidden');
+
     // Mostra seção de login
     const loginSection = document.getElementById('loginSection');
     if (loginSection) loginSection.style.display = 'block';
@@ -3271,7 +3320,7 @@ function configurarBotaoSettings() {
 // 🔥 CORREÇÃO: Função atualizarInterfacePosLogin atualizada para garantir badge
 async function atualizarInterfacePosLogin() {
     console.log('🎯 Atualizando interface para usuário LOGADO...');
-    
+    document.getElementById('gerarLinkBtn').classList.remove('hidden');
     // Oculta login
     const loginSection = document.getElementById('loginSection');
     if (loginSection) loginSection.style.display = 'none';
@@ -4019,7 +4068,7 @@ async function logoutSilencioso() {
         logoutBtn.style.display = 'none';
         document.getElementById('settingsBtn').style.display = 'none';
         document.getElementById('gerarLinkBtn').style.display = 'none';
-        
+        document.getElementById('gerarLinkBtn').classList.add('hidden');
         console.log('✅ Logout silencioso concluído');
     } catch (error) {
         console.log('Erro no logout silencioso:', error);
@@ -5540,6 +5589,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
