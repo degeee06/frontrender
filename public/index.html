@@ -1716,9 +1716,10 @@ window.acceptTerms = async function() {
 
 window.declineTerms = function() {
     console.log('❌ Usuário recusou os termos');
-    showToast('Para usar o sistema, é necessário aceitar os Termos de Uso.', 'error');
-}
-
+    
+    // ✅ APENAS FECHA O MODAL SILENCIOSAMENTE:
+    document.getElementById('termsModal').classList.add('hidden');
+};
 
 
 // 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
@@ -3405,9 +3406,16 @@ async function logoutSilencioso() {
 
       
 
-      // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS
-document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-    // 🔒 VERIFICAR TERMOS PRIMEIRO
+   document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+    // 🔒 VERIFICAR CHECKBOX (IMPORTANTE!)
+    const aceiteTermos = document.getElementById('aceiteTermos');
+    if (!aceiteTermos?.checked) {
+        showToast("❌ Você precisa aceitar os termos para continuar", "error");
+        aceiteTermos?.focus();
+        return;
+    }
+    
+    // 🔒 VERIFICAR TERMOS NO LOCALSTORAGE (manter apenas UMA)
     if (!checkTermsAcceptance()) {
         console.log('⏸️ Login pausado - termos não aceitos');
         return;
@@ -4798,6 +4806,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
