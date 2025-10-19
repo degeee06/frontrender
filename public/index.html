@@ -594,6 +594,22 @@ select option {
 .transition-all {
     transition: all 0.3s ease;
 }
+        /* Correção específica para input de tempo */
+input[type="time"] {
+    padding-right: 8px !important;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+    background: none;
+    filter: invert(1);
+    margin-left: 8px;
+}
+
+/* Para Firefox */
+input[type="time"] {
+    -moz-appearance: textfield;
+}
+        
         /* 🔥 FORÇAR DESIGN DO SEU BOTÃO SOBRE O HOTMART */
 .hotmart-fb.hotmart__button-checkout {
     background: linear-gradient(to right, #f59e0b, #ea580c) !important;
@@ -625,6 +641,7 @@ select option {
 .hotmart-fb.hotmart__button-checkout:after {
     display: none !important;
 }
+        
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -4794,6 +4811,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
