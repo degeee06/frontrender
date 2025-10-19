@@ -2593,6 +2593,7 @@ async function atualizarInterfacePosLogin() {
     }
 }
 
+
 // 🎯 FUNÇÃO: Modal para usuário sem perfil
 function mostrarModalSemPerfil() {
     const modalExistente = document.getElementById('modalSemPerfil');
@@ -2615,7 +2616,7 @@ function mostrarModalSemPerfil() {
                     <button onclick="fecharModalSemPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
                         Fechar
                     </button>
-                    <button onclick="abrirModalPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium">
+                    <button onclick="criarPerfilAgora()" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium">
                         Criar Perfil
                     </button>
                 </div>
@@ -2630,6 +2631,13 @@ function mostrarModalSemPerfil() {
 window.fecharModalSemPerfil = function() {
     const modal = document.getElementById('modalSemPerfil');
     if (modal) modal.remove();
+}
+
+window.criarPerfilAgora = function() {
+    // Fecha o modal atual
+    fecharModalSemPerfil();
+    // Abre o modal de criação de perfil
+    abrirModalPerfil();
 }
 
 
@@ -4715,6 +4723,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
