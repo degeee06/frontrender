@@ -928,8 +928,7 @@ select option {
                         </div>
                     </div>
                 </div>
-                <div class="max-w-md mx-auto mt-6 md:mt-8">
-                    <div class="max-w-md mx-auto mt-6 md:mt-8">
+               <div class="max-w-md mx-auto mt-6 md:mt-8">
     <button type="submit" 
             onclick="this.querySelector('#agendarText').textContent='Agendando...'; this.querySelector('#agendarSpinner').classList.remove('hidden'); this.querySelector('i').style.display='none'; setTimeout(() => { this.querySelector('#agendarText').textContent='Agendado!'; this.querySelector('#agendarSpinner').classList.add('hidden'); setTimeout(() => { this.querySelector('#agendarText').textContent='Agendar'; this.querySelector('i').style.display='block'; }, 2000); }, 1500);"
             onmouseenter="this.classList.add('shadow-xl')"
@@ -939,8 +938,7 @@ select option {
         <span id="agendarText">Agendar</span>
         <div id="agendarSpinner" class="loading-spinner hidden"></div>
     </button>
-                </div>
-            </form>
+</div>
             
             <!-- Filters Section -->
             <div id="filtersSection" style="display:none;" class="glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
@@ -4785,6 +4783,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
