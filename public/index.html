@@ -1713,55 +1713,81 @@
     </div>
 </div>
 
-<!-- Modal de Configuração do Google Sheets - VERSÃO SIMPLIFICADA -->
+<!-- Modal de Configuração do Google Sheets - DESIGN ULTRA BLACK UI -->
 <div id="configSheetsModal" class="modal-overlay hidden">
-    <div class="modal-content">
-        <div class="flex items-center justify-center mb-6">
-            <div class="p-3 rounded-full bg-black-light border border-gray-steel shadow-lg">
-                <i data-feather="file-text" class="w-6 h-6 text-white-ice"></i>
+    <div class="bg-black-medium border border-gray-700 rounded-2xl p-6 max-w-md w-full mx-4 animate-fade-in shadow-2xl">
+        <!-- Header Elegante -->
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500 to-emerald-400 border border-green-400 shadow-lg flex items-center justify-center">
+                <i data-feather="file-text" class="w-6 h-6 text-white"></i>
             </div>
+            <h3 class="text-xl font-bold title-gradient mb-1">Google Planilhas</h3>
+            <p class="text-gray-400 text-sm">Sincronize seus agendamentos</p>
         </div>
         
-        <h3 class="text-2xl font-semibold text-center mb-2 title-gradient">🎯 Configurar Google Planilhas</h3>
-        <p class="text-center text-white-ice mb-6">Escolha como deseja sincronizar seus agendamentos</p>
+        <!-- Separador Elegante -->
+        <div class="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-6"></div>
         
-        <div class="space-y-6">
-            <div class="config-option p-4 rounded-lg bg-black-deep border border-black-light">
-                <h4 class="font-semibold mb-2 flex items-center gap-2 text-white-ice">
-                    <i data-feather="link" class="w-4 h-4 text-silver-accent"></i>
-                     Usar Minha Planilha Existente
-                </h4>
-                <p class="text-sm text-white-ice mb-3">Cole o ID da sua planilha do Google Planilhas</p>
+        <!-- Opções de Configuração -->
+        <div class="space-y-4">
+            <!-- Usar Planilha Existente -->
+            <div class="p-4 rounded-xl bg-black-light border border-gray-600 hover:border-green-400 transition-all duration-300">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center">
+                        <i data-feather="link" class="w-4 h-4 text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-white">Usar Planilha Existente</h4>
+                        <p class="text-sm text-gray-400">Cole o ID da sua planilha</p>
+                    </div>
+                </div>
+                
                 <input type="text" id="spreadsheetIdInput" 
                        placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-                       class="w-full px-3 py-2 rounded-lg bg-black-medium border border-black-light focus:outline-none mb-2 text-sm text-white-ice">
-                <button class="w-full bg-black-light hover:bg-gray-steel text-white-ice py-2 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 border border-black-light">
+                       class="w-full px-3 py-3 rounded-lg bg-black-deep border border-gray-600 focus:border-green-400 focus:outline-none text-white text-sm mb-3">
+                
+                <button class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 text-white font-medium flex items-center justify-center gap-2 transition-all duration-300">
                     <i data-feather="save" class="w-4 h-4"></i>
-                    💾 Usar Esta Planilha
+                    Usar Esta Planilha
                 </button>
             </div>
 
-            <div class="config-option p-4 rounded-lg bg-black-deep border border-black-light">
-                <h4 class="font-semibold mb-2 flex items-center gap-2 text-white-ice">
-                    <i data-feather="clock" class="w-4 h-4 text-silver-accent"></i>
-                    ⏭️ Configurar Depois
-                </h4>
-                <p class="text-sm text-white-ice mb-3">Você pode agendar normalmente e configurar depois</p>
-                <button class="w-full bg-black-light hover:bg-gray-steel text-white-ice py-2 px-4 rounded-lg font-medium transition-all border border-black-light">
+            <!-- Configurar Depois -->
+            <div class="p-4 rounded-xl bg-black-light border border-gray-600 hover:border-blue-400 transition-all duration-300">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                        <i data-feather="clock" class="w-4 h-4 text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-white">Configurar Depois</h4>
+                        <p class="text-sm text-gray-400">Agende agora, configure depois</p>
+                    </div>
+                </div>
+                
+                <button class="w-full px-4 py-3 rounded-lg bg-black-deep border border-gray-600 hover:border-blue-400 hover:bg-gray-800 text-white font-medium transition-all duration-300">
                     Pular por enquanto
                 </button>
             </div>
         </div>
 
-        <div class="mt-4 text-center">
-            <p class="text-xs text-gray-steel">
-                💡 <strong>Como encontrar o ID da planilha:</strong><br>
-                Abra sua planilha no Google Planilhas e veja na URL:<br>
-                <code class="bg-black-deep px-1 rounded text-silver-accent">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
-            </p>
+        <!-- Informações de Ajuda -->
+        <div class="mt-6 p-4 rounded-xl bg-black-deep border border-gray-600">
+            <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="text-xs text-gray-300">💡</span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-300 mb-1">Como encontrar o ID da planilha:</p>
+                    <p class="text-xs text-gray-400">
+                        Abra sua planilha no Google Planilhas e veja na URL:<br>
+                        <code class="bg-black-medium px-2 py-1 rounded text-green-400 font-mono text-xs">
+                            docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit
+                        </code>
+                    </p>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
@@ -2700,13 +2726,7 @@ function abrirMenuConfiguracoes() {
                 </button>
             </div>
             
-            <!-- Footer Minimalista -->
-            <div class="mt-6 text-center">
-                <p class="text-xs text-gray-500">Oubook v1.0 • Ultra Black UI</p>
-            </div>
-        </div>
-    </div>
-`;
+
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     feather.replace();
@@ -5677,6 +5697,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
