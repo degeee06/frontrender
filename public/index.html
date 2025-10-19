@@ -1080,15 +1080,7 @@ function verificarCallbackOAuth() {
     return false;
 }
 
-        // 🔒 FUNÇÃO PARA ABRIR MODAL DE TERMOS
-function abrirModalTermos() {
-    document.getElementById('termsModal').classList.remove('hidden');
-}
 
-// 🔒 FUNÇÃO PARA PRIVACIDADE (USA O MESMO MODAL POR ENQUANTO)
-function abrirModalPrivacidade() {
-    abrirModalTermos();
-}
 
         
 // 🔥 CORREÇÃO: Função processarCallbackOAuth atualizada para carregar usos
@@ -1676,6 +1668,15 @@ function showTermsModal() {
 }
 
 
+// 🔒 FUNÇÕES DE TERMOS - COLOCAR NO INÍCIO DO ARQUIVO
+function abrirModalTermos() {
+    document.getElementById('termsModal').classList.remove('hidden');
+}
+
+function abrirModalPrivacidade() {
+    abrirModalTermos();
+}
+
 // 🔒 FUNÇÃO ACEITAR TERMOS (com banco)
 async function acceptTerms() {
     try {
@@ -1686,7 +1687,7 @@ async function acceptTerms() {
         localStorage.setItem('termsAcceptedAt', new Date().toISOString());
         localStorage.setItem('termsVersion', '1.0');
         
-        // 2️⃣ Salva no banco (segurança/legal) - MAS SÓ SE USUÁRIO JÁ ESTIVER LOGADO
+        // 2️⃣ Salva no banco (segurança/legal)
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
@@ -1703,17 +1704,22 @@ async function acceptTerms() {
             console.log('📝 Termos salvos no banco com sucesso!');
         }
         
-        // Fecha modal e mostra login
+        // Fecha modal
         document.getElementById('termsModal').classList.add('hidden');
-        document.getElementById('loginSection').classList.remove('hidden');
         showToast('Termos aceitos com sucesso!', 'success');
         
     } catch (error) {
         console.error('❌ Erro ao salvar termos:', error);
         showToast('Termos aceitos localmente!', 'success');
-        // Continua mesmo com erro no banco
     }
 }
+
+function declineTerms() {
+    console.log('❌ Usuário recusou os termos');
+    showToast('Para usar o sistema, é necessário aceitar os Termos de Uso.', 'error');
+}
+
+
 
 // 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
 async function saveTermsAcceptanceToDatabase() {
@@ -1750,10 +1756,7 @@ async function saveTermsAcceptanceToDatabase() {
     }
 }
 
-function declineTerms() {
-    console.log('❌ Usuário recusou os termos');
-    showToast('Para usar o sistema, é necessário aceitar os Termos de Uso.', 'error');
-}
+
 
 // 🔍 VERIFICAR TERMOS ANTES DO LOGIN
 async function checkTermsAcceptance() {
@@ -4795,6 +4798,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
