@@ -2323,19 +2323,18 @@ showDailyLimitModal(dailyLimit) {
 
 
 
-// ✅ CORREÇÃO: Função updateUsageBadge - VERIFICAÇÃO DE LOGOUT
+// 🔥 CORREÇÃO: Função updateUsageBadge - VERIFICAÇÃO DE LOGOUT MELHORADA
 async updateUsageBadge() {
-    // 🔥 VERIFICAÇÃO CRÍTICA: Se está em processo de logout, esconde badge IMEDIATAMENTE
-    if (window.isLoggingOut) {
+    // 🔥 VERIFICAÇÃO CRÍTICA: Se não tem userToken, esconde badge IMEDIATAMENTE
+    if (!userToken || window.isLoggingOut) {
         const badge = document.getElementById('premiumBadge');
         if (badge) {
             badge.style.display = 'none';
-            console.log('🚫 Badge escondido - logout em andamento');
+            console.log('🚫 Badge escondido - sem token ou logout em andamento');
         }
         return;
     }
     
-    // 🔥 CÓDIGO ORIGINAL (NÃO MODIFICADO)
     const badge = document.getElementById('premiumBadge');
     if (!badge) return;
     
@@ -2351,7 +2350,7 @@ async updateUsageBadge() {
         } else if (status.hasTrial) {
             // 🔥 CORREÇÃO: Calcula usado/total CORRETAMENTE
             const total = status.isPremiumTrial ? 15 : 5;
-            const used = total - status.dailyUsagesLeft; // Isso já dá o número correto de usos
+            const used = total - status.dailyUsagesLeft;
             
             // 🔥 AGORA SEMPRE MOSTRA, MESMO QUANDO 5/5
             badge.innerHTML = `<span>🎯 ${used}/${total}</span>`;
@@ -2368,7 +2367,7 @@ async updateUsageBadge() {
             badge.style.display = 'flex';
             
         } else {
-            // Só esconde se não tiver trial ativo
+            // 🔥 CORREÇÃO: Esconde completamente se não tiver trial ativo
             badge.style.display = 'none';
         }
     } catch (error) {
@@ -2377,8 +2376,12 @@ async updateUsageBadge() {
     }
 }
 }
+
+        
 console.log('🚀 Script carregado! Iniciando aplicação...');
 
+
+        
 // 🔥 ADICIONAR: Alias para manter compatibilidade
 function mostrarToast(message, type = "success") {
     showToast(message, type);
@@ -2555,19 +2558,29 @@ async function init() {
     feather.replace();
 }
         
-// 🔥 ADICIONAR APENAS ISSO: Monitoramento do badge (FORA da função init)
+// 🔥 CORREÇÃO: Monitoramento do badge - VERIFICA SE USUÁRIO ESTÁ LOGADO
 setInterval(async () => {
-    if (premiumManager && userToken) {
+    if (premiumManager && userToken && !window.isLoggingOut) {
         await premiumManager.updateUsageBadge();
+    } else {
+        // 🔥 CORREÇÃO: Se não está logado, garante que badge está escondido
+        const badge = document.getElementById('premiumBadge');
+        if (badge && !userToken) {
+            badge.style.display = 'none';
+        }
     }
-}, 60000); // Atualiza badge a cada 1 minuto
-
-
+}, 60000);
 
         
-// 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
+// 🔥 CORREÇÃO: Função mostrarTelaLogin atualizada para garantir badge escondido
 function mostrarTelaLogin() {
     console.log('👤 Mostrando tela de login - ocultando todas as seções do app');
+    
+    // 🔥 CORREÇÃO: Esconde badge IMEDIATAMENTE
+    const badge = document.getElementById('premiumBadge');
+    if (badge) {
+        badge.style.display = 'none';
+    }
     
     // Mostra seção de login
     const loginSection = document.getElementById('loginSection');
@@ -4034,19 +4047,46 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
             }
         }
 
-// ---------------- LOGOUT SILENCIOSO ----------------
+// 🔥 CORREÇÃO: Função logoutSilencioso atualizada
 async function logoutSilencioso() {
     try {
         console.log('🔒 Executando logout silencioso...');
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('supabase.auth.token');
-        userToken = null;
-        agendamentosCache = [];
         
-        // Para operações em andamento
+        // 🔥 CORREÇÃO CRÍTICA: Para o Premium Manager primeiro
+        if (premiumManager) {
+            premiumManager = null;
+            console.log('✅ Premium Manager parado');
+        }
+        
+        // Para todas as operações
         desconectarSSE();
         if (intervaloAtualizacao) {
             clearInterval(intervaloAtualizacao);
+        }
+        
+        // Limpa storage COMPLETAMENTE
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('supabase.auth.token');
+        localStorage.removeItem('termsAccepted');
+        localStorage.removeItem('termsAcceptedAt');
+        localStorage.removeItem('termsVersion');
+        
+        // 🔥 CORREÇÃO: Limpa TODOS os caches de estatísticas
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('estatisticas_')) {
+                localStorage.removeItem(key);
+                localStorage.removeItem(`${key}_timestamp`);
+            }
+        });
+        
+        userToken = null;
+        agendamentosCache = [];
+        
+        // 🔥 CORREÇÃO: Oculta badge IMEDIATAMENTE
+        const badge = document.getElementById('premiumBadge');
+        if (badge) {
+            badge.style.display = 'none';
+            console.log('✅ Badge escondido no logout');
         }
         
         // 🔥 CORREÇÃO: Oculta TUDO e mostra apenas login
@@ -4248,7 +4288,7 @@ async function saveTermsAcceptanceToDatabase() {
 }
 
         
-// ---------------- LOGOUT CORRIGIDO ----------------
+// 🔥 CORREÇÃO: Função logout principal atualizada
 logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
     window.isLoggingOut = true;
@@ -4259,9 +4299,23 @@ logoutBtn.addEventListener('click', async () => {
             clearInterval(intervaloAtualizacao);
         }
         
+        // Para o Premium Manager
+        premiumManager = null;
+        
         // Limpa storage
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
+        localStorage.removeItem('termsAccepted');
+        localStorage.removeItem('termsAcceptedAt');
+        localStorage.removeItem('termsVersion');
+        
+        // 🔥 CORREÇÃO: Limpa caches de estatísticas
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('estatisticas_')) {
+                localStorage.removeItem(key);
+                localStorage.removeItem(`${key}_timestamp`);
+            }
+        });
         
         // Logout no Supabase
         const { error } = await supabase.auth.signOut();
@@ -4275,6 +4329,12 @@ logoutBtn.addEventListener('click', async () => {
         // 🔥 GARANTE QUE LIMPA TUDO MESMO COM ERRO
         userToken = null;
         agendamentosCache = [];
+        
+        // 🔥 CORREÇÃO CRÍTICA: Esconde badge IMEDIATAMENTE
+        const badge = document.getElementById('premiumBadge');
+        if (badge) {
+            badge.style.display = 'none';
+        }
         
         // 🔥 CORREÇÃO CRÍTICA: Oculta TODAS as seções do app
         loginSection.style.display = 'block';
@@ -4300,10 +4360,10 @@ logoutBtn.addEventListener('click', async () => {
         console.log('✅ Logout realizado com sucesso - interface limpa');
         showToast("Logout realizado com sucesso", "info");
         
-        // 🔥 OPCIONAL: Recarrega para garantir clean state completo
+        // 🔥 CORREÇÃO: Remove flag de logout após completar
         setTimeout(() => {
-            window.location.reload();
-        }, 1000);
+            window.isLoggingOut = false;
+        }, 2000);
     }
 });
 
@@ -5580,6 +5640,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
