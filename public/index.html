@@ -2561,7 +2561,13 @@ async function atualizarInterfacePosLogin() {
         
         if (!temPerfil) {
             showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
-            abrirMenuConfiguracoes();
+             abrirMenuConfiguracoes();
+            
+            // 2. Mostra o aviso específico (com delay para aparecer depois do menu)
+            setTimeout(() => {
+                mostrarAvisoSemPerfil();
+            }, 300);
+            
             return;
         }
 
@@ -2592,7 +2598,47 @@ async function atualizarInterfacePosLogin() {
     }
 }
         
+// 🎯 FUNÇÃO: Mostrar aviso de perfil ausente
+function mostrarAvisoSemPerfil() {
+    const modalExistente = document.getElementById('modalAvisoPerfil');
+    if (modalExistente) modalExistente.remove();
 
+    const modalHTML = `
+        <div id="modalAvisoPerfil" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div class="glass-card rounded-2xl p-6 max-w-md w-full mx-4 animate-fade-in">
+                <!-- Header -->
+                <div class="flex items-center justify-center mb-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-yellow-500 to-amber-500 shadow-lg">
+                        <i data-feather="user" class="w-6 h-6 text-white"></i>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-semibold text-center mb-2">🏪 Perfil Necessário</h3>
+                <p class="text-center text-gray-300 mb-4">Você precisa criar um perfil do estabelecimento antes de gerar links de agendamento</p>
+                
+                <div class="flex gap-2 mt-6">
+                    <button onclick="fecharAvisoPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
+                        Fechar
+                    </button>
+                    <button onclick="abrirModalPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium">
+                        Criar Perfil
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    feather.replace();
+}
+
+function fecharAvisoPerfil() {
+    const modal = document.getElementById('modalAvisoPerfil');
+    if (modal) modal.remove();
+}
+
+
+        
         function mostrarModalLinkAgendamento(link, qrCodeUrl) {
             const modalExistente = document.getElementById('modalLinkAgendamento');
             if (modalExistente) modalExistente.remove();
@@ -4673,6 +4719,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
