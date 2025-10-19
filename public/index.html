@@ -772,13 +772,10 @@
         </div>
     </div>
 
-    <!-- 🎯 MODAIS E OVERLAYS -->
-    <!-- Modal de Configuração do Google Sheets -->
-    <div id="configSheetsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
-        <div class="glass-card p-8 max-w-md w-full mx-4 animate-slide-in">
-             <!-- Modal de Configuração do Google Sheets - VERSÃO SIMPLIFICADA -->
-<div id="configSheetsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-    <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4 animate-fade-in">
+<!-- 🎯 MODAIS E OVERLAYS -->
+<!-- Modal de Configuração do Google Sheets - VERSÃO COMPLETA -->
+<div id="configSheetsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
+    <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-in">
         <div class="flex items-center justify-center mb-6">
             <div class="p-3 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 shadow-lg">
                 <i data-feather="file-text" class="w-6 h-6 text-white"></i>
@@ -789,45 +786,49 @@
         <p class="text-center text-gray-300 mb-6">Escolha como deseja sincronizar seus agendamentos</p>
         
         <div class="space-y-6">
-            <!-- 🔥 REMOVIDA A SEÇÃO: Criar Planilha Automática -->
-
-            <div class="config-option p-4 rounded-lg bg-white/5 border border-white/10">
+            <!-- 🔥 OPÇÃO: USAR PLANILHA EXISTENTE -->
+            <div class="config-option p-4 rounded-xl bg-white/5 border border-white/10 hover-lift">
                 <h4 class="font-semibold mb-2 flex items-center gap-2">
                     <i data-feather="link" class="w-4 h-4 text-blue-400"></i>
-                     Usar Minha Planilha Existente
+                    Usar Minha Planilha Existente
                 </h4>
                 <p class="text-sm text-gray-300 mb-3">Cole o ID da sua planilha do Google Planilhas</p>
                 <input type="text" id="spreadsheetIdInput" 
                        placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-                       class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none mb-2 text-sm">
-                <button class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                       class="w-full px-3 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none mb-3 text-sm">
+                <button onclick="usarPlanilhaExistente()" class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
                     <i data-feather="save" class="w-4 h-4"></i>
                     💾 Usar Esta Planilha
                 </button>
             </div>
 
-            <div class="config-option p-4 rounded-lg bg-white/5 border border-white/10">
+            <!-- 🔥 OPÇÃO: CONFIGURAR DEPOIS -->
+            <div class="config-option p-4 rounded-xl bg-white/5 border border-white/10 hover-lift">
                 <h4 class="font-semibold mb-2 flex items-center gap-2">
                     <i data-feather="clock" class="w-4 h-4 text-yellow-400"></i>
                     ⏭️ Configurar Depois
                 </h4>
                 <p class="text-sm text-gray-300 mb-3">Você pode agendar normalmente e configurar depois</p>
-                <button class="w-full bg-gradient-to-r from-gray-500 to-slate-600 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-all">
+                <button onclick="fecharConfiguracao()" class="w-full bg-gradient-to-r from-gray-500 to-slate-600 text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-all">
                     Pular por enquanto
                 </button>
             </div>
         </div>
 
-        <div class="mt-4 text-center">
+        <!-- 🔥 INSTRUÇÕES -->
+        <div class="mt-6 pt-4 border-t border-white/10 text-center">
             <p class="text-xs text-gray-400">
                 💡 <strong>Como encontrar o ID da planilha:</strong><br>
                 Abra sua planilha no Google Planilhas e veja na URL:<br>
-                <code class="bg-black/30 px-1 rounded">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
+                <code class="bg-black/30 px-2 py-1 rounded mt-1 inline-block text-xs">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
             </p>
         </div>
-        </div>
     </div>
+</div>
 
+
+    
+          
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
@@ -4551,6 +4552,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
