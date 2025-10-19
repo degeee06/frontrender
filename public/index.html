@@ -1675,7 +1675,7 @@ function showTermsModal() {
     document.getElementById('loginSection').classList.add('hidden');
 }
 
-// 🔒 FUNÇÃO ACEITAR TERMOS (com banco)
+
 // 🔒 FUNÇÃO ACEITAR TERMOS (com banco)
 async function acceptTerms() {
     try {
@@ -3410,12 +3410,6 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         return;
     }
 
-     // 🔒 VERIFICAR TERMOS PRIMEIRO (agora funciona)
-    if (!checkTermsAcceptance()) {
-        console.log('⏸️ Login pausado - termos não aceitos');
-        return;
-    }
-    
     const btn = document.getElementById('googleLoginBtn');
     const originalText = btn.innerHTML;
     
@@ -4801,6 +4795,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
