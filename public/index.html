@@ -594,21 +594,7 @@ select option {
 .transition-all {
     transition: all 0.3s ease;
 }
-        /* Correção específica para input de tempo */
-input[type="time"] {
-    padding-right: 8px !important;
-}
 
-input[type="time"]::-webkit-calendar-picker-indicator {
-    background: none;
-    filter: invert(1);
-    margin-left: 8px;
-}
-
-/* Para Firefox */
-input[type="time"] {
-    -moz-appearance: textfield;
-}
         
         /* 🔥 FORÇAR DESIGN DO SEU BOTÃO SOBRE O HOTMART */
 .hotmart-fb.hotmart__button-checkout {
@@ -942,20 +928,15 @@ input[type="time"] {
                                            class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
                                 </div>
                             </div>
-                          <div>
-    <label for="Horario" class="block mb-2 text-sm font-medium opacity-80">Horário</label>
-    <div class="relative">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i data-feather="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
-        </div>
-        <input type="time" id="Horario" name="Horario" required 
-               class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm sm:text-base appearance-none">
-    </div>
-    <p class="text-xs text-gray-400 mt-1 flex items-center gap-1">
-        <i data-feather="info" class="w-3 h-3"></i>
-        <span>Dica: Horários flexíveis disponíveis (ex: 09:25, 14:45)</span>
-    </p>
-</div>
+                         <div>
+                                <label for="Horario" class="block mb-2 text-sm font-medium opacity-80">Horário</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i data-feather="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
+                                    </div>
+                                    <input type="time" id="Horario" name="Horario" placeholder="Horário" required 
+                                           class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -4811,6 +4792,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
