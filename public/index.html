@@ -1197,53 +1197,6 @@
     font-size: 18px !important;
 }
 
-/* ESTILO APENAS PARA O BOTÃO GERAR LINK (quando visível) */
-#gerarLinkBtn {
-    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
-    border: 1px solid #E0E0E0 !important;
-    color: #000000 !important;
-    box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3) !important;
-    font-weight: 600 !important;
-    border-radius: 12px !important;
-    transition: all 0.3s ease !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 12px !important;
-    padding: 8px 16px !important;
-    font-size: 14px !important;
-}
-
-/* Quando o botão gerar link estiver visível */
-#gerarLinkBtn:not(.hidden) {
-    display: flex !important;
-}
-
-/* Efeitos Hover para Prata Metálico - SOMENTE quando visível */
-#gerarLinkBtn:not(.hidden):hover, 
-#agendamentoForm button[type="submit"]:hover {
-    background: linear-gradient(135deg, #E0E0E0 0%, #C0C0C0 100%) !important;
-    border-color: #FFFFFF !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(192, 192, 192, 0.4) !important;
-}
-
-/* Efeito Active - SOMENTE quando visível */
-#gerarLinkBtn:not(.hidden):active, 
-#agendamentoForm button[type="submit"]:active {
-    transform: translateY(0) !important;
-    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3) !important;
-}
-
-/* Classe para esconder elementos */
-.hidden {
-    display: none !important;
-}
-
-/* Estilos específicos para cada botão */
-#gerarLinkBtn {
-    padding: 8px 16px !important;
-    font-size: 14px !important;
-}
 
 #agendamentoForm button[type="submit"] {
     padding: 16px 32px !important;
@@ -5589,6 +5542,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
