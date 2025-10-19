@@ -2049,48 +2049,51 @@ async checkTrialStatus() {
         }
     }
 
-    // ✅ REGISTRAR USO DIÁRIO
-    async registerDailyUsage(dailyLimit) {
-        const trial = await this.getUserTrial();
-        if (!trial) return false;
-        
-        const today = new Date().toISOString().split('T')[0];
-        const lastUsageDate = trial.last_usage_date ? new Date(trial.last_usage_date).toISOString().split('T')[0] : null;
-        
-        let dailyUsageCount = trial.daily_usage_count || 0;
-        
-        if (lastUsageDate !== today) {
-            dailyUsageCount = 0;
-            console.log('🔄 Novo dia - Resetando contador diário');
-        }
-        
-        if (dailyUsageCount >= dailyLimit) {
-            console.log(`🚫 Limite diário de ${dailyLimit} usos atingido`);
-            this.showDailyLimitModal(dailyLimit);
-            return false;
-        }
-        
-        const newDailyUsageCount = dailyUsageCount + 1;
-        const newTotalUsageCount = (trial.usage_count || 0) + 1;
-        
-        const { error } = await supabase
-            .from('user_trials')
-            .update({ 
-                usage_count: newTotalUsageCount,
-                daily_usage_count: newDailyUsageCount,
-                last_usage_date: today
-            })
-            .eq('id', trial.id);
-        
-        if (error) {
-            console.error('❌ Erro ao atualizar uso diário:', error);
-            return false;
-        }
-        
-        console.log(`✅ Uso diário registrado: ${newDailyUsageCount}/${dailyLimit}`);
-        await this.updateUsageBadge();
-        return true;
+ async registerDailyUsage(dailyLimit) {
+    const trial = await this.getUserTrial();
+    if (!trial) return false;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const lastUsageDate = trial.last_usage_date ? new Date(trial.last_usage_date).toISOString().split('T')[0] : null;
+    
+    let dailyUsageCount = trial.daily_usage_count || 0;
+    
+    if (lastUsageDate !== today) {
+        dailyUsageCount = 0;
+        console.log('🔄 Novo dia - Resetando contador diário');
     }
+    
+    if (dailyUsageCount >= dailyLimit) {
+        console.log(`🚫 Limite diário de ${dailyLimit} usos atingido`);
+        
+        // 🔥 CORREÇÃO: Só mostra modal se usuário estiver logado
+        if (userToken) {
+            this.showDailyLimitModal(dailyLimit);
+        }
+        return false;
+    }
+    
+    const newDailyUsageCount = dailyUsageCount + 1;
+    const newTotalUsageCount = (trial.usage_count || 0) + 1;
+    
+    const { error } = await supabase
+        .from('user_trials')
+        .update({ 
+            usage_count: newTotalUsageCount,
+            daily_usage_count: newDailyUsageCount,
+            last_usage_date: today
+        })
+        .eq('id', trial.id);
+    
+    if (error) {
+        console.error('❌ Erro ao atualizar uso diário:', error);
+        return false;
+    }
+    
+    console.log(`✅ Uso diário registrado: ${newDailyUsageCount}/${dailyLimit}`);
+    await this.updateUsageBadge();
+    return true;
+}
 
     // ✅ BUSCAR TRIAL DO USUÁRIO
     async getUserTrial() {
@@ -2238,6 +2241,10 @@ async checkTrialStatus() {
 
 // 🎨 MODAL MODERNO: Estilo glassmorphism igual ao frontend principal
 showDailyLimitModal(dailyLimit) {
+      if (!userToken) {
+        console.log('🚫 Usuário não logado - ignorando modal de limite');
+        return;
+    }
     const modalExistente = document.querySelector('.fixed.inset-0.bg-black');
     if (modalExistente) modalExistente.remove();
     
@@ -5557,3 +5564,4 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
