@@ -657,9 +657,10 @@ select option {
         <h3 class="text-xl font-semibold text-center mb-2">📝 Termos de Uso</h3>
         <p class="text-center text-gray-300 mb-6">Leia e aceite para continuar</p>
         
-        <!-- ✅ CONTEÚDO DOS TERMOS (COLE AQUI) -->
+        <!-- ✅ CONTEÚDO DOS TERMOS -->
         <div class="bg-white/5 rounded-lg p-4 mb-6 max-h-60 overflow-y-auto">
-            <strong>Data de criação: 2025</strong>
+            <div class="text-sm space-y-3 text-gray-200"> <!-- ✅ ADICIONE ESTA DIV -->
+                <strong>Data de criação: 2025</strong>
 
                 <h4 class="font-semibold text-cyan-300">1. Aceitação dos Termos</h4>
                 <p>Ao utilizar nosso sistema de agendamentos, você concorda com estes Termos de Uso e nossa Política de Privacidade.</p>
@@ -686,20 +687,20 @@ select option {
                 <p class="text-xs text-gray-400 mt-2">
                     Ao clicar em "Aceitar e Continuar", você declara ter lido, compreendido e concordado com todos os termos acima.
                 </p>
-            </div>
-        </div>
+            </div> <!-- ✅ FECHA A DIV text-sm -->
+        </div> <!-- ✅ FECHA A DIV bg-white/5 -->
 
-       <!-- Botões - VERTICAL (um embaixo do outro) -->
-<div class="flex flex-col gap-3"> <!-- ❌ TROQUE flex-row POR flex-col -->
-    <button onclick="declineTerms()" class="w-full px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white font-medium">
-        Recusar
-    </button>
-    <button onclick="acceptTerms()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 transition-all text-white font-medium">
-        ✅ Aceitar e Continuar
-    </button>
+        <!-- ✅ BOTÕES VERTICAIS -->
+        <div class="flex flex-col gap-3">
+            <button onclick="declineTerms()" class="w-full px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white font-medium">
+                Recusar
+            </button>
+            <button onclick="acceptTerms()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 transition-all text-white font-medium">
+                ✅ Aceitar e Continuar
+            </button>
         </div>
-    </div>
-</div>
+    </div> <!-- ✅ FECHA A DIV glass-card -->
+</div> <!-- ✅ FECHA A DIV termsModal -->
 
 
     
@@ -4765,6 +4766,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
