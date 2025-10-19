@@ -1882,11 +1882,21 @@ async function processarCallbackOAuth() {
             }, 2000);
 
         } else {
-            throw new Error('Sessão não encontrada');
+            // 🔥 CORREÇÃO CRÍTICA: Se não há sessão, mostra tela de login
+            console.log('❌ Sessão não encontrada após OAuth - mostrando login');
+            mostrarTelaLogin();
+            document.getElementById('authCallbackScreen').classList.add('hidden');
+            document.getElementById('mainAppContent').classList.remove('hidden');
         }
     } catch (error) {
         console.error('❌ Erro OAuth:', error);
         showToast("Erro ao processar login", "error");
+        
+        // 🔥 CORREÇÃO: Em caso de erro, também mostra tela de login
+        mostrarTelaLogin();
+        document.getElementById('authCallbackScreen').classList.add('hidden');
+        document.getElementById('mainAppContent').classList.remove('hidden');
+        
         setTimeout(() => {
             window.location.href = '/';
         }, 2000);
@@ -2553,15 +2563,16 @@ function mostrarTelaLogin() {
     const secoesIA = document.getElementById('secoesIA');
     if (secoesIA) secoesIA.style.display = 'none';
     
-    // Oculta botões do usuário logado
+    // 🔥 CORREÇÃO ESPECÍFICA: Oculta botão "Gerar Link"
+    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
+    if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
+    
+    // Oculta outros botões do usuário logado
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.style.display = 'none';
     
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) settingsBtn.style.display = 'none';
-    
-    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
-    if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
     
     console.log('✅ Tela de login configurada completamente');
 }
@@ -5543,6 +5554,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
