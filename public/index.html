@@ -1132,6 +1132,153 @@
         border-radius: 14px;
     }
 }
+        /* 🔥 BOTÃO GERAR LINK COM MESMA COR DO TÍTULO */
+#gerarLinkBtn {
+    background: linear-gradient(135deg, #818cf8 0%, #06b6d4 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 8px 20px -5px rgba(129, 140, 248, 0.4),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#gerarLinkBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 25px -5px rgba(129, 140, 248, 0.5),
+        0 6px 10px -3px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+}
+
+#gerarLinkBtn:active {
+    transform: translateY(0);
+}
+
+/* Efeito de brilho animado */
+#gerarLinkBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.7s ease-in-out;
+}
+
+#gerarLinkBtn:hover::before {
+    left: 100%;
+}
+
+/* 🔥 TABS COM MESMA COR DO TÍTULO */
+.tab-dia, .tab-semana {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.tab-dia:hover, .tab-semana:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+    border-color: rgba(129, 140, 248, 0.3);
+}
+
+.tab-dia.active, .tab-semana.active {
+    background: linear-gradient(135deg, #818cf8 0%, #06b6d4 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 
+        0 4px 12px rgba(129, 140, 248, 0.3),
+        0 2px 4px rgba(6, 182, 212, 0.2);
+}
+
+/* Efeito de brilho nas tabs ativas */
+.tab-dia.active::before, .tab-semana.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.7s ease-in-out;
+    border-radius: 12px;
+}
+
+.tab-dia.active:hover::before, .tab-semana.active:hover::before {
+    left: 100%;
+}
+
+/* 🔥 BOTÕES DE EXPORTAÇÃO COM COR COERENTE */
+#exportCSVBtn, #exportPDFBtn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+#exportCSVBtn:hover, #exportPDFBtn:hover {
+    background: rgba(129, 140, 248, 0.1);
+    border-color: rgba(129, 140, 248, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(129, 140, 248, 0.2);
+}
+
+/* 🔥 BOTÕES DE CONFIGURAÇÃO E SAIR COM CORES COERENTES */
+#settingsBtn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+#settingsBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+#logoutBtn {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+#logoutBtn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
+}
+
+/* Responsividade para os botões menores */
+@media (max-width: 640px) {
+    #gerarLinkBtn, #settingsBtn, #logoutBtn {
+        padding: 10px 16px;
+        font-size: 12px;
+    }
+    
+    .tab-dia, .tab-semana {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
     </style>
 </head>
 <body class="min-h-screen text-white">
@@ -5385,6 +5532,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
