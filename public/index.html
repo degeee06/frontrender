@@ -1879,7 +1879,28 @@ async function processarCallbackOAuth() {
 }
         
       
-
+// 🎯 FUNÇÃO SIMPLES E DIRETA
+function fecharTodosModais() {
+    console.log('🔴 FECHANDO MODAIS IMEDIATAMENTE');
+    
+    // Remove tudo que parece modal
+    const todosModais = document.querySelectorAll('div');
+    todosModais.forEach(el => {
+        const style = window.getComputedStyle(el);
+        if (style.position === 'fixed' && 
+            (style.top === '0px' || el.classList.contains('inset-0'))) {
+            el.remove();
+        }
+    });
+    
+    // Remove por conteúdo específico
+    document.querySelectorAll('div').forEach(el => {
+        if (el.textContent.includes('Limite Diário') || 
+            el.textContent.includes('usos realizados')) {
+            el.remove();
+        }
+    });
+}
        
 
         // 🔥 FUNÇÃO PARA FECHAR BROWSER
@@ -3970,6 +3991,7 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
 async function logoutSilencioso() {
     try {
         console.log('🔒 Executando logout silencioso...');
+        fecharTodosModais();
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
         userToken = null;
@@ -4183,7 +4205,11 @@ async function saveTermsAcceptanceToDatabase() {
 // ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
+      // 🔥 ORDEM CRÍTICA: Primeiro fecha modais, depois limpa o resto
+    fecharTodosModais();
     
+    // 🔥 Espera um frame para garantir que os modais foram removidos
+    await new Promise(resolve => setTimeout(resolve, 0));
     try {
         // Para todas as operações
         desconectarSSE();
@@ -5502,6 +5528,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
