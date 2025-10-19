@@ -597,6 +597,19 @@ select option {
 .hotmart-fb.hotmart__button-checkout:after {
     display: none !important;
 }
+         .loading-spinner {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 2px solid white;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -914,15 +927,64 @@ select option {
                         </div>
                     </div>
                 </div>
-                <div class="max-w-md mx-auto mt-6 md:mt-8">
-                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 text-white py-2 sm:py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base">
-                        <i data-feather="plus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                        <span id="agendarText">Agendar</span>
-                        <div id="agendarSpinner" class="loading-spinner hidden"></div>
-                    </button>
-                </div>
-            </form>
+ <div class="max-w-md mx-auto mt-6 md:mt-8">
+    <button type="submit" id="agendarBtn" class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 text-white py-2 sm:py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base active:scale-95 transform transition-transform duration-150">
+        <i data-feather="plus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        <span id="agendarText">Agendar</span>
+        <div id="agendarSpinner" class="loading-spinner hidden"></div>
+    </button>
+</div>
+            <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar feather icons
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+
+        const agendarBtn = document.getElementById('agendarBtn');
+        const agendarText = document.getElementById('agendarText');
+        const agendarSpinner = document.getElementById('agendarSpinner');
+        const plusIcon = agendarBtn.querySelector('i[data-feather="plus"]');
+
+        agendarBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             
+            // Feedback visual de clique
+            this.classList.add('active:scale-95');
+            
+            // Mostrar loading
+            agendarText.textContent = 'Agendando...';
+            agendarSpinner.classList.remove('hidden');
+            plusIcon.style.display = 'none';
+            
+            // Simular processamento
+            setTimeout(() => {
+                // Feedback de sucesso
+                agendarText.textContent = 'Agendado!';
+                agendarSpinner.classList.add('hidden');
+                
+                // Restaurar estado original após 2 segundos
+                setTimeout(() => {
+                    agendarText.textContent = 'Agendar';
+                    plusIcon.style.display = 'block';
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
+                }, 2000);
+            }, 1500);
+        });
+
+        // Efeito hover adicional
+        agendarBtn.addEventListener('mouseenter', function() {
+            this.classList.add('shadow-xl');
+        });
+        
+        agendarBtn.addEventListener('mouseleave', function() {
+            this.classList.remove('shadow-xl');
+        });
+    });
+</script>
+                
             <!-- Filters Section -->
             <div id="filtersSection" style="display:none;" class="glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
                 <div class="flex flex-col md:flex-row gap-4 items-center">
@@ -4766,6 +4828,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
