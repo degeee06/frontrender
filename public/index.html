@@ -644,6 +644,66 @@ select option {
     </div>
 </div>
 
+<!-- 🔒 MODAL DE TERMOS DE USO -->
+<div id="termsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="glass-card rounded-2xl p-6 max-w-2xl max-h-[80vh] overflow-y-auto mx-4">
+        <!-- Header -->
+        <div class="flex items-center justify-center mb-6">
+            <div class="p-3 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
+                <i data-feather="file-text" class="w-6 h-6 text-white"></i>
+            </div>
+        </div>
+        
+        <h3 class="text-xl font-semibold text-center mb-2">📝 Termos de Uso</h3>
+        <p class="text-center text-gray-300 mb-6">Leia e aceite para continuar</p>
+        
+        <!-- ✅ CONTEÚDO DOS TERMOS (COLE AQUI) -->
+        <div class="bg-white/5 rounded-lg p-4 mb-6 max-h-60 overflow-y-auto">
+            <div class="text-sm space-y-3 text-gray-200">
+                <strong>Última atualização:</strong> ${new Date().toLocaleDateString('pt-BR')}
+
+                <h4 class="font-semibold text-cyan-300">1. Aceitação dos Termos</h4>
+                <p>Ao utilizar nosso sistema de agendamentos, você concorda com estes Termos de Uso e nossa Política de Privacidade.</p>
+
+                <h4 class="font-semibold text-cyan-300">2. Uso do Serviço</h4>
+                <p>Você concorda em usar a plataforma apenas para fins legítimos de agendamento de serviços, sendo responsável por todas as informações cadastradas.</p>
+
+                <h4 class="font-semibold text-cyan-300">3. Privacidade e Dados</h4>
+                <p>Seus dados de agendamento são armazenados com segurança em servidores protegidos. Não compartilhamos suas informações com terceiros não autorizados.</p>
+
+                <h4 class="font-semibold text-cyan-300">4. Responsabilidades</h4>
+                <p>Você é integralmente responsável pela veracidade das informações fornecidas e pelos agendamentos realizados através da plataforma.</p>
+
+                <h4 class="font-semibold text-cyan-300">5. Limitações de Uso</h4>
+                <p>O serviço pode possuir limitações técnicas conforme seu plano atual (free trial ou premium). Reservamo-nos o direito de suspender contras em caso de uso inadequado.</p>
+
+                <h4 class="font-semibold text-cyan-300">6. Modificações</h4>
+                <p>Podemos atualizar estes termos periodicamente. O uso continuado após alterações significa sua aceitação.</p>
+
+                <p class="text-xs text-gray-400 mt-4">
+                    🔒 <strong>Proteção de Dados:</strong> Este sistema segue as melhores práticas de segurança e proteção de dados pessoais.
+                </p>
+
+                <p class="text-xs text-gray-400 mt-2">
+                    Ao clicar em "Aceitar e Continuar", você declara ter lido, compreendido e concordado com todos os termos acima.
+                </p>
+            </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex gap-3">
+            <button onclick="declineTerms()" class="flex-1 px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white font-medium">
+                Recusar
+            </button>
+            <button onclick="acceptTerms()" class="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 transition-all text-white font-medium">
+                ✅ Aceitar e Continuar
+            </button>
+        </div>
+    </div>
+</div>
+
+
+    
 <!-- 🎯🎯🎯 CONTEÚDO PRINCIPAL 🎯🎯🎯 -->
 <div id="mainAppContent">
     <div class="container mx-auto px-4 py-8 max-w-6xl">
@@ -4688,6 +4748,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
