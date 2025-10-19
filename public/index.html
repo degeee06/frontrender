@@ -2049,7 +2049,7 @@ async checkTrialStatus() {
         }
     }
 
- async registerDailyUsage(dailyLimit) {
+async registerDailyUsage(dailyLimit) {
     const trial = await this.getUserTrial();
     if (!trial) return false;
     
@@ -2066,8 +2066,12 @@ async checkTrialStatus() {
     if (dailyUsageCount >= dailyLimit) {
         console.log(`🚫 Limite diário de ${dailyLimit} usos atingido`);
         
-        // 🔥 CORREÇÃO: Só mostra modal se usuário estiver logado
-        if (userToken) {
+        // 🔥 VERIFICAÇÃO CORRETA - Procura QUALQUER chave do Supabase
+        const hasSupabaseAuth = Object.keys(localStorage).some(key => 
+            key.startsWith('sb-') || key.includes('supabase')
+        );
+        
+        if (hasSupabaseAuth) {
             this.showDailyLimitModal(dailyLimit);
         }
         return false;
@@ -2094,7 +2098,7 @@ async checkTrialStatus() {
     await this.updateUsageBadge();
     return true;
 }
-
+    
     // ✅ BUSCAR TRIAL DO USUÁRIO
     async getUserTrial() {
         if (!userToken) return null;
@@ -5564,4 +5568,5 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
