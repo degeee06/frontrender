@@ -1667,15 +1667,15 @@ function showTermsModal() {
     document.getElementById('loginSection').classList.add('hidden');
 }
 
-
-// 🔒 FUNÇÕES DE TERMOS - COLOCAR NO INÍCIO DO ARQUIVO
-function abrirModalTermos() {
+// ✅ ADICIONE ISSO AQUI
+window.abrirModalTermos = function() {
     document.getElementById('termsModal').classList.remove('hidden');
-}
+};
 
-function abrirModalPrivacidade() {
-    abrirModalTermos();
-}
+window.abrirModalPrivacidade = function() {
+    window.abrirModalTermos();
+};
+
 
 // 🔒 FUNÇÃO ACEITAR TERMOS (com banco)
 async function acceptTerms() {
@@ -4798,6 +4798,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
