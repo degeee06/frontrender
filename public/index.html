@@ -553,10 +553,6 @@ select option {
     margin: 0 auto;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
 
 .animate-pulse-slow {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -566,7 +562,7 @@ select option {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
 }
-/* Transições e hover effects */
+        /* Transições e hover effects */
 .btn-premium, button[type="submit"] {
     transition: all 0.3s ease;
     position: relative;
@@ -588,10 +584,6 @@ select option {
     animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
 
 /* Estado de hover com opacidade */
 .hover\:opacity-90:hover {
@@ -602,7 +594,6 @@ select option {
 .transition-all {
     transition: all 0.3s ease;
 }
-        
         /* 🔥 FORÇAR DESIGN DO SEU BOTÃO SOBRE O HOTMART */
 .hotmart-fb.hotmart__button-checkout {
     background: linear-gradient(to right, #f59e0b, #ea580c) !important;
@@ -951,14 +942,14 @@ select option {
                         </div>
                     </div>
                 </div>
-<div class="max-w-md mx-auto mt-8">
-    <button type="submit" class="w-full bg-gradient-to-r from-indigo-400 to-cyan-300 text-white py-3 px-6 rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg hover:opacity-90 transition-all">
-        <i data-feather="plus" class="w-5 h-5"></i>
-        <span id="agendarText">Agendar</span>
-        <div id="agendarSpinner" class="loading-spinner hidden"></div>
-    </button>
-</div>
-</form>
+                <div class="max-w-md mx-auto mt-6 md:mt-8">
+                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 text-white py-2 sm:py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base">
+                        <i data-feather="plus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        <span id="agendarText">Agendar</span>
+                        <div id="agendarSpinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
             
             <!-- Filters Section -->
             <div id="filtersSection" style="display:none;" class="glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
