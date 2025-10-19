@@ -2543,7 +2543,7 @@ async function atualizarInterfacePosLogin() {
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
         
-  async function gerarLinkAgendamento() {
+async function gerarLinkAgendamento() {
     try {
         // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL
         let temPerfil = false;
@@ -2561,8 +2561,8 @@ async function atualizarInterfacePosLogin() {
         }
         
         if (!temPerfil) {
-            // 🔥 MODAL DIRETO - MAIS VISÍVEL
-            mostrarModalSemPerfil();
+            showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
+            abrirMenuConfiguracoes();
             return;
         }
 
@@ -4723,6 +4723,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
