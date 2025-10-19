@@ -2543,7 +2543,7 @@ async function atualizarInterfacePosLogin() {
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
         
-   async function gerarLinkAgendamento() {
+  async function gerarLinkAgendamento() {
     try {
         // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL
         let temPerfil = false;
@@ -2561,14 +2561,8 @@ async function atualizarInterfacePosLogin() {
         }
         
         if (!temPerfil) {
-            // 🔥 MOSTRA O TOAST PRIMEIRO
-            showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
-            
-            // 🔥 DEPOIS ABRE O MENU (com delay para o toast aparecer)
-            setTimeout(() => {
-                abrirMenuConfiguracoes();
-            }, 500);
-            
+            // 🔥 MODAL DIRETO - MAIS VISÍVEL
+            mostrarModalSemPerfil();
             return;
         }
 
@@ -2598,6 +2592,48 @@ async function atualizarInterfacePosLogin() {
         showToast("Erro ao gerar link de agendamento", "error");
     }
 }
+
+// 🎯 FUNÇÃO: Modal para usuário sem perfil
+function mostrarModalSemPerfil() {
+    const modalExistente = document.getElementById('modalSemPerfil');
+    if (modalExistente) modalExistente.remove();
+
+    const modalHTML = `
+        <div id="modalSemPerfil" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div class="glass-card rounded-2xl p-6 max-w-md w-full mx-4 animate-fade-in">
+                <!-- Header -->
+                <div class="flex items-center justify-center mb-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-yellow-500 to-amber-500 shadow-lg">
+                        <i data-feather="user" class="w-6 h-6 text-white"></i>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-semibold text-center mb-2">🏪 Perfil Necessário</h3>
+                <p class="text-center text-gray-300 mb-4">Você precisa criar um perfil do estabelecimento antes de gerar links de agendamento</p>
+                
+                <div class="flex gap-2 mt-6">
+                    <button onclick="fecharModalSemPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
+                        Fechar
+                    </button>
+                    <button onclick="abrirModalPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium">
+                        Criar Perfil
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    feather.replace();
+}
+
+window.fecharModalSemPerfil = function() {
+    const modal = document.getElementById('modalSemPerfil');
+    if (modal) modal.remove();
+}
+
+
+        
         
         function mostrarModalLinkAgendamento(link, qrCodeUrl) {
             const modalExistente = document.getElementById('modalLinkAgendamento');
@@ -4679,6 +4715,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
