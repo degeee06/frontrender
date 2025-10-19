@@ -1068,6 +1068,42 @@
 #googleLoginBtn:hover span {
     color: #FFFFFF !important;
 }
+        /* 🔥 CORREÇÃO DOS EMOJIS BRANCOS */
+.agendamento-ia-section span,
+.sugestoes-ia-section span {
+    color: inherit !important;
+    filter: none !important;
+}
+
+/* Especificamente para os emojis das seções IA */
+.agendamento-ia-section [role="img"],
+.sugestoes-ia-section [role="img"] {
+    color: inherit !important;
+    filter: none !important;
+}
+
+/* Garantir que os emojis apareçam com cores naturais */
+.agendamento-ia-section *:not(i):not(svg):not(path),
+.sugestoes-ia-section *:not(i):not(svg):not(path) {
+    color: inherit !important;
+}
+        /* 🔥 EFEITO HOVER PARA BOTÃO DE ESTATÍSTICAS */
+#btn-estatisticas {
+    transition: all 0.3s ease-out !important;
+}
+
+#btn-estatisticas:hover:not(:disabled) {
+    background: #222222 !important;
+    border-color: #5A5A5A !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7) !important;
+}
+
+#btn-estatisticas:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
 
     </style>
 </head>
@@ -5316,6 +5352,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
