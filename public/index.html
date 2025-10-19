@@ -19,35 +19,28 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
   :root {
-    --black-absolute: #000000;
-    --black-deep: #0D0D0D;      
-    --black-medium: #1A1A1A;
-    --black-light: #2D2D2D;     
-    --white-pure: #FFFFFF;
-    --white-ice: #F0F0F0;       
-    --gray-steel: #6A6A6A;      
-    --silver-accent: #D0D0D0;   
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.25);
-    --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.4);
-    --inner-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
+        --black-absolute: #000000;
+        --black-deep: #111111;
+        --black-medium: #1A1A1A;
+        --black-light: #333333;
+        --white-pure: #FFFFFF;
+        --white-ice: #E0E0E0;
+        --gray-steel: #5A5A5A;
+        --silver-accent: #C0C0C0;
+        --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
+        --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.5);
+        --inner-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
     
     body {
         font-family: 'Inter', sans-serif;
-        background-color: var(--black-deep) !important;
-        color: var(--white-ice) !important;
+        background-color: var(--black-absolute);
+        color: var(--white-ice);
         min-height: 100vh;
         line-height: 1.6;
     }
         /* 🔥 GARANTIR CORES DO TEXTO */
-body, body * {
-    color: var(--white-ice) !important;
-}
 
-h1, h2, h3, h4, h5, h6 {
-    color: var(--white-pure) !important;
-}
     
     /* ESTILO PARA TELA DE AUTENTICAÇÃO */
     .auth-screen {
@@ -5553,6 +5546,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
