@@ -2886,26 +2886,44 @@ alert('Dados do perfil: ' + JSON.stringify(testData, null, 2));
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
-      async function gerarLinkAgendamento() {
+     async function gerarLinkAgendamento() {
     try {
-        console.log('🔍 Verificando perfil para gerar link...');
+        console.log('🔍 Iniciando verificação de perfil...');
         
-        // ✅ VERIFICAÇÃO CORRIGIDA E ROBUSTA
+        // ✅ PRIMEIRO: Verificar se o token é válido
+        if (!userToken) {
+            showToast("❌ Faça login para gerar links", "error");
+            return;
+        }
+
+        // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL COM TRATAMENTO DE TOKEN
         let temPerfil = false;
         let perfilData = null;
         
         try {
+            console.log('📡 Fazendo requisição para verificar perfil...');
             const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
-                headers: { 'Authorization': `Bearer ${userToken}` }
+                headers: { 
+                    'Authorization': `Bearer ${userToken}`,
+                    'Content-Type': 'application/json'
+                }
             });
             
-            console.log('📊 Status da resposta do perfil:', perfilResponse.status);
+            console.log('📊 Status da resposta:', perfilResponse.status);
+            
+            // 🔥 TRATAMENTO DE ERRO DE TOKEN
+            if (perfilResponse.status === 401) {
+                console.log('🔐 Token inválido - fazendo logout');
+                showToast("Sessão expirada. Faça login novamente.", "error");
+                await logoutSilencioso();
+                return;
+            }
             
             if (perfilResponse.ok) {
                 perfilData = await perfilResponse.json();
-                console.log('📦 Dados completos do perfil:', perfilData);
+                console.log('📦 Dados do perfil:', perfilData);
                 
-                // 🔥 VERIFICAÇÃO CORRIGIDA: Checa se existe ID do perfil
+                // 🔥 VERIFICAÇÃO CORRIGIDA
                 temPerfil = perfilData.success && 
                            perfilData.perfil && 
                            perfilData.perfil.id && 
@@ -2923,23 +2941,31 @@ alert('Dados do perfil: ' + JSON.stringify(testData, null, 2));
                 console.log('❌ Perfil não encontrado (404)');
                 temPerfil = false;
             } else {
-                console.log('❌ Erro HTTP ao verificar perfil:', perfilResponse.status);
+                console.log('❌ Erro HTTP:', perfilResponse.status);
                 temPerfil = false;
             }
         } catch (perfilError) {
-            console.error('❌ Erro na requisição do perfil:', perfilError);
+            console.error('❌ Erro na requisição:', perfilError);
+            
+            // 🔥 SE FOR ERRO DE REDE, PODE SER TOKEN EXPIRADO
+            if (perfilError.name === 'TypeError' || perfilError.message.includes('Failed to fetch')) {
+                showToast("Erro de conexão. Verifique sua internet.", "error");
+            } else {
+                showToast("Erro ao verificar perfil", "error");
+            }
+            
             temPerfil = false;
         }
         
         // 🔥 BLOQUEIO EFETIVO SE NÃO TIVER PERFIL
         if (!temPerfil) {
-            console.log('🚫 BLOQUEADO: Usuário não tem perfil válido');
+            console.log('🚫 USUÁRIO SEM PERFIL - Mostrando modal');
             showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
             
             // Abre o menu de configurações para criar perfil
             setTimeout(() => {
                 abrirMenuConfiguracoes();
-            }, 1000);
+            }, 1500);
             
             return;
         }
@@ -2947,19 +2973,32 @@ alert('Dados do perfil: ' + JSON.stringify(testData, null, 2));
         console.log('✅ PERFIL VALIDADO - Gerando link...');
 
         // 🔥 CONTINUA COM A GERAÇÃO DO LINK...
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        if (!user || !user.id) {
-            showToast("Erro: usuário não encontrado", "error");
+        if (userError || !user || !user.id) {
+            console.log('❌ Erro ao obter usuário:', userError);
+            showToast("Erro: sessão inválida", "error");
+            await logoutSilencioso();
             return;
         }
 
         const userId = user.id;
         
-        console.log('🔗 Fazendo requisição para gerar link...');
+        console.log('🔗 Gerando link para usuário:', userId);
         const response = await fetch(`${API_BASE_URL}/gerar-link/${userId}`, {
-            headers: { 'Authorization': `Bearer ${userToken}` }
+            headers: { 
+                'Authorization': `Bearer ${userToken}`,
+                'Content-Type': 'application/json'
+            }
         });
+        
+        // 🔥 VERIFICA SE O TOKEN AINDA É VÁLIDO NA GERAÇÃO DO LINK
+        if (response.status === 401) {
+            console.log('🔐 Token inválido durante geração do link');
+            showToast("Sessão expirada. Faça login novamente.", "error");
+            await logoutSilencioso();
+            return;
+        }
         
         const result = await response.json();
         console.log('📨 Resposta da geração do link:', result);
@@ -2970,8 +3009,15 @@ alert('Dados do perfil: ' + JSON.stringify(testData, null, 2));
             showToast("Erro ao gerar link: " + (result.msg || ""), "error");
         }
     } catch (error) {
-        console.error('❌ Erro ao gerar link:', error);
-        showToast("Erro ao gerar link de agendamento", "error");
+        console.error('❌ Erro crítico ao gerar link:', error);
+        
+        // 🔥 TRATAMENTO ESPECÍFICO PARA ERROS DE TOKEN
+        if (error.message.includes('token') || error.message.includes('auth') || error.message.includes('401')) {
+            showToast("Sessão expirada. Faça login novamente.", "error");
+            await logoutSilencioso();
+        } else {
+            showToast("Erro ao gerar link de agendamento", "error");
+        }
     }
 }
 
@@ -5059,6 +5105,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
