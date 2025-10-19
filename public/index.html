@@ -997,9 +997,9 @@
     .hotmart-fb.hotmart__button-checkout:after {
         display: none !important;
     }
-        /* 🔥 BOTÃO AGENDAR AZUL MODERNO E ELEGANTE */
+/* 🔥 BOTÃO AGENDAR COM MESMA COR DO TÍTULO */
 #agendamentoForm button[type="submit"] {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #818cf8 0%, #06b6d4 100%);
     color: white;
     padding: 16px 32px;
     border: none;
@@ -1009,7 +1009,7 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 
-        0 10px 25px -5px rgba(37, 99, 235, 0.4),
+        0 10px 25px -5px rgba(129, 140, 248, 0.4),
         0 4px 6px -2px rgba(0, 0, 0, 0.05);
     position: relative;
     overflow: hidden;
@@ -1026,15 +1026,15 @@
 #agendamentoForm button[type="submit"]:hover {
     transform: translateY(-3px);
     box-shadow: 
-        0 20px 40px -10px rgba(37, 99, 235, 0.5),
+        0 20px 40px -10px rgba(129, 140, 248, 0.5),
         0 8px 12px -4px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
 }
 
 #agendamentoForm button[type="submit"]:active {
     transform: translateY(-1px);
     box-shadow: 
-        0 5px 15px -3px rgba(37, 99, 235, 0.4),
+        0 5px 15px -3px rgba(129, 140, 248, 0.4),
         0 2px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
@@ -1062,7 +1062,7 @@
     left: -2px;
     right: -2px;
     bottom: -2px;
-    background: linear-gradient(135deg, #2563eb, #3b82f6, #60a5fa, #93c5fd);
+    background: linear-gradient(135deg, #818cf8, #06b6d4, #22d3ee, #67e8f9);
     border-radius: 18px;
     z-index: -1;
     opacity: 0;
@@ -1097,22 +1097,22 @@
 }
 
 /* Animações de pulso quando em foco */
-@keyframes pulse-blue {
+@keyframes pulse-indigo-cyan {
     0%, 100% {
         box-shadow: 
-            0 10px 25px -5px rgba(37, 99, 235, 0.4),
+            0 10px 25px -5px rgba(129, 140, 248, 0.4),
             0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
     50% {
         box-shadow: 
-            0 10px 30px -5px rgba(37, 99, 235, 0.6),
+            0 10px 30px -5px rgba(129, 140, 248, 0.6),
             0 6px 10px -2px rgba(0, 0, 0, 0.1),
-            0 0 20px rgba(37, 99, 235, 0.4);
+            0 0 20px rgba(129, 140, 248, 0.4);
     }
 }
 
 #agendamentoForm:focus-within button[type="submit"] {
-    animation: pulse-blue 2s infinite;
+    animation: pulse-indigo-cyan 2s infinite;
 }
 
 /* Responsividade */
@@ -5385,6 +5385,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
