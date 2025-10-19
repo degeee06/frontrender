@@ -2322,36 +2322,15 @@ showDailyLimitModal(dailyLimit) {
     
 
 
-// ✅ CORREÇÃO: Função updateUsageBadge - VERIFICAÇÃO MELHORADA
+
+// ✅ CORREÇÃO: Função updateUsageBadge - VERIFICAÇÃO DE LOGOUT
 async updateUsageBadge() {
-    // 🔥 VERIFICAÇÃO MAIS PRECISA - Checa se existe sessão ativa
-    let userLoggedIn = false;
-    try {
-        // Método 1: Verifica se tem alguma sessão do Supabase
-        const supabaseKeys = Object.keys(localStorage).filter(key => key.startsWith('sb-'));
-        if (supabaseKeys.length > 0) {
-            const authData = localStorage.getItem(supabaseKeys[0]);
-            if (authData) {
-                const session = JSON.parse(authData);
-                userLoggedIn = !!(session.access_token && session.expires_at > Date.now() / 1000);
-            }
-        }
-        
-        // Método 2: Verificação alternativa
-        if (!userLoggedIn) {
-            const { data: { session } } = await supabase.auth.getSession();
-            userLoggedIn = !!session;
-        }
-    } catch (error) {
-        console.log('🔒 Usuário não autenticado');
-    }
-    
-    // 🔥 SE NÃO ESTIVER LOGADO, ESCONDE O BADGE IMEDIATAMENTE
-    if (!userLoggedIn) {
+    // 🔥 VERIFICAÇÃO CRÍTICA: Se está em processo de logout, esconde badge IMEDIATAMENTE
+    if (window.isLoggingOut) {
         const badge = document.getElementById('premiumBadge');
         if (badge) {
             badge.style.display = 'none';
-            console.log('🚫 Badge escondido - usuário não logado');
+            console.log('🚫 Badge escondido - logout em andamento');
         }
         return;
     }
@@ -4272,7 +4251,7 @@ async function saveTermsAcceptanceToDatabase() {
 // ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
-    
+    window.isLoggingOut = true;
     try {
         // Para todas as operações
         desconectarSSE();
@@ -5601,6 +5580,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
