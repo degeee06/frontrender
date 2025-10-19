@@ -1720,7 +1720,7 @@
     </div>
 </div>
 
-    <!-- Toast Container -->
+   
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
     <script type="module">
@@ -1868,28 +1868,19 @@ async function processarCallbackOAuth() {
             }, 2000);
 
         } else {
-            // 🔥 CORREÇÃO CRÍTICA: Se não há sessão, mostra tela de login
-            console.log('❌ Sessão não encontrada após OAuth - mostrando login');
-            mostrarTelaLogin();
-            document.getElementById('authCallbackScreen').classList.add('hidden');
-            document.getElementById('mainAppContent').classList.remove('hidden');
+            throw new Error('Sessão não encontrada');
         }
     } catch (error) {
         console.error('❌ Erro OAuth:', error);
         showToast("Erro ao processar login", "error");
-        
-        // 🔥 CORREÇÃO: Em caso de erro, também mostra tela de login
-        mostrarTelaLogin();
-        document.getElementById('authCallbackScreen').classList.add('hidden');
-        document.getElementById('mainAppContent').classList.remove('hidden');
-        
         setTimeout(() => {
             window.location.href = '/';
         }, 2000);
     }
 }
         
-    
+      
+
        
 
         // 🔥 FUNÇÃO PARA FECHAR BROWSER
@@ -1967,6 +1958,26 @@ async checkTrialStatus() {
             }
         }
         
+        function fecharTodosModais() {
+    const modais = document.querySelectorAll('.fixed.inset-0.bg-black, .fixed.inset-0.bg-black\\/70, .modal-overlay');
+    modais.forEach(modal => modal.remove());
+    
+    // Também remove modais específicos que podem estar abertos
+    const modaisEspecificos = [
+        'modalLinkAgendamento',
+        'modalEstatisticas', 
+        'modalPerfilConfig',
+        'modalMenuConfig',
+        'modalSemPerfil',
+        'configSheetsModal',
+        'termsModal'
+    ];
+    
+    modaisEspecificos.forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal) modal.remove();
+    });
+}
         const dailyUsage = await this.getDailyUsage(trial, 5);
         
         // 🔥 CORREÇÃO: hasTrial continua true mesmo sem usos disponíveis
@@ -2217,6 +2228,7 @@ async checkTrialStatus() {
     }
 
 
+    
 // 🎨 MODAL MODERNO: Estilo glassmorphism igual ao frontend principal
 showDailyLimitModal(dailyLimit) {
     const modalExistente = document.querySelector('.fixed.inset-0.bg-black');
@@ -2226,9 +2238,8 @@ showDailyLimitModal(dailyLimit) {
     modal.className = 'fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4';
     modal.innerHTML = `
         <div class="glass-card rounded-2xl p-6 md:p-8 w-full max-w-md mx-auto animate-fade-in">
-            <!-- Header Elegante -->
             <div class="flex items-center justify-center mb-6">
-                <div class="p-3 rounded-full bg-gradient-to-br from-red-500 to-rose-500 shadow-lg">
+                <div class="p-3 rounded-full">
                     <i data-feather="clock" class="w-6 h-6 text-white"></i>
                 </div>
             </div>
@@ -2236,31 +2247,27 @@ showDailyLimitModal(dailyLimit) {
             <h3 class="text-xl sm:text-2xl font-semibold text-center mb-2">⏰ Limite Diário Atingido</h3>
             <p class="text-center text-gray-300 mb-6">Você utilizou todos os ${dailyLimit} agendamentos de hoje</p>
 
-            <!-- Badge de Status -->
-            <div class="bg-gradient-to-r from-red-500/20 to-rose-500/20 border border-red-500/30 rounded-xl p-4 mb-6 text-center">
-                <p class="text-red-400 font-semibold text-lg">${dailyLimit}/${dailyLimit} usos realizados</p>
-                <p class="text-red-300 text-sm mt-1">Os usos resetam à meia-noite! 🕛</p>
+            <div class="rounded-xl p-4 mb-6 text-center">
+                <p class="font-semibold text-lg">${dailyLimit}/${dailyLimit} usos realizados</p>
+                <p class="text-sm mt-1">Os usos resetam à meia-noite! 🕛</p>
             </div>
 
      
-             <!-- Botões -->
-            <div class="space-y-3">
-                <!-- 🔥 BOTÃO COM WIDGET EMBEDIDO -->
+             <div class="space-y-3">
                 <a onclick="return false;" 
                    href="https://pay.hotmart.com/U102480243K?checkoutMode=2" 
-                   class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-lg">
+                   class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-xl text-white font-bold transition-all flex items-center justify-center gap-2">
                     <i data-feather="star" class="w-4 h-4"></i>
                     🚀 Fazer Upgrade Ilimitado
                 </a>
                 
                 <button onclick="this.closest('.fixed').remove()" 
-                        class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 text-gray-300 font-medium transition-all flex items-center justify-center gap-2">
+                        class="w-full px-4 py-3 rounded-xl text-gray-300 font-medium transition-all flex items-center justify-center gap-2">
                     <i data-feather="clock" class="w-4 h-4"></i>
                     Entendi, aguardar reset
                 </button>
             </div>
 
-            <!-- Footer Informativo -->
             <div class="mt-6 pt-4 border-t border-white/10 text-center">
                 <p class="text-xs text-gray-400">
                     💡 <strong>Upgrade:</strong> Agendamentos ilimitados + recursos premium
@@ -2289,31 +2296,9 @@ showDailyLimitModal(dailyLimit) {
     `;
     document.body.appendChild(script);
 }
-   } 
+    
 
-// 🔥 ADICIONE ESTA FUNÇÃO para fechar modais
-function fecharTodosModais() {
-    const modais = document.querySelectorAll('.fixed.inset-0.bg-black, .fixed.inset-0.bg-black\\/70, .modal-overlay');
-    modais.forEach(modal => modal.remove());
-    
-    // Também remove modais específicos que podem estar abertos
-    const modaisEspecificos = [
-        'modalLinkAgendamento',
-        'modalEstatisticas', 
-        'modalPerfilConfig',
-        'modalMenuConfig',
-        'modalSemPerfil',
-        'configSheetsModal',
-        'termsModal'
-    ];
-    
-    modaisEspecificos.forEach(id => {
-        const modal = document.getElementById(id);
-        if (modal) modal.remove();
-    });
-}
 
-    
 // ✅ CORREÇÃO: Função updateUsageBadge - MOSTRA 5/5 QUANDO LIMITE ATINGIDO
 async updateUsageBadge() {
     const badge = document.getElementById('premiumBadge');
@@ -2326,7 +2311,7 @@ async updateUsageBadge() {
         
         if (status.unlimited) {
             badge.innerHTML = '<span>🚀 Premium</span>';
-            badge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            badge.className = 'text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             badge.style.display = 'flex';
         } else if (status.hasTrial) {
             // 🔥 CORREÇÃO: Calcula usado/total CORRETAMENTE
@@ -2338,11 +2323,11 @@ async updateUsageBadge() {
             
             // Muda a cor baseado no status
             if (status.dailyUsagesLeft <= 0) {
-                badge.className = 'bg-gradient-to-r from-red-500 to-rose-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.className = 'text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             } else if (status.dailyUsagesLeft <= 2) {
-                badge.className = 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.className = 'text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             } else {
-                badge.className = 'bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.className = 'text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             }
             
             badge.style.display = 'flex';
@@ -2437,7 +2422,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
-    document.getElementById('gerarLinkBtn').classList.add('hidden');
+    
     if (verificarCallbackOAuth()) {
         console.log('⏸️ Parando init - é callback OAuth');
         return;
@@ -2548,10 +2533,7 @@ setInterval(async () => {
 // 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
 function mostrarTelaLogin() {
     console.log('👤 Mostrando tela de login - ocultando todas as seções do app');
-    fecharTodosModais();
-    // Na função mostrarTelaLogin() - procure esta função e adicione:
-document.getElementById('gerarLinkBtn').classList.add('hidden');
-
+     fecharTodosModais();
     // Mostra seção de login
     const loginSection = document.getElementById('loginSection');
     if (loginSection) loginSection.style.display = 'block';
@@ -2573,16 +2555,15 @@ document.getElementById('gerarLinkBtn').classList.add('hidden');
     const secoesIA = document.getElementById('secoesIA');
     if (secoesIA) secoesIA.style.display = 'none';
     
-    // 🔥 CORREÇÃO ESPECÍFICA: Oculta botão "Gerar Link"
-    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
-    if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
-    
-    // Oculta outros botões do usuário logado
+    // Oculta botões do usuário logado
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.style.display = 'none';
     
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) settingsBtn.style.display = 'none';
+    
+    const gerarLinkBtn = document.getElementById('gerarLinkBtn');
+    if (gerarLinkBtn) gerarLinkBtn.style.display = 'none';
     
     console.log('✅ Tela de login configurada completamente');
 }
@@ -2597,9 +2578,8 @@ function abrirMenuConfiguracoes() {
     const modalHTML = `
         <div id="modalMenuConfig" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <div class="glass-card rounded-2xl p-6 max-w-sm w-full mx-4 animate-fade-in">
-                <!-- Header -->
                 <div class="flex items-center justify-center mb-4">
-                    <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
+                    <div class="p-3 rounded-full">
                         <i data-feather="settings" class="w-6 h-6 text-white"></i>
                     </div>
                 </div>
@@ -2607,33 +2587,28 @@ function abrirMenuConfiguracoes() {
                 <h3 class="text-xl font-semibold text-center mb-2">⚙️ Configurações</h3>
                 <p class="text-center text-gray-300 mb-4">Gerencie suas configurações</p>
                 
-                <!-- Opções -->
                 <div class="space-y-3">
-                    <!-- Perfil do Negócio -->
                     <button id="btnPerfilNegocio" 
-                            class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
+                            class="w-full px-4 py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2">
                         <i data-feather="user" class="w-4 h-4"></i>
                         🏪 Perfil do Negócio
                     </button>
                     
-                    <!-- Google Sheets -->
                     <button id="btnGoogleSheets" 
-                            class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
+                            class="w-full px-4 py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2">
                         <i data-feather="file-text" class="w-4 h-4"></i>
                         📊 Google Planilhas
                     </button>
                     
-                    <!-- 🔥 BOTÃO UPGRADE -->
                     <a onclick="return false;" 
                        href="https://pay.hotmart.com/U102480243K?checkoutMode=2" 
-                       class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 transition-all text-white font-medium flex items-center justify-center gap-2">
+                       class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2">
                         <i data-feather="star" class="w-4 h-4"></i>
                         🚀 Fazer Upgrade
                     </a>
                     
-                    <!-- Fechar -->
                     <button id="btnFecharMenu" 
-                            class="w-full px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white flex items-center justify-center gap-2">
+                            class="w-full px-4 py-3 rounded-lg bg-gray-600 text-white flex items-center justify-center gap-2">
                         <i data-feather="x" class="w-4 h-4"></i>
                         Fechar
                     </button>
@@ -2710,7 +2685,6 @@ function abrirModalPerfil() {
     const modalHTML = `
         <div id="modalPerfilConfig" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
             <div class="glass-card rounded-2xl p-6 max-w-2xl w-full mx-4 animate-fade-in" style="max-height: 90vh; overflow-y: auto;">
-                <!-- Cabeçalho -->
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-semibold">🏪 Perfil do Negócio</h3>
                     <button id="btnFecharModalPerfil" class="text-gray-400 hover:text-white">
@@ -2719,18 +2693,15 @@ function abrirModalPerfil() {
                 </div>
                 
                 <div class="space-y-6">
-                    <!-- Informações Básicas -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Nome do Negócio -->
                         <div>
-                            <label class="block text-sm font-medium opacity-80 mb-1">Nome do Negócio</label>
+                            <label class="block text-sm font-medium mb-1">Nome do Negócio</label>
                             <input type="text" id="nomeNegocioInput" placeholder="Ex: Barbearia do João" 
                                    class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
                         </div>
                         
-                        <!-- Tipo de Negócio -->
                         <div>
-                            <label class="block text-sm font-medium opacity-80 mb-1">Tipo de Negócio</label>
+                            <label class="block text-sm font-medium mb-1">Tipo de Negócio</label>
                             <select id="tipoNegocioSelect" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
                                 <option value="barbearia">💈 Barbearia</option>
                                 <option value="consultorio">🏥 Consultório</option>
@@ -2743,9 +2714,8 @@ function abrirModalPerfil() {
                         </div>
                     </div>
                     
-                    <!-- Dias de Funcionamento -->
                     <div>
-                        <label class="block text-sm font-medium opacity-80 mb-2">📅 Dias de Funcionamento</label>
+                        <label class="block text-sm font-medium mb-2">📅 Dias de Funcionamento</label>
                         <div class="grid grid-cols-4 gap-2">
                             ${['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'].map(dia => `
                                 <label class="flex items-center gap-1 text-sm cursor-pointer p-2 rounded hover:bg-white/5 transition-all">
@@ -2756,25 +2726,23 @@ function abrirModalPerfil() {
                         </div>
                     </div>
                     
-                    <!-- Horários Padrão -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Abertura</label>
+                            <label class="block text-sm font-medium mb-1">⏰ Horário de Abertura</label>
                             <input type="time" id="horarioAbertura" value="08:00" 
                                    class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Fechamento</label>
+                            <label class="block text-sm font-medium mb-1">⏰ Horário de Fechamento</label>
                             <input type="time" id="horarioFechamento" value="18:00" 
                                    class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
                         </div>
                     </div>
                     
-                    <!-- 🆕 SEÇÃO: BLOQUEIO POR PERÍODOS -->
                     <div class="border-t border-white/10 pt-4">
                         <div class="flex items-center justify-between mb-4">
                             <h4 class="text-lg font-semibold">🚫 Bloquear Períodos</h4>
-                            <button id="btnAdicionarPeriodo" class="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90 transition-all text-sm">
+                            <button id="btnAdicionarPeriodo" class="px-3 py-1 rounded-lg text-sm">
                                 + Adicionar Período
                             </button>
                         </div>
@@ -2783,9 +2751,7 @@ function abrirModalPerfil() {
                             Bloqueie faixas de horário indisponíveis. Ex: 10:30 até 12:00 bloqueia todos horários entre 10:30 e 12:00.
                         </p>
                         
-                        <!-- Lista de Períodos Bloqueados -->
                         <div id="listaPeriodosBloqueados" class="space-y-3 max-h-40 overflow-y-auto">
-                            <!-- Períodos serão adicionados aqui dinamicamente -->
                             <div class="text-center py-4 text-gray-400">
                                 Nenhum período bloqueado
                             </div>
@@ -2793,12 +2759,11 @@ function abrirModalPerfil() {
                     </div>
                 </div>
 
-                <!-- Botões -->
                 <div class="flex gap-2 mt-6">
                     <button id="btnCancelarPerfil" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
                         Cancelar
                     </button>
-<button id="btnSalvarPerfil" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
+<button id="btnSalvarPerfil" class="flex-1 px-4 py-2 rounded-lg text-white font-medium flex items-center justify-center gap-2">
     <i data-feather="save" class="w-4 h-4"></i>
     Salvar Configurações
 </button>
@@ -2882,7 +2847,6 @@ function adicionarPeriodoBloqueio() {
     
     const periodoHTML = `
         <div id="${periodoId}" class="periodo-bloqueado p-3 bg-white/5 rounded-lg border border-white/10 space-y-2">
-            <!-- 🆕 SELETOR DE TIPO DE BLOQUEIO -->
             <div class="flex gap-3 mb-2">
                 <label class="flex items-center gap-1 text-xs cursor-pointer">
                     <input type="radio" name="tipo_${periodoId}" value="recorrente" checked 
@@ -2896,14 +2860,12 @@ function adicionarPeriodoBloqueio() {
                 </label>
             </div>
             
-            <!-- 🆕 CAMPO DATA (inicialmente oculto) -->
             <div id="campo-data-${periodoId}" class="hidden">
                 <label class="block text-xs text-gray-300 mb-1">📅 Data do Bloqueio</label>
                 <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
                        min="${new Date().toISOString().split('T')[0]}">
             </div>
             
-            <!-- Campos de Horário (sempre visíveis) -->
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="block text-xs text-gray-300 mb-1">⏰ De</label>
@@ -3165,7 +3127,6 @@ function preencherFormularioPerfil(perfil) {
             
             const periodoHTML = `
                 <div id="${periodoId}" class="periodo-bloqueado p-3 bg-white/5 rounded-lg border border-white/10 space-y-2">
-                    <!-- 🆕 SELETOR DE TIPO -->
                     <div class="flex gap-3 mb-2">
                         <label class="flex items-center gap-1 text-xs cursor-pointer">
                             <input type="radio" name="tipo_${periodoId}" value="recorrente" 
@@ -3181,14 +3142,12 @@ function preencherFormularioPerfil(perfil) {
                         </label>
                     </div>
                     
-                    <!-- 🆕 CAMPO DATA -->
                     <div id="campo-data-${periodoId}" class="${mostraData ? '' : 'hidden'}">
                         <label class="block text-xs text-gray-300 mb-1">📅 Data do Bloqueio</label>
                         <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
                                value="${periodo.data || ''}">
                     </div>
                     
-                    <!-- Campos de Horário -->
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-xs text-gray-300 mb-1">⏰ De</label>
@@ -3295,7 +3254,7 @@ function configurarBotaoSettings() {
 // 🔥 CORREÇÃO: Função atualizarInterfacePosLogin atualizada para garantir badge
 async function atualizarInterfacePosLogin() {
     console.log('🎯 Atualizando interface para usuário LOGADO...');
-    document.getElementById('gerarLinkBtn').classList.remove('hidden');
+    
     // Oculta login
     const loginSection = document.getElementById('loginSection');
     if (loginSection) loginSection.style.display = 'none';
@@ -3445,9 +3404,8 @@ function mostrarModalSemPerfil() {
     const modalHTML = `
         <div id="modalSemPerfil" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <div class="glass-card rounded-2xl p-6 max-w-md w-full mx-4 animate-fade-in">
-                <!-- Header -->
                 <div class="flex items-center justify-center mb-4">
-                    <div class="p-3 rounded-full bg-gradient-to-br from-yellow-500 to-amber-500 shadow-lg">
+                    <div class="p-3 rounded-full">
                         <i data-feather="user" class="w-6 h-6 text-white"></i>
                     </div>
                 </div>
@@ -3459,7 +3417,7 @@ function mostrarModalSemPerfil() {
                     <button onclick="fecharModalSemPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
                         Fechar
                     </button>
-                    <button onclick="criarPerfilAgora()" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium">
+                    <button onclick="criarPerfilAgora()" class="flex-1 px-4 py-2 rounded-lg font-medium">
                         Criar Perfil
                     </button>
                 </div>
@@ -3491,30 +3449,26 @@ window.criarPerfilAgora = function() {
                 <div id="modalLinkAgendamento" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div class="glass-card rounded-xl p-6 w-full max-w-md mx-auto animate-fade-in relative">
                         
-                        <!-- 🔥 BOTÃO X COM ID ESPECÍFICO -->
                         <button id="fecharModalLinkBtn" 
                                 class="absolute top-4 right-4 text-gray-400 hover:text-white z-50 bg-black/50 rounded-full p-1 w-8 h-8 flex items-center justify-center">
                             ×
                         </button>
                         
-                        <!-- Cabeçalho -->
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold">🔗 Link de Agendamento</h3>
                         </div>
                         
-                        <!-- Conteúdo -->
                         <div class="space-y-4">
                             <div class="text-center">
                                 <p class="text-sm text-gray-300 mb-3">Compartilhe este link com seus clientes:</p>
                                 
                                 <div class="bg-white/10 rounded-lg p-3 mb-3">
-                                    <code class="text-xs break-all text-cyan-300">${link}</code>
+                                    <code class="text-xs break-all">${link}</code>
                                 </div>
                                 
                    
-                                <!-- 🔥 BOTÃO COPIAR COM ID ESPECÍFICO -->
-<button id="copiarLinkBtn" 
-        class="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 active:scale-95 active:from-green-500 active:to-green-600 transition-all duration-200 text-sm font-medium">
+                                <button id="copiarLinkBtn" 
+        class="w-full px-4 py-2 rounded-lg active:scale-95 transition-all duration-200 text-sm font-medium">
     📋 Copiar Link
 </button>
                             </div>
@@ -3724,10 +3678,10 @@ window.criarPerfilAgora = function() {
         let activeToasts = [];
         function showToast(message, type = "success") {
             const colors = {
-                success: "bg-gradient-to-r from-green-500 to-teal-400",
-                error: "bg-gradient-to-r from-red-500 to-pink-500",
-                info: "bg-gradient-to-r from-blue-500 to-cyan-400",
-                warning: "bg-gradient-to-r from-yellow-500 to-amber-400"
+                success: "background-color: #112A11; border: 1px solid #335A33;",
+                error: "background-color: #2A1111; border: 1px solid #5A3333;",
+                info: "background-color: #11112A; border: 1px solid #33335A;",
+                warning: "background-color: #2A2A11; border: 1px solid #5A5A33;"
             };
             
             const container = document.getElementById("toast-container");
@@ -3737,19 +3691,34 @@ window.criarPerfilAgora = function() {
             }
             
             const toast = document.createElement("div");
-            toast.className = `p-4 rounded-lg shadow-lg text-white font-medium ${colors[type] || colors.info} opacity-0 translate-x-5 transition-all duration-300 flex items-center gap-2`;
+            toast.style.cssText = `
+              padding: 1rem; 
+              border-radius: 0.5rem; 
+              box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+              color: #E0E0E0; 
+              font-weight: 500; 
+              ${colors[type] || colors.info} 
+              opacity: 0; 
+              transform: translateX(20px); 
+              transition: all 0.3s ease-out; 
+              display: flex; 
+              align-items: center; 
+              gap: 0.5rem;
+            `;
+
             toast.innerHTML = `<i data-feather="${type==="success"?"check-circle":type==="error"?"alert-circle":"info"}" class="w-5 h-5"></i> <span>${message}</span>`;
             container.appendChild(toast);
             activeToasts.push(toast);
             feather.replace();
             
             requestAnimationFrame(()=>{
-                toast.classList.remove("opacity-0","translate-x-5"); 
-                toast.classList.add("opacity-100","translate-x-0");
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(0)';
             });
             
             setTimeout(()=>{
-                toast.classList.add("opacity-0","translate-x-5"); 
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
                 setTimeout(()=>{
                     toast.remove(); 
                     activeToasts=activeToasts.filter(t=>t!==toast);
@@ -3866,29 +3835,29 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         div.innerHTML = `
             <div class="flex justify-between items-start mb-2">
                 <div class="flex items-center gap-2">
-                    <i data-feather="clock" class="w-4 h-4 text-gray-300"></i>
+                    <i data-feather="clock" class="w-4 h-4"></i>
                     <span class="font-medium">${a.horario}</span>
                 </div>
-                <span class="text-sm px-2 py-1 rounded-full ${a.status === 'confirmado' ? 'bg-green-900/30 text-green-300' : a.status === 'pendente' ? 'bg-yellow-900/30 text-yellow-300' : 'bg-red-900/30 text-red-300'}">
+                <span class="status-${a.status} text-sm px-2 py-1 rounded-full">
                     ${a.status}
                 </span>
             </div>
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                    <i data-feather="user" class="w-4 h-4 text-gray-300"></i>
+                <div class="w-10 h-10 rounded-full bg-black flex items-center justify-center border border-solid border-[#333333]">
+                    <i data-feather="user" class="w-4 h-4"></i>
                 </div>
                 <div>
                     <h3 class="font-medium">${a.nome}</h3>
-                    <p class="text-sm text-gray-300">${formatData(a.data)}</p>
+                    <p class="text-sm">${formatData(a.data)}</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-2 text-sm">
                 <div class="flex items-center gap-2">
-                    <i data-feather="mail" class="w-4 h-4 text-gray-300"></i>
+                    <i data-feather="mail" class="w-4 h-4"></i>
                     <span class="truncate">${a.email}</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <i data-feather="phone" class="w-4 h-4 text-gray-300"></i>
+                    <i data-feather="phone" class="w-4 h-4"></i>
                     <span>${a.telefone}</span>
                 </div>
             </div>
@@ -3901,7 +3870,7 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         if (a.status !== "confirmado") {
             const btnConfirmar = document.createElement("button");
             btnConfirmar.innerHTML = `<i data-feather="check" class="w-4 h-4"></i> Confirmar`;
-            btnConfirmar.className = "px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white flex items-center gap-1 shadow-md hover:opacity-90 transition-all";
+            btnConfirmar.className = "px-3 py-1.5 text-sm rounded-lg text-white flex items-center gap-1";
             btnConfirmar.addEventListener("click", () => confirmarAgendamento(a.id));
             btnContainer.appendChild(btnConfirmar);
         }
@@ -3909,14 +3878,14 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         // Cancelar
         const btnCancelar = document.createElement("button");
         btnCancelar.innerHTML = `<i data-feather="x" class="w-4 h-4"></i> Cancelar`;
-        btnCancelar.className = "px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-red-500 to-rose-600 text-white flex items-center gap-1 shadow-md hover:opacity-90 transition-all";
+        btnCancelar.className = "px-3 py-1.5 text-sm rounded-lg text-white flex items-center gap-1";
         btnCancelar.addEventListener("click", () => cancelarAgendamento(a.id));
         btnContainer.appendChild(btnCancelar);
 
         // Reagendar
         const btnReagendar = document.createElement("button");
         btnReagendar.innerHTML = `<i data-feather="refresh-cw" class="w-4 h-4"></i> Reagendar`;
-        btnReagendar.className = "px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center gap-1 shadow-md hover:opacity-90 transition-all";
+        btnReagendar.className = "px-3 py-1.5 text-sm rounded-lg text-white flex items-center gap-1";
         btnReagendar.addEventListener("click", () => abrirModalReagendar(a));
         btnContainer.appendChild(btnReagendar);
 
@@ -3936,24 +3905,24 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
                 modal.id = "modalReagendar";
                 modal.className = "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 hidden";
                 modal.innerHTML = `
-                    <div class="bg-gray-900 rounded-xl p-6 w-full max-w-md relative">
-                        <button id="fecharModal" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                    <div class="glass-card rounded-xl p-6 w-full max-w-md relative">
+                        <button id="fecharModal" class="absolute top-4 right-4 hover:text-white">
                             <i data-feather="x" class="w-5 h-5"></i>
                         </button>
                         <h2 class="text-lg font-medium mb-4 text-white">Reagendar Agendamento</h2>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm text-gray-300 mb-1">Data</label>
-                                <input type="date" id="novaData" class="w-full p-3 rounded-md bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                                <label class="block text-sm mb-1">Data</label>
+                                <input type="date" id="novaData" class="w-full p-3 rounded-md focus:outline-none"/>
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-300 mb-1">Horário</label>
-                                <input type="time" id="novoHorario" class="w-full p-3 rounded-md bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                                <label class="block text-sm mb-1">Horário</label>
+                                <input type="time" id="novoHorario" class="w-full p-3 rounded-md focus:outline-none"/>
                             </div>
                         </div>
                         <div class="flex justify-end gap-2 mt-6">
-                            <button id="cancelarReagendar" class="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-all">Cancelar</button>
-                            <button id="confirmarReagendar" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all">Confirmar</button>
+                            <button id="cancelarReagendar" class="px-4 py-2 rounded-lg text-white transition-all">Cancelar</button>
+                            <button id="confirmarReagendar" class="px-4 py-2 rounded-lg text-white transition-all">Confirmar</button>
                         </div>
                     </div>
                 `;
@@ -4044,7 +4013,7 @@ async function logoutSilencioso() {
         logoutBtn.style.display = 'none';
         document.getElementById('settingsBtn').style.display = 'none';
         document.getElementById('gerarLinkBtn').style.display = 'none';
-        document.getElementById('gerarLinkBtn').classList.add('hidden');
+        
         console.log('✅ Logout silencioso concluído');
     } catch (error) {
         console.log('Erro no logout silencioso:', error);
@@ -4481,13 +4450,10 @@ form.addEventListener('submit', async (e)=>{
             
             tabsDia.forEach(btn => {
                 btn.addEventListener("click", () => {
-                    tabsDia.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
-                    tabsDia.forEach(b => b.classList.add("bg-white/10", "hover:bg-white/20"));
-                    tabsSemana.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
-                    tabsSemana.forEach(b => b.classList.add("bg-white/5", "hover:bg-white/10"));
+                    tabsDia.forEach(b => b.classList.remove("active"));
+                    tabsSemana.forEach(b => b.classList.remove("active"));
                     
-                    btn.classList.remove("bg-white/10", "hover:bg-white/20");
-                    btn.classList.add("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active");
+                    btn.classList.add("active");
                     diaSelecionado = parseInt(btn.dataset.dia);
                     renderAgendamentos();
                 });
@@ -4495,13 +4461,10 @@ form.addEventListener('submit', async (e)=>{
 
             tabsSemana.forEach(btn => {
                 btn.addEventListener("click", () => {
-                    tabsDia.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
-                    tabsDia.forEach(b => b.classList.add("bg-white/10", "hover:bg-white/20"));
-                    tabsSemana.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
-                    tabsSemana.forEach(b => b.classList.add("bg-white/5", "hover:bg-white/10"));
+                    tabsDia.forEach(b => b.classList.remove("active"));
+                    tabsSemana.forEach(b => b.classList.remove("active"));
                     
-                    btn.classList.remove("bg-white/5", "hover:bg-white/10");
-                    btn.classList.add("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active");
+                    btn.classList.add("active");
                     
                     const semanas = parseInt(btn.dataset.semana);
                     diaSelecionado = semanas; 
@@ -5025,7 +4988,7 @@ window.sugerirHorarios = async function() {
 
         if (data.success) {
             sugestoesDiv.innerHTML = `
-                <div class="p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30">
+                <div class="p-4 rounded-lg">
                     <div class="flex items-center gap-2 mb-3">
                         <span class="text-green-400">📅</span>
                         <strong class="text-green-400">Horários Sugeridos</strong>
@@ -5194,7 +5157,7 @@ function conectarSSE() {
         function mostrarNotificacaoAgendamento(agendamento) {
             // Cria uma notificação flutuante
             const notificacao = document.createElement('div');
-            notificacao.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm animate-fade-in';
+            notificacao.className = 'fixed top-4 right-4 text-white p-4 rounded-lg z-50 max-w-sm animate-fade-in';
             notificacao.innerHTML = `
                 <div class="flex items-center gap-3">
                     <div class="text-2xl">🎉</div>
@@ -5338,7 +5301,6 @@ function desconectarSSE() {
            const modalHTML = `
     <div id="modalEstatisticas" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
         <div class="glass-card rounded-xl p-4 w-full max-w-md mx-auto animate-fade-in" style="max-height: 85vh;">
-            <!-- Cabeçalho -->
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold">📊 Estatísticas do Negócio</h3>
                 <button onclick="fecharModalEstatisticas()" class="text-gray-400 hover:text-white">
@@ -5346,42 +5308,39 @@ function desconectarSSE() {
                 </button>
             </div>
             
-            <!-- 🎯 ESTATÍSTICAS PRINCIPAIS -->
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <div class="text-center p-3 bg-white/10 rounded-lg">
-                    <div class="text-base font-bold text-cyan-400">${data.estatisticas.total}</div>
+                    <div class="text-base font-bold">${data.estatisticas.total}</div>
                     <div class="text-xs text-gray-300 mt-1">Total</div>
                 </div>
                 <div class="text-center p-3 bg-white/10 rounded-lg">
-                    <div class="text-base font-bold text-green-400">${data.estatisticas.este_mes}</div>
+                    <div class="text-base font-bold">${data.estatisticas.este_mes}</div>
                     <div class="text-xs text-gray-300 mt-1">Este Mês</div>
                 </div>
                 <div class="text-center p-3 bg-white/10 rounded-lg">
-                    <div class="text-base font-bold text-blue-400">${data.estatisticas.confirmados}</div>
+                    <div class="text-base font-bold">${data.estatisticas.confirmados}</div>
                     <div class="text-xs text-gray-300 mt-1">Confirmados</div>
                 </div>
                 <div class="text-center p-3 bg-white/10 rounded-lg">
-                    <div class="text-base font-bold text-yellow-400">${data.estatisticas.taxa_comparecimento || '0%'}</div>
+                    <div class="text-base font-bold">${data.estatisticas.taxa_comparecimento || '0%'}</div>
                     <div class="text-xs text-gray-300 mt-1">Comparecimento</div>
                 </div>
             </div>
             
-            <!-- 💼 ANÁLISE IA - VERSÃO MELHORADA -->
-            <div class="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-purple-500/30 p-3 mb-4" style="max-height: 250px; overflow-y: auto;">
+            <div class="rounded-lg p-3 mb-4" style="max-height: 250px; overflow-y: auto;">
                 <div class="flex items-center gap-2 mb-3">
-                    <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                    <div class="w-6 h-6 rounded-full flex items-center justify-center">
                         <span class="text-white text-xs">IA</span>
                     </div>
-                    <h4 class="font-semibold text-purple-400 text-sm">💼 Análise do Seu Negócio</h4>
+                    <h4 class="font-semibold text-sm">💼 Análise do Seu Negócio</h4>
                 </div>
                 <div class="text-sm leading-relaxed whitespace-pre-line text-gray-200">
                     ${data.analise_ia}
                 </div>
             </div>
             
-            <!-- 📈 AÇÕES SUGERIDAS -->
-            <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg border border-green-500/20 p-3 mb-4">
-                <h4 class="font-semibold text-green-400 text-sm mb-2 flex items-center gap-2">
+            <div class="rounded-lg p-3 mb-4">
+                <h4 class="font-semibold text-sm mb-2 flex items-center gap-2">
                     <i data-feather="trending-up" class="w-4 h-4"></i>
                     Próximos Passos Sugeridos
                 </h4>
@@ -5392,7 +5351,7 @@ function desconectarSSE() {
                 </ul>
             </div>
             
-            <button onclick="fecharModalEstatisticas()" class="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 transition-all text-sm font-medium text-white">
+            <button onclick="fecharModalEstatisticas()" class="w-full px-4 py-2 rounded-lg transition-all text-sm font-medium text-white">
                 Entendido
             </button>
         </div>
@@ -5565,10 +5524,6 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
-
-
-
-
 
 
 
