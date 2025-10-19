@@ -2909,89 +2909,64 @@ async function testePerfil() {
 
 
         
-   async function gerarLinkAgendamento() {
+async function gerarLinkAgendamento() {
     try {
-        console.log('🔍 VERIFICAÇÃO CRÍTICA DE PERFIL INICIADA...');
+        console.log('🔍 VERIFICAÇÃO DE PERFIL INICIADA...');
         
-        // ✅ PRIMEIRO: Verificar se o endpoint /api/meu-perfil está funcionando
-        let perfilData = null;
+        // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL
         let temPerfil = false;
+        let perfilData = null;
         
         try {
             console.log('📡 Fazendo requisição para /api/meu-perfil...');
             const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
-                method: 'GET',
                 headers: { 
                     'Authorization': `Bearer ${userToken}`,
                     'Content-Type': 'application/json'
                 }
             });
             
-            console.log('📊 Status da resposta:', perfilResponse.status);
+            console.log('📊 Status da resposta do perfil:', perfilResponse.status);
             
-            if (perfilResponse.status === 401) {
-                console.log('🔐 Token inválido');
-                showToast("Sessão expirada. Faça login novamente.", "error");
-                await logoutSilencioso();
-                return;
-            }
-            
-            if (!perfilResponse.ok) {
-                console.log('❌ Endpoint retornou erro:', perfilResponse.status);
-                // Se o endpoint não está funcionando, NÃO permite gerar link
-                showToast("❌ Sistema temporariamente indisponível", "error");
-                return;
-            }
-            
-            perfilData = await perfilResponse.json();
-            console.log('📦 Dados COMPLETOS da resposta:', perfilData);
-            
-            // 🔥 VERIFICAÇÃO DEFINITIVA E RIGOROSA
-            // O perfil só existe se: success=true E perfil NÃO é null E perfil tem id
-            if (perfilData.success && perfilData.perfil && perfilData.perfil.id) {
-                console.log('✅ PERFIL ENCONTRADO NO BANCO:', perfilData.perfil);
-                temPerfil = true;
-            } else {
-                console.log('❌ PERFIL NÃO ENCONTRADO NO BANCO:', {
+            if (perfilResponse.ok) {
+                perfilData = await perfilResponse.json();
+                console.log('📦 Dados COMPLETOS do perfil:', perfilData);
+                
+                // 🔥 VERIFICAÇÃO DEFINITIVA - O perfil só existe se tiver ID
+                temPerfil = perfilData.success && perfilData.perfil && perfilData.perfil.id;
+                
+                console.log('✅ Resultado da verificação:', {
                     success: perfilData.success,
                     hasPerfil: !!perfilData.perfil,
-                    perfilId: perfilData.perfil?.id
+                    perfilId: perfilData.perfil?.id,
+                    temPerfil: temPerfil
                 });
+                
+            } else {
+                console.log('❌ Erro HTTP ao verificar perfil:', perfilResponse.status);
                 temPerfil = false;
             }
-            
-        } catch (error) {
-            console.error('❌ Erro crítico ao verificar perfil:', error);
-            // Em caso de erro, NÃO permite gerar link
-            showToast("❌ Erro ao verificar perfil do estabelecimento", "error");
-            return;
+        } catch (perfilError) {
+            console.error('❌ Erro ao verificar perfil:', perfilError);
+            temPerfil = false;
         }
         
         // 🔥 BLOQUEIO COMPLETO SE NÃO TIVER PERFIL
         if (!temPerfil) {
-            console.log('🚫 BLOQUEADO: Usuário não tem perfil no banco de dados');
-            showToast("❌ Crie um perfil do estabelecimento antes de gerar links de agendamento", "error");
+            console.log('🚫 BLOQUEADO: Usuário não tem perfil válido');
+            showToast("❌ Crie um perfil do estabelecimento antes de gerar links", "error");
             
-            // Mostra qual é exatamente o problema
-            if (perfilData) {
-                console.log('🔍 Diagnóstico do problema:', {
-                    success: perfilData.success,
-                    perfil: perfilData.perfil,
-                    perfilId: perfilData.perfil?.id
-                });
-            }
-            await testePerfil();
             // Abre o menu para criar perfil
             setTimeout(() => {
                 abrirMenuConfiguracoes();
-            }, 2000);
+            }, 1500);
             
             return;
         }
 
-        console.log('✅ PERFIL CONFIRMADO NO BANCO - Gerando link...');
+        console.log('✅ PERFIL VALIDADO - Gerando link...');
 
-        // 🔥 SÓ CHEGA AQUI SE TIVER PERFIL VÁLIDO
+        // 🔥 CONTINUA COM A GERAÇÃO DO LINK...
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user || !user.id) {
@@ -5102,6 +5077,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
