@@ -2878,28 +2878,65 @@ async function atualizarInterfacePosLogin() {
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
-       async function gerarLinkAgendamento() {
+      async function gerarLinkAgendamento() {
     try {
-        // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL
+        console.log('🔍 Verificando perfil para gerar link...');
+        
+        // ✅ VERIFICAÇÃO CORRIGIDA E ROBUSTA
         let temPerfil = false;
+        let perfilData = null;
+        
         try {
             const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
                 headers: { 'Authorization': `Bearer ${userToken}` }
             });
             
+            console.log('📊 Status da resposta do perfil:', perfilResponse.status);
+            
             if (perfilResponse.ok) {
-                const perfilData = await perfilResponse.json();
-                temPerfil = perfilData.success && perfilData.perfil;
+                perfilData = await perfilResponse.json();
+                console.log('📦 Dados completos do perfil:', perfilData);
+                
+                // 🔥 VERIFICAÇÃO CORRIGIDA: Checa se existe ID do perfil
+                temPerfil = perfilData.success && 
+                           perfilData.perfil && 
+                           perfilData.perfil.id && 
+                           perfilData.perfil.nome_negocio;
+                
+                console.log('✅ Resultado da verificação:', {
+                    success: perfilData.success,
+                    hasPerfil: !!perfilData.perfil,
+                    hasId: !!perfilData.perfil?.id,
+                    hasNome: !!perfilData.perfil?.nome_negocio,
+                    temPerfil: temPerfil
+                });
+                
+            } else if (perfilResponse.status === 404) {
+                console.log('❌ Perfil não encontrado (404)');
+                temPerfil = false;
+            } else {
+                console.log('❌ Erro HTTP ao verificar perfil:', perfilResponse.status);
+                temPerfil = false;
             }
         } catch (perfilError) {
-            console.error('Erro ao verificar perfil:', perfilError);
+            console.error('❌ Erro na requisição do perfil:', perfilError);
+            temPerfil = false;
         }
         
+        // 🔥 BLOQUEIO EFETIVO SE NÃO TIVER PERFIL
         if (!temPerfil) {
+            console.log('🚫 BLOQUEADO: Usuário não tem perfil válido');
             showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
-            abrirMenuConfiguracoes();
+            
+            // Abre o menu de configurações para criar perfil
+            setTimeout(() => {
+                abrirMenuConfiguracoes();
+            }, 1000);
+            
             return;
         }
+
+        console.log('✅ PERFIL VALIDADO - Gerando link...');
 
         // 🔥 CONTINUA COM A GERAÇÃO DO LINK...
         const { data: { user } } = await supabase.auth.getUser();
@@ -2911,11 +2948,13 @@ async function atualizarInterfacePosLogin() {
 
         const userId = user.id;
         
+        console.log('🔗 Fazendo requisição para gerar link...');
         const response = await fetch(`${API_BASE_URL}/gerar-link/${userId}`, {
             headers: { 'Authorization': `Bearer ${userToken}` }
         });
         
         const result = await response.json();
+        console.log('📨 Resposta da geração do link:', result);
         
         if (result.success) {
             mostrarModalLinkAgendamento(result.link, result.qr_code);
@@ -2927,6 +2966,8 @@ async function atualizarInterfacePosLogin() {
         showToast("Erro ao gerar link de agendamento", "error");
     }
 }
+
+        
         
 
         function mostrarModalLinkAgendamento(link, qrCodeUrl) {
@@ -5010,6 +5051,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
