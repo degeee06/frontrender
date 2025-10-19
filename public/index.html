@@ -2292,7 +2292,27 @@ showDailyLimitModal(dailyLimit) {
 }
     
 
-
+// 🔥 ADICIONE ESTA FUNÇÃO para fechar modais
+function fecharTodosModais() {
+    const modais = document.querySelectorAll('.fixed.inset-0.bg-black, .fixed.inset-0.bg-black\\/70, .modal-overlay');
+    modais.forEach(modal => modal.remove());
+    
+    // Também remove modais específicos que podem estar abertos
+    const modaisEspecificos = [
+        'modalLinkAgendamento',
+        'modalEstatisticas', 
+        'modalPerfilConfig',
+        'modalMenuConfig',
+        'modalSemPerfil',
+        'configSheetsModal',
+        'termsModal'
+    ];
+    
+    modaisEspecificos.forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal) modal.remove();
+    });
+}
 // ✅ CORREÇÃO: Função updateUsageBadge - MOSTRA 5/5 QUANDO LIMITE ATINGIDO
 async updateUsageBadge() {
     const badge = document.getElementById('premiumBadge');
@@ -2527,6 +2547,7 @@ setInterval(async () => {
 // 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
 function mostrarTelaLogin() {
     console.log('👤 Mostrando tela de login - ocultando todas as seções do app');
+    fecharTodosModais();
     // Na função mostrarTelaLogin() - procure esta função e adicione:
 document.getElementById('gerarLinkBtn').classList.add('hidden');
 
@@ -4000,6 +4021,7 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
 async function logoutSilencioso() {
     try {
         console.log('🔒 Executando logout silencioso...');
+        fecharTodosModais();
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
         userToken = null;
@@ -5542,6 +5564,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
