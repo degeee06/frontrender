@@ -1780,7 +1780,39 @@ window.declineTerms = function() {
     document.getElementById('termsModal').classList.add('hidden');
 };
 
-        
+        // 🔥 FUNÇÃO PARA FECHAR TODOS OS MODAIS
+function fecharTodosModais() {
+    console.log('🎯 Fechando todos os modais abertos...');
+    
+    // Lista de IDs de modais que podem estar abertos
+    const modais = [
+        'modalLinkAgendamento',
+        'modalEstatisticas',
+        'modalReagendar',
+        'modalPerfilConfig',
+        'modalMenuConfig',
+        'modalSemPerfil',
+        'configSheetsModal',
+        'termsModal'
+    ];
+    
+    modais.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.remove();
+            console.log(`✅ Modal ${modalId} fechado`);
+        }
+    });
+    
+    // 🔥 CORREÇÃO ESPECÍFICA PARA O MODAL DE LIMITE (que é criado dinamicamente)
+    const modaisDinamicos = document.querySelectorAll('.fixed.inset-0.bg-black, .fixed.inset-0.bg-black\\/70, .fixed.inset-0.bg-black\\/80');
+    modaisDinamicos.forEach(modal => {
+        if (modal.querySelector('.hotmart-fb') || modal.textContent.includes('Limite Diário')) {
+            modal.remove();
+            console.log('✅ Modal de limite diário fechado');
+        }
+    });
+}
         
       // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
 function verificarCallbackOAuth() {
@@ -1958,26 +1990,7 @@ async checkTrialStatus() {
             }
         }
         
-        function fecharTodosModais() {
-    const modais = document.querySelectorAll('.fixed.inset-0.bg-black, .fixed.inset-0.bg-black\\/70, .modal-overlay');
-    modais.forEach(modal => modal.remove());
-    
-    // Também remove modais específicos que podem estar abertos
-    const modaisEspecificos = [
-        'modalLinkAgendamento',
-        'modalEstatisticas', 
-        'modalPerfilConfig',
-        'modalMenuConfig',
-        'modalSemPerfil',
-        'configSheetsModal',
-        'termsModal'
-    ];
-    
-    modaisEspecificos.forEach(id => {
-        const modal = document.getElementById(id);
-        if (modal) modal.remove();
-    });
-}
+       
         const dailyUsage = await this.getDailyUsage(trial, 5);
         
         // 🔥 CORREÇÃO: hasTrial continua true mesmo sem usos disponíveis
@@ -2533,7 +2546,6 @@ setInterval(async () => {
 // 🔥 CORREÇÃO: Função mostrarTelaLogin COMPLETA e ROBUSTA
 function mostrarTelaLogin() {
     console.log('👤 Mostrando tela de login - ocultando todas as seções do app');
-     fecharTodosModais();
     // Mostra seção de login
     const loginSection = document.getElementById('loginSection');
     if (loginSection) loginSection.style.display = 'block';
@@ -4207,6 +4219,7 @@ logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
     
     try {
+        fecharTodosModais();
         // Para todas as operações
         desconectarSSE();
         if (intervaloAtualizacao) {
@@ -5524,6 +5537,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
