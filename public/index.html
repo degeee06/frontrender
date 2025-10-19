@@ -1068,6 +1068,38 @@
 #googleLoginBtn:hover span {
     color: #FFFFFF !important;
 }
+
+                /* 🔥 FORÇAR DESIGN DO SEU BOTÃO SOBRE O HOTMART */
+.hotmart-fb.hotmart__button-checkout {
+    background: linear-gradient(to right, #f59e0b, #ea580c) !important;
+    background-color: transparent !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+    text-decoration: none !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+.hotmart-fb.hotmart__button-checkout:hover {
+    background: linear-gradient(to right, #d97706, #dc2626) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 🔥 REMOVER ESTILOS PADRÃO DO HOTMART */
+.hotmart-fb.hotmart__button-checkout:before,
+.hotmart-fb.hotmart__button-checkout:after {
+    display: none !important;
+}
         /* 🔥 CORREÇÃO DOS EMOJIS BRANCOS */
 .agendamento-ia-section span,
 .sugestoes-ia-section span {
@@ -1104,6 +1136,33 @@
     cursor: not-allowed !important;
     transform: none !important;
 }
+        /* 🔥 CORREÇÃO DOS EMOJIS - ULTRA BLACK UI */
+.agendamento-ia-section span[role="img"],
+.sugestoes-ia-section span[role="img"],
+.agendamento-ia-section span:contains("🎯"),
+.agendamento-ia-section span:contains("📅"),
+.sugestoes-ia-section span:contains("📊"),
+.sugestoes-ia-section span:contains("📈") {
+    color: inherit !important;
+    filter: none !important;
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+}
+
+/* Correção específica para emojis em headings */
+.agendamento-ia-section h3 span,
+.sugestoes-ia-section h3 span {
+    color: inherit !important;
+    filter: none !important;
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+}
+
+/* Garantir que os emojis não sejam afetados pelos estilos de texto */
+span {
+    -webkit-text-fill-color: initial !important;
+}
+        
 
     </style>
 </head>
@@ -5352,6 +5411,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
