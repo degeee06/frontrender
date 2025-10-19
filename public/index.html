@@ -2543,7 +2543,7 @@ async function atualizarInterfacePosLogin() {
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
         
-      async function gerarLinkAgendamento() {
+   async function gerarLinkAgendamento() {
     try {
         // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL
         let temPerfil = false;
@@ -2561,8 +2561,14 @@ async function atualizarInterfacePosLogin() {
         }
         
         if (!temPerfil) {
+            // 🔥 MOSTRA O TOAST PRIMEIRO
             showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
-            abrirMenuConfiguracoes();
+            
+            // 🔥 DEPOIS ABRE O MENU (com delay para o toast aparecer)
+            setTimeout(() => {
+                abrirMenuConfiguracoes();
+            }, 500);
+            
             return;
         }
 
@@ -2592,7 +2598,6 @@ async function atualizarInterfacePosLogin() {
         showToast("Erro ao gerar link de agendamento", "error");
     }
 }
-
         
         function mostrarModalLinkAgendamento(link, qrCodeUrl) {
             const modalExistente = document.getElementById('modalLinkAgendamento');
@@ -4674,6 +4679,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
