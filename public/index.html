@@ -1110,14 +1110,49 @@
 .text-sm span:last-child {
     color: var(--white-ice);
 }
-        /* 🔥 CORREÇÃO PARA O BOTÃO GOOGLE - BORDA FALTANDO */
 
+        /* 🔥 BOTÕES PRINCIPAIS - ULTRA BLACK UI */
+#agendamentoForm button[type="submit"], #googleLoginBtn,
+.bg-gradient-to-r.from-indigo-500, .bg-gradient-to-r.from-green-500,
+.btn-agendar-premium {
+  background: #1A1A1A !important;
+  border: 1px solid #333333 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+  font-weight: 500 !important;
+  border-radius: 12px !important;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+#agendamentoForm button[type="submit"]:hover, #googleLoginBtn:hover,
+.bg-gradient-to-r.from-indigo-500:hover, .bg-gradient-to-r.from-green-500:hover,
+.btn-agendar-premium:hover {
+  background: #222222 !important;
+  border-color: #5A5A5A !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* 🔥 BOTÃO GOOGLE ESPECÍFICO */
 #googleLoginBtn {
-    border: 1px solid var(--black-light) !important;
+  background: #000000 !important;
+  border: 1px solid #333333 !important;
+}
+
+#googleLoginBtn span {
+  color: #E0E0E0 !important;
+  transition: color 0.3s ease !important;
 }
 
 #googleLoginBtn:hover {
-    border-color: var(--gray-steel) !important;
+  background: #111111 !important;
+  border-color: #5A5A5A !important;
+}
+
+#googleLoginBtn:hover span {
+  color: #FFFFFF !important;
 }
     </style>
 </head>
@@ -5362,6 +5397,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
