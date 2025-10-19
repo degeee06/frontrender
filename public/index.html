@@ -566,6 +566,249 @@ select option {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
 }
+
+        /* 🔥 FALTAM ESTES ESTILOS NO SEU CSS: */
+
+/* Efeito de brilho animado no botão */
+button[type="submit"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+button[type="submit"]:hover::before {
+    left: 100%;
+}
+
+/* Estados específicos do texto e spinner do botão agendar */
+#agendarText {
+    transition: opacity 0.3s ease;
+}
+
+#agendarText.hidden {
+    opacity: 0;
+}
+
+#agendarSpinner.hidden {
+    display: none;
+}
+
+/* 🔥 ESTILOS PREMIUM QUE FALTAM: */
+
+/* Versão premium do botão */
+.btn-agendar-premium {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 14px 28px !important;
+    border: none !important;
+    border-radius: 16px !important;
+    font-weight: 700 !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 
+        0 10px 25px -5px rgba(102, 126, 234, 0.4),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    min-height: 56px !important;
+    text-decoration: none !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Efeitos hover premium */
+.btn-agendar-premium:hover {
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 
+        0 20px 40px -10px rgba(102, 126, 234, 0.5),
+        0 8px 12px -4px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+}
+
+/* Efeito de clique premium */
+.btn-agendar-premium:active {
+    transform: translateY(-1px) scale(1.01) !important;
+    box-shadow: 
+        0 5px 15px -3px rgba(102, 126, 234, 0.4),
+        0 2px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Efeito de brilho animado premium */
+.btn-agendar-premium::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent) !important;
+    transition: left 0.7s ease-in-out !important;
+}
+
+.btn-agendar-premium:hover::before {
+    left: 100% !important;
+}
+
+/* Efeito de borda luminosa */
+.btn-agendar-premium::after {
+    content: '' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: -2px !important;
+    right: -2px !important;
+    bottom: -2px !important;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c) !important;
+    border-radius: 18px !important;
+    z-index: -1 !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+}
+
+.btn-agendar-premium:hover::after {
+    opacity: 1 !important;
+}
+
+/* Estado desabilitado premium */
+.btn-agendar-premium:disabled {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: 
+        0 2px 8px -2px rgba(156, 163, 175, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    opacity: 0.6 !important;
+}
+
+.btn-agendar-premium:disabled:hover {
+    transform: none !important;
+    box-shadow: 
+        0 2px 8px -2px rgba(156, 163, 175, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+.btn-agendar-premium:disabled::before,
+.btn-agendar-premium:disabled::after {
+    display: none !important;
+}
+
+/* Loading spinner premium */
+.loading-spinner-premium {
+    border: 3px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 50% !important;
+    border-top: 3px solid white !important;
+    width: 24px !important;
+    height: 24px !important;
+    animation: spin 0.8s linear infinite !important;
+}
+
+/* Ícone do botão premium */
+.btn-agendar-premium i {
+    transition: transform 0.3s ease !important;
+}
+
+.btn-agendar-premium:hover i {
+    transform: scale(1.1) !important;
+}
+
+/* 🔥 ANIMAÇÃO DE PULSO PARA CHAMAR ATENÇÃO (FALTA) */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 
+            0 10px 25px -5px rgba(102, 126, 234, 0.4),
+            0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    50% {
+        box-shadow: 
+            0 10px 30px -5px rgba(102, 126, 234, 0.6),
+            0 6px 10px -2px rgba(0, 0, 0, 0.1),
+            0 0 20px rgba(102, 126, 234, 0.4);
+    }
+}
+
+/* Aplicar animação de pulso quando o formulário estiver em foco */
+#agendamentoForm:focus-within button[type="submit"] {
+    animation: pulse-glow 2s infinite;
+}
+
+/* 🔥 ESTILOS ESPECÍFICOS PARA O BOTÃO DO FORMULÁRIO (FALTAM) */
+#agendamentoForm button[type="submit"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 10px 25px -5px rgba(102, 126, 234, 0.4),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 56px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#agendamentoForm button[type="submit"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 20px 40px -10px rgba(102, 126, 234, 0.5),
+        0 8px 12px -4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+#agendamentoForm button[type="submit"]:active {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 5px 15px -3px rgba(102, 126, 234, 0.4),
+        0 2px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* 🔥 RESPONSIVIDADE ESPECÍFICA PARA O BOTÃO AGENDAR (FALTAM) */
+@media (max-width: 768px) {
+    #agendamentoForm button[type="submit"] {
+        padding: 14px 24px;
+        font-size: 16px;
+        min-height: 52px;
+    }
+    
+    .btn-agendar-premium {
+        padding: 12px 20px !important;
+        font-size: 16px !important;
+        min-height: 48px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #agendamentoForm button[type="submit"] {
+        padding: 12px 20px;
+        font-size: 16px;
+        min-height: 48px;
+        border-radius: 14px;
+    }
+}
+        
         /* 🔥 FORÇAR DESIGN DO SEU BOTÃO SOBRE O HOTMART */
 .hotmart-fb.hotmart__button-checkout {
     background: linear-gradient(to right, #f59e0b, #ea580c) !important;
@@ -4766,6 +5009,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
