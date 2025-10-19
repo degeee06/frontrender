@@ -1678,7 +1678,7 @@ window.abrirModalPrivacidade = function() {
 
 
 // 🔒 FUNÇÃO ACEITAR TERMOS (com banco)
-async function acceptTerms() {
+window.acceptTerms = async function() {
     try {
         console.log('✅ Salvando aceitação de termos...');
         
@@ -1714,7 +1714,7 @@ async function acceptTerms() {
     }
 }
 
-function declineTerms() {
+window.declineTerms = function() {
     console.log('❌ Usuário recusou os termos');
     showToast('Para usar o sistema, é necessário aceitar os Termos de Uso.', 'error');
 }
@@ -4798,6 +4798,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
