@@ -1780,39 +1780,6 @@ window.declineTerms = function() {
     document.getElementById('termsModal').classList.add('hidden');
 };
 
-        // 🔥 FUNÇÃO PARA FECHAR TODOS OS MODAIS
-function fecharTodosModais() {
-    console.log('🎯 Fechando todos os modais abertos...');
-    
-    // Lista de IDs de modais que podem estar abertos
-    const modais = [
-        'modalLinkAgendamento',
-        'modalEstatisticas',
-        'modalReagendar',
-        'modalPerfilConfig',
-        'modalMenuConfig',
-        'modalSemPerfil',
-        'configSheetsModal',
-        'termsModal'
-    ];
-    
-    modais.forEach(modalId => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.remove();
-            console.log(`✅ Modal ${modalId} fechado`);
-        }
-    });
-    
-    // 🔥 CORREÇÃO ESPECÍFICA PARA O MODAL DE LIMITE (que é criado dinamicamente)
-    const modaisDinamicos = document.querySelectorAll('.fixed.inset-0.bg-black, .fixed.inset-0.bg-black\\/70, .fixed.inset-0.bg-black\\/80');
-    modaisDinamicos.forEach(modal => {
-        if (modal.querySelector('.hotmart-fb') || modal.textContent.includes('Limite Diário')) {
-            modal.remove();
-            console.log('✅ Modal de limite diário fechado');
-        }
-    });
-}
         
       // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
 function verificarCallbackOAuth() {
@@ -4003,7 +3970,6 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
 async function logoutSilencioso() {
     try {
         console.log('🔒 Executando logout silencioso...');
-        fecharTodosModais();
         localStorage.removeItem('userToken');
         localStorage.removeItem('supabase.auth.token');
         userToken = null;
@@ -4219,7 +4185,6 @@ logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
     
     try {
-        fecharTodosModais();
         // Para todas as operações
         desconectarSSE();
         if (intervaloAtualizacao) {
@@ -5537,6 +5502,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
