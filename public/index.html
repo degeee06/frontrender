@@ -3,229 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento Premium</title>
-    
-    <!-- 🔒 CONFIGURAÇÕES DE SEGURANÇA E API -->
+    <title>Agendamento</title>
+     <!-- 🔒 ADICIONE ESTE BLOCO AQUI -->
     <script>
     window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk";
     window.API_BASE_URL = "https://agendamento-ynxr.onrender.com";
     </script>
-    
-    <!-- 📚 BIBLIOTECAS EXTERNAS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.2/imask.min.js"></script>
-    
-    <!-- 🎨 ESTILOS PERSONALIZADOS -->
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    :root {
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        --glass-bg: rgba(255, 255, 255, 0.08);
-        --glass-border: rgba(255, 255, 255, 0.15);
-        --text-primary: #ffffff;
-        --text-secondary: rgba(255, 255, 255, 0.85);
-        --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    /* ESTILO PARA TELA DE AUTENTICAÇÃO */
+    .auth-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    .auth-container {
+        text-align: center;
+        padding: 20px;
+    }
+    .spinner {
+        border: 4px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top: 4px solid white;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .hidden {
+        display: none !important;
     }
     
-    * {
-        box-sizing: border-box;
+    /* ESTILOS PARA AS SEÇÕES IA */
+    .assistente-ia-section,
+    .agendamento-ia-section,
+    .sugestoes-ia-section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+        margin: 16px 0;
+    }
+
+    .chat-ia {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .historico-chat {
+        height: 280px;
+        overflow-y: auto;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .mensagem {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        max-width: 85%;
+        font-size: 14px;
+    }
+
+    .mensagem.usuario {
+        background: rgba(59, 130, 246, 0.3);
+        margin-left: auto;
+        border: 1px solid rgba(59, 130, 246, 0.5);
+    }
+
+    .mensagem.ia {
+        background: rgba(139, 92, 246, 0.3);
+        margin-right: auto;
+        border: 1px solid rgba(139, 92, 246, 0.5);
+    }
+
+    .mensagem.erro {
+        background: rgba(239, 68, 68, 0.3);
+        border: 1px solid rgba(239, 68, 68, 0.5);
+    }
+
+    .input-chat {
+        display: flex;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        gap: 8px;
+    }
+
+    .input-chat input {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 16px; /* 🔥 EVITA ZOOM NO iOS */
+    }
+
+    .input-chat button {
+        padding: 12px 16px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+        border: none;
+        color: white;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .agendamento-rapido {
+        display: flex;
+        gap: 8px;
+    }
+
+    .agendamento-rapido input {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 16px; /* 🔥 EVITA ZOOM NO iOS */
+    }
+
+    .agendamento-rapido button {
+        padding: 12px 16px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        color: white;
+        cursor: pointer;
+    }
+
+    .sugestoes-conteudo {
+        margin-top: 16px;
+    }
+
+    .sugestoes-texto {
+        white-space: pre-line;
+        line-height: 1.6;
+        font-size: 14px;
     }
     
     body {
         font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        color: var(--text-primary);
-        min-height: 100vh;
-        overflow-x: hidden;
     }
-    
-    /* 🔮 GLASSMORPHISM PREMIUM */
+  
     .glass-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        box-shadow: var(--shadow-premium),
-                   inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
     
-    .glass-header {
-        background: rgba(15, 23, 42, 0.7);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    /* 🎯 ANIMAÇÕES E TRANSITIONS */
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-    
-    @keyframes fadeIn {
-        from { 
-            opacity: 0; 
-            transform: translateY(-10px); 
-        }
-        to { 
-            opacity: 1; 
-            transform: translateY(0); 
-        }
-    }
-    
-    .animate-fade-in {
-        animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-    
-    .animate-slide-in {
-        animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-    
-    /* 🎪 MICRO-INTERAÇÕES */
-    .hover-lift {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .hover-lift:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-    }
-    
-    .btn-premium {
-        background: var(--primary-gradient);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .btn-premium::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
-    }
-    
-    .btn-premium:hover::before {
-        left: 100%;
-    }
-    
-    .btn-premium:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-    }
-    
-    /* 📱 DESIGN RESPONSIVO AVANÇADO */
-    @media (max-width: 640px) {
-        .container {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-        
-        .glass-card {
-            margin: 0 -0.5rem;
-            border-radius: 16px;
-        }
-        
-        .input-field {
-            font-size: 16px !important;
-            padding: 14px 12px !important;
-        }
-    }
-    
-    @media (min-width: 641px) and (max-width: 768px) {
-        .container {
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-    }
-    
-    /* 🔥 COMPONENTES ESPECIAIS */
-    .smart-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .smart-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-premium);
-    }
-    
-    .status-badge {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .status-pendente {
-        background: rgba(251, 191, 36, 0.15);
-        color: #fbbf24;
-        border: 1px solid rgba(251, 191, 36, 0.3);
-    }
-    
-    .status-confirmado {
-        background: rgba(52, 211, 153, 0.15);
-        color: #34d399;
-        border: 1px solid rgba(52, 211, 153, 0.3);
-    }
-    
-    .status-cancelado {
-        background: rgba(248, 113, 113, 0.15);
-        color: #f87171;
-        border: 1px solid rgba(248, 113, 113, 0.3);
-    }
-    
-    /* 🌀 SCROLLBAR PERSONALIZADO */
-    .scrollbar-custom::-webkit-scrollbar {
+    .scrollbar-hide::-webkit-scrollbar {
         width: 6px;
     }
     
-    .scrollbar-custom::-webkit-scrollbar-track {
+    .scrollbar-hide::-webkit-scrollbar-track {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 10px;
     }
     
-    .scrollbar-custom::-webkit-scrollbar-thumb {
+    .scrollbar-hide::-webkit-scrollbar-thumb {
         background: rgba(255, 255, 255, 0.2);
         border-radius: 10px;
     }
     
-    .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    .scrollbar-hide::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.3);
     }
     
-    /* ✨ LOADING STATES */
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .input-field {
+        transition: all 0.3s ease;
+        font-size: 16px; /* 🔥 EVITA ZOOM NO iOS */
+    }
+    
+    .input-field:focus {
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+    }
+    
+    .status-pendente {
+        color: #fbbf24;
+        background-color: rgba(251, 191, 36, 0.15);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .status-confirmado {
+        color: #34d399;
+        background-color: rgba(52, 211, 153, 0.15);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .status-cancelado {
+        color: #f87171;
+        background-color: rgba(248, 113, 113, 0.15);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+    
+    .tab-dia.active {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .agendamento-card {
+        transition: all 0.3s ease;
+    }
+    
+    .agendamento-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
     .loading-spinner {
         border: 2px solid rgba(255, 255, 255, 0.3);
         border-radius: 50%;
@@ -239,179 +264,346 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-    
-    .skeleton-loader {
-        background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-        background-size: 200% 100%;
-        animation: loading 1.5s infinite;
-        border-radius: 8px;
-    }
-    
-    @keyframes loading {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
-    }
-    
-    /* 🎭 FORMULÁRIOS PREMIUM */
-    .floating-form input,
-    .floating-form select,
-    .floating-form textarea {
-        background: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        color: white;
-        transition: all 0.3s ease;
-        font-size: 16px;
-    }
-    
-    .floating-form input:focus,
-    .floating-form select:focus,
-    .floating-form textarea:focus {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(102, 126, 234, 0.5);
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        outline: none;
-    }
-    
-    /* 🔥 CORREÇÕES ESPECÍFICAS */
-    .hidden {
-        display: none !important;
-    }
-    
-    .auth-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: var(--primary-gradient);
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
-    
-    /* 🆕 SEÇÕES IA COM DESIGN PREMIUM */
-    .assistente-ia-section,
-    .agendamento-ia-section,
-    .sugestoes-ia-section {
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        padding: 24px;
-        margin: 20px 0;
-        box-shadow: var(--shadow-premium);
-    }
-    
-    .chat-ia {
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        overflow: hidden;
-        background: rgba(0, 0, 0, 0.2);
-    }
-    
-    .historico-chat {
-        height: 280px;
-        overflow-y: auto;
-        padding: 16px;
-        background: rgba(0, 0, 0, 0.2);
-    }
-    
-    .mensagem {
-        margin-bottom: 12px;
-        padding: 12px 16px;
-        border-radius: 12px;
-        max-width: 85%;
-        font-size: 14px;
-        line-height: 1.5;
-        animation: fadeIn 0.3s ease;
-    }
-    
-    .mensagem.usuario {
-        background: rgba(59, 130, 246, 0.3);
-        margin-left: auto;
-        border: 1px solid rgba(59, 130, 246, 0.5);
-    }
-    
-    .mensagem.ia {
-        background: rgba(139, 92, 246, 0.3);
-        margin-right: auto;
-        border: 1px solid rgba(139, 92, 246, 0.5);
-    }
-    
-    .mensagem.erro {
-        background: rgba(239, 68, 68, 0.3);
-        border: 1px solid rgba(239, 68, 68, 0.5);
-    }
-    
-    .input-chat {
-        display: flex;
-        padding: 16px;
-        background: rgba(0, 0, 0, 0.3);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        gap: 12px;
-    }
-    
-    .input-chat input {
-        flex: 1;
-        padding: 12px 16px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        font-size: 16px;
-    }
-    
-    .input-chat button {
-        padding: 12px 20px;
-        border-radius: 12px;
-        background: var(--primary-gradient);
-        border: none;
-        color: white;
-        cursor: pointer;
-        white-space: nowrap;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .input-chat button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    /* 🎯 BADGES E INDICADORES */
-    .premium-badge {
-        background: var(--success-gradient);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    /* 🔥 CORREÇÕES PARA MOBILE */
+
+    /* 🔥 CORREÇÕES MOBILE CRÍTICAS */
     @media (max-width: 640px) {
+        .container {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        
+        .glass-card {
+            margin-left: -8px;
+            margin-right: -8px;
+            border-radius: 16px;
+        }
+        
+        /* Inputs mobile */
+        .input-field {
+            font-size: 16px !important;
+            padding-top: 14px !important;
+            padding-bottom: 14px !important;
+        }
+        
+        /* Chat IA mobile */
         .input-chat {
+            padding: 12px;
             flex-direction: column;
+            gap: 8px;
         }
         
+        .input-chat input {
+            margin-right: 0;
+            font-size: 16px;
+        }
+        
+        .input-chat button {
+            width: 100%;
+        }
+        
+        /* Mensagens mobile */
         .mensagem {
-            max-width: 95%;
+            max-width: 95% !important;
+            font-size: 14px;
+            padding: 8px;
         }
         
+        .historico-chat {
+            height: 250px;
+            padding: 10px;
+        }
+        
+        /* Seções IA mobile */
         .assistente-ia-section,
         .agendamento-ia-section,
         .sugestoes-ia-section {
             padding: 16px;
-            margin: 16px 0;
+            margin: 12px 0;
+            border-radius: 12px;
+        }
+        
+        /* Botões mobile */
+        .mobile-w-full {
+            width: 100%;
+        }
+        
+        .mobile-flex-col {
+            flex-direction: column;
+        }
+        
+        /* Tabs scroll */
+        .dias-tabs-container {
+            margin-left: -8px;
+            margin-right: -8px;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+        
+        /* Header mobile */
+        header h1 {
+            font-size: 1.75rem !important;
+        }
+        
+        header p {
+            font-size: 0.9rem;
+            padding: 0 8px;
+        }
+        
+        /* Form mobile */
+        .agendamentoForm .grid {
+            gap: 12px !important;
+        }
+        
+        .agendamentoForm .space-y-5 {
+            gap: 16px !important;
         }
     }
 
-                /* 🔥 FORÇAR DESIGN DO SEU BOTÃO SOBRE O HOTMART */
+    /* 🔥 Breakpoint extra pequeno */
+    @media (max-width: 380px) {
+        .text-2xl {
+            font-size: 1.4rem !important;
+        }
+        
+        .text-xl {
+            font-size: 1.2rem !important;
+        }
+        
+        .text-lg {
+            font-size: 1rem !important;
+        }
+        
+        .tab-dia, .tab-semana {
+            font-size: 11px !important;
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+        }
+        
+        .glass-card {
+            padding: 16px !important;
+        }
+        
+        .historico-chat {
+            height: 200px;
+        }
+        
+        .mensagem {
+            font-size: 13px;
+        }
+    }
+
+    /* 🔥 Breakpoint tablets */
+    @media (min-width: 641px) and (max-width: 768px) {
+        .container {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .mensagem {
+            max-width: 75%;
+        }
+        
+        .input-chat {
+            flex-direction: row;
+        }
+        
+        .input-chat button {
+            width: auto;
+        }
+    }
+
+    /* 🔥 Estados de loading para IA */
+    .btn-ia-loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .input-chat input:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .mensagem.carregando {
+        opacity: 0.7;
+        font-style: italic;
+    }
+
+    /* 🔥 Melhorias de acessibilidade */
+    @media (prefers-reduced-motion: reduce) {
+        .animate-fade-in,
+        .agendamento-card,
+        .input-field {
+            animation: none;
+            transition: none;
+        }
+    }
+    
+    /* Adicione ao seu CSS */
+    .settings-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .settings-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+        /* 🆕 ESTILOS PARA BLOQUEIO POR PERÍODOS */
+.periodo-bloqueado {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#listaPeriodosBloqueados {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
+}
+
+#listaPeriodosBloqueados::-webkit-scrollbar {
+    width: 6px;
+}
+
+#listaPeriodosBloqueados::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#listaPeriodosBloqueados::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+}
+
+.inicio-periodo:invalid + .fim-periodo:valid,
+.fim-periodo:invalid {
+    border-color: rgba(239, 68, 68, 0.5) !important;
+}
+
+.inicio-periodo:valid + .fim-periodo:valid {
+    border-color: rgba(34, 197, 94, 0.5) !important;
+}
+        /* 🔧 Correção visual do select invisível */
+#tipoNegocioSelect {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+#tipoNegocioSelect option {
+  background-color: #1f2937; /* fundo escuro */
+  color: #fff; /* texto branco visível */
+}
+
+        /* 🔥 CORREÇÃO: Estilos para inputs de data/time no iOS */
+input[type="date"], input[type="time"] {
+    font-size: 16px !important;
+    min-height: 44px !important;
+}
+
+/* 🔥 CORREÇÃO: Garantir que selects sejam visíveis */
+select {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+select option {
+    background-color: #1f2937 !important;
+    color: white !important;
+}
+
+/* 🔥 CORREÇÃO: Loading states para botões IA */
+.btn-loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-loading .loading-spinner {
+    display: inline-block !important;
+}
+
+ /* 🔥 ESTILOS PARA TELA DE AUTENTICAÇÃO ATUALIZADA */
+.auth-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.spinner {
+    border: 4px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top: 4px solid white;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.animate-pulse-slow {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+/* Transições e hover effects */
+.btn-premium, button[type="submit"] {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-premium:hover, button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* Loading spinner */
+.loading-spinner {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 2px solid white;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estado de hover com opacidade */
+.hover\:opacity-90:hover {
+    opacity: 0.9;
+}
+
+/* Transição geral */
+.transition-all {
+    transition: all 0.3s ease;
+}
+        
+        /* 🔥 FORÇAR DESIGN DO SEU BOTÃO SOBRE O HOTMART */
 .hotmart-fb.hotmart__button-checkout {
     background: linear-gradient(to right, #f59e0b, #ea580c) !important;
     background-color: transparent !important;
@@ -444,129 +636,154 @@
 }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-    <!-- 🎯 TELA DE AUTENTICAÇÃO -->
-    <div id="authCallbackScreen" class="auth-screen hidden">
-        <div class="glass-card p-8 w-full max-w-md mx-auto animate-slide-in">
-            <div class="flex flex-col items-center justify-center text-center">
-                <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-2xl mb-6">
-                    <i data-feather="lock" class="w-8 h-8 text-white"></i>
-                </div>
-                <h2 class="text-2xl font-bold mb-2">Autenticando</h2>
-                <p class="text-gray-300 mb-6">Conectando sua conta...</p>
-                <div class="spinner mb-6"></div>
-                <p class="text-gray-400 animate-pulse">Redirecionando de volta para o app</p>
+<body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+<!-- 🎯🎯🎯 TELA DE AUTENTICAÇÃO 🎯🎯🎯 -->
+<div id="authCallbackScreen" class="auth-screen hidden">
+    <div class="glass-card rounded-2xl p-6 md:p-8 w-full max-w-md mx-auto animate-fade-in" data-aos="fade-up">
+        <!-- Header Elegante -->
+        <div class="flex items-center justify-center mb-6">
+            <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
+                <i data-feather="lock" class="w-6 h-6 text-white"></i>
             </div>
         </div>
-    </div>
 
-    <!-- 🔒 MODAL DE TERMOS -->
-    <div id="termsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
-        <div class="glass-card p-8 max-w-2xl max-h-[80vh] overflow-y-auto mx-4 animate-slide-in">
-            <div class="text-center mb-6">
-                <div class="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg inline-block mb-4">
-                    <i data-feather="file-text" class="w-6 h-6 text-white"></i>
-                </div>
-                <h3 class="text-2xl font-bold mb-2">📝 Termos de Uso</h3>
-                <p class="text-gray-300">Leia e aceite para continuar</p>
-            </div>
+        <h2 class="text-xl sm:text-2xl font-semibold text-center mb-2">Autenticando</h2>
+        <p class="text-center text-gray-300 mb-6">Conectando sua conta...</p>
+
+        <!-- Spinner Central -->
+        <div class="flex justify-center mb-6">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Status e Informações -->
+        <div class="text-center space-y-4">
+            <p class="text-gray-300 animate-pulse-slow">Redirecionando de volta para o app</p>
             
-            <div class="bg-white/5 rounded-xl p-6 mb-6 max-h-60 overflow-y-auto">
-                <div class="text-sm space-y-4 text-gray-200">
-                    <!-- Conteúdo dos termos -->
-                    <strong>Data de criação: 2025</strong>
-                    
-                    <div>
-                        <h4 class="font-semibold text-cyan-300 mb-1">1. Aceitação dos Termos</h4>
-                        <p>Ao utilizar nosso sistema de agendamentos, você concorda com estes Termos de Uso e nossa Política de Privacidade.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-cyan-300 mb-1">2. Uso do Serviço</h4>
-                        <p>Você concorda em usar a plataforma apenas para fins legítimos de agendamento de serviços, sendo responsável por todas as informações cadastradas.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-cyan-300 mb-1">3. Privacidade e Dados</h4>
-                        <p>Seus dados de agendamento são armazenados com segurança em servidores protegidos. Não compartilhamos suas informações com terceiros não autorizados.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-cyan-300 mb-1">4. Responsabilidades</h4>
-                        <p>Você é integralmente responsável pela veracidade das informações fornecidas e pelos agendamentos realizados através da plataforma.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-cyan-300 mb-1">5. Limitações de Uso</h4>
-                        <p>O serviço pode possuir limitações técnicas conforme seu plano atual (free trial ou premium). Reservamo-nos o direito de suspender contras em caso de uso inadequado.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-cyan-300 mb-1">6. Modificações</h4>
-                        <p>Podemos atualizar estes termos periodicamente. O uso continuado após alterações significa sua aceitação.</p>
-                    </div>
-                    
-                    <p class="text-xs text-gray-400 mt-4">
-                        🔒 <strong>Proteção de Dados:</strong> Este sistema segue as melhores práticas de segurança e proteção de dados pessoais.
-                    </p>
-                    
-                    <p class="text-xs text-gray-400">
-                        Ao clicar em "Aceitar e Continuar", você declara ter lido, compreendido e concordado com todos os termos acima.
-                    </p>
+            <!-- Informações de Debug (apenas em desenvolvimento) -->
+            <div id="debugInfo" class="mt-6 p-4 bg-white/5 rounded-lg border border-white/10 text-left hidden">
+                <h3 class="text-sm font-semibold mb-2">🔍 Informações de Conexão:</h3>
+                <div class="text-xs space-y-1">
+                    <div id="urlInfo"></div>
+                    <div id="hashInfo"></div>
+                    <div id="envInfo"></div>
+                    <div id="tokenInfo"></div>
                 </div>
             </div>
-            
-            <div class="flex flex-col gap-3">
-                <button onclick="declineTerms()" class="w-full px-4 py-3 rounded-xl bg-gray-600 hover:bg-gray-700 transition-all text-white font-medium">
-                    Recusar
-                </button>
-                <button onclick="acceptTerms()" class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 transition-all text-white font-medium">
-                    ✅ Aceitar e Continuar
+
+            <!-- Botão de Fallback -->
+            <div class="mt-6 pt-6 border-t border-white/10">
+                <button id="manualRedirect" class="text-sm text-cyan-300 hover:text-cyan-200 transition-colors hidden flex items-center justify-center gap-2 w-full">
+                    <i data-feather="refresh-cw" class="w-4 h-4"></i>
+                    Redirecionar manualmente
                 </button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- 🎯 CONTEÚDO PRINCIPAL -->
-    <div id="mainAppContent">
-        <div class="container mx-auto px-4 py-8 max-w-6xl">
-            <!-- 🔥 HEADER PREMIUM -->
-            <header class="text-center mb-12" data-aos="fade-down">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
-                    <div class="flex items-center justify-center gap-4">
-<h1 class="text-3xl sm:text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
-    Agendamento
-</h1>
-                        <div id="premiumBadge" class="hidden premium-badge">
-                            <span id="usageCount">0/5</span>
-                        </div>
-                    </div>
-                    
-     <div class="flex gap-2 w-full sm:w-auto">
-    <button id="gerarLinkBtn" style="display:none;" 
-            class="bg-gradient-to-r from-indigo-400 to-cyan-300 px-4 py-2 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto text-white font-medium hover:opacity-90 transition-all">
-        <i data-feather="link" class="w-4 h-4"></i>
-        Gerar Link
-    </button>
-                        <button id="settingsBtn" style="display:none;" 
-                                class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
-                            <i data-feather="settings" class="w-4 h-4"></i>
-                            Configurações
-                        </button>
-                        <button id="logoutBtn" style="display:none;" 
-                                class="px-4 py-2 rounded-xl bg-gradient-to-r from-red-500 to-pink-600 hover:opacity-90 transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
-                            <i data-feather="log-out" class="w-4 h-4"></i>
-                            Sair
-                        </button>
-                    </div>
-                </div>
-                <p class="text-lg opacity-90 max-w-2xl mx-auto">
-                    Gerencie seus compromissos com uma interface intuitiva e elegante
+<!-- 🔒 MODAL DE TERMOS DE USO -->
+<div id="termsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="glass-card rounded-2xl p-6 max-w-2xl max-h-[80vh] overflow-y-auto mx-4">
+        <!-- Header -->
+        <div class="flex items-center justify-center mb-6">
+            <div class="p-3 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
+                <i data-feather="file-text" class="w-6 h-6 text-white"></i>
+            </div>
+        </div>
+        
+        <h3 class="text-xl font-semibold text-center mb-2">📝 Termos de Uso</h3>
+        <p class="text-center text-gray-300 mb-6">Leia e aceite para continuar</p>
+        
+        <!-- ✅ CONTEÚDO DOS TERMOS -->
+        <div class="bg-white/5 rounded-lg p-4 mb-6 max-h-60 overflow-y-auto">
+            <div class="text-sm space-y-3 text-gray-200"> <!-- ✅ ADICIONE ESTA DIV -->
+                <strong>Data de criação: 2025</strong>
+
+                <h4 class="font-semibold text-cyan-300">1. Aceitação dos Termos</h4>
+                <p>Ao utilizar nosso sistema de agendamentos, você concorda com estes Termos de Uso e nossa Política de Privacidade.</p>
+
+                <h4 class="font-semibold text-cyan-300">2. Uso do Serviço</h4>
+                <p>Você concorda em usar a plataforma apenas para fins legítimos de agendamento de serviços, sendo responsável por todas as informações cadastradas.</p>
+
+                <h4 class="font-semibold text-cyan-300">3. Privacidade e Dados</h4>
+                <p>Seus dados de agendamento são armazenados com segurança em servidores protegidos. Não compartilhamos suas informações com terceiros não autorizados.</p>
+
+                <h4 class="font-semibold text-cyan-300">4. Responsabilidades</h4>
+                <p>Você é integralmente responsável pela veracidade das informações fornecidas e pelos agendamentos realizados através da plataforma.</p>
+
+                <h4 class="font-semibold text-cyan-300">5. Limitações de Uso</h4>
+                <p>O serviço pode possuir limitações técnicas conforme seu plano atual (free trial ou premium). Reservamo-nos o direito de suspender contras em caso de uso inadequado.</p>
+
+                <h4 class="font-semibold text-cyan-300">6. Modificações</h4>
+                <p>Podemos atualizar estes termos periodicamente. O uso continuado após alterações significa sua aceitação.</p>
+
+                <p class="text-xs text-gray-400 mt-4">
+                    🔒 <strong>Proteção de Dados:</strong> Este sistema segue as melhores práticas de segurança e proteção de dados pessoais.
                 </p>
-            </header>
 
-            <!-- 🔐 SEÇÕES IA -->
+                <p class="text-xs text-gray-400 mt-2">
+                    Ao clicar em "Aceitar e Continuar", você declara ter lido, compreendido e concordado com todos os termos acima.
+                </p>
+            </div> <!-- ✅ FECHA A DIV text-sm -->
+        </div> <!-- ✅ FECHA A DIV bg-white/5 -->
+
+        <!-- ✅ BOTÕES VERTICAIS -->
+        <div class="flex flex-col gap-3">
+            <button onclick="declineTerms()" class="w-full px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white font-medium">
+                Recusar
+            </button>
+            <button onclick="acceptTerms()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 transition-all text-white font-medium">
+                ✅ Aceitar e Continuar
+            </button>
+        </div>
+    </div> <!-- ✅ FECHA A DIV glass-card -->
+</div> <!-- ✅ FECHA A DIV termsModal -->
+
+
+    
+<!-- 🎯🎯🎯 CONTEÚDO PRINCIPAL 🎯🎯🎯 -->
+<div id="mainAppContent">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+      
+        <!-- 🔥 HEADER COM BADGE AO LADO DO TÍTULO -->
+        <header class="text-center mb-8 md:mb-12" data-aos="fade-down">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
+                <!-- Título e Badge juntos -->
+                <div class="flex items-center justify-center gap-4">
+                    <h1 class="text-2xl sm:text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
+                       Agendamento
+                    </h1>
+                    <!-- 🔥 BADGE AO LADO DO TÍTULO -->
+                    <div id="premiumBadge" class="hidden bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg shadow-lg border border-white/20">
+                        <span id="usageCount">0/5</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button id="gerarLinkBtn" style="display:none;" 
+                            class="text-xs sm:text-sm bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                        <i data-feather="link" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                        Gerar Link
+                    </button>
+                    <button id="settingsBtn" style="display:none;" class="text-xs sm:text-sm bg-gray-600 hover:bg-gray-700 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                        <i data-feather="settings" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                        Configurações
+                    </button>
+                    <button id="logoutBtn" style="display:none;" class="text-xs sm:text-sm bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                        <i data-feather="log-out" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                        Sair
+                    </button>
+                </div>
+            </div>
+            <p class="text-sm sm:text-lg opacity-90 max-w-2xl mx-auto px-2">
+                Gerencie seus compromissos com uma interface intuitiva e elegante
+            </p>
+        </header>
+
+            <!-- 🔐 SESSÕES IA (APÓS LOGIN) -->
             <div id="secoesIA" style="display: none;">
+
+
                 <!-- 🎯 SUGERIR HORÁRIOS LIVRES -->
                 <div class="agendamento-ia-section" data-aos="fade-up">
                     <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -575,142 +792,150 @@
                     </h3>
                     
                     <div class="agendamento-rapido">
-                        <button onclick="sugerirHorarios()" class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                        <button onclick="sugerirHorarios()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
                             <span>📅</span>
                             Encontrar Melhores Horários
                         </button>
                     </div>
                     
-                    <div id="sugestoes-horarios" class="mt-4">
+                    <div id="sugestoes-horarios" class="mt-3">
                         <!-- Sugestões aparecem aqui -->
                     </div>
                 </div>
 
-                <!-- 📊 ANÁLISE E ESTATÍSTICAS -->
-                <div class="sugestoes-ia-section" data-aos="fade-up">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <span>📊</span>
-                        Análise e Estatísticas
-                    </h3>
-                    
-                    <button id="btn-estatisticas" onclick="verEstatisticasIA()" class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span id="btn-estatisticas-text">📈 Ver Estatísticas Detalhadas</span>
-                        <div id="btn-estatisticas-spinner" class="loading-spinner hidden"></div>
+        <!-- 📊 ANÁLISE E ESTATÍSTICAS -->
+<div class="sugestoes-ia-section" data-aos="fade-up">
+    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        <span>📊</span>
+        Análise e Estatísticas
+    </h3>
+    
+    <button id="btn-estatisticas" onclick="verEstatisticasIA()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span id="btn-estatisticas-text">📈 Ver Estatísticas Detalhadas</span>
+        <div id="btn-estatisticas-spinner" class="loading-spinner hidden" style="width:20px;height:20px;"></div>
+    </button>
+    
+    <div id="sugestoes-conteudo" class="sugestoes-conteudo mt-4">
+        <!-- Estatísticas aparecem aqui -->
+    </div>
+</div>
+                
+</div> 
+
+
+            <!-- Login Section - DESIGN MODERNO -->
+<div id="loginSection" class="glass-card rounded-3xl p-10 mb-8" data-aos="fade-up">
+    <!-- Header Moderno -->
+    <div class="text-center mb-10">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
+            <i data-feather="lock" class="w-10 h-10 text-white"></i>
+        </div>
+        <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent mb-3">Acesso ao Sistema</h2>
+        <p class="text-gray-400 text-lg">Entre com sua conta Google</p>
+    </div>
+
+    <!-- Botão Google Moderno -->
+    <div class="max-w-sm mx-auto space-y-6">
+        <button id="googleLoginBtn" class="w-full group bg-white text-gray-800 py-4 px-8 rounded-2xl font-semibold hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg border border-gray-200 hover:border-blue-300 hover:scale-[1.02] active:scale-[0.98]">
+            <!-- Logo Google SVG -->
+            <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            <span class="text-gray-700 group-hover:text-gray-900 transition-colors duration-300">Continuar com Google</span>
+        </button>
+
+         <!-- ✅ CHECKBOX TERMOS AQUI (ADICIONE ISSO) -->
+    <div class="max-w-sm mx-auto mb-6">
+        <div class="p-4 bg-white/5 rounded-lg border border-white/10">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" id="aceiteTermos" required 
+                       class="mt-1 rounded bg-white/10 border-white/20 focus:ring-2 focus:ring-cyan-500">
+                <span class="text-sm text-gray-300">
+                    Concordo com os 
+                    <button type="button" onclick="abrirModalTermos()" class="text-cyan-400 hover:text-cyan-300 underline">
+                        Termos de Uso
+                    </button> 
+                    e 
+                    <button type="button" onclick="abrirModalPrivacidade()" class="text-cyan-400 hover:text-cyan-300 underline">
+                        Política de Privacidade
                     </button>
-                    
-                    <div id="sugestoes-conteudo" class="sugestoes-conteudo mt-4">
-                        <!-- Estatísticas aparecem aqui -->
+                </span>
+            </label>
+        </div>
+    </div>
+        
+        <!-- Aviso de Segurança Moderno -->
+        <div class="text-center p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl border border-blue-500/20">
+            <p class="text-gray-400 text-sm flex items-center justify-center gap-2">
+                <i data-feather="shield" class="w-4 h-4 text-blue-400"></i>
+                <span class="font-medium">Login 100% seguro</span>
+                <span class="text-gray-500">•</span>
+                <span>Seus dados protegidos</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+            
+            <!-- Appointment Form (Hidden Initially) -->
+            <form id="agendamentoForm" style="display:none;" class="glass-card rounded-2xl p-4 sm:p-6 md:p-8 mb-6 md:mb-8" data-aos="fade-up">
+                <div class="flex items-center justify-center mb-4 md:mb-6">
+                    <div class="p-2 sm:p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
+                        <i data-feather="calendar" class="w-4 h-4 sm:w-6 sm:h-6 text-white"></i>
                     </div>
                 </div>
-            </div>
-
-            <!-- 🔐 SEÇÃO DE LOGIN -->
-            <div id="loginSection" class="glass-card p-10 mb-8" data-aos="fade-up">
-                <div class="text-center mb-10">
-                    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
-                        <i data-feather="lock" class="w-10 h-10 text-white"></i>
-                    </div>
-                    <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent mb-3">Acesso ao Sistema</h2>
-                    <p class="text-gray-400 text-lg">Entre com sua conta Google</p>
-                </div>
-
-                <div class="max-w-sm mx-auto space-y-6">
-                    <button id="googleLoginBtn" class="w-full group bg-white text-gray-800 py-4 px-8 rounded-2xl font-semibold hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg border border-gray-200 hover:border-blue-300 hover:scale-[1.02] active:scale-[0.98]">
-                        <!-- Logo Google SVG -->
-                        <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
-                        <span class="text-gray-700 group-hover:text-gray-900 transition-colors duration-300">Continuar com Google</span>
-                    </button>
-
-                    <div class="max-w-sm mx-auto mb-6">
-                        <div class="p-4 bg-white/5 rounded-xl border border-white/10">
-                            <label class="flex items-start gap-3 cursor-pointer">
-                                <input type="checkbox" id="aceiteTermos" required 
-                                       class="mt-1 rounded bg-white/10 border-white/20 focus:ring-2 focus:ring-cyan-500">
-                                <span class="text-sm text-gray-300">
-                                    Concordo com os 
-                                    <button type="button" onclick="abrirModalTermos()" class="text-cyan-400 hover:text-cyan-300 underline">
-                                        Termos de Uso
-                                    </button> 
-                                    e 
-                                    <button type="button" onclick="abrirModalPrivacidade()" class="text-cyan-400 hover:text-cyan-300 underline">
-                                        Política de Privacidade
-                                    </button>
-                                </span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl border border-blue-500/20">
-                        <p class="text-gray-400 text-sm flex items-center justify-center gap-2">
-                            <i data-feather="shield" class="w-4 h-4 text-blue-400"></i>
-                            <span class="font-medium">Login 100% seguro</span>
-                            <span class="text-gray-500">•</span>
-                            <span>Seus dados protegidos</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 📝 FORMULÁRIO DE AGENDAMENTO -->
-            <form id="agendamentoForm" style="display:none;" class="glass-card p-8 mb-8" data-aos="fade-up">
-                <div class="flex items-center justify-center mb-6">
-                    <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
-                        <i data-feather="calendar" class="w-6 h-6 text-white"></i>
-                    </div>
-                </div>
-                <h2 class="text-2xl font-semibold text-center mb-6">Novo Agendamento</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                    <div class="space-y-6">
+                <h2 class="text-xl sm:text-2xl font-semibold text-center mb-4 md:mb-6">Novo Agendamento</h2>
+                <div class="grid grid-cols-1 gap-4 sm:gap-5 max-w-4xl mx-auto">
+                    <div class="space-y-4 sm:space-y-5">
                         <div>
                             <label for="Nome" class="block mb-2 text-sm font-medium opacity-80">Nome Completo</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="user" class="w-5 h-5 text-gray-400"></i>
+                                    <i data-feather="user" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
                                 </div>
                                 <input type="text" name="Nome" placeholder="Seu nome" required 
-                                       class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none input-field">
+                                       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
                             </div>
                         </div>
                         <div>
                             <label for="Email" class="block mb-2 text-sm font-medium opacity-80">Email</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="mail" class="w-5 h-5 text-gray-400"></i>
+                                    <i data-feather="mail" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
                                 </div>
-                                <input type="email" name="Email" placeholder="Email (opcional)" 
-                                       class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none input-field">
+                               <input type="email" name="Email" placeholder="Email (opcional)" 
+       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
                             </div>
                         </div>
                     </div>
-                    <div class="space-y-6">
-                        <div>
-                            <label for="telefone" class="block mb-2 text-sm font-medium opacity-80">Telefone</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="phone" class="w-5 h-5 text-gray-400"></i>
-                                </div>
-                                <input type="tel" id="Telefone" name="Telefone" placeholder="(00) 00000-0000" required 
-                                       class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none input-field">
-                            </div>
+                    <div class="space-y-4 sm:space-y-5">
+                 <!-- Telefone -->
+                <div>
+                    <label for="telefone" class="block mb-2 text-sm font-medium opacity-80">Telefone</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="phone" class="w-5 h-5 text-gray-400"></i>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                       <input type="tel" id="Telefone" name="Telefone" placeholder="(00) 00000-0000" required 
+       class="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field">
+                    </div>
+                </div>
+                        <div class="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                             <div>
                                 <label for="Data" class="block mb-2 text-sm font-medium opacity-80">Data</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i data-feather="calendar" class="w-5 h-5 text-gray-400"></i>
+                                        <i data-feather="calendar" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
                                     </div>
                                     <input type="date" id="Data" name="Data" placeholder="Data do Agendamento" required 
-                                           class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none input-field">
+                                           class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field text-sm sm:text-base">
                                 </div>
                             </div>
                             <div>
-                               <label for="Horario" class="block mb-2 text-sm font-medium opacity-80">Horário</label>
+                                <label for="Horario" class="block mb-2 text-sm font-medium opacity-80">Horário</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i data-feather="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
@@ -734,8 +959,9 @@
     </button>
 </div>
 </form>
-            <!-- 🔍 SEÇÃO DE FILTROS -->
-            <div id="filtersSection" style="display:none;" class="glass-card p-6 mb-6" data-aos="fade-up">
+            
+            <!-- Filters Section -->
+            <div id="filtersSection" style="display:none;" class="glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
                 <div class="flex flex-col md:flex-row gap-4 items-center">
                     <div class="flex-1 w-full">
                         <label for="searchInput" class="sr-only">Pesquisar</label>
@@ -744,7 +970,7 @@
                                 <i data-feather="search" class="w-5 h-5 text-gray-400"></i>
                             </div>
                             <input type="text" id="searchInput" placeholder="Pesquisar por nome ou email" 
-                                   class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none input-field">
+                                   class="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none input-field">
                         </div>
                     </div>
                     <div class="w-full md:w-48 relative">
@@ -753,19 +979,19 @@
                             <i data-feather="filter" class="w-5 h-5 text-gray-400"></i>
                         </div>
                         <select id="statusFilter" 
-                            class="w-full appearance-none pl-10 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none input-field">
+                            class="w-full appearance-none pl-10 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none input-field">
                             <option value="" class="text-black">Todos os status</option>
                             <option value="pendente" class="text-black">Pendente</option>
                             <option value="confirmado" class="text-black">Confirmado</option>
                             <option value="cancelado" class="text-black">Cancelado</option>
                         </select>
                     </div>
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <button id="exportCSVBtn" class="px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2 w-full md:w-auto">
+                    <div class="flex gap-2 mobile-w-full mobile-flex-col md:flex-row">
+                        <button id="exportCSVBtn" class="px-4 py-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2 mobile-w-full">
                             <i data-feather="download" class="w-5 h-5"></i>
                             <span class="hidden md:inline">CSV</span>
                         </button>
-                        <button id="exportPDFBtn" class="px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2 w-full md:w-auto">
+                        <button id="exportPDFBtn" class="px-4 py-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2 mobile-w-full">
                             <i data-feather="file-text" class="w-5 h-5"></i>
                             <span class="hidden md:inline">PDF</span>
                         </button>
@@ -773,26 +999,26 @@
                 </div>
             </div>
 
-            <!-- 📅 TABS DIAS DA SEMANA -->
-            <div id="diasTabs" style="display:none;" class="flex flex-col gap-4 mb-6" data-aos="fade-up">
-                <div class="flex justify-center gap-2 overflow-x-auto pb-2">
-                    <button data-dia="0" class="tab-dia px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap">Dom</button>
-                    <button data-dia="1" class="tab-dia active px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-medium whitespace-nowrap">Seg</button>
-                    <button data-dia="2" class="tab-dia px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap">Ter</button>
-                    <button data-dia="3" class="tab-dia px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap">Qua</button>
-                    <button data-dia="4" class="tab-dia px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap">Qui</button>
-                    <button data-dia="5" class="tab-dia px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap">Sex</button>
-                    <button data-dia="6" class="tab-dia px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap">Sáb</button>
+            <!-- Tabs Dias da Semana -->
+            <div id="diasTabs" style="display:none;" class="dias-tabs-container flex flex-col gap-3 md:gap-4 mb-4 md:mb-6" data-aos="fade-up">
+                <div class="flex justify-center gap-1 sm:gap-2 overflow-x-auto pb-2 px-2">
+                    <button data-dia="0" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Dom</button>
+                    <button data-dia="1" class="tab-dia active px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-medium whitespace-nowrap text-sm sm:text-base">Seg</button>
+                    <button data-dia="2" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Ter</button>
+                    <button data-dia="3" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Qua</button>
+                    <button data-dia="4" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Qui</button>
+                    <button data-dia="5" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sex</button>
+                    <button data-dia="6" class="tab-dia px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sáb</button>
                 </div>
-                <div class="flex justify-center gap-2 overflow-x-auto pb-2">
-                    <button data-semana="-1" class="tab-semana px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap">Sem Passada</button>
-                    <button data-semana="-2" class="tab-semana px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap">2 Semanas</button>
-                    <button data-semana="-4" class="tab-semana px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap">1 Mês</button>
+                <div class="flex justify-center gap-1 sm:gap-2 overflow-x-auto pb-2 px-2">
+                    <button data-semana="-1" class="tab-semana px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap text-sm sm:text-base">Sem Passada</button>
+                    <button data-semana="-2" class="tab-semana px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap text-sm sm:text-base">2 Semanas</button>
+                    <button data-semana="-4" class="tab-semana px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all font-medium whitespace-nowrap text-sm sm:text-base">1 Mês</button>
                 </div>
             </div>
 
-            <!-- 📋 LISTA DE AGENDAMENTOS -->
-            <div id="meusAgendamentos" class="glass-card p-6 shadow-xl max-h-[500px] overflow-y-auto scrollbar-custom mx-auto max-w-4xl" style="display:none;" data-aos="fade-up">
+            <!-- Appointments List -->
+            <div id="meusAgendamentos" class="glass-card rounded-2xl p-6 shadow-xl max-h-[500px] overflow-y-auto scrollbar-hide mx-auto max-w-4xl" style="display:none;" data-aos="fade-up">
                 <div class="text-center py-8">
                     <div class="p-4 rounded-full bg-white/10 inline-block mb-4">
                         <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
@@ -803,10 +1029,9 @@
         </div>
     </div>
 
-  <!-- 🎯 MODAIS E OVERLAYS -->
-<!-- Modal de Configuração do Google Sheets - VERSÃO COMPLETA -->
-<div id="configSheetsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
-    <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-in">
+   <!-- Modal de Configuração do Google Sheets - VERSÃO SIMPLIFICADA -->
+<div id="configSheetsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4 animate-fade-in">
         <div class="flex items-center justify-center mb-6">
             <div class="p-3 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 shadow-lg">
                 <i data-feather="file-text" class="w-6 h-6 text-white"></i>
@@ -817,46 +1042,44 @@
         <p class="text-center text-gray-300 mb-6">Escolha como deseja sincronizar seus agendamentos</p>
         
         <div class="space-y-6">
-            <!-- 🔥 OPÇÃO: USAR PLANILHA EXISTENTE -->
-            <div class="config-option p-4 rounded-xl bg-white/5 border border-white/10 hover-lift">
+            <!-- 🔥 REMOVIDA A SEÇÃO: Criar Planilha Automática -->
+
+            <div class="config-option p-4 rounded-lg bg-white/5 border border-white/10">
                 <h4 class="font-semibold mb-2 flex items-center gap-2">
                     <i data-feather="link" class="w-4 h-4 text-blue-400"></i>
-                    Usar Minha Planilha Existente
+                     Usar Minha Planilha Existente
                 </h4>
                 <p class="text-sm text-gray-300 mb-3">Cole o ID da sua planilha do Google Planilhas</p>
                 <input type="text" id="spreadsheetIdInput" 
                        placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-                       class="w-full px-3 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none mb-3 text-sm">
-                <button onclick="usarPlanilhaExistente()" class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                       class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none mb-2 text-sm">
+                <button class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2">
                     <i data-feather="save" class="w-4 h-4"></i>
                     💾 Usar Esta Planilha
                 </button>
             </div>
 
-            <!-- 🔥 OPÇÃO: CONFIGURAR DEPOIS -->
-            <div class="config-option p-4 rounded-xl bg-white/5 border border-white/10 hover-lift">
+            <div class="config-option p-4 rounded-lg bg-white/5 border border-white/10">
                 <h4 class="font-semibold mb-2 flex items-center gap-2">
                     <i data-feather="clock" class="w-4 h-4 text-yellow-400"></i>
                     ⏭️ Configurar Depois
                 </h4>
                 <p class="text-sm text-gray-300 mb-3">Você pode agendar normalmente e configurar depois</p>
-                <button onclick="fecharConfiguracao()" class="w-full bg-gradient-to-r from-gray-500 to-slate-600 text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-all">
+                <button class="w-full bg-gradient-to-r from-gray-500 to-slate-600 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-all">
                     Pular por enquanto
                 </button>
             </div>
         </div>
 
-        <!-- 🔥 INSTRUÇÕES -->
-        <div class="mt-6 pt-4 border-t border-white/10 text-center">
+        <div class="mt-4 text-center">
             <p class="text-xs text-gray-400">
                 💡 <strong>Como encontrar o ID da planilha:</strong><br>
                 Abra sua planilha no Google Planilhas e veja na URL:<br>
-                <code class="bg-black/30 px-2 py-1 rounded mt-1 inline-block text-xs">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
+                <code class="bg-black/30 px-1 rounded">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
             </p>
         </div>
     </div>
 </div>
-
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
@@ -4580,12 +4803,6 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
-
-
-
-
-
-
 
 
 
