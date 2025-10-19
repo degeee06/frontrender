@@ -2878,23 +2878,49 @@ async function atualizarInterfacePosLogin() {
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
-     async function gerarLinkAgendamento() {
+// TESTE TEMPORÁRIO - Adicione no início da função para ver o que está acontecendo
+async function testePerfil() {
     try {
-        console.log('🔍 Iniciando verificação de perfil...');
-        
-        // ✅ PRIMEIRO: Verificar se o token é válido
-        if (!userToken) {
-            showToast("❌ Faça login para gerar links", "error");
-            return;
-        }
+        const response = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+            headers: { 'Authorization': `Bearer ${userToken}` }
+        });
+        const data = await response.json();
+        console.log('🧪 TESTE DIAGNÓSTICO:', {
+            status: response.status,
+            success: data.success,
+            perfil: data.perfil,
+            perfilId: data.perfil?.id,
+            perfilExiste: !!data.perfil,
+            temId: !!data.perfil?.id
+        });
+        alert('DIAGNÓSTICO:\n' + JSON.stringify({
+            status: response.status,
+            success: data.success,
+            perfil: data.perfil,
+            perfilId: data.perfil?.id,
+            perfilExiste: !!data.perfil,
+            temId: !!data.perfil?.id
+        }, null, 2));
+    } catch (error) {
+        console.error('❌ Erro no teste:', error);
+    }
+}
 
-        // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL COM TRATAMENTO DE TOKEN
-        let temPerfil = false;
+
+
+        
+   async function gerarLinkAgendamento() {
+    try {
+        console.log('🔍 VERIFICAÇÃO CRÍTICA DE PERFIL INICIADA...');
+        
+        // ✅ PRIMEIRO: Verificar se o endpoint /api/meu-perfil está funcionando
         let perfilData = null;
+        let temPerfil = false;
         
         try {
-            console.log('📡 Fazendo requisição para verificar perfil...');
+            console.log('📡 Fazendo requisição para /api/meu-perfil...');
             const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+                method: 'GET',
                 headers: { 
                     'Authorization': `Bearer ${userToken}`,
                     'Content-Type': 'application/json'
@@ -2903,97 +2929,83 @@ async function atualizarInterfacePosLogin() {
             
             console.log('📊 Status da resposta:', perfilResponse.status);
             
-            // 🔥 TRATAMENTO DE ERRO DE TOKEN
             if (perfilResponse.status === 401) {
-                console.log('🔐 Token inválido - fazendo logout');
+                console.log('🔐 Token inválido');
                 showToast("Sessão expirada. Faça login novamente.", "error");
                 await logoutSilencioso();
                 return;
             }
             
-            if (perfilResponse.ok) {
-                perfilData = await perfilResponse.json();
-                console.log('📦 Dados do perfil:', perfilData);
-                
-                // 🔥 VERIFICAÇÃO CORRIGIDA
-                temPerfil = perfilData.success && 
-                           perfilData.perfil && 
-                           perfilData.perfil.id && 
-                           perfilData.perfil.nome_negocio;
-                
-                console.log('✅ Resultado da verificação:', {
+            if (!perfilResponse.ok) {
+                console.log('❌ Endpoint retornou erro:', perfilResponse.status);
+                // Se o endpoint não está funcionando, NÃO permite gerar link
+                showToast("❌ Sistema temporariamente indisponível", "error");
+                return;
+            }
+            
+            perfilData = await perfilResponse.json();
+            console.log('📦 Dados COMPLETOS da resposta:', perfilData);
+            
+            // 🔥 VERIFICAÇÃO DEFINITIVA E RIGOROSA
+            // O perfil só existe se: success=true E perfil NÃO é null E perfil tem id
+            if (perfilData.success && perfilData.perfil && perfilData.perfil.id) {
+                console.log('✅ PERFIL ENCONTRADO NO BANCO:', perfilData.perfil);
+                temPerfil = true;
+            } else {
+                console.log('❌ PERFIL NÃO ENCONTRADO NO BANCO:', {
                     success: perfilData.success,
                     hasPerfil: !!perfilData.perfil,
-                    hasId: !!perfilData.perfil?.id,
-                    hasNome: !!perfilData.perfil?.nome_negocio,
-                    temPerfil: temPerfil
+                    perfilId: perfilData.perfil?.id
                 });
-                
-            } else if (perfilResponse.status === 404) {
-                console.log('❌ Perfil não encontrado (404)');
-                temPerfil = false;
-            } else {
-                console.log('❌ Erro HTTP:', perfilResponse.status);
                 temPerfil = false;
             }
-        } catch (perfilError) {
-            console.error('❌ Erro na requisição:', perfilError);
             
-            // 🔥 SE FOR ERRO DE REDE, PODE SER TOKEN EXPIRADO
-            if (perfilError.name === 'TypeError' || perfilError.message.includes('Failed to fetch')) {
-                showToast("Erro de conexão. Verifique sua internet.", "error");
-            } else {
-                showToast("Erro ao verificar perfil", "error");
-            }
-            
-            temPerfil = false;
+        } catch (error) {
+            console.error('❌ Erro crítico ao verificar perfil:', error);
+            // Em caso de erro, NÃO permite gerar link
+            showToast("❌ Erro ao verificar perfil do estabelecimento", "error");
+            return;
         }
         
-        // 🔥 BLOQUEIO EFETIVO SE NÃO TIVER PERFIL
+        // 🔥 BLOQUEIO COMPLETO SE NÃO TIVER PERFIL
         if (!temPerfil) {
-            console.log('🚫 USUÁRIO SEM PERFIL - Mostrando modal');
-            showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
+            console.log('🚫 BLOQUEADO: Usuário não tem perfil no banco de dados');
+            showToast("❌ Crie um perfil do estabelecimento antes de gerar links de agendamento", "error");
             
-            // Abre o menu de configurações para criar perfil
+            // Mostra qual é exatamente o problema
+            if (perfilData) {
+                console.log('🔍 Diagnóstico do problema:', {
+                    success: perfilData.success,
+                    perfil: perfilData.perfil,
+                    perfilId: perfilData.perfil?.id
+                });
+            }
+            await testePerfil();
+            // Abre o menu para criar perfil
             setTimeout(() => {
                 abrirMenuConfiguracoes();
-            }, 1500);
+            }, 2000);
             
             return;
         }
 
-        console.log('✅ PERFIL VALIDADO - Gerando link...');
+        console.log('✅ PERFIL CONFIRMADO NO BANCO - Gerando link...');
 
-        // 🔥 CONTINUA COM A GERAÇÃO DO LINK...
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        // 🔥 SÓ CHEGA AQUI SE TIVER PERFIL VÁLIDO
+        const { data: { user } } = await supabase.auth.getUser();
         
-        if (userError || !user || !user.id) {
-            console.log('❌ Erro ao obter usuário:', userError);
-            showToast("Erro: sessão inválida", "error");
-            await logoutSilencioso();
+        if (!user || !user.id) {
+            showToast("Erro: usuário não encontrado", "error");
             return;
         }
 
         const userId = user.id;
         
-        console.log('🔗 Gerando link para usuário:', userId);
         const response = await fetch(`${API_BASE_URL}/gerar-link/${userId}`, {
-            headers: { 
-                'Authorization': `Bearer ${userToken}`,
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Authorization': `Bearer ${userToken}` }
         });
         
-        // 🔥 VERIFICA SE O TOKEN AINDA É VÁLIDO NA GERAÇÃO DO LINK
-        if (response.status === 401) {
-            console.log('🔐 Token inválido durante geração do link');
-            showToast("Sessão expirada. Faça login novamente.", "error");
-            await logoutSilencioso();
-            return;
-        }
-        
         const result = await response.json();
-        console.log('📨 Resposta da geração do link:', result);
         
         if (result.success) {
             mostrarModalLinkAgendamento(result.link, result.qr_code);
@@ -3001,15 +3013,8 @@ async function atualizarInterfacePosLogin() {
             showToast("Erro ao gerar link: " + (result.msg || ""), "error");
         }
     } catch (error) {
-        console.error('❌ Erro crítico ao gerar link:', error);
-        
-        // 🔥 TRATAMENTO ESPECÍFICO PARA ERROS DE TOKEN
-        if (error.message.includes('token') || error.message.includes('auth') || error.message.includes('401')) {
-            showToast("Sessão expirada. Faça login novamente.", "error");
-            await logoutSilencioso();
-        } else {
-            showToast("Erro ao gerar link de agendamento", "error");
-        }
+        console.error('❌ Erro ao gerar link:', error);
+        showToast("Erro ao gerar link de agendamento", "error");
     }
 }
 
@@ -5097,6 +5102,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
