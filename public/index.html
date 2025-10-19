@@ -2545,49 +2545,28 @@ async function atualizarInterfacePosLogin() {
         
 async function gerarLinkAgendamento() {
     try {
-        // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL - CORRIGIDA
+        // ✅ VERIFICAÇÃO ROBUSTA DO PERFIL
         let temPerfil = false;
         try {
             const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
                 headers: { 'Authorization': `Bearer ${userToken}` }
             });
             
-            console.log('🔍 Status da verificação do perfil:', perfilResponse.status);
-            
             if (perfilResponse.ok) {
                 const perfilData = await perfilResponse.json();
-                console.log('📦 Dados do perfil:', perfilData);
-                
-                // 🔥 CORREÇÃO: Verificação mais rigorosa
-                temPerfil = perfilData.success && perfilData.perfil && 
-                           perfilData.perfil.id && 
-                           perfilData.perfil.nome_negocio;
-                
-                if (!temPerfil) {
-                    console.log('❌ Perfil inválido ou excluído:', perfilData);
-                }
-            } else if (perfilResponse.status === 404) {
-                console.log('❌ Perfil não encontrado (404)');
-                temPerfil = false;
-            } else {
-                console.log('❌ Erro HTTP ao verificar perfil:', perfilResponse.status);
-                temPerfil = false;
+                temPerfil = perfilData.success && perfilData.perfil;
             }
         } catch (perfilError) {
-            console.error('❌ Erro ao verificar perfil:', perfilError);
-            temPerfil = false;
+            console.error('Erro ao verificar perfil:', perfilError);
         }
         
-        // 🔥 BLOQUEIO SE NÃO HOUVER PERFIL VÁLIDO - USA O MODAL
         if (!temPerfil) {
-            console.log('🚫 Sem perfil - mostrando modal...');
-            mostrarModalSemPerfil(); // 🔥 AGORA USA SEU MODAL
+            // 🔥 SUBSTITUI O TOAST PELO MODAL
+            mostrarModalSemPerfil();
             return;
         }
 
-        // 🔥 SE CHEGOU AQUI, O PERFIL EXISTE - GERA O LINK
-        console.log('✅ Perfil válido encontrado, gerando link...');
-        
+        // 🔥 CONTINUA COM A GERAÇÃO DO LINK...
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user || !user.id) {
@@ -2613,6 +2592,8 @@ async function gerarLinkAgendamento() {
         showToast("Erro ao gerar link de agendamento", "error");
     }
 }
+
+        
 
 // 🎯 FUNÇÃO: Modal para usuário sem perfil (JÁ EXISTE - MANTENHA COMO ESTÁ)
 function mostrarModalSemPerfil() {
@@ -4742,6 +4723,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
