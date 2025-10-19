@@ -1746,7 +1746,7 @@
                        placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
                        class="w-full px-3 py-3 rounded-lg bg-black-deep border border-gray-600 focus:border-green-400 focus:outline-none text-white text-sm mb-3">
                 
-                <button class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 text-white font-medium flex items-center justify-center gap-2 transition-all duration-300">
+                <button onclick="usarPlanilhaExistente()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 text-white font-medium flex items-center justify-center gap-2 transition-all duration-300">
                     <i data-feather="save" class="w-4 h-4"></i>
                     Usar Esta Planilha
                 </button>
@@ -1764,7 +1764,7 @@
                     </div>
                 </div>
                 
-                <button class="w-full px-4 py-3 rounded-lg bg-black-deep border border-gray-600 hover:border-blue-400 hover:bg-gray-800 text-white font-medium transition-all duration-300">
+                <button onclick="fecharConfiguracao()" class="w-full px-4 py-3 rounded-lg bg-black-deep border border-gray-600 hover:border-blue-400 hover:bg-gray-800 text-white font-medium transition-all duration-300">
                     Pular por enquanto
                 </button>
             </div>
@@ -1787,6 +1787,7 @@
                 </div>
             </div>
         </div>
+
 
 
     <!-- Toast Container -->
@@ -2793,105 +2794,118 @@ function abrirModalPerfil() {
     const modalExistente = document.getElementById('modalPerfilConfig');
     if (modalExistente) modalExistente.remove();
 
-    const modalHTML = `
-        <div id="modalPerfilConfig" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div class="glass-card rounded-2xl p-6 max-w-2xl w-full mx-4 animate-fade-in" style="max-height: 90vh; overflow-y: auto;">
-                <!-- Cabeçalho -->
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold">🏪 Perfil do Negócio</h3>
-                    <button id="btnFecharModalPerfil" class="text-gray-400 hover:text-white">
-                        <i data-feather="x" class="w-5 h-5"></i>
-                    </button>
+   const modalHTML = `
+    <div id="modalPerfilConfig" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-black-medium border border-gray-700 rounded-2xl p-6 max-w-2xl w-full mx-4 animate-fade-in shadow-2xl" style="max-height: 90vh; overflow-y: auto;">
+            <!-- Cabeçalho Elegante -->
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 border border-cyan-300 shadow-lg flex items-center justify-center">
+                    <i data-feather="user" class="w-6 h-6 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold title-gradient mb-1">Perfil do Negócio</h3>
+                <p class="text-gray-400 text-sm">Configure suas informações comerciais</p>
+            </div>
+            
+            <!-- Separador Elegante -->
+            <div class="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-6"></div>
+            
+            <div class="space-y-6">
+                <!-- Informações Básicas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Nome do Negócio -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Nome do Negócio</label>
+                        <input type="text" id="nomeNegocioInput" placeholder="Ex: Barbearia do João" 
+                               class="w-full px-3 py-3 rounded-lg bg-black-light border border-gray-600 focus:border-cyan-400 focus:outline-none text-white text-sm">
+                    </div>
+                    
+                    <!-- Tipo de Negócio -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Tipo de Negócio</label>
+                        <select id="tipoNegocioSelect" class="w-full px-3 py-3 rounded-lg bg-black-light border border-gray-600 focus:border-cyan-400 focus:outline-none text-white text-sm">
+                            <option value="barbearia">💈 Barbearia</option>
+                            <option value="consultorio">🏥 Consultório</option>
+                            <option value="salao">💇 Salão de Beleza</option>
+                            <option value="clinica">🩺 Clínica</option>
+                            <option value="estetica">✨ Clínica de Estética</option>
+                            <option value="massagem">💆 Spa/Massagem</option>
+                            <option value="outros">🏢 Outros</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <div class="space-y-6">
-                    <!-- Informações Básicas -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Nome do Negócio -->
-                        <div>
-                            <label class="block text-sm font-medium opacity-80 mb-1">Nome do Negócio</label>
-                            <input type="text" id="nomeNegocioInput" placeholder="Ex: Barbearia do João" 
-                                   class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
-                        </div>
-                        
-                        <!-- Tipo de Negócio -->
-                        <div>
-                            <label class="block text-sm font-medium opacity-80 mb-1">Tipo de Negócio</label>
-                            <select id="tipoNegocioSelect" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
-                                <option value="barbearia">💈 Barbearia</option>
-                                <option value="consultorio">🏥 Consultório</option>
-                                <option value="salao">💇 Salão de Beleza</option>
-                                <option value="clinica">🩺 Clínica</option>
-                                <option value="estetica">✨ Clínica de Estética</option>
-                                <option value="massagem">💆 Spa/Massagem</option>
-                                <option value="outros">🏢 Outros</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Dias de Funcionamento -->
-                    <div>
-                        <label class="block text-sm font-medium opacity-80 mb-2">📅 Dias de Funcionamento</label>
-                        <div class="grid grid-cols-4 gap-2">
-                            ${['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'].map(dia => `
-                                <label class="flex items-center gap-1 text-sm cursor-pointer p-2 rounded hover:bg-white/5 transition-all">
-                                    <input type="checkbox" value="${dia}" class="dias-checkbox rounded bg-white/10 border-white/20">
-                                    <span class="capitalize">${dia}</span>
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <!-- Horários Padrão -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Abertura</label>
-                            <input type="time" id="horarioAbertura" value="08:00" 
-                                   class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Fechamento</label>
-                            <input type="time" id="horarioFechamento" value="18:00" 
-                                   class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
-                        </div>
-                    </div>
-                    
-                    <!-- 🆕 SEÇÃO: BLOQUEIO POR PERÍODOS -->
-                    <div class="border-t border-white/10 pt-4">
-                        <div class="flex items-center justify-between mb-4">
-                            <h4 class="text-lg font-semibold">🚫 Bloquear Períodos</h4>
-                            <button id="btnAdicionarPeriodo" class="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90 transition-all text-sm">
-                                + Adicionar Período
-                            </button>
-                        </div>
-                        
-                        <p class="text-sm text-gray-300 mb-4">
-                            Bloqueie faixas de horário indisponíveis. Ex: 10:30 até 12:00 bloqueia todos horários entre 10:30 e 12:00.
-                        </p>
-                        
-                        <!-- Lista de Períodos Bloqueados -->
-                        <div id="listaPeriodosBloqueados" class="space-y-3 max-h-40 overflow-y-auto">
-                            <!-- Períodos serão adicionados aqui dinamicamente -->
-                            <div class="text-center py-4 text-gray-400">
-                                Nenhum período bloqueado
-                            </div>
-                        </div>
+                <!-- Dias de Funcionamento -->
+                <div class="p-4 rounded-xl bg-black-light border border-gray-600">
+                    <label class="block text-sm font-medium text-gray-300 mb-3">📅 Dias de Funcionamento</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        ${['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'].map(dia => `
+                            <label class="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-lg hover:bg-gray-700 transition-all border border-gray-600 hover:border-cyan-400">
+                                <input type="checkbox" value="${dia}" class="dias-checkbox rounded bg-black-deep border-gray-500 focus:ring-cyan-400">
+                                <span class="capitalize text-gray-300">${dia}</span>
+                            </label>
+                        `).join('')}
                     </div>
                 </div>
-
-                <!-- Botões -->
-                <div class="flex gap-2 mt-6">
-                    <button id="btnCancelarPerfil" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
-                        Cancelar
-                    </button>
-<button id="btnSalvarPerfil" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
-    <i data-feather="save" class="w-4 h-4"></i>
-    Salvar Configurações
-</button>
+                
+                <!-- Horários Padrão -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 rounded-xl bg-black-light border border-gray-600">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">⏰ Horário de Abertura</label>
+                        <input type="time" id="horarioAbertura" value="08:00" 
+                               class="w-full px-3 py-3 rounded-lg bg-black-deep border border-gray-600 focus:border-cyan-400 focus:outline-none text-white text-sm">
+                    </div>
+                    <div class="p-4 rounded-xl bg-black-light border border-gray-600">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">⏰ Horário de Fechamento</label>
+                        <input type="time" id="horarioFechamento" value="18:00" 
+                               class="w-full px-3 py-3 rounded-lg bg-black-deep border border-gray-600 focus:border-cyan-400 focus:outline-none text-white text-sm">
+                    </div>
+                </div>
+                
+                <!-- 🆕 SEÇÃO: BLOQUEIO POR PERÍODOS -->
+                <div class="border-t border-gray-600 pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h4 class="text-lg font-semibold text-white">🚫 Bloquear Períodos</h4>
+                            <p class="text-sm text-gray-400 mt-1">
+                                Bloqueie faixas de horário indisponíveis
+                            </p>
+                        </div>
+                        <button id="btnAdicionarPeriodo" class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-medium text-sm transition-all duration-300 flex items-center gap-2">
+                            <i data-feather="plus" class="w-4 h-4"></i>
+                            Adicionar Período
+                        </button>
+                    </div>
+                    
+                    <!-- Lista de Períodos Bloqueados -->
+                    <div id="listaPeriodosBloqueados" class="space-y-3 max-h-40 overflow-y-auto p-1">
+                        <div class="text-center py-6 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg">
+                            <i data-feather="clock" class="w-8 h-8 mx-auto mb-2 text-gray-500"></i>
+                            <p class="text-sm">Nenhum período bloqueado</p>
+                            <p class="text-xs text-gray-400 mt-1">Clique em "Adicionar Período" para começar</p>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Botões -->
+            <div class="flex gap-3 mt-8 pt-6 border-t border-gray-600">
+                <button id="btnCancelarPerfil" class="flex-1 px-4 py-3 rounded-xl bg-black-light border border-gray-600 hover:border-red-400 hover:bg-gray-800 transition-all duration-300 text-white font-medium flex items-center justify-center gap-2">
+                    <i data-feather="x" class="w-4 h-4"></i>
+                    Cancelar
+                </button>
+                <button id="btnSalvarPerfil" class="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 transition-all duration-300 text-white font-semibold flex items-center justify-center gap-2">
+                    <i data-feather="save" class="w-4 h-4"></i>
+                    Salvar Configurações
+                </button>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-6 text-center">
+                <p class="text-xs text-gray-500">Configurações salvas automaticamente •</p>
+            </div>
         </div>
-    `;
+    </div>
+`;
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     feather.replace();
@@ -5697,6 +5711,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
