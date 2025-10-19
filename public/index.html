@@ -737,9 +737,6 @@ select option {
         <p class="text-gray-400 text-lg">Entre com sua conta Google</p>
     </div>
 
-
-
-    
     <!-- Botão Google Moderno -->
     <div class="max-w-sm mx-auto space-y-6">
         <button id="googleLoginBtn" class="w-full group bg-white text-gray-800 py-4 px-8 rounded-2xl font-semibold hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg border border-gray-200 hover:border-blue-300 hover:scale-[1.02] active:scale-[0.98]">
@@ -753,7 +750,7 @@ select option {
             <span class="text-gray-700 group-hover:text-gray-900 transition-colors duration-300">Continuar com Google</span>
         </button>
 
-          <!-- ✅ CHECKBOX TERMOS AQUI -->
+         <!-- ✅ CHECKBOX TERMOS AQUI (ADICIONE ISSO) -->
     <div class="max-w-sm mx-auto mb-6">
         <div class="p-4 bg-white/5 rounded-lg border border-white/10">
             <label class="flex items-start gap-3 cursor-pointer">
@@ -785,70 +782,7 @@ select option {
     </div>
 </div>
 
-        
-<!-- 🔒 MODAL DE TERMOS DE USO -->
-<div id="termsModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-    <div class="glass-card rounded-2xl p-6 max-w-2xl max-h-[80vh] overflow-y-auto mx-4">
-        <!-- Header -->
-        <div class="flex items-center justify-center mb-6">
-            <div class="p-3 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
-                <i data-feather="file-text" class="w-6 h-6 text-white"></i>
-            </div>
-        </div>
-        
-        <h3 class="text-xl font-semibold text-center mb-2">📝 Termos de Uso</h3>
-        <p class="text-center text-gray-300 mb-6">Leia e aceite para continuar</p>
-        
-        <!-- Conteúdo dos Termos -->
-        <div class="bg-white/5 rounded-lg p-4 mb-6 max-h-60 overflow-y-auto">
-            <div class="text-sm space-y-3 text-gray-200">
-                // 📝 TERMOS DE USO - VERSÃO PROFISSIONAL
-`
-<strong>Última atualização:</strong> ${new Date().toLocaleDateString('pt-BR')}
-
-<h4 class="font-semibold text-cyan-300">1. Aceitação dos Termos</h4>
-<p>Ao utilizar nosso sistema de agendamentos, você concorda com estes Termos de Uso e nossa Política de Privacidade.</p>
-
-<h4 class="font-semibold text-cyan-300">2. Uso do Serviço</h4>
-<p>Você concorda em usar a plataforma apenas para fins legítimos de agendamento de serviços, sendo responsável por todas as informações cadastradas.</p>
-
-<h4 class="font-semibold text-cyan-300">3. Privacidade e Dados</h4>
-<p>Seus dados de agendamento são armazenados com segurança em servidores protegidos. Não compartilhamos suas informações com terceiros não autorizados.</p>
-
-<h4 class="font-semibold text-cyan-300">4. Responsabilidades</h4>
-<p>Você é integralmente responsável pela veracidade das informações fornecidas e pelos agendamentos realizados através da plataforma.</p>
-
-<h4 class="font-semibold text-cyan-300">5. Limitações de Uso</h4>
-<p>O serviço pode possuir limitações técnicas conforme seu plano atual (free trial ou premium). Reservamo-nos o direito de suspender contras em caso de uso inadequado.</p>
-
-<h4 class="font-semibold text-cyan-300">6. Modificações</h4>
-<p>Podemos atualizar estes termos periodicamente. O uso continuado após alterações significa sua aceitação.</p>
-
-<p class="text-xs text-gray-400 mt-4">
-    🔒 <strong>Proteção de Dados:</strong> Este sistema segue as melhores práticas de segurança e proteção de dados pessoais.
-</p>
-
-<p class="text-xs text-gray-400 mt-2">
-    Ao clicar em "Aceitar e Continuar", você declara ter lido, compreendido e concordado com todos os termos acima.
-</p>
-`
-            </div>
-        </div>
-
-        <!-- Botões -->
-        <div class="flex gap-3">
-            <button onclick="declineTerms()" class="flex-1 px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white font-medium">
-                Recusar
-            </button>
-            <button onclick="acceptTerms()" class="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 transition-all text-white font-medium">
-                ✅ Aceitar e Continuar
-            </button>
-        </div>
-    </div>
-</div>
-
-
-        
+            
             <!-- Appointment Form (Hidden Initially) -->
             <form id="agendamentoForm" style="display:none;" class="glass-card rounded-2xl p-4 sm:p-6 md:p-8 mb-6 md:mb-8" data-aos="fade-up">
                 <div class="flex items-center justify-center mb-4 md:mb-6">
@@ -920,8 +854,6 @@ select option {
                         </div>
                     </div>
                 </div>
-
-                <!-- BOTÃO AGENDAR (JÁ EXISTE) -->
                 <div class="max-w-md mx-auto mt-6 md:mt-8">
                     <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 text-white py-2 sm:py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base">
                         <i data-feather="plus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
@@ -929,7 +861,7 @@ select option {
                         <div id="agendarSpinner" class="loading-spinner hidden"></div>
                     </button>
                 </div>
-            </form> <!-- FIM DO FORMULÁRIO -->
+            </form>
             
             <!-- Filters Section -->
             <div id="filtersSection" style="display:none;" class="glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
@@ -1058,6 +990,62 @@ select option {
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+
+// ✅ ADICIONE ISSO NO INÍCIO DO SEU type="module" (logo após os imports)
+window.abrirModalTermos = function() {
+    document.getElementById('termsModal').classList.remove('hidden');
+};
+
+window.abrirModalPrivacidade = function() {
+    window.abrirModalTermos();
+};
+
+window.acceptTerms = async function() {
+    try {
+        console.log('✅ Salvando aceitação de termos...');
+        
+        // 1️⃣ Salva no localStorage (performance)
+        localStorage.setItem('termsAccepted', 'true');
+        localStorage.setItem('termsAcceptedAt', new Date().toISOString());
+        localStorage.setItem('termsVersion', '1.0');
+        
+        // 2️⃣ Marca o checkbox automaticamente
+        document.getElementById('aceiteTermos').checked = true;
+        
+        // 3️⃣ Salva no banco (segurança/legal) - MAS SÓ SE USUÁRIO JÁ ESTIVER LOGADO
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+            const { error } = await supabase
+                .from('user_terms_acceptance')
+                .insert({
+                    user_id: user.id,
+                    user_email: user.email,
+                    terms_version: '1.0',
+                    user_agent: navigator.userAgent
+                });
+            
+            if (error) throw error;
+            console.log('📝 Termos salvos no banco com sucesso!');
+        }
+        
+        // Fecha modal
+        document.getElementById('termsModal').classList.add('hidden');
+        showToast('Termos aceitos com sucesso!', 'success');
+        
+    } catch (error) {
+        console.error('❌ Erro ao salvar termos:', error);
+        showToast('Termos aceitos localmente!', 'success');
+    }
+};
+
+window.declineTerms = function() {
+    console.log('❌ Usuário recusou os termos');
+    document.getElementById('termsModal').classList.add('hidden');
+};
+
+        
+        
       // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
 function verificarCallbackOAuth() {
     console.log('🔄 Verificando se é callback OAuth...');
@@ -1079,8 +1067,6 @@ function verificarCallbackOAuth() {
     
     return false;
 }
-
-
 
         
 // 🔥 CORREÇÃO: Função processarCallbackOAuth atualizada para carregar usos
@@ -1130,6 +1116,7 @@ async function processarCallbackOAuth() {
             setTimeout(() => iniciarSistemaAtualizacao(), 1000);
             showToast("Login realizado com sucesso!", "success");
             await saveTermsAcceptanceToDatabase();
+
             // 🔥 VERIFICAÇÃO DE LIMITE APÓS LOGIN
             setTimeout(async () => {
                 if (premiumManager && userToken) {
@@ -1660,151 +1647,16 @@ if (token) {
 }
 
 
-// 🔒 FUNÇÕES DE TERMOS DE USO
-function showTermsModal() {
-    console.log('📝 Mostrando modal de termos...');
-    document.getElementById('termsModal').classList.remove('hidden');
-    document.getElementById('loginSection').classList.add('hidden');
-}
 
-// ✅ ADICIONE ISSO AQUI
-window.abrirModalTermos = function() {
-    document.getElementById('termsModal').classList.remove('hidden');
-};
-
-window.abrirModalPrivacidade = function() {
-    window.abrirModalTermos();
-};
-
-
-// 🔒 FUNÇÃO ACEITAR TERMOS (com banco)
-window.acceptTerms = async function() {
-    try {
-        console.log('✅ Salvando aceitação de termos...');
         
-        // 1️⃣ Salva no localStorage (performance)
-        localStorage.setItem('termsAccepted', 'true');
-        localStorage.setItem('termsAcceptedAt', new Date().toISOString());
-        localStorage.setItem('termsVersion', '1.0');
-        
-        // 2️⃣ Salva no banco (segurança/legal)
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user) {
-            const { error } = await supabase
-                .from('user_terms_acceptance')
-                .insert({
-                    user_id: user.id,
-                    user_email: user.email,
-                    terms_version: '1.0',
-                    user_agent: navigator.userAgent
-                });
-            
-            if (error) throw error;
-            console.log('📝 Termos salvos no banco com sucesso!');
-        }
-        
-        // Fecha modal
-        document.getElementById('termsModal').classList.add('hidden');
-        showToast('Termos aceitos com sucesso!', 'success');
-        
-    } catch (error) {
-        console.error('❌ Erro ao salvar termos:', error);
-        showToast('Termos aceitos localmente!', 'success');
-    }
-}
-
-window.declineTerms = function() {
-    console.log('❌ Usuário recusou os termos');
-    
-    // ✅ APENAS FECHA O MODAL SILENCIOSAMENTE:
-    document.getElementById('termsModal').classList.add('hidden');
-};
-
-
-// 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
-async function saveTermsAcceptanceToDatabase() {
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user && localStorage.getItem('termsAccepted')) {
-            // Verifica se já não salvou antes
-            const { data: existing } = await supabase
-                .from('user_terms_acceptance')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('terms_version', '1.0')
-                .single();
-            
-            if (!existing) {
-                const { error } = await supabase
-                    .from('user_terms_acceptance')
-                    .insert({
-                        user_id: user.id,
-                        user_email: user.email,
-                        terms_version: '1.0',
-                        ip_address: await getClientIP(),
-                        user_agent: navigator.userAgent
-                    });
-                
-                if (!error) {
-                    console.log('📝 Termos salvos no banco para usuário:', user.email);
-                }
-            }
-        }
-    } catch (error) {
-        console.log('⚠️ Não foi possível salvar termos no banco:', error);
-    }
-}
-
-
-
-// 🔍 VERIFICAR TERMOS ANTES DO LOGIN
-async function checkTermsAcceptance() {
-    // ✅ Primeiro verifica localStorage (rápido)
-    const localTerms = localStorage.getItem('termsAccepted');
-    if (localTerms) return true;
-    
-    // ✅ Se não tem local, verifica banco
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user?.user_metadata?.terms_accepted_at) {
-            // Sincroniza localStorage
-            localStorage.setItem('termsAccepted', 'true');
-            return true;
-        }
-    } catch (error) {
-        console.log('Erro ao verificar termos no banco:', error);
-    }
-    
-    return false;
-}
-        
-
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
     
-    // 🔍 SEU CÓDIGO ORIGINAL CONTINUA DAQUI PRA BAIXO (NÃO ALTERE!)
     if (verificarCallbackOAuth()) {
         console.log('⏸️ Parando init - é callback OAuth');
         return;
     }
-    
-    console.log('▶️ Continuando init normal...');
-    
-    // Aplica máscara de telefone
-    setTimeout(() => {
-        const telefoneInput = document.getElementById('Telefone');
-        if (telefoneInput && window.IMask) {
-            IMask(telefoneInput, {
-                mask: '(00) 00000-0000'
-            });
-            console.log('✅ Máscara de telefone aplicada!');
-        }
-    }, 1000);
-    
-    // ... TODO O RESTO DO SEU CÓDIGO ORIGINAL (NÃO MEXE!)
     
     console.log('▶️ Continuando init normal...');
     
@@ -3406,74 +3258,104 @@ async function logoutSilencioso() {
 
       
 
-   document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-    // 🔒 VERIFICAR CHECKBOX (IMPORTANTE!)
+        // ✅ LOGIN GOOGLE CORRIGIDO
+      // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS (SUBSTITUA O EXISTENTE)
+document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+    // 🔒 VERIFICAR CHECKBOX (NOVO - IMPORTANTE!)
     const aceiteTermos = document.getElementById('aceiteTermos');
     if (!aceiteTermos?.checked) {
         showToast("❌ Você precisa aceitar os termos para continuar", "error");
         aceiteTermos?.focus();
         return;
     }
-    
-    // 🔒 VERIFICAR TERMOS NO LOCALSTORAGE (manter apenas UMA)
-    if (!checkTermsAcceptance()) {
-        console.log('⏸️ Login pausado - termos não aceitos');
-        return;
-    }
-
-    const btn = document.getElementById('googleLoginBtn');
-    const originalText = btn.innerHTML;
-    
-    btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
-    btn.disabled = true;
-    
-    try {
-        console.log('🔐 Iniciando autenticação Google...');
-        
-        // 🔥 DETECÇÃO CORRETA DE AMBIENTE
-        const isMobileApp = !!(window.Capacitor || window.cordova);
-        console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
-        
-        // 🔥 URL DE REDIRECT CORRETA
-        const redirectUrl = isMobileApp 
-            ? 'com.oubook.agendamento://auth-callback'
-            : 'https://frontrender-iota.vercel.app/';
-        
-        console.log('🎯 Redirect URL:', redirectUrl);
-        
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: redirectUrl,
-                skipBrowserRedirect: false
+            const btn = document.getElementById('googleLoginBtn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
+            btn.disabled = true;
+            
+            try {
+                console.log('🔐 Iniciando autenticação Google...');
+                
+                // 🔥 DETECÇÃO CORRETA DE AMBIENTE
+                const isMobileApp = !!(window.Capacitor || window.cordova);
+                console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
+                
+                // 🔥 URL DE REDIRECT CORRETA
+                const redirectUrl = isMobileApp 
+                    ? 'com.oubook.agendamento://auth-callback'
+                    : 'https://frontrender-iota.vercel.app/';
+                
+                console.log('🎯 Redirect URL:', redirectUrl);
+                
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: redirectUrl,
+                        skipBrowserRedirect: false
+                    }
+                });
+                
+                if (error) throw error;
+                
+                console.log('🌐 URL de autenticação:', data.url);
+                
+                // 🔥 ABRE O BROWSER CORRETAMENTE
+                if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
+                    console.log('📱 Abrindo no Capacitor Browser...');
+                    await window.Capacitor.Plugins.Browser.open({ 
+                        url: data.url,
+                        windowName: '_self'
+                    });
+                } else {
+                    console.log('🌐 Redirecionando para URL...');
+                    window.location.href = data.url;
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro no login Google:', error);
+                showToast("Erro ao conectar com Google", "error");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         });
-        
-        if (error) throw error;
-        
-        console.log('🌐 URL de autenticação:', data.url);
-        
-        // 🔥 ABRE O BROWSER CORRETAMENTE
-        if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
-            console.log('📱 Abrindo no Capacitor Browser...');
-            await window.Capacitor.Plugins.Browser.open({ 
-                url: data.url,
-                windowName: '_self'
-            });
-        } else {
-            console.log('🌐 Redirecionando para URL...');
-            window.location.href = data.url;
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro no login Google:', error);
-        showToast("Erro ao conectar com Google", "error");
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-});
 
+// 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
+async function saveTermsAcceptanceToDatabase() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user && localStorage.getItem('termsAccepted')) {
+            // Verifica se já não salvou antes
+            const { data: existing } = await supabase
+                .from('user_terms_acceptance')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('terms_version', '1.0')
+                .single();
+            
+            if (!existing) {
+                const { error } = await supabase
+                    .from('user_terms_acceptance')
+                    .insert({
+                        user_id: user.id,
+                        user_email: user.email,
+                        terms_version: '1.0',
+                        user_agent: navigator.userAgent
+                    });
+                
+                if (!error) {
+                    console.log('📝 Termos salvos no banco para usuário:', user.email);
+                }
+            }
+        }
+    } catch (error) {
+        console.log('⚠️ Não foi possível salvar termos no banco:', error);
+    }
+}
+
+        
 // ---------------- LOGOUT CORRIGIDO ----------------
 logoutBtn.addEventListener('click', async () => {
     console.log('🚪 Iniciando logout...');
@@ -4806,21 +4688,6 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
