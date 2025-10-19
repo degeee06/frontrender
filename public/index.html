@@ -1308,7 +1308,22 @@
     transform: scale(1.1) !important;
     transition: all 0.3s ease !important;
 }
-        
+ /* 🔥 SPINNER PRETO PARA BOTÃO AGENDAR */
+#agendamentoForm .loading-spinner-premium {
+    border: 2px solid rgba(0, 0, 0, 0.2) !important;
+    border-top: 2px solid #000000 !important;
+}
+        /* 🔥 CORREÇÃO: Input da planilha com texto visível */
+#spreadsheetIdInput {
+    color: #000000 !important;
+    background-color: #FFFFFF !important;
+}
+
+/* 🔥 Placeholder também escuro */
+#spreadsheetIdInput::placeholder {
+    color: #666666 !important;
+    opacity: 1;
+}
 
     </style>
 </head>
@@ -5640,6 +5655,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
