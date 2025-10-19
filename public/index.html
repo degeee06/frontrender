@@ -444,20 +444,49 @@
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-    <!-- 🎯 TELA DE AUTENTICAÇÃO -->
-    <div id="authCallbackScreen" class="auth-screen hidden">
-        <div class="glass-card p-8 w-full max-w-md mx-auto animate-slide-in">
-            <div class="flex flex-col items-center justify-center text-center">
-                <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-2xl mb-6">
-                    <i data-feather="lock" class="w-8 h-8 text-white"></i>
+  <!-- 🎯🎯🎯 TELA DE AUTENTICAÇÃO 🎯🎯🎯 -->
+<div id="authCallbackScreen" class="auth-screen hidden">
+    <div class="glass-card rounded-2xl p-6 md:p-8 w-full max-w-md mx-auto animate-fade-in" data-aos="fade-up">
+        <!-- Header Elegante -->
+        <div class="flex items-center justify-center mb-6">
+            <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
+                <i data-feather="lock" class="w-6 h-6 text-white"></i>
+            </div>
+        </div>
+
+        <h2 class="text-xl sm:text-2xl font-semibold text-center mb-2">Autenticando</h2>
+        <p class="text-center text-gray-300 mb-6">Conectando sua conta...</p>
+
+        <!-- Spinner Central -->
+        <div class="flex justify-center mb-6">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Status e Informações -->
+        <div class="text-center space-y-4">
+            <p class="text-gray-300 animate-pulse-slow">Redirecionando de volta para o app</p>
+            
+            <!-- Informações de Debug (apenas em desenvolvimento) -->
+            <div id="debugInfo" class="mt-6 p-4 bg-white/5 rounded-lg border border-white/10 text-left hidden">
+                <h3 class="text-sm font-semibold mb-2">🔍 Informações de Conexão:</h3>
+                <div class="text-xs space-y-1">
+                    <div id="urlInfo"></div>
+                    <div id="hashInfo"></div>
+                    <div id="envInfo"></div>
+                    <div id="tokenInfo"></div>
                 </div>
-                <h2 class="text-2xl font-bold mb-2">Autenticando</h2>
-                <p class="text-gray-300 mb-6">Conectando sua conta...</p>
-                <div class="spinner mb-6"></div>
-                <p class="text-gray-400 animate-pulse">Redirecionando de volta para o app</p>
+            </div>
+
+            <!-- Botão de Fallback -->
+            <div class="mt-6 pt-6 border-t border-white/10">
+                <button id="manualRedirect" class="text-sm text-cyan-300 hover:text-cyan-200 transition-colors hidden flex items-center justify-center gap-2 w-full">
+                    <i data-feather="refresh-cw" class="w-4 h-4"></i>
+                    Redirecionar manualmente
+                </button>
             </div>
         </div>
     </div>
+</div>
 
     <!-- 🔒 MODAL DE TERMOS -->
     <div id="termsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
@@ -4570,6 +4599,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
