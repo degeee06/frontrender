@@ -2874,7 +2874,15 @@ async function atualizarInterfacePosLogin() {
     console.log('✅ Interface do usuário logado configurada');
 }
 
-    
+    // TESTE TEMPORÁRIO - Adicione no início da função
+const testResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+    headers: { 'Authorization': `Bearer ${userToken}` }
+});
+const testData = await testResponse.json();
+console.log('🧪 TESTE - Dados do perfil:', JSON.stringify(testData, null, 2));
+alert('Dados do perfil: ' + JSON.stringify(testData, null, 2));
+
+        
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
@@ -5051,6 +5059,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
