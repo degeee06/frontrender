@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento</title>
-     <script>
+    <title>Agendamento | Ultra Black UI</title>
+    <!-- 🔒 ADICIONE ESTE BLOCO AQUI -->
+    <script>
     window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eXhqY3h4cXdqb3RudXlydm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzU5MTQsImV4cCI6MjA3MzAxMTkxNH0.O6pWtKMQvsIQlOt7G6nIcDMMKoTJU-G-qpZiiE6Q3Hk";
     window.API_BASE_URL = "https://agendamento-ynxr.onrender.com";
     </script>
@@ -17,394 +18,1048 @@
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    /* ==========================================================================
-       # ULTRA BLACK UI / FULL DARK MINIMALISM (2025) THEME
-       ========================================================================== */
-
-    /* 1. CORE STYLES & TYPOGRAPHY */
+    :root {
+        --black-absolute: #000000;
+        --black-deep: #111111;
+        --black-medium: #1A1A1A;
+        --black-light: #333333;
+        --white-pure: #FFFFFF;
+        --white-ice: #E0E0E0;
+        --gray-steel: #5A5A5A;
+        --silver-accent: #C0C0C0;
+        --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
+        --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.5);
+        --inner-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    
     body {
-        background-color: #000000;
-        color: #E0E0E0;
         font-family: 'Inter', sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-
-    h1, h2, h3, h4, .font-bold, .font-semibold {
-        color: #FFFFFF;
-    }
-
-    p, span, label, div, button, input, select {
-        color: #BFBFBF;
+        background-color: var(--black-absolute);
+        color: var(--white-ice);
+        min-height: 100vh;
+        line-height: 1.6;
     }
     
-    a, button.underline {
-      color: #BFBFBF;
-      text-decoration: underline;
-      text-underline-offset: 4px;
-      transition: color 0.3s ease-out;
+    /* ESTILO PARA TELA DE AUTENTICAÇÃO */
+    .auth-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--black-absolute);
+        color: var(--white-ice);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
     }
-
-    a:hover, button.underline:hover {
-      color: #FFFFFF;
+    .auth-container {
+        text-align: center;
+        padding: 20px;
     }
-    
-    /* 2. LAYOUT & CARD ELEMENTS */
-    .glass-card,
-    .assistente-ia-section,
-    .agendamento-ia-section,
-    .sugestoes-ia-section {
-        background-color: #0A0A0A;
-        border: 1px solid #1A1A1A;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        transition: border-color 0.3s ease-out, box-shadow 0.3s ease-out;
-    }
-
-    .glass-card:hover, .agendamento-card:hover {
-        border-color: #333333;
-        transform: translateY(-2px);
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
-    }
-    
-    /* 3. AUTHENTICATION & MODALS */
-    .auth-screen, #termsModal, #configSheetsModal, .fixed.inset-0 {
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-    
     .spinner {
-        border: 4px solid rgba(255, 255, 255, 0.1);
+        border: 4px solid rgba(255,255,255,0.1);
         border-radius: 50%;
-        border-top: 4px solid #FFFFFF;
+        border-top: 4px solid var(--white-ice);
         width: 40px;
         height: 40px;
         animation: spin 1s linear infinite;
         margin: 0 auto 20px;
     }
-
-    #authCallbackScreen h2 {
-      color: #FFFFFF;
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
-    #authCallbackScreen p {
-      color: #BFBFBF;
-    }
-
-    /* 4. FORMS & INPUTS */
-    .input-field, input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], select {
-        background-color: #000000 !important;
-        border: 1px solid #333333 !important;
-        color: #E0E0E0 !important;
-        border-radius: 8px;
-        transition: all 0.3s ease-out;
-        font-size: 16px; /* Evita zoom no iOS */
-        padding: 12px;
-    }
-
-    .input-field:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="date"]:focus, input[type="time"]:focus, select:focus {
-        border-color: #5A5A5A !important;
-        box-shadow: 0 0 0 3px rgba(90, 90, 90, 0.5) !important;
-        outline: none;
+    .hidden {
+        display: none !important;
     }
     
-    select option {
-      background-color: #111111 !important;
-      color: #E0E0E0 !important;
-    }
-    
-    label, .block.mb-2 {
-      color: #BFBFBF;
-      opacity: 1;
-    }
-
-    /* 5. BUTTONS */
-    button {
-        transition: all 0.3s ease-out;
-        cursor: pointer;
-    }
-    
-    /* General Button Style */
-    .bg-gray-600, .bg-red-600, .bg-white\/10 {
-      background-color: #1A1A1A;
-      border: 1px solid #333333;
-      color: #E0E0E0;
-    }
-    
-    .bg-gray-600:hover, .bg-red-600:hover, .bg-white\/10:hover {
-      background-color: #222222;
-      border-color: #5A5A5A;
-    }
-    
-    /* Primary Action Button (e.g., Agendar, Login) */
-    #agendamentoForm button[type="submit"], #googleLoginBtn,
-    .bg-gradient-to-r.from-indigo-500, .bg-gradient-to-r.from-green-500,
-    .btn-agendar-premium {
-      background: #1A1A1A !important;
-      border: 1px solid #333333 !important;
-      color: #FFFFFF !important;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-      font-weight: 500 !important;
-      border-radius: 12px !important;
-      position: relative;
-      overflow: hidden;
+    /* ESTILOS PARA AS SEÇÕES IA */
+    .assistente-ia-section,
+    .agendamento-ia-section,
+    .sugestoes-ia-section {
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        border-radius: 16px;
+        padding: 24px;
+        margin: 20px 0;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        position: relative;
+        overflow: hidden;
     }
 
-    #agendamentoForm button[type="submit"]:hover, #googleLoginBtn:hover,
-    .bg-gradient-to-r.from-indigo-500:hover, .bg-gradient-to-r.from-green-500:hover,
-    .btn-agendar-premium:hover {
-      background: #222222 !important;
-      border-color: #5A5A5A !important;
-      transform: translateY(-2px) !important;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7) !important;
+    .assistente-ia-section::before,
+    .agendamento-ia-section::before,
+    .sugestoes-ia-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
+        opacity: 0.3;
     }
 
-    /* Google Login Button Specifics */
-    #googleLoginBtn {
-      background: #000000 !important;
-      border: 1px solid #333333 !important;
-    }
-    #googleLoginBtn span {
-      color: #E0E0E0 !important;
-    }
-     #googleLoginBtn:hover {
-      background: #111111 !important;
-      border-color: #5A5A5A !important;
+    .assistente-ia-section:hover,
+    .agendamento-ia-section:hover,
+    .sugestoes-ia-section:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-deep);
+        border-color: var(--gray-steel);
     }
 
-    /* Removing flashy premium effects */
-    .btn-agendar-premium::before, .btn-agendar-premium::after, button[type="submit"]::before {
-      display: none !important;
-    }
-
-    /* Hotmart Button Override */
-    .hotmart-fb.hotmart__button-checkout {
-      background: #1A1A1A !important;
-      border: 1px solid #333333 !important;
-      color: #C0C0C0 !important; /* Silver accent */
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-    }
-    .hotmart-fb.hotmart__button-checkout:hover {
-      background: #222222 !important;
-      border-color: #5A5A5A !important;
-      transform: translateY(-2px) !important;
-    }
-    
-    /* 6. HEADER & TITLES */
-    header h1, .bg-clip-text {
-      background: none;
-      -webkit-background-clip: unset;
-      -webkit-text-fill-color: unset;
-      background-clip: unset;
-      color: #FFFFFF;
-      text-transparent: unset;
-    }
-
-    header p {
-      color: #BFBFBF;
-      opacity: 1;
-    }
-
-    .p-3.rounded-full.bg-gradient-to-br {
-        background: #1A1A1A;
-        border: 1px solid #333333;
-    }
-
-    /* 7. IA & CHAT INTERFACE */
     .chat-ia {
-        border-color: #1A1A1A;
+        border: 1px solid var(--black-light);
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: var(--black-deep);
     }
+
     .historico-chat {
-        background-color: #000000;
+        height: 280px;
+        overflow-y: auto;
+        padding: 16px;
+        background-color: var(--black-deep);
     }
-    .input-chat {
-        background-color: #0A0A0A;
-        border-top-color: #1A1A1A;
-    }
-    .input-chat input {
-        background-color: #000000;
-        border-color: #333333;
-    }
+
     .mensagem {
-      border: none;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        margin-bottom: 12px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        max-width: 85%;
+        font-size: 14px;
+        line-height: 1.5;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.2s ease-out;
     }
+
     .mensagem.usuario {
-      background: #1A1A1A;
+        background-color: var(--black-light);
+        margin-left: auto;
+        border: 1px solid var(--gray-steel);
+        color: var(--white-ice);
     }
+
     .mensagem.ia {
-      background: #111111;
+        background-color: var(--black-medium);
+        margin-right: auto;
+        border: 1px solid var(--black-light);
+        color: var(--white-ice);
     }
+
     .mensagem.erro {
-      background: #221111;
-      border: 1px solid #5A3333;
+        background-color: rgba(90, 90, 90, 0.3);
+        border: 1px solid var(--gray-steel);
+        color: var(--white-ice);
     }
 
-    /* 8. TABS & FILTERS */
-    .tab-dia, .tab-semana {
-        background-color: #0A0A0A;
-        color: #BFBFBF;
+    .input-chat {
+        display: flex;
+        padding: 16px;
+        background-color: var(--black-deep);
+        border-top: 1px solid var(--black-light);
+        gap: 12px;
+    }
+
+    .input-chat input {
+        flex: 1;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        color: var(--white-ice);
+        font-size: 16px;
         transition: all 0.3s ease-out;
-        border: 1px solid transparent;
     }
     
-    .tab-dia:hover, .tab-semana:hover {
-        background-color: #1A1A1A;
-        color: #FFFFFF;
-    }
-    
-    .tab-dia.active {
-        background-color: #1A1A1A;
-        color: #FFFFFF;
-        font-weight: 600;
-        border: 1px solid #333333;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    }
-    .tab-dia.active, .tab-semana.active {
-      background: #1A1A1A !important;
+    .input-chat input:focus {
+        outline: none;
+        border-color: var(--silver-accent);
+        box-shadow: 0 0 0 2px rgba(192, 192, 192, 0.1);
+        background-color: var(--black-light);
     }
 
-    /* 9. STATUS BADGES */
-    .status-pendente, .status-confirmado, .status-cancelado, #premiumBadge,
-    .text-sm.px-2.py-1.rounded-full {
-        background-color: #1A1A1A !important;
-        border: 1px solid #333333;
-        padding: 4px 8px;
+    .input-chat button {
+        padding: 14px 20px;
+        border-radius: 10px;
+        background-color: var(--black-light);
+        border: 1px solid var(--gray-steel);
+        color: var(--white-ice);
+        cursor: pointer;
+        white-space: nowrap;
         font-weight: 500;
+        transition: all 0.3s ease-out;
     }
-    .status-pendente { color: #BFBFBF !important; }
-    .status-confirmado { color: #FFFFFF !important; }
-    .status-cancelado { color: #5A5A5A !important; }
-    #premiumBadge {
-      background: #111111 !important;
-      border: 1px solid #333333 !important;
-    }
-    #premiumBadge span {
-      color: #C0C0C0 !important; /* Silver accent */
+    
+    .input-chat button:hover {
+        background-color: var(--gray-steel);
+        transform: translateY(-1px);
     }
 
-    /* 10. SCROLLBAR */
-    .scrollbar-hide::-webkit-scrollbar, .scrollbar-custom::-webkit-scrollbar {
+    .agendamento-rapido {
+        display: flex;
+        gap: 12px;
+    }
+
+    .agendamento-rapido input {
+        flex: 1;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        color: var(--white-ice);
+        font-size: 16px;
+        transition: all 0.3s ease-out;
+    }
+    
+    .agendamento-rapido input:focus {
+        outline: none;
+        border-color: var(--silver-accent);
+        box-shadow: 0 0 0 2px rgba(192, 192, 192, 0.1);
+        background-color: var(--black-light);
+    }
+
+    .agendamento-rapido button {
+        padding: 14px 20px;
+        border-radius: 10px;
+        background-color: var(--black-light);
+        border: 1px solid var(--gray-steel);
+        color: var(--white-ice);
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease-out;
+    }
+    
+    .agendamento-rapido button:hover {
+        background-color: var(--gray-steel);
+        transform: translateY(-1px);
+    }
+
+    .sugestoes-conteudo {
+        margin-top: 20px;
+    }
+
+    .sugestoes-texto {
+        white-space: pre-line;
+        line-height: 1.6;
+        font-size: 14px;
+        background-color: var(--black-deep);
+        padding: 16px;
+        border-radius: 10px;
+        border-left: 3px solid var(--silver-accent);
+    }
+    
+    .glass-card {
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        box-shadow: var(--shadow-soft);
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
+        opacity: 0.3;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-deep);
+        border-color: var(--gray-steel);
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
         width: 6px;
     }
-    .scrollbar-hide::-webkit-scrollbar-track, .scrollbar-custom::-webkit-scrollbar-track {
-        background: #000000;
-    }
-    .scrollbar-hide::-webkit-scrollbar-thumb, .scrollbar-custom::-webkit-scrollbar-thumb {
-        background: #1A1A1A;
+    
+    .scrollbar-hide::-webkit-scrollbar-track {
+        background: var(--black-deep);
         border-radius: 10px;
     }
-    .scrollbar-hide::-webkit-scrollbar-thumb:hover, .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-        background: #333333;
+    
+    .scrollbar-hide::-webkit-scrollbar-thumb {
+        background: var(--gray-steel);
+        border-radius: 10px;
     }
     
-    /* 11. ICONS */
-    i[data-feather] {
-      color: #BFBFBF;
-      transition: color 0.3s ease-out;
-    }
-
-    button:hover i[data-feather], a:hover i[data-feather] {
-      color: #FFFFFF;
+    .scrollbar-hide::-webkit-scrollbar-thumb:hover {
+        background: var(--silver-accent);
     }
     
-    .text-blue-400 { color: #5A5A5A; }
-    .text-gray-400 { color: #5A5A5A; }
-    .text-cyan-300, .text-cyan-400 { color: #BFBFBF; }
-    .text-cyan-300:hover, .text-cyan-400:hover { color: #FFFFFF; }
-
-    /* 12. ANIMATIONS & TRANSITIONS */
     .animate-fade-in {
-        animation: fadeIn 0.5s ease-out forwards;
+        animation: fadeIn 0.4s ease-out forwards;
     }
+    
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
     }
     
-    #agendamentoForm:focus-within button[type="submit"] {
-        animation: none; /* remove pulse */
+    .input-field {
+        transition: all 0.3s ease-out;
+        font-size: 16px;
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        color: var(--white-ice);
     }
     
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    .input-field:focus {
+        outline: none;
+        border-color: var(--silver-accent);
+        box-shadow: 0 0 0 2px rgba(192, 192, 192, 0.1);
+        background-color: var(--black-light);
+    }
+    
+    .status-pendente {
+        color: var(--white-ice);
+        background-color: var(--black-light);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 500;
+        border: 1px solid var(--gray-steel);
+        font-size: 12px;
     }
 
-    /* 13. MISC & OVERRIDES */
-    .hidden { display: none !important; }
-    
-    /* Remove unnecessary gradients and bright colors */
-    .bg-gradient-to-r, .bg-gradient-to-br {
-        background: none;
-    }
-    
-    /* Adjusting specific elements */
-    #debugInfo {
-      background: #000000;
-      border-color: #1A1A1A;
-    }
-    .bg-white\/5 {
-      background: rgba(10, 10, 10, 0.5);
-    }
-    .border-white\/10 {
-      border-color: #1A1A1A;
-    }
-    
-    /* Specific text colors */
-    .text-gray-200, .text-gray-300 {
-      color: #BFBFBF;
+    .status-confirmado {
+        color: var(--white-ice);
+        background-color: var(--black-light);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 500;
+        border: 1px solid var(--gray-steel);
+        font-size: 12px;
     }
 
-    /* Periodo Bloqueado */
+    .status-cancelado {
+        color: var(--white-ice);
+        background-color: var(--black-light);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 500;
+        border: 1px solid var(--gray-steel);
+        font-size: 12px;
+    }
+    
+    .tab-dia, .tab-semana {
+        transition: all 0.3s ease-out;
+        font-weight: 500;
+        border-radius: 10px;
+        padding: 10px 16px;
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        color: var(--white-ice);
+    }
+    
+    .tab-dia.active {
+        background-color: var(--black-light);
+        color: var(--white-pure);
+        border-color: var(--silver-accent);
+        box-shadow: var(--inner-shadow);
+    }
+    
+    .tab-dia:not(.active):hover {
+        background-color: var(--black-light);
+        transform: translateY(-1px);
+    }
+    
+    .tab-semana:hover {
+        background-color: var(--black-light);
+        transform: translateY(-1px);
+    }
+    
+    .agendamento-card {
+        transition: all 0.3s ease-out;
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        position: relative;
+    }
+    
+    .agendamento-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
+        opacity: 0.2;
+    }
+    
+    .agendamento-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-soft);
+        background-color: var(--black-light);
+        border-color: var(--gray-steel);
+    }
+    
+    .loading-spinner {
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        border-top: 2px solid var(--white-ice);
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+    }
+    
+    /* 🔥 CORREÇÕES MOBILE CRÍTICAS */
+    @media (max-width: 640px) {
+        .container {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .glass-card {
+            margin-left: 0;
+            margin-right: 0;
+            border-radius: 14px;
+            padding: 20px;
+        }
+        
+        /* Inputs mobile */
+        .input-field {
+            font-size: 16px !important;
+            padding-top: 14px !important;
+            padding-bottom: 14px !important;
+        }
+        
+        /* Chat IA mobile */
+        .input-chat {
+            padding: 16px;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .input-chat input {
+            margin-right: 0;
+            font-size: 16px;
+        }
+        
+        .input-chat button {
+            width: 100%;
+        }
+        
+        /* Mensagens mobile */
+        .mensagem {
+            max-width: 95% !important;
+            font-size: 14px;
+            padding: 12px;
+        }
+        
+        .historico-chat {
+            height: 250px;
+            padding: 16px;
+        }
+        
+        /* Seções IA mobile */
+        .assistente-ia-section,
+        .agendamento-ia-section,
+        .sugestoes-ia-section {
+            padding: 20px;
+            margin: 16px 0;
+            border-radius: 14px;
+        }
+        
+        /* Botões mobile */
+        .mobile-w-full {
+            width: 100%;
+        }
+        
+        .mobile-flex-col {
+            flex-direction: column;
+        }
+        
+        /* Header mobile */
+        header h1 {
+            font-size: 1.75rem !important;
+        }
+        
+        header p {
+            font-size: 0.9rem;
+            padding: 0 8px;
+        }
+        
+        /* Form mobile */
+        .agendamentoForm .grid {
+            gap: 16px !important;
+        }
+        
+        .agendamentoForm .space-y-5 {
+            gap: 20px !important;
+        }
+    }
+
+    /* 🔥 Breakpoint extra pequeno */
+    @media (max-width: 380px) {
+        .text-2xl {
+            font-size: 1.4rem !important;
+        }
+        
+        .text-xl {
+            font-size: 1.2rem !important;
+        }
+        
+        .text-lg {
+            font-size: 1rem !important;
+        }
+        
+        .tab-dia, .tab-semana {
+            font-size: 12px !important;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+        }
+        
+        .glass-card {
+            padding: 16px !important;
+        }
+        
+        .historico-chat {
+            height: 200px;
+        }
+        
+        .mensagem {
+            font-size: 13px;
+        }
+    }
+
+    /* 🔥 Breakpoint tablets */
+    @media (min-width: 641px) and (max-width: 768px) {
+        .container {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        
+        .mensagem {
+            max-width: 75%;
+        }
+        
+        .input-chat {
+            flex-direction: row;
+        }
+        
+        .input-chat button {
+            width: auto;
+        }
+    }
+
+    /* 🔥 Estados de loading para IA */
+    .btn-ia-loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .input-chat input:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .mensagem.carregando {
+        opacity: 0.7;
+        font-style: italic;
+    }
+
+    /* 🔥 Melhorias de acessibilidade */
+    @media (prefers-reduced-motion: reduce) {
+        .animate-fade-in,
+        .agendamento-card,
+        .input-field {
+            animation: none;
+            transition: none;
+        }
+    }
+    
+    /* Botões de configuração */
+    .settings-btn {
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        transition: all 0.3s ease-out;
+    }
+
+    .settings-btn:hover {
+        background-color: var(--black-light);
+        transform: translateY(-1px);
+    }
+    
+    /* 🆕 ESTILOS PARA BLOQUEIO POR PERÍODOS */
     .periodo-bloqueado {
-        background-color: #000000;
-        border-color: #1A1A1A;
+        animation: slideIn 0.3s ease-out;
     }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    #listaPeriodosBloqueados {
+        scrollbar-width: thin;
+        scrollbar-color: var(--gray-steel) transparent;
+    }
+
+    #listaPeriodosBloqueados::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #listaPeriodosBloqueados::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    #listaPeriodosBloqueados::-webkit-scrollbar-thumb {
+        background: var(--gray-steel);
+        border-radius: 3px;
+    }
+
+    .inicio-periodo:invalid + .fim-periodo:valid,
+    .fim-periodo:invalid {
+        border-color: var(--gray-steel) !important;
+    }
+
     .inicio-periodo:valid + .fim-periodo:valid {
-        border-color: #335A33 !important;
+        border-color: var(--silver-accent) !important;
     }
-    .text-green-400 { color: #BFBFBF; }
-    .text-blue-400 { color: #BFBFBF; }
-    .bg-red-500\/20 { background-color: rgba(90, 51, 51, 0.5); }
-    .text-red-400 { color: #C0C0C0; }
-
-    /* Remove remaining gradients from specific buttons */
-    #logoutBtn {
-        background-color: #1A1A1A;
-    }
-    #logoutBtn:hover {
-        background-color: #330000;
-        border-color: #5A0000;
+    
+    /* 🔧 Correção visual do select invisível */
+    #tipoNegocioSelect {
+        background-color: var(--black-medium);
+        color: var(--white-ice);
     }
 
-    /* Final touches for minimalism */
-    .shadow-lg, .shadow-xl, .shadow-2xl {
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    #tipoNegocioSelect option {
+        background-color: var(--black-deep);
+        color: var(--white-ice);
+    }
+
+    /* 🔥 CORREÇÃO: Estilos para inputs de data/time no iOS */
+    input[type="date"], input[type="time"] {
+        font-size: 16px !important;
+        min-height: 48px !important;
+    }
+
+    /* 🔥 CORREÇÃO: Garantir que selects sejam visíveis */
+    select {
+        background-color: var(--black-medium) !important;
+        color: var(--white-ice) !important;
+    }
+
+    select option {
+        background-color: var(--black-deep) !important;
+        color: var(--white-ice) !important;
+    }
+
+    /* 🔥 CORREÇÃO: Loading states para botões IA */
+    .btn-loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .btn-loading .loading-spinner {
+        display: inline-block !important;
+    }
+
+    /* 🔥 ESTILOS PARA TELA DE AUTENTICAÇÃO ATUALIZADA */
+    .auth-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--black-absolute);
+        color: var(--white-ice);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        padding: 20px;
+    }
+
+    .animate-pulse-slow {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    /* 🔥 ESTILOS PREMIUM PARA BOTÕES */
+    .btn-premium {
+        background-color: var(--black-light) !important;
+        color: var(--white-pure) !important;
+        padding: 16px 32px !important;
+        border: 1px solid var(--gray-steel) !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        cursor: pointer !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        box-shadow: var(--shadow-soft) !important;
+        position: relative !important;
+        overflow: hidden !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 12px !important;
+        min-height: 56px !important;
+        text-decoration: none !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    /* Efeitos hover premium */
+    .btn-premium:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: var(--shadow-deep) !important;
+        background-color: var(--gray-steel) !important;
+        border-color: var(--silver-accent) !important;
+    }
+
+    /* Efeito de clique premium */
+    .btn-premium:active {
+        transform: translateY(0) !important;
+    }
+
+    /* Efeito de brilho animado premium */
+    .btn-premium::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: -100% !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.05), 
+            transparent) !important;
+        transition: left 0.7s ease-in-out !important;
+    }
+
+    .btn-premium:hover::before {
+        left: 100% !important;
+    }
+
+    /* Estado desabilitado premium */
+    .btn-premium:disabled {
+        background-color: var(--black-medium) !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        box-shadow: none !important;
+        opacity: 0.5 !important;
+        border-color: var(--black-light) !important;
+    }
+
+    .btn-premium:disabled:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .btn-premium:disabled::before {
+        display: none !important;
+    }
+
+    /* Loading spinner premium */
+    .loading-spinner-premium {
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        border-top: 2px solid var(--white-ice);
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+    }
+
+    /* Ícone do botão premium */
+    .btn-premium i {
+        transition: transform 0.3s ease-out;
+    }
+
+    .btn-premium:hover i {
+        transform: scale(1.05);
+    }
+
+    /* 🔥 ANIMAÇÃO DE PULSO PARA CHAMAR ATENÇÃO */
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: var(--shadow-soft);
+        }
+        50% {
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.1);
+        }
+    }
+
+    /* Aplicar animação de pulso quando o formulário estiver em foco */
+    #agendamentoForm:focus-within button[type="submit"] {
+        animation: pulse-glow 2s infinite;
+    }
+
+    /* 🔥 ESTILOS ESPECÍFICOS PARA O BOTÃO DO FORMULÁRIO */
+    #agendamentoForm button[type="submit"] {
+        background-color: var(--black-light);
+        color: var(--white-pure);
+        padding: 16px 32px;
+        border: 1px solid var(--gray-steel);
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-height: 56px;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    #agendamentoForm button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-deep);
+        background-color: var(--gray-steel);
+        border-color: var(--silver-accent);
+    }
+
+    #agendamentoForm button[type="submit"]:active {
+        transform: translateY(0);
+    }
+
+    /* 🔥 RESPONSIVIDADE ESPECÍFICA PARA O BOTÃO AGENDAR */
+    @media (max-width: 768px) {
+        #agendamentoForm button[type="submit"] {
+            padding: 14px 24px;
+            font-size: 16px;
+            min-height: 52px;
+        }
+        
+        .btn-premium {
+            padding: 14px 24px !important;
+            font-size: 16px !important;
+            min-height: 52px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #agendamentoForm button[type="submit"] {
+            padding: 12px 20px;
+            font-size: 16px;
+            min-height: 48px;
+            border-radius: 10px;
+        }
+    }
+    
+    /* 🔥 BADGE PREMIUM */
+    .premium-badge {
+        background-color: var(--black-light);
+        color: var(--white-pure);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 12px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--gray-steel);
+    }
+    
+    /* 🔥 HEADER COM GRADIENTE */
+    .header-gradient {
+        background-color: var(--black-medium);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 1px solid var(--black-light);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .header-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
+        opacity: 0.3;
+    }
+    
+    /* 🔥 BOTÃO GOOGLE MODERNO */
+    .google-btn {
+        background-color: var(--black-medium);
+        color: var(--white-ice);
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 16px;
+        transition: all 0.3s ease-out;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--black-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    .google-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-deep);
+        background-color: var(--black-light);
+        border-color: var(--gray-steel);
+    }
+    
+    /* 🔥 MODAL MODERNO */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        padding: 20px;
+    }
+    
+    .modal-content {
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: var(--shadow-deep);
+        animation: modalAppear 0.3s ease-out;
+        position: relative;
+    }
+    
+    .modal-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
+        opacity: 0.3;
+    }
+    
+    @keyframes modalAppear {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* 🔥 TÍTULOS COM GRADIENTE MINIMALISTA */
+    .title-gradient {
+        background: linear-gradient(135deg, var(--white-pure), var(--white-ice));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* 🔥 SEPARADORES ELEGANTES */
+    .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gray-steel), transparent);
+        margin: 24px 0;
+        opacity: 0.3;
+    }
+
+    /* 🔥 BOTÕES DE AÇÃO SECUNDÁRIOS */
+    .btn-secondary {
+        background-color: transparent;
+        color: var(--white-ice);
+        border: 1px solid var(--gray-steel);
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease-out;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--black-light);
+        border-color: var(--silver-accent);
+        transform: translateY(-1px);
+    }
+
+    /* 🔥 CARDS DE INFORMAÇÃO */
+    .info-card {
+        background-color: var(--black-deep);
+        border: 1px solid var(--black-light);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        transition: all 0.3s ease-out;
+    }
+
+    .info-card:hover {
+        border-color: var(--gray-steel);
+        transform: translateY(-2px);
+    }
+
+    /* 🔥 ESTADO DE FOCO REFINADO */
+    *:focus {
+        outline: none;
+    }
+
+    .focus-visible {
+        box-shadow: 0 0 0 2px var(--silver-accent);
     }
     </style>
 </head>
-<body class="min-h-screen bg-black text-white">
+<body class="min-h-screen">
+<!-- 🎯🎯🎯 TELA DE AUTENTICAÇÃO 🎯🎯🎯 -->
 <div id="authCallbackScreen" class="auth-screen hidden">
     <div class="glass-card rounded-2xl p-6 md:p-8 w-full max-w-md mx-auto animate-fade-in" data-aos="fade-up">
+        <!-- Header Elegante -->
         <div class="flex items-center justify-center mb-6">
-            <div class="p-3 rounded-full">
-                <i data-feather="lock" class="w-6 h-6 text-white"></i>
+            <div class="p-3 rounded-full bg-black-light border border-gray-steel shadow-lg">
+                <i data-feather="lock" class="w-6 h-6 text-white-ice"></i>
             </div>
         </div>
 
-        <h2 class="text-xl sm:text-2xl font-semibold text-center mb-2">Autenticando</h2>
-        <p class="text-center mb-6">Conectando sua conta...</p>
+        <h2 class="text-xl sm:text-2xl font-semibold text-center mb-2 title-gradient">Autenticando</h2>
+        <p class="text-center text-white-ice mb-6">Conectando sua conta...</p>
 
+        <!-- Spinner Central -->
         <div class="flex justify-center mb-6">
             <div class="spinner"></div>
         </div>
 
+        <!-- Status e Informações -->
         <div class="text-center space-y-4">
-            <p class="animate-pulse-slow">Redirecionando de volta para o app</p>
+            <p class="text-white-ice animate-pulse-slow">Redirecionando de volta para o app</p>
             
-            <div id="debugInfo" class="mt-6 p-4 rounded-lg text-left hidden">
+            <!-- Informações de Debug (apenas em desenvolvimento) -->
+            <div id="debugInfo" class="mt-6 p-4 bg-black-deep rounded-lg border border-black-light text-left hidden">
                 <h3 class="text-sm font-semibold mb-2">🔍 Informações de Conexão:</h3>
                 <div class="text-xs space-y-1">
                     <div id="urlInfo"></div>
@@ -414,8 +1069,9 @@
                 </div>
             </div>
 
-            <div class="mt-6 pt-6 border-t border-white/10">
-                <button id="manualRedirect" class="text-sm hover:text-white transition-colors hidden flex items-center justify-center gap-2 w-full">
+            <!-- Botão de Fallback -->
+            <div class="mt-6 pt-6 border-t border-black-light">
+                <button id="manualRedirect" class="text-sm text-silver-accent hover:text-white-pure transition-colors hidden flex items-center justify-center gap-2 w-full">
                     <i data-feather="refresh-cw" class="w-4 h-4"></i>
                     Redirecionar manualmente
                 </button>
@@ -424,370 +1080,400 @@
     </div>
 </div>
 
-<div id="termsModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-    <div class="glass-card rounded-2xl p-6 max-w-2xl max-h-[80vh] overflow-y-auto mx-4">
+<!-- 🔒 MODAL DE TERMOS DE USO -->
+<div id="termsModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <!-- Header -->
         <div class="flex items-center justify-center mb-6">
-            <div class="p-3 rounded-full">
-                <i data-feather="file-text" class="w-6 h-6 text-white"></i>
+            <div class="p-3 rounded-full bg-black-light border border-gray-steel shadow-lg">
+                <i data-feather="file-text" class="w-6 h-6 text-white-ice"></i>
             </div>
         </div>
         
-        <h3 class="text-xl font-semibold text-center mb-2">📝 Termos de Uso</h3>
-        <p class="text-center mb-6">Leia e aceite para continuar</p>
+        <h3 class="text-xl font-semibold text-center mb-2 title-gradient">📝 Termos de Uso</h3>
+        <p class="text-center text-white-ice mb-6">Leia e aceite para continuar</p>
         
-        <div class="bg-white/5 rounded-lg p-4 mb-6 max-h-60 overflow-y-auto">
-            <div class="text-sm space-y-3"> <strong>Data de criação: 2025</strong>
+        <!-- ✅ CONTEÚDO DOS TERMOS -->
+        <div class="bg-black-deep rounded-lg p-4 mb-6 max-h-60 overflow-y-auto">
+            <div class="text-sm space-y-3 text-white-ice">
+                <strong>Data de criação: 2025</strong>
 
-                <h4 class="font-semibold">1. Aceitação dos Termos</h4>
+                <h4 class="font-semibold text-silver-accent">1. Aceitação dos Termos</h4>
                 <p>Ao utilizar nosso sistema de agendamentos, você concorda com estes Termos de Uso e nossa Política de Privacidade.</p>
 
-                <h4 class="font-semibold">2. Uso do Serviço</h4>
+                <h4 class="font-semibold text-silver-accent">2. Uso do Serviço</h4>
                 <p>Você concorda em usar a plataforma apenas para fins legítimos de agendamento de serviços, sendo responsável por todas as informações cadastradas.</p>
 
-                <h4 class="font-semibold">3. Privacidade e Dados</h4>
+                <h4 class="font-semibold text-silver-accent">3. Privacidade e Dados</h4>
                 <p>Seus dados de agendamento são armazenados com segurança em servidores protegidos. Não compartilhamos suas informações com terceiros não autorizados.</p>
 
-                <h4 class="font-semibold">4. Responsabilidades</h4>
+                <h4 class="font-semibold text-silver-accent">4. Responsabilidades</h4>
                 <p>Você é integralmente responsável pela veracidade das informações fornecidas e pelos agendamentos realizados através da plataforma.</p>
 
-                <h4 class="font-semibold">5. Limitações de Uso</h4>
+                <h4 class="font-sememibold text-silver-accent">5. Limitações de Uso</h4>
                 <p>O serviço pode possuir limitações técnicas conforme seu plano atual (free trial ou premium). Reservamo-nos o direito de suspender contras em caso de uso inadequado.</p>
 
-                <h4 class="font-semibold">6. Modificações</h4>
+                <h4 class="font-semibold text-silver-accent">6. Modificações</h4>
                 <p>Podemos atualizar estes termos periodicamente. O uso continuado após alterações significa sua aceitação.</p>
 
-                <p class="text-xs text-gray-400 mt-4">
+                <p class="text-xs text-gray-steel mt-4">
                     🔒 <strong>Proteção de Dados:</strong> Este sistema segue as melhores práticas de segurança e proteção de dados pessoais.
                 </p>
 
-                <p class="text-xs text-gray-400 mt-2">
+                <p class="text-xs text-gray-steel mt-2">
                     Ao clicar em "Aceitar e Continuar", você declara ter lido, compreendido e concordado com todos os termos acima.
                 </p>
-            </div> </div> <div class="flex flex-col gap-3">
-            <button onclick="declineTerms()" class="w-full px-4 py-3 rounded-lg bg-gray-600 transition-all text-white font-medium">
+            </div>
+        </div>
+
+        <!-- ✅ BOTÕES VERTICAIS -->
+        <div class="flex flex-col gap-3">
+            <button onclick="declineTerms()" class="w-full px-4 py-3 rounded-lg bg-black-light hover:bg-gray-steel transition-all text-white-pure font-medium border border-black-light">
                 Recusar
             </button>
-            <button onclick="acceptTerms()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 hover:opacity-90 transition-all text-white font-medium">
+            <button onclick="acceptTerms()" class="w-full px-4 py-3 rounded-lg bg-black-light hover:bg-gray-steel transition-all text-white-pure font-medium border border-silver-accent">
                 ✅ Aceitar e Continuar
             </button>
         </div>
-    </div> </div> <div id="mainAppContent">
+    </div>
+</div>
+
+<!-- 🎯🎯🎯 CONTEÚDO PRINCIPAL 🎯🎯🎯 -->
+<div id="mainAppContent">
     <div class="container mx-auto px-4 py-8 max-w-6xl">
       
-        <header class="text-center mb-8 md:mb-12" data-aos="fade-down">
+        <!-- 🔥 HEADER COM BADGE AO LADO DO TÍTULO -->
+        <header class="header-gradient text-center mb-8 md:mb-12" data-aos="fade-down">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
+                <!-- Título e Badge juntos -->
                 <div class="flex items-center justify-center gap-4">
-                    <h1 class="text-2xl sm:text-3xl md:text-5xl font-bold">
+                    <h1 class="text-2xl sm:text-3xl md:text-5xl font-bold title-gradient">
                        Agendamento
                     </h1>
-                    <div id="premiumBadge" class="hidden text-white text-xs px-3 py-2 rounded-lg">
+                    <!-- 🔥 BADGE AO LADO DO TÍTULO -->
+                    <div id="premiumBadge" class="hidden premium-badge">
                         <span id="usageCount">0/5</span>
                     </div>
                 </div>
                 
                 <div class="flex gap-2 w-full sm:w-auto">
                     <button id="gerarLinkBtn" style="display:none;" 
-                            class="text-xs sm:text-sm px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                            class="text-xs sm:text-sm bg-black-light hover:bg-gray-steel px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto border border-black-light">
                         <i data-feather="link" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                         Gerar Link
                     </button>
-                    <button id="settingsBtn" style="display:none;" class="text-xs sm:text-sm px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                    <button id="settingsBtn" style="display:none;" class="text-xs sm:text-sm bg-black-light hover:bg-gray-steel px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto border border-black-light">
                         <i data-feather="settings" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                         Configurações
                     </button>
-                    <button id="logoutBtn" style="display:none;" class="text-xs sm:text-sm bg-red-600 px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto">
+                    <button id="logoutBtn" style="display:none;" class="text-xs sm:text-sm bg-black-light hover:bg-gray-steel px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto border border-black-light">
                         <i data-feather="log-out" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                         Sair
                     </button>
                 </div>
             </div>
-            <p class="text-sm sm:text-lg max-w-2xl mx-auto px-2">
+            <p class="text-sm sm:text-lg text-white-ice max-w-2xl mx-auto px-2">
                 Gerencie seus compromissos com uma interface intuitiva e elegante
             </p>
         </header>
 
-            <div id="secoesIA" style="display: none;">
+        <!-- 🔐 SESSÕES IA (APÓS LOGIN) -->
+        <div id="secoesIA" style="display: none;">
 
-
-                <div class="agendamento-ia-section rounded-2xl" data-aos="fade-up">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <span>🎯</span>
-                        Sugerir Horários Livres
-                    </h3>
-                    
-                    <div class="agendamento-rapido">
-                        <button onclick="sugerirHorarios()" class="w-full px-4 py-3 rounded-lg text-white font-medium transition-all flex items-center justify-center gap-2">
-                            <span>📅</span>
-                            Encontrar Melhores Horários
-                        </button>
-                    </div>
-                    
-                    <div id="sugestoes-horarios" class="mt-3">
-                        </div>
-                </div>
-
-        <div class="sugestoes-ia-section rounded-2xl" data-aos="fade-up">
-    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-        <span>📊</span>
-        Análise e Estatísticas
-    </h3>
-    
-    <button id="btn-estatisticas" onclick="verEstatisticasIA()" class="w-full px-4 py-3 rounded-lg text-white font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-        <span id="btn-estatisticas-text">📈 Ver Estatísticas Detalhadas</span>
-        <div id="btn-estatisticas-spinner" class="loading-spinner hidden" style="width:20px;height:20px;"></div>
-    </button>
-    
-    <div id="sugestoes-conteudo" class="sugestoes-conteudo mt-4">
-        </div>
-</div>
+            <!-- 🎯 SUGERIR HORÁRIOS LIVRES -->
+            <div class="agendamento-ia-section" data-aos="fade-up">
+                <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 title-gradient">
+                    <span>🎯</span>
+                    Sugerir Horários Livres
+                </h3>
                 
-</div> 
-
-
-            <div id="loginSection" class="glass-card rounded-3xl p-10 mb-8" data-aos="fade-up">
-    <div class="text-center mb-10">
-        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
-            <i data-feather="lock" class="w-10 h-10 text-white"></i>
-        </div>
-        <h2 class="text-3xl font-bold mb-3">Acesso ao Sistema</h2>
-        <p class="text-lg">Entre com sua conta Google</p>
-    </div>
-
-    <div class="max-w-sm mx-auto space-y-6">
-        <button id="googleLoginBtn" class="w-full group py-4 px-8 rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-4">
-            <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            <span class="group-hover:text-white transition-colors duration-300">Continuar com Google</span>
-        </button>
-
-         <div class="max-w-sm mx-auto mb-6">
-        <div class="p-4 bg-white/5 rounded-lg border border-white/10">
-            <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" id="aceiteTermos" required 
-                       class="mt-1 rounded bg-white/10 border-white/20 focus:ring-2 focus:ring-cyan-500">
-                <span class="text-sm">
-                    Concordo com os 
-                    <button type="button" onclick="abrirModalTermos()" class="underline">
-                        Termos de Uso
-                    </button> 
-                    e 
-                    <button type="button" onclick="abrirModalPrivacidade()" class="underline">
-                        Política de Privacidade
+                <div class="agendamento-rapido">
+                    <button onclick="sugerirHorarios()" class="w-full px-4 py-3 rounded-lg bg-black-light hover:bg-gray-steel text-white-pure font-medium transition-all flex items-center justify-center gap-2 border border-black-light">
+                        <span>📅</span>
+                        Encontrar Melhores Horários
                     </button>
-                </span>
-            </label>
-        </div>
-    </div>
-        
-        <div class="text-center p-4 rounded-2xl">
-            <p class="text-sm flex items-center justify-center gap-2">
-                <i data-feather="shield" class="w-4 h-4"></i>
-                <span class="font-medium">Login 100% seguro</span>
-                <span class="text-gray-500">•</span>
-                <span>Seus dados protegidos</span>
-            </p>
-        </div>
-    </div>
-</div>
+                </div>
+                
+                <div id="sugestoes-horarios" class="mt-3">
+                    <!-- Sugestões aparecem aqui -->
+                </div>
+            </div>
 
-            
-            <form id="agendamentoForm" style="display:none;" class="glass-card rounded-2xl p-4 sm:p-6 md:p-8 mb-6 md:mb-8" data-aos="fade-up">
-                <div class="flex items-center justify-center mb-4 md:mb-6">
-                    <div class="p-2 sm:p-3 rounded-full">
-                        <i data-feather="calendar" class="w-4 h-4 sm:w-6 sm:h-6 text-white"></i>
+            <!-- 📊 ANÁLISE E ESTATÍSTICAS -->
+            <div class="sugestoes-ia-section" data-aos="fade-up">
+                <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 title-gradient">
+                    <span>📊</span>
+                    Análise e Estatísticas
+                </h3>
+                
+                <button id="btn-estatisticas" onclick="verEstatisticasIA()" class="w-full px-4 py-3 rounded-lg bg-black-light hover:bg-gray-steel text-white-pure font-medium transition-all flex items-center justify-center gap-2 border border-black-light disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span id="btn-estatisticas-text">📈 Ver Estatísticas Detalhadas</span>
+                    <div id="btn-estatisticas-spinner" class="loading-spinner hidden" style="width:20px;height:20px;"></div>
+                </button>
+                
+                <div id="sugestoes-conteudo" class="sugestoes-conteudo mt-4">
+                    <!-- Estatísticas aparecem aqui -->
+                </div>
+            </div>
+        </div> 
+
+        <!-- Login Section - DESIGN MODERNO -->
+        <div id="loginSection" class="glass-card rounded-3xl p-10 mb-8" data-aos="fade-up">
+            <!-- Header Moderno -->
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-black-light border border-gray-steel shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
+                    <i data-feather="lock" class="w-10 h-10 text-white-ice"></i>
+                </div>
+                <h2 class="text-3xl font-bold title-gradient mb-3">Acesso ao Sistema</h2>
+                <p class="text-white-ice text-lg">Entre com sua conta Google</p>
+            </div>
+
+            <!-- Botão Google Moderno -->
+            <div class="max-w-sm mx-auto space-y-6">
+                <button id="googleLoginBtn" class="google-btn">
+                    <!-- Logo Google SVG -->
+                    <svg class="w-6 h-6" viewBox="0 0 24 24">
+                        <path fill="#FFFFFF" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#FFFFFF" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FFFFFF" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#FFFFFF" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <span class="text-white-ice">Continuar com Google</span>
+                </button>
+
+                <!-- ✅ CHECKBOX TERMOS -->
+                <div class="max-w-sm mx-auto mb-6">
+                    <div class="p-4 bg-black-deep rounded-lg border border-black-light">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="aceiteTermos" required 
+                                   class="mt-1 rounded bg-black-medium border-gray-steel focus:ring-2 focus:ring-silver-accent">
+                            <span class="text-sm text-white-ice">
+                                Concordo com os 
+                                <button type="button" onclick="abrirModalTermos()" class="text-silver-accent hover:text-white-pure underline">
+                                    Termos de Uso
+                                </button> 
+                                e 
+                                <button type="button" onclick="abrirModalPrivacidade()" class="text-silver-accent hover:text-white-pure underline">
+                                    Política de Privacidade
+                                </button>
+                            </span>
+                        </label>
                     </div>
                 </div>
-                <h2 class="text-xl sm:text-2xl font-semibold text-center mb-4 md:mb-6">Novo Agendamento</h2>
-                <div class="grid grid-cols-1 gap-4 sm:gap-5 max-w-4xl mx-auto">
-                    <div class="space-y-4 sm:space-y-5">
-                        <div>
-                            <label for="Nome" class="block mb-2 text-sm font-medium">Nome Completo</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="user" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                </div>
-                                <input type="text" name="Nome" placeholder="Seu nome" required 
-                                       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg focus:outline-none input-field text-sm sm:text-base">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="Email" class="block mb-2 text-sm font-medium">Email</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="mail" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                </div>
-                               <input type="email" name="Email" placeholder="Email (opcional)" 
-       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg focus:outline-none input-field text-sm sm:text-base">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-4 sm:space-y-5">
-                 <div>
-                    <label for="telefone" class="block mb-2 text-sm font-medium">Telefone</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-feather="phone" class="w-5 h-5"></i>
-                        </div>
-                       <input type="tel" id="Telefone" name="Telefone" placeholder="(00) 00000-0000" required 
-       class="w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none input-field">
-                    </div>
+                
+                <!-- Aviso de Segurança Moderno -->
+                <div class="text-center p-4 bg-black-deep rounded-2xl border border-black-light">
+                    <p class="text-white-ice text-sm flex items-center justify-center gap-2">
+                        <i data-feather="shield" class="w-4 h-4 text-silver-accent"></i>
+                        <span class="font-medium">Login 100% seguro</span>
+                        <span class="text-gray-steel">•</span>
+                        <span>Seus dados protegidos</span>
+                    </p>
                 </div>
-                        <div class="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
-                            <div>
-                                <label for="Data" class="block mb-2 text-sm font-medium">Data</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i data-feather="calendar" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                    </div>
-                                    <input type="date" id="Data" name="Data" placeholder="Data do Agendamento" required 
-                                           class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg focus:outline-none input-field text-sm sm:text-base">
-                                </div>
-                            </div>
-                            <div>
-                                <label for="Horario" class="block mb-2 text-sm font-medium">Horário</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i data-feather="clock" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                    </div>
-                                    <input type="time" id="Horario" name="Horario" placeholder="Horário" required 
-                                           class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg focus:outline-none input-field text-sm sm:text-base">
-                                </div>
-                                <p class="text-xs mt-1 flex items-center gap-1">
-    <i data-feather="info" class="w-3 h-3"></i>
-    <span>Dica: Horários flexíveis disponíveis (ex: 09:25, 14:45)</span>
-</p>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        
+        <!-- Appointment Form (Hidden Initially) -->
+        <form id="agendamentoForm" style="display:none;" class="glass-card rounded-2xl p-4 sm:p-6 md:p-8 mb-6 md:mb-8" data-aos="fade-up">
+            <div class="flex items-center justify-center mb-4 md:mb-6">
+                <div class="p-2 sm:p-3 rounded-full bg-black-light border border-gray-steel shadow-lg">
+                    <i data-feather="calendar" class="w-4 h-4 sm:w-6 sm:h-6 text-white-ice"></i>
                 </div>
-                <div class="max-w-md mx-auto mt-6 md:mt-8">
-                  <button type="submit" class="w-full py-2 sm:py-3 px-6 rounded-lg font-medium transition-all flex items-center justify-center gap-2 text-sm sm:text-base">
-    <i data-feather="plus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-    <span id="agendarText">Agendar</span>
-    <div id="agendarSpinner" class="loading-spinner hidden"></div>
-</button>
-                </div>
-            </form>
-            
-            <div id="filtersSection" style="display:none;" class="glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
-                <div class="flex flex-col md:flex-row gap-4 items-center">
-                    <div class="flex-1 w-full">
-                        <label for="searchInput" class="sr-only">Pesquisar</label>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-semibold text-center mb-4 md:mb-6 title-gradient">Novo Agendamento</h2>
+            <div class="grid grid-cols-1 gap-4 sm:gap-5 max-w-4xl mx-auto">
+                <div class="space-y-4 sm:space-y-5">
+                    <div>
+                        <label for="Nome" class="block mb-2 text-sm font-medium text-white-ice">Nome Completo</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-feather="search" class="w-5 h-5"></i>
+                                <i data-feather="user" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
                             </div>
-                            <input type="text" id="searchInput" placeholder="Pesquisar por nome ou email" 
-                                   class="w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none input-field">
+                            <input type="text" name="Nome" placeholder="Seu nome" required 
+                                   class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
                         </div>
                     </div>
-                    <div class="w-full md:w-48 relative">
-                        <label for="statusFilter" class="sr-only">Status</label>
+                    <div>
+                        <label for="Email" class="block mb-2 text-sm font-medium text-white-ice">Email</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-feather="mail" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
+                            </div>
+                           <input type="email" name="Email" placeholder="Email (opcional)" 
+       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4 sm:space-y-5">
+                    <!-- Telefone -->
+                    <div>
+                        <label for="telefone" class="block mb-2 text-sm font-medium text-white-ice">Telefone</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-feather="phone" class="w-5 h-5 text-gray-steel"></i>
+                            </div>
+                           <input type="tel" id="Telefone" name="Telefone" placeholder="(00) 00000-0000" required 
+       class="w-full pl-10 pr-4 py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                            <label for="Data" class="block mb-2 text-sm font-medium text-white-ice">Data</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-feather="calendar" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
+                                </div>
+                                <input type="date" id="Data" name="Data" placeholder="Data do Agendamento" required 
+                                       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="Horario" class="block mb-2 text-sm font-medium text-white-ice">Horário</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-feather="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
+                                </div>
+                                <input type="time" id="Horario" name="Horario" placeholder="Horário" required 
+                                       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
+                            </div>
+                            <p class="text-xs text-gray-steel mt-1 flex items-center gap-1">
+                                <i data-feather="info" class="w-3 h-3"></i>
+                                <span>Dica: Horários flexíveis disponíveis (ex: 09:25, 14:45)</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-md mx-auto mt-6 md:mt-8">
+              <button type="submit" class="btn-premium">
+                <i data-feather="plus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                <span id="agendarText">Agendar</span>
+                <div id="agendarSpinner" class="loading-spinner-premium hidden"></div>
+              </button>
+            </div>
+        </form>
+        
+        <!-- Filters Section -->
+        <div id="filtersSection" style="display:none;" class="glass-card rounded-2xl p-6 mb-6" data-aos="fade-up">
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="flex-1 w-full">
+                    <label for="searchInput" class="sr-only">Pesquisar</label>
+                    <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-feather="filter" class="w-5 h-5"></i>
+                            <i data-feather="search" class="w-5 h-5 text-gray-steel"></i>
                         </div>
-                        <select id="statusFilter" 
-                            class="w-full appearance-none pl-10 pr-4 py-3 rounded-lg focus:outline-none input-field">
-                            <option value="">Todos os status</option>
-                            <option value="pendente">Pendente</option>
-                            <option value="confirmado">Confirmado</option>
-                            <option value="cancelado">Cancelado</option>
-                        </select>
+                        <input type="text" id="searchInput" placeholder="Pesquisar por nome ou email" 
+                               class="w-full pl-10 pr-4 py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field">
                     </div>
-                    <div class="flex gap-2 mobile-w-full mobile-flex-col md:flex-row">
-                        <button id="exportCSVBtn" class="px-4 py-3 rounded-lg transition-all flex items-center justify-center gap-2 mobile-w-full">
-                            <i data-feather="download" class="w-5 h-5"></i>
-                            <span class="hidden md:inline">CSV</span>
-                        </button>
-                        <button id="exportPDFBtn" class="px-4 py-3 rounded-lg transition-all flex items-center justify-center gap-2 mobile-w-full">
-                            <i data-feather="file-text" class="w-5 h-5"></i>
-                            <span class="hidden md:inline">PDF</span>
-                        </button>
+                </div>
+                <div class="w-full md:w-48 relative">
+                    <label for="statusFilter" class="sr-only">Status</label>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="filter" class="w-5 h-5 text-gray-steel"></i>
                     </div>
+                    <select id="statusFilter" 
+                        class="w-full appearance-none pl-10 pr-4 py-3 rounded-lg bg-black-medium border border-black-light text-white-ice focus:outline-none input-field">
+                        <option value="" class="text-black-deep">Todos os status</option>
+                        <option value="pendente" class="text-black-deep">Pendente</option>
+                        <option value="confirmado" class="text-black-deep">Confirmado</option>
+                        <option value="cancelado" class="text-black-deep">Cancelado</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 mobile-w-full mobile-flex-col md:flex-row">
+                    <button id="exportCSVBtn" class="px-4 py-3 rounded-lg bg-black-medium border border-black-light hover:bg-black-light transition-all flex items-center justify-center gap-2 mobile-w-full">
+                        <i data-feather="download" class="w-5 h-5"></i>
+                        <span class="hidden md:inline">CSV</span>
+                    </button>
+                    <button id="exportPDFBtn" class="px-4 py-3 rounded-lg bg-black-medium border border-black-light hover:bg-black-light transition-all flex items-center justify-center gap-2 mobile-w-full">
+                        <i data-feather="file-text" class="w-5 h-5"></i>
+                        <span class="hidden md:inline">PDF</span>
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <div id="diasTabs" style="display:none;" class="flex flex-col gap-4 mb-6" data-aos="fade-up">
-                <div class="flex justify-center gap-2 overflow-x-auto pb-2">
-                    <button data-dia="0" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Dom</button>
-                    <button data-dia="1" class="tab-dia active px-5 py-2.5 rounded-xl text-white font-medium whitespace-nowrap">Seg</button>
-                    <button data-dia="2" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Ter</button>
-                    <button data-dia="3" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Qua</button>
-                    <button data-dia="4" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Qui</button>
-                    <button data-dia="5" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Sex</button>
-                    <button data-dia="6" class="tab-dia px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Sáb</button>
-                </div>
-                <div class="flex justify-center gap-2 overflow-x-auto pb-2">
-                    <button data-semana="-1" class="tab-semana px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">Sem Passada</button>
-                    <button data-semana="-2" class="tab-semana px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">2 Semanas</button>
-                    <button data-semana="-4" class="tab-semana px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">1 Mês</button>
-                </div>
+        <!-- 📅 TABS DIAS DA SEMANA -->
+        <div id="diasTabs" style="display:none;" class="flex flex-col gap-4 mb-6" data-aos="fade-up">
+            <div class="flex justify-center gap-2 overflow-x-auto pb-2">
+                <button data-dia="0" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Dom</button>
+                <button data-dia="1" class="tab-dia active px-5 py-2.5 rounded-xl bg-black-light text-white-pure font-medium whitespace-nowrap border border-silver-accent">Seg</button>
+                <button data-dia="2" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Ter</button>
+                <button data-dia="3" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Qua</button>
+                <button data-dia="4" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Qui</button>
+                <button data-dia="5" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Sex</button>
+                <button data-dia="6" class="tab-dia px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Sáb</button>
             </div>
+            <div class="flex justify-center gap-2 overflow-x-auto pb-2">
+                <button data-semana="-1" class="tab-semana px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">Sem Passada</button>
+                <button data-semana="-2" class="tab-semana px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">2 Semanas</button>
+                <button data-semana="-4" class="tab-semana px-5 py-2.5 rounded-xl bg-black-medium hover:bg-black-light transition-all font-medium whitespace-nowrap">1 Mês</button>
+            </div>
+        </div>
 
-            <div id="meusAgendamentos" class="glass-card p-6 max-h-[500px] overflow-y-auto scrollbar-custom mx-auto max-w-4xl" style="display:none;" data-aos="fade-up">
-                <div class="text-center py-8">
-                    <div class="p-4 rounded-full inline-block mb-4">
-                        <i data-feather="calendar" class="w-8 h-8"></i>
-                    </div>
-                    <p>Nenhum agendamento encontrado</p>
+        <!-- 📋 LISTA DE AGENDAMENTOS -->
+        <div id="meusAgendamentos" class="glass-card p-6 max-h-[500px] overflow-y-auto scrollbar-custom mx-auto max-w-4xl" style="display:none;" data-aos="fade-up">
+            <div class="text-center py-8">
+                <div class="p-4 rounded-full bg-black-medium inline-block mb-4">
+                    <i data-feather="calendar" class="w-8 h-8 text-gray-steel"></i>
                 </div>
+                <p class="text-gray-steel">Nenhum agendamento encontrado</p>
             </div>
         </div>
     </div>
+</div>
 
-   <div id="configSheetsModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-    <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4 animate-fade-in">
+<!-- Modal de Configuração do Google Sheets - VERSÃO SIMPLIFICADA -->
+<div id="configSheetsModal" class="modal-overlay hidden">
+    <div class="modal-content">
         <div class="flex items-center justify-center mb-6">
-            <div class="p-3 rounded-full">
-                <i data-feather="file-text" class="w-6 h-6 text-white"></i>
+            <div class="p-3 rounded-full bg-black-light border border-gray-steel shadow-lg">
+                <i data-feather="file-text" class="w-6 h-6 text-white-ice"></i>
             </div>
         </div>
         
-        <h3 class="text-2xl font-semibold text-center mb-2">🎯 Configurar Google Planilhas</h3>
-        <p class="text-center mb-6">Escolha como deseja sincronizar seus agendamentos</p>
+        <h3 class="text-2xl font-semibold text-center mb-2 title-gradient">🎯 Configurar Google Planilhas</h3>
+        <p class="text-center text-white-ice mb-6">Escolha como deseja sincronizar seus agendamentos</p>
         
         <div class="space-y-6">
-            <div class="config-option p-4 rounded-lg">
-                <h4 class="font-semibold mb-2 flex items-center gap-2">
-                    <i data-feather="link" class="w-4 h-4"></i>
+            <div class="config-option p-4 rounded-lg bg-black-deep border border-black-light">
+                <h4 class="font-semibold mb-2 flex items-center gap-2 text-white-ice">
+                    <i data-feather="link" class="w-4 h-4 text-silver-accent"></i>
                      Usar Minha Planilha Existente
                 </h4>
-                <p class="text-sm mb-3">Cole o ID da sua planilha do Google Planilhas</p>
+                <p class="text-sm text-white-ice mb-3">Cole o ID da sua planilha do Google Planilhas</p>
                 <input type="text" id="spreadsheetIdInput" 
                        placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-                       class="w-full px-3 py-2 rounded-lg focus:outline-none mb-2 text-sm">
-                <button class="w-full text-white py-2 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2">
+                       class="w-full px-3 py-2 rounded-lg bg-black-medium border border-black-light focus:outline-none mb-2 text-sm text-white-ice">
+                <button class="w-full bg-black-light hover:bg-gray-steel text-white-ice py-2 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 border border-black-light">
                     <i data-feather="save" class="w-4 h-4"></i>
                     💾 Usar Esta Planilha
                 </button>
             </div>
 
-            <div class="config-option p-4 rounded-lg">
-                <h4 class="font-semibold mb-2 flex items-center gap-2">
-                    <i data-feather="clock" class="w-4 h-4"></i>
+            <div class="config-option p-4 rounded-lg bg-black-deep border border-black-light">
+                <h4 class="font-semibold mb-2 flex items-center gap-2 text-white-ice">
+                    <i data-feather="clock" class="w-4 h-4 text-silver-accent"></i>
                     ⏭️ Configurar Depois
                 </h4>
-                <p class="text-sm mb-3">Você pode agendar normalmente e configurar depois</p>
-                <button class="w-full bg-gray-500 text-white py-2 px-4 rounded-lg font-medium transition-all">
+                <p class="text-sm text-white-ice mb-3">Você pode agendar normalmente e configurar depois</p>
+                <button class="w-full bg-black-light hover:bg-gray-steel text-white-ice py-2 px-4 rounded-lg font-medium transition-all border border-black-light">
                     Pular por enquanto
                 </button>
             </div>
         </div>
 
         <div class="mt-4 text-center">
-            <p class="text-xs">
+            <p class="text-xs text-gray-steel">
                 💡 <strong>Como encontrar o ID da planilha:</strong><br>
                 Abra sua planilha no Google Planilhas e veja na URL:<br>
-                <code class="bg-black/30 px-1 rounded">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
+                <code class="bg-black-deep px-1 rounded text-silver-accent">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
             </p>
         </div>
     </div>
 </div>
 
+
+    <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
     <script type="module">
@@ -1284,8 +1970,9 @@ showDailyLimitModal(dailyLimit) {
     modal.className = 'fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4';
     modal.innerHTML = `
         <div class="glass-card rounded-2xl p-6 md:p-8 w-full max-w-md mx-auto animate-fade-in">
+            <!-- Header Elegante -->
             <div class="flex items-center justify-center mb-6">
-                <div class="p-3 rounded-full">
+                <div class="p-3 rounded-full bg-gradient-to-br from-red-500 to-rose-500 shadow-lg">
                     <i data-feather="clock" class="w-6 h-6 text-white"></i>
                 </div>
             </div>
@@ -1293,27 +1980,31 @@ showDailyLimitModal(dailyLimit) {
             <h3 class="text-xl sm:text-2xl font-semibold text-center mb-2">⏰ Limite Diário Atingido</h3>
             <p class="text-center text-gray-300 mb-6">Você utilizou todos os ${dailyLimit} agendamentos de hoje</p>
 
-            <div class="rounded-xl p-4 mb-6 text-center">
-                <p class="font-semibold text-lg">${dailyLimit}/${dailyLimit} usos realizados</p>
-                <p class="text-sm mt-1">Os usos resetam à meia-noite! 🕛</p>
+            <!-- Badge de Status -->
+            <div class="bg-gradient-to-r from-red-500/20 to-rose-500/20 border border-red-500/30 rounded-xl p-4 mb-6 text-center">
+                <p class="text-red-400 font-semibold text-lg">${dailyLimit}/${dailyLimit} usos realizados</p>
+                <p class="text-red-300 text-sm mt-1">Os usos resetam à meia-noite! 🕛</p>
             </div>
 
      
-             <div class="space-y-3">
+             <!-- Botões -->
+            <div class="space-y-3">
+                <!-- 🔥 BOTÃO COM WIDGET EMBEDIDO -->
                 <a onclick="return false;" 
                    href="https://pay.hotmart.com/U102480243K?checkoutMode=2" 
-                   class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-xl text-white font-bold transition-all flex items-center justify-center gap-2">
+                   class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-lg">
                     <i data-feather="star" class="w-4 h-4"></i>
                     🚀 Fazer Upgrade Ilimitado
                 </a>
                 
                 <button onclick="this.closest('.fixed').remove()" 
-                        class="w-full px-4 py-3 rounded-xl text-gray-300 font-medium transition-all flex items-center justify-center gap-2">
+                        class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 text-gray-300 font-medium transition-all flex items-center justify-center gap-2">
                     <i data-feather="clock" class="w-4 h-4"></i>
                     Entendi, aguardar reset
                 </button>
             </div>
 
+            <!-- Footer Informativo -->
             <div class="mt-6 pt-4 border-t border-white/10 text-center">
                 <p class="text-xs text-gray-400">
                     💡 <strong>Upgrade:</strong> Agendamentos ilimitados + recursos premium
@@ -1357,7 +2048,7 @@ async updateUsageBadge() {
         
         if (status.unlimited) {
             badge.innerHTML = '<span>🚀 Premium</span>';
-            badge.className = 'text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+            badge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             badge.style.display = 'flex';
         } else if (status.hasTrial) {
             // 🔥 CORREÇÃO: Calcula usado/total CORRETAMENTE
@@ -1369,11 +2060,11 @@ async updateUsageBadge() {
             
             // Muda a cor baseado no status
             if (status.dailyUsagesLeft <= 0) {
-                badge.className = 'text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.className = 'bg-gradient-to-r from-red-500 to-rose-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             } else if (status.dailyUsagesLeft <= 2) {
-                badge.className = 'text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.className = 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             } else {
-                badge.className = 'text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
+                badge.className = 'bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             }
             
             badge.style.display = 'flex';
@@ -1624,8 +2315,9 @@ function abrirMenuConfiguracoes() {
     const modalHTML = `
         <div id="modalMenuConfig" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <div class="glass-card rounded-2xl p-6 max-w-sm w-full mx-4 animate-fade-in">
+                <!-- Header -->
                 <div class="flex items-center justify-center mb-4">
-                    <div class="p-3 rounded-full">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
                         <i data-feather="settings" class="w-6 h-6 text-white"></i>
                     </div>
                 </div>
@@ -1633,28 +2325,33 @@ function abrirMenuConfiguracoes() {
                 <h3 class="text-xl font-semibold text-center mb-2">⚙️ Configurações</h3>
                 <p class="text-center text-gray-300 mb-4">Gerencie suas configurações</p>
                 
+                <!-- Opções -->
                 <div class="space-y-3">
+                    <!-- Perfil do Negócio -->
                     <button id="btnPerfilNegocio" 
-                            class="w-full px-4 py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2">
+                            class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
                         <i data-feather="user" class="w-4 h-4"></i>
                         🏪 Perfil do Negócio
                     </button>
                     
+                    <!-- Google Sheets -->
                     <button id="btnGoogleSheets" 
-                            class="w-full px-4 py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2">
+                            class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
                         <i data-feather="file-text" class="w-4 h-4"></i>
                         📊 Google Planilhas
                     </button>
                     
+                    <!-- 🔥 BOTÃO UPGRADE -->
                     <a onclick="return false;" 
                        href="https://pay.hotmart.com/U102480243K?checkoutMode=2" 
-                       class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2">
+                       class="hotmart-fb hotmart__button-checkout w-full px-4 py-3 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 transition-all text-white font-medium flex items-center justify-center gap-2">
                         <i data-feather="star" class="w-4 h-4"></i>
                         🚀 Fazer Upgrade
                     </a>
                     
+                    <!-- Fechar -->
                     <button id="btnFecharMenu" 
-                            class="w-full px-4 py-3 rounded-lg bg-gray-600 text-white flex items-center justify-center gap-2">
+                            class="w-full px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white flex items-center justify-center gap-2">
                         <i data-feather="x" class="w-4 h-4"></i>
                         Fechar
                     </button>
@@ -1731,6 +2428,7 @@ function abrirModalPerfil() {
     const modalHTML = `
         <div id="modalPerfilConfig" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
             <div class="glass-card rounded-2xl p-6 max-w-2xl w-full mx-4 animate-fade-in" style="max-height: 90vh; overflow-y: auto;">
+                <!-- Cabeçalho -->
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-semibold">🏪 Perfil do Negócio</h3>
                     <button id="btnFecharModalPerfil" class="text-gray-400 hover:text-white">
@@ -1739,15 +2437,18 @@ function abrirModalPerfil() {
                 </div>
                 
                 <div class="space-y-6">
+                    <!-- Informações Básicas -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Nome do Negócio -->
                         <div>
-                            <label class="block text-sm font-medium mb-1">Nome do Negócio</label>
+                            <label class="block text-sm font-medium opacity-80 mb-1">Nome do Negócio</label>
                             <input type="text" id="nomeNegocioInput" placeholder="Ex: Barbearia do João" 
                                    class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
                         </div>
                         
+                        <!-- Tipo de Negócio -->
                         <div>
-                            <label class="block text-sm font-medium mb-1">Tipo de Negócio</label>
+                            <label class="block text-sm font-medium opacity-80 mb-1">Tipo de Negócio</label>
                             <select id="tipoNegocioSelect" class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
                                 <option value="barbearia">💈 Barbearia</option>
                                 <option value="consultorio">🏥 Consultório</option>
@@ -1760,8 +2461,9 @@ function abrirModalPerfil() {
                         </div>
                     </div>
                     
+                    <!-- Dias de Funcionamento -->
                     <div>
-                        <label class="block text-sm font-medium mb-2">📅 Dias de Funcionamento</label>
+                        <label class="block text-sm font-medium opacity-80 mb-2">📅 Dias de Funcionamento</label>
                         <div class="grid grid-cols-4 gap-2">
                             ${['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'].map(dia => `
                                 <label class="flex items-center gap-1 text-sm cursor-pointer p-2 rounded hover:bg-white/5 transition-all">
@@ -1772,23 +2474,25 @@ function abrirModalPerfil() {
                         </div>
                     </div>
                     
+                    <!-- Horários Padrão -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-1">⏰ Horário de Abertura</label>
+                            <label class="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Abertura</label>
                             <input type="time" id="horarioAbertura" value="08:00" 
                                    class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1">⏰ Horário de Fechamento</label>
+                            <label class="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Fechamento</label>
                             <input type="time" id="horarioFechamento" value="18:00" 
                                    class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white">
                         </div>
                     </div>
                     
+                    <!-- 🆕 SEÇÃO: BLOQUEIO POR PERÍODOS -->
                     <div class="border-t border-white/10 pt-4">
                         <div class="flex items-center justify-between mb-4">
                             <h4 class="text-lg font-semibold">🚫 Bloquear Períodos</h4>
-                            <button id="btnAdicionarPeriodo" class="px-3 py-1 rounded-lg text-sm">
+                            <button id="btnAdicionarPeriodo" class="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90 transition-all text-sm">
                                 + Adicionar Período
                             </button>
                         </div>
@@ -1797,7 +2501,9 @@ function abrirModalPerfil() {
                             Bloqueie faixas de horário indisponíveis. Ex: 10:30 até 12:00 bloqueia todos horários entre 10:30 e 12:00.
                         </p>
                         
+                        <!-- Lista de Períodos Bloqueados -->
                         <div id="listaPeriodosBloqueados" class="space-y-3 max-h-40 overflow-y-auto">
+                            <!-- Períodos serão adicionados aqui dinamicamente -->
                             <div class="text-center py-4 text-gray-400">
                                 Nenhum período bloqueado
                             </div>
@@ -1805,11 +2511,12 @@ function abrirModalPerfil() {
                     </div>
                 </div>
 
+                <!-- Botões -->
                 <div class="flex gap-2 mt-6">
                     <button id="btnCancelarPerfil" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
                         Cancelar
                     </button>
-<button id="btnSalvarPerfil" class="flex-1 px-4 py-2 rounded-lg text-white font-medium flex items-center justify-center gap-2">
+<button id="btnSalvarPerfil" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2">
     <i data-feather="save" class="w-4 h-4"></i>
     Salvar Configurações
 </button>
@@ -1893,6 +2600,7 @@ function adicionarPeriodoBloqueio() {
     
     const periodoHTML = `
         <div id="${periodoId}" class="periodo-bloqueado p-3 bg-white/5 rounded-lg border border-white/10 space-y-2">
+            <!-- 🆕 SELETOR DE TIPO DE BLOQUEIO -->
             <div class="flex gap-3 mb-2">
                 <label class="flex items-center gap-1 text-xs cursor-pointer">
                     <input type="radio" name="tipo_${periodoId}" value="recorrente" checked 
@@ -1906,12 +2614,14 @@ function adicionarPeriodoBloqueio() {
                 </label>
             </div>
             
+            <!-- 🆕 CAMPO DATA (inicialmente oculto) -->
             <div id="campo-data-${periodoId}" class="hidden">
                 <label class="block text-xs text-gray-300 mb-1">📅 Data do Bloqueio</label>
                 <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
                        min="${new Date().toISOString().split('T')[0]}">
             </div>
             
+            <!-- Campos de Horário (sempre visíveis) -->
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="block text-xs text-gray-300 mb-1">⏰ De</label>
@@ -2173,6 +2883,7 @@ function preencherFormularioPerfil(perfil) {
             
             const periodoHTML = `
                 <div id="${periodoId}" class="periodo-bloqueado p-3 bg-white/5 rounded-lg border border-white/10 space-y-2">
+                    <!-- 🆕 SELETOR DE TIPO -->
                     <div class="flex gap-3 mb-2">
                         <label class="flex items-center gap-1 text-xs cursor-pointer">
                             <input type="radio" name="tipo_${periodoId}" value="recorrente" 
@@ -2188,12 +2899,14 @@ function preencherFormularioPerfil(perfil) {
                         </label>
                     </div>
                     
+                    <!-- 🆕 CAMPO DATA -->
                     <div id="campo-data-${periodoId}" class="${mostraData ? '' : 'hidden'}">
                         <label class="block text-xs text-gray-300 mb-1">📅 Data do Bloqueio</label>
                         <input type="date" class="data-periodo w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-white text-sm" 
                                value="${periodo.data || ''}">
                     </div>
                     
+                    <!-- Campos de Horário -->
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-xs text-gray-300 mb-1">⏰ De</label>
@@ -2450,8 +3163,9 @@ function mostrarModalSemPerfil() {
     const modalHTML = `
         <div id="modalSemPerfil" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <div class="glass-card rounded-2xl p-6 max-w-md w-full mx-4 animate-fade-in">
+                <!-- Header -->
                 <div class="flex items-center justify-center mb-4">
-                    <div class="p-3 rounded-full">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-yellow-500 to-amber-500 shadow-lg">
                         <i data-feather="user" class="w-6 h-6 text-white"></i>
                     </div>
                 </div>
@@ -2463,7 +3177,7 @@ function mostrarModalSemPerfil() {
                     <button onclick="fecharModalSemPerfil()" class="flex-1 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white">
                         Fechar
                     </button>
-                    <button onclick="criarPerfilAgora()" class="flex-1 px-4 py-2 rounded-lg font-medium">
+                    <button onclick="criarPerfilAgora()" class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium">
                         Criar Perfil
                     </button>
                 </div>
@@ -2495,26 +3209,30 @@ window.criarPerfilAgora = function() {
                 <div id="modalLinkAgendamento" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div class="glass-card rounded-xl p-6 w-full max-w-md mx-auto animate-fade-in relative">
                         
+                        <!-- 🔥 BOTÃO X COM ID ESPECÍFICO -->
                         <button id="fecharModalLinkBtn" 
                                 class="absolute top-4 right-4 text-gray-400 hover:text-white z-50 bg-black/50 rounded-full p-1 w-8 h-8 flex items-center justify-center">
                             ×
                         </button>
                         
+                        <!-- Cabeçalho -->
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold">🔗 Link de Agendamento</h3>
                         </div>
                         
+                        <!-- Conteúdo -->
                         <div class="space-y-4">
                             <div class="text-center">
                                 <p class="text-sm text-gray-300 mb-3">Compartilhe este link com seus clientes:</p>
                                 
                                 <div class="bg-white/10 rounded-lg p-3 mb-3">
-                                    <code class="text-xs break-all">${link}</code>
+                                    <code class="text-xs break-all text-cyan-300">${link}</code>
                                 </div>
                                 
                    
-                                <button id="copiarLinkBtn" 
-        class="w-full px-4 py-2 rounded-lg active:scale-95 transition-all duration-200 text-sm font-medium">
+                                <!-- 🔥 BOTÃO COPIAR COM ID ESPECÍFICO -->
+<button id="copiarLinkBtn" 
+        class="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 active:scale-95 active:from-green-500 active:to-green-600 transition-all duration-200 text-sm font-medium">
     📋 Copiar Link
 </button>
                             </div>
@@ -2724,10 +3442,10 @@ window.criarPerfilAgora = function() {
         let activeToasts = [];
         function showToast(message, type = "success") {
             const colors = {
-                success: "background-color: #112A11; border: 1px solid #335A33;",
-                error: "background-color: #2A1111; border: 1px solid #5A3333;",
-                info: "background-color: #11112A; border: 1px solid #33335A;",
-                warning: "background-color: #2A2A11; border: 1px solid #5A5A33;"
+                success: "bg-gradient-to-r from-green-500 to-teal-400",
+                error: "bg-gradient-to-r from-red-500 to-pink-500",
+                info: "bg-gradient-to-r from-blue-500 to-cyan-400",
+                warning: "bg-gradient-to-r from-yellow-500 to-amber-400"
             };
             
             const container = document.getElementById("toast-container");
@@ -2737,34 +3455,19 @@ window.criarPerfilAgora = function() {
             }
             
             const toast = document.createElement("div");
-            toast.style.cssText = `
-              padding: 1rem; 
-              border-radius: 0.5rem; 
-              box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
-              color: #E0E0E0; 
-              font-weight: 500; 
-              ${colors[type] || colors.info} 
-              opacity: 0; 
-              transform: translateX(20px); 
-              transition: all 0.3s ease-out; 
-              display: flex; 
-              align-items: center; 
-              gap: 0.5rem;
-            `;
-
+            toast.className = `p-4 rounded-lg shadow-lg text-white font-medium ${colors[type] || colors.info} opacity-0 translate-x-5 transition-all duration-300 flex items-center gap-2`;
             toast.innerHTML = `<i data-feather="${type==="success"?"check-circle":type==="error"?"alert-circle":"info"}" class="w-5 h-5"></i> <span>${message}</span>`;
             container.appendChild(toast);
             activeToasts.push(toast);
             feather.replace();
             
             requestAnimationFrame(()=>{
-                toast.style.opacity = '1';
-                toast.style.transform = 'translateX(0)';
+                toast.classList.remove("opacity-0","translate-x-5"); 
+                toast.classList.add("opacity-100","translate-x-0");
             });
             
             setTimeout(()=>{
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(20px)';
+                toast.classList.add("opacity-0","translate-x-5"); 
                 setTimeout(()=>{
                     toast.remove(); 
                     activeToasts=activeToasts.filter(t=>t!==toast);
@@ -2881,29 +3584,29 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         div.innerHTML = `
             <div class="flex justify-between items-start mb-2">
                 <div class="flex items-center gap-2">
-                    <i data-feather="clock" class="w-4 h-4"></i>
+                    <i data-feather="clock" class="w-4 h-4 text-gray-300"></i>
                     <span class="font-medium">${a.horario}</span>
                 </div>
-                <span class="status-${a.status} text-sm px-2 py-1 rounded-full">
+                <span class="text-sm px-2 py-1 rounded-full ${a.status === 'confirmado' ? 'bg-green-900/30 text-green-300' : a.status === 'pendente' ? 'bg-yellow-900/30 text-yellow-300' : 'bg-red-900/30 text-red-300'}">
                     ${a.status}
                 </span>
             </div>
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-full bg-black flex items-center justify-center border border-solid border-[#333333]">
-                    <i data-feather="user" class="w-4 h-4"></i>
+                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <i data-feather="user" class="w-4 h-4 text-gray-300"></i>
                 </div>
                 <div>
                     <h3 class="font-medium">${a.nome}</h3>
-                    <p class="text-sm">${formatData(a.data)}</p>
+                    <p class="text-sm text-gray-300">${formatData(a.data)}</p>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-2 text-sm">
                 <div class="flex items-center gap-2">
-                    <i data-feather="mail" class="w-4 h-4"></i>
+                    <i data-feather="mail" class="w-4 h-4 text-gray-300"></i>
                     <span class="truncate">${a.email}</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <i data-feather="phone" class="w-4 h-4"></i>
+                    <i data-feather="phone" class="w-4 h-4 text-gray-300"></i>
                     <span>${a.telefone}</span>
                 </div>
             </div>
@@ -2916,7 +3619,7 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         if (a.status !== "confirmado") {
             const btnConfirmar = document.createElement("button");
             btnConfirmar.innerHTML = `<i data-feather="check" class="w-4 h-4"></i> Confirmar`;
-            btnConfirmar.className = "px-3 py-1.5 text-sm rounded-lg text-white flex items-center gap-1";
+            btnConfirmar.className = "px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white flex items-center gap-1 shadow-md hover:opacity-90 transition-all";
             btnConfirmar.addEventListener("click", () => confirmarAgendamento(a.id));
             btnContainer.appendChild(btnConfirmar);
         }
@@ -2924,14 +3627,14 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         // Cancelar
         const btnCancelar = document.createElement("button");
         btnCancelar.innerHTML = `<i data-feather="x" class="w-4 h-4"></i> Cancelar`;
-        btnCancelar.className = "px-3 py-1.5 text-sm rounded-lg text-white flex items-center gap-1";
+        btnCancelar.className = "px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-red-500 to-rose-600 text-white flex items-center gap-1 shadow-md hover:opacity-90 transition-all";
         btnCancelar.addEventListener("click", () => cancelarAgendamento(a.id));
         btnContainer.appendChild(btnCancelar);
 
         // Reagendar
         const btnReagendar = document.createElement("button");
         btnReagendar.innerHTML = `<i data-feather="refresh-cw" class="w-4 h-4"></i> Reagendar`;
-        btnReagendar.className = "px-3 py-1.5 text-sm rounded-lg text-white flex items-center gap-1";
+        btnReagendar.className = "px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center gap-1 shadow-md hover:opacity-90 transition-all";
         btnReagendar.addEventListener("click", () => abrirModalReagendar(a));
         btnContainer.appendChild(btnReagendar);
 
@@ -2951,24 +3654,24 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
                 modal.id = "modalReagendar";
                 modal.className = "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 hidden";
                 modal.innerHTML = `
-                    <div class="glass-card rounded-xl p-6 w-full max-w-md relative">
-                        <button id="fecharModal" class="absolute top-4 right-4 hover:text-white">
+                    <div class="bg-gray-900 rounded-xl p-6 w-full max-w-md relative">
+                        <button id="fecharModal" class="absolute top-4 right-4 text-gray-400 hover:text-white">
                             <i data-feather="x" class="w-5 h-5"></i>
                         </button>
                         <h2 class="text-lg font-medium mb-4 text-white">Reagendar Agendamento</h2>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm mb-1">Data</label>
-                                <input type="date" id="novaData" class="w-full p-3 rounded-md focus:outline-none"/>
+                                <label class="block text-sm text-gray-300 mb-1">Data</label>
+                                <input type="date" id="novaData" class="w-full p-3 rounded-md bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
                             </div>
                             <div>
-                                <label class="block text-sm mb-1">Horário</label>
-                                <input type="time" id="novoHorario" class="w-full p-3 rounded-md focus:outline-none"/>
+                                <label class="block text-sm text-gray-300 mb-1">Horário</label>
+                                <input type="time" id="novoHorario" class="w-full p-3 rounded-md bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
                             </div>
                         </div>
                         <div class="flex justify-end gap-2 mt-6">
-                            <button id="cancelarReagendar" class="px-4 py-2 rounded-lg text-white transition-all">Cancelar</button>
-                            <button id="confirmarReagendar" class="px-4 py-2 rounded-lg text-white transition-all">Confirmar</button>
+                            <button id="cancelarReagendar" class="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-all">Cancelar</button>
+                            <button id="confirmarReagendar" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all">Confirmar</button>
                         </div>
                     </div>
                 `;
@@ -3495,10 +4198,13 @@ form.addEventListener('submit', async (e)=>{
             
             tabsDia.forEach(btn => {
                 btn.addEventListener("click", () => {
-                    tabsDia.forEach(b => b.classList.remove("active"));
-                    tabsSemana.forEach(b => b.classList.remove("active"));
+                    tabsDia.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
+                    tabsDia.forEach(b => b.classList.add("bg-white/10", "hover:bg-white/20"));
+                    tabsSemana.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
+                    tabsSemana.forEach(b => b.classList.add("bg-white/5", "hover:bg-white/10"));
                     
-                    btn.classList.add("active");
+                    btn.classList.remove("bg-white/10", "hover:bg-white/20");
+                    btn.classList.add("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active");
                     diaSelecionado = parseInt(btn.dataset.dia);
                     renderAgendamentos();
                 });
@@ -3506,10 +4212,13 @@ form.addEventListener('submit', async (e)=>{
 
             tabsSemana.forEach(btn => {
                 btn.addEventListener("click", () => {
-                    tabsDia.forEach(b => b.classList.remove("active"));
-                    tabsSemana.forEach(b => b.classList.remove("active"));
+                    tabsDia.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
+                    tabsDia.forEach(b => b.classList.add("bg-white/10", "hover:bg-white/20"));
+                    tabsSemana.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
+                    tabsSemana.forEach(b => b.classList.add("bg-white/5", "hover:bg-white/10"));
                     
-                    btn.classList.add("active");
+                    btn.classList.remove("bg-white/5", "hover:bg-white/10");
+                    btn.classList.add("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active");
                     
                     const semanas = parseInt(btn.dataset.semana);
                     diaSelecionado = semanas; 
@@ -4033,7 +4742,7 @@ window.sugerirHorarios = async function() {
 
         if (data.success) {
             sugestoesDiv.innerHTML = `
-                <div class="p-4 rounded-lg">
+                <div class="p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30">
                     <div class="flex items-center gap-2 mb-3">
                         <span class="text-green-400">📅</span>
                         <strong class="text-green-400">Horários Sugeridos</strong>
@@ -4202,7 +4911,7 @@ function conectarSSE() {
         function mostrarNotificacaoAgendamento(agendamento) {
             // Cria uma notificação flutuante
             const notificacao = document.createElement('div');
-            notificacao.className = 'fixed top-4 right-4 text-white p-4 rounded-lg z-50 max-w-sm animate-fade-in';
+            notificacao.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm animate-fade-in';
             notificacao.innerHTML = `
                 <div class="flex items-center gap-3">
                     <div class="text-2xl">🎉</div>
@@ -4346,6 +5055,7 @@ function desconectarSSE() {
            const modalHTML = `
     <div id="modalEstatisticas" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
         <div class="glass-card rounded-xl p-4 w-full max-w-md mx-auto animate-fade-in" style="max-height: 85vh;">
+            <!-- Cabeçalho -->
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold">📊 Estatísticas do Negócio</h3>
                 <button onclick="fecharModalEstatisticas()" class="text-gray-400 hover:text-white">
@@ -4353,39 +5063,42 @@ function desconectarSSE() {
                 </button>
             </div>
             
+            <!-- 🎯 ESTATÍSTICAS PRINCIPAIS -->
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <div class="text-center p-3 bg-white/10 rounded-lg">
-                    <div class="text-base font-bold">${data.estatisticas.total}</div>
+                    <div class="text-base font-bold text-cyan-400">${data.estatisticas.total}</div>
                     <div class="text-xs text-gray-300 mt-1">Total</div>
                 </div>
                 <div class="text-center p-3 bg-white/10 rounded-lg">
-                    <div class="text-base font-bold">${data.estatisticas.este_mes}</div>
+                    <div class="text-base font-bold text-green-400">${data.estatisticas.este_mes}</div>
                     <div class="text-xs text-gray-300 mt-1">Este Mês</div>
                 </div>
                 <div class="text-center p-3 bg-white/10 rounded-lg">
-                    <div class="text-base font-bold">${data.estatisticas.confirmados}</div>
+                    <div class="text-base font-bold text-blue-400">${data.estatisticas.confirmados}</div>
                     <div class="text-xs text-gray-300 mt-1">Confirmados</div>
                 </div>
                 <div class="text-center p-3 bg-white/10 rounded-lg">
-                    <div class="text-base font-bold">${data.estatisticas.taxa_comparecimento || '0%'}</div>
+                    <div class="text-base font-bold text-yellow-400">${data.estatisticas.taxa_comparecimento || '0%'}</div>
                     <div class="text-xs text-gray-300 mt-1">Comparecimento</div>
                 </div>
             </div>
             
-            <div class="rounded-lg p-3 mb-4" style="max-height: 250px; overflow-y: auto;">
+            <!-- 💼 ANÁLISE IA - VERSÃO MELHORADA -->
+            <div class="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-purple-500/30 p-3 mb-4" style="max-height: 250px; overflow-y: auto;">
                 <div class="flex items-center gap-2 mb-3">
-                    <div class="w-6 h-6 rounded-full flex items-center justify-center">
+                    <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
                         <span class="text-white text-xs">IA</span>
                     </div>
-                    <h4 class="font-semibold text-sm">💼 Análise do Seu Negócio</h4>
+                    <h4 class="font-semibold text-purple-400 text-sm">💼 Análise do Seu Negócio</h4>
                 </div>
                 <div class="text-sm leading-relaxed whitespace-pre-line text-gray-200">
                     ${data.analise_ia}
                 </div>
             </div>
             
-            <div class="rounded-lg p-3 mb-4">
-                <h4 class="font-semibold text-sm mb-2 flex items-center gap-2">
+            <!-- 📈 AÇÕES SUGERIDAS -->
+            <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg border border-green-500/20 p-3 mb-4">
+                <h4 class="font-semibold text-green-400 text-sm mb-2 flex items-center gap-2">
                     <i data-feather="trending-up" class="w-4 h-4"></i>
                     Próximos Passos Sugeridos
                 </h4>
@@ -4396,7 +5109,7 @@ function desconectarSSE() {
                 </ul>
             </div>
             
-            <button onclick="fecharModalEstatisticas()" class="w-full px-4 py-2 rounded-lg transition-all text-sm font-medium text-white">
+            <button onclick="fecharModalEstatisticas()" class="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 transition-all text-sm font-medium text-white">
                 Entendido
             </button>
         </div>
@@ -4569,3 +5282,128 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
