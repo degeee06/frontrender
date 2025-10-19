@@ -1296,7 +1296,23 @@ span {
     transition: all 0.3s ease !important;
 }
         
+/* 🔥 TESTE - VERIFICAR CORES */
+body {
+    background-color: #0D0D0D !important; /* Cor fixa para teste */
+}
 
+/* Indicador visual das cores */
+body::before {
+    content: "Fundo: #0D0D0D - Se está branco, há conflito";
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: red;
+    color: white;
+    padding: 5px;
+    z-index: 10000;
+    font-size: 12px;
+}
     </style>
 </head>
 <body class="min-h-screen">
@@ -5544,6 +5560,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
