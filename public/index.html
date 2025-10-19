@@ -2324,6 +2324,18 @@ showDailyLimitModal(dailyLimit) {
 
 // ✅ CORREÇÃO: Função updateUsageBadge - MOSTRA 5/5 QUANDO LIMITE ATINGIDO
 async updateUsageBadge() {
+    // 🔥 ADICIONAR: Verificação se usuário está logado
+    const hasSupabaseAuth = Object.keys(localStorage).some(key => 
+        key.startsWith('sb-') || key.includes('supabase')
+    );
+    
+    if (!hasSupabaseAuth) {
+        const badge = document.getElementById('premiumBadge');
+        if (badge) badge.style.display = 'none';
+        return;
+    }
+    
+    // 🔥 CÓDIGO ORIGINAL (NÃO MODIFICADO)
     const badge = document.getElementById('premiumBadge');
     if (!badge) return;
     
@@ -5568,5 +5580,6 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
