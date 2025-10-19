@@ -1731,7 +1731,7 @@
         <!-- Opções de Configuração -->
         <div class="space-y-4">
             <!-- Usar Planilha Existente -->
-            <div class="p-4 rounded-xl bg-black-light border border-gray-600 hover:border-green-400 transition-all duration-300">
+            <div class="config-option p-4 rounded-xl bg-black-light border border-gray-600 hover:border-green-400 transition-all duration-300">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center">
                         <i data-feather="link" class="w-4 h-4 text-white"></i>
@@ -1746,14 +1746,14 @@
                        placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
                        class="w-full px-3 py-3 rounded-lg bg-black-deep border border-gray-600 focus:border-green-400 focus:outline-none text-white text-sm mb-3">
                 
-                <button onclick="usarPlanilhaExistente()" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 text-white font-medium flex items-center justify-center gap-2 transition-all duration-300">
+                <button class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 text-white font-medium flex items-center justify-center gap-2 transition-all duration-300">
                     <i data-feather="save" class="w-4 h-4"></i>
                     Usar Esta Planilha
                 </button>
             </div>
 
             <!-- Configurar Depois -->
-            <div class="p-4 rounded-xl bg-black-light border border-gray-600 hover:border-blue-400 transition-all duration-300">
+            <div class="config-option p-4 rounded-xl bg-black-light border border-gray-600 hover:border-blue-400 transition-all duration-300">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
                         <i data-feather="clock" class="w-4 h-4 text-white"></i>
@@ -1764,7 +1764,7 @@
                     </div>
                 </div>
                 
-                <button onclick="fecharConfiguracao()" class="w-full px-4 py-3 rounded-lg bg-black-deep border border-gray-600 hover:border-blue-400 hover:bg-gray-800 text-white font-medium transition-all duration-300">
+                <button class="w-full px-4 py-3 rounded-lg bg-black-deep border border-gray-600 hover:border-blue-400 hover:bg-gray-800 text-white font-medium transition-all duration-300">
                     Pular por enquanto
                 </button>
             </div>
@@ -5711,6 +5711,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
