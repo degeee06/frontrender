@@ -2578,14 +2578,10 @@ async function gerarLinkAgendamento() {
             temPerfil = false;
         }
         
-        // 🔥 BLOQUEIO SE NÃO HOUVER PERFIL VÁLIDO
+        // 🔥 BLOQUEIO SE NÃO HOUVER PERFIL VÁLIDO - USA O MODAL
         if (!temPerfil) {
-            showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
-            
-            // Abre o menu de configurações para criar perfil
-            setTimeout(() => {
-                abrirMenuConfiguracoes();
-            }, 1000);
+            console.log('🚫 Sem perfil - mostrando modal...');
+            mostrarModalSemPerfil(); // 🔥 AGORA USA SEU MODAL
             return;
         }
 
@@ -2618,8 +2614,7 @@ async function gerarLinkAgendamento() {
     }
 }
 
-
-// 🎯 FUNÇÃO: Modal para usuário sem perfil
+// 🎯 FUNÇÃO: Modal para usuário sem perfil (JÁ EXISTE - MANTENHA COMO ESTÁ)
 function mostrarModalSemPerfil() {
     const modalExistente = document.getElementById('modalSemPerfil');
     if (modalExistente) modalExistente.remove();
@@ -2664,7 +2659,6 @@ window.criarPerfilAgora = function() {
     // Abre o modal de criação de perfil
     abrirModalPerfil();
 }
-
 
         
         
@@ -4748,6 +4742,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
