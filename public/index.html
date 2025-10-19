@@ -1162,34 +1162,51 @@
 span {
     -webkit-text-fill-color: initial !important;
 }
- /* 🔥 BOTÃO GERAR LINK - MESMO AZUL */
-#gerarLinkBtn {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
-    border: none !important;
-    color: white !important;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
-}
-
-#gerarLinkBtn:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5) !important;
-}
-        /* 🔥 BOTÕES DO HEADER COM HOVER */
-#gerarLinkBtn {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
-    border: none !important;
-    color: white !important;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+/* 🔥 BOTÕES PRINCIPAIS - PRATA METÁLICO */
+#gerarLinkBtn, #agendamentoForm button[type="submit"] {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3) !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
     transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
 }
 
-#gerarLinkBtn:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%) !important;
+/* Efeitos Hover para Prata Metálico */
+#gerarLinkBtn:hover, #agendamentoForm button[type="submit"]:hover {
+    background: linear-gradient(135deg, #E0E0E0 0%, #C0C0C0 100%) !important;
+    border-color: #FFFFFF !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 6px 16px rgba(192, 192, 192, 0.4) !important;
 }
 
+/* Efeito Active */
+#gerarLinkBtn:active, #agendamentoForm button[type="submit"]:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3) !important;
+}
+
+/* Estilos específicos para cada botão */
+#gerarLinkBtn {
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+}
+
+#agendamentoForm button[type="submit"] {
+    padding: 16px 32px !important;
+    min-height: 56px !important;
+    width: 100% !important;
+    max-width: 400px !important;
+    margin: 0 auto !important;
+    font-size: 18px !important;
+}
+
+/* 🔥 BOTÕES SECUNDÁRIOS DO HEADER */
 #settingsBtn {
     background: #1A1A1A !important;
     border: 1px solid #333333 !important;
@@ -1216,36 +1233,6 @@ span {
     border-color: #5A0000 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
-}
-        /* 🔥 BOTÃO AGENDAR - MESMO GRADIENTE AZUL */
-#agendamentoForm button[type="submit"] {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
-    border: none !important;
-    color: white !important;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
-    font-weight: 600 !important;
-    border-radius: 12px !important;
-    padding: 16px 32px !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 12px !important;
-    min-height: 56px !important;
-    width: 100% !important;
-    max-width: 400px !important;
-    margin: 0 auto !important;
-}
-
-#agendamentoForm button[type="submit"]:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5) !important;
-}
-
-#agendamentoForm button[type="submit"]:active {
-    transform: translateY(0) !important;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4) !important;
 }
 
     </style>
@@ -5495,6 +5482,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
