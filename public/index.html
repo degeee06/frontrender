@@ -19,17 +19,17 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
    :root {
-    --black-absolute: #000000;
-    --black-deep: #0D0D0D;      /* Mais suave que #111 */
-    --black-medium: #1A1A1A;
-    --black-light: #2D2D2D;     /* Mais claro que #333 */
+    --black-absolute: #050505;  /* Quase preto mas suave */
+    --black-deep: #0A0A0A;      /* Um pouco mais claro */
+    --black-medium: #151515;    /* Bem mais claro */
+    --black-light: #252525;     /* Claramente visível */
     --white-pure: #FFFFFF;
-    --white-ice: #F0F0F0;       /* Mais brilhante */
-    --gray-steel: #6A6A6A;      /* Mais claro */
-    --silver-accent: #D0D0D0;   /* Mais prateado */
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.25);
-    --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.4);
-    --inner-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    --white-ice: #F5F5F5;       /* Quase branco */
+    --gray-steel: #666666;      /* Cinza médio */
+    --silver-accent: #DDDDDD;   /* Prata brilhante */
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.5);
+    --inner-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
     
     body {
@@ -47,7 +47,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: var(--black-absolute);
+        background-color: var(--black-absolute) !important;
         color: var(--white-ice);
         display: flex;
         justify-content: center;
@@ -1296,23 +1296,7 @@ span {
     transition: all 0.3s ease !important;
 }
         
-/* 🔥 TESTE - VERIFICAR CORES */
-body {
-    background-color: #0D0D0D !important; /* Cor fixa para teste */
-}
 
-/* Indicador visual das cores */
-body::before {
-    content: "Fundo: #0D0D0D - Se está branco, há conflito";
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    background: red;
-    color: white;
-    padding: 5px;
-    z-index: 10000;
-    font-size: 12px;
-}
     </style>
 </head>
 <body class="min-h-screen">
@@ -5560,6 +5544,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
