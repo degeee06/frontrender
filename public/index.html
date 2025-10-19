@@ -2322,16 +2322,37 @@ showDailyLimitModal(dailyLimit) {
     
 
 
-// ✅ CORREÇÃO: Função updateUsageBadge - MOSTRA 5/5 QUANDO LIMITE ATINGIDO
+// ✅ CORREÇÃO: Função updateUsageBadge - VERIFICAÇÃO MELHORADA
 async updateUsageBadge() {
-    // 🔥 ADICIONAR: Verificação se usuário está logado
-    const hasSupabaseAuth = Object.keys(localStorage).some(key => 
-        key.startsWith('sb-') || key.includes('supabase')
-    );
+    // 🔥 VERIFICAÇÃO MAIS PRECISA - Checa se existe sessão ativa
+    let userLoggedIn = false;
+    try {
+        // Método 1: Verifica se tem alguma sessão do Supabase
+        const supabaseKeys = Object.keys(localStorage).filter(key => key.startsWith('sb-'));
+        if (supabaseKeys.length > 0) {
+            const authData = localStorage.getItem(supabaseKeys[0]);
+            if (authData) {
+                const session = JSON.parse(authData);
+                userLoggedIn = !!(session.access_token && session.expires_at > Date.now() / 1000);
+            }
+        }
+        
+        // Método 2: Verificação alternativa
+        if (!userLoggedIn) {
+            const { data: { session } } = await supabase.auth.getSession();
+            userLoggedIn = !!session;
+        }
+    } catch (error) {
+        console.log('🔒 Usuário não autenticado');
+    }
     
-    if (!hasSupabaseAuth) {
+    // 🔥 SE NÃO ESTIVER LOGADO, ESCONDE O BADGE IMEDIATAMENTE
+    if (!userLoggedIn) {
         const badge = document.getElementById('premiumBadge');
-        if (badge) badge.style.display = 'none';
+        if (badge) {
+            badge.style.display = 'none';
+            console.log('🚫 Badge escondido - usuário não logado');
+        }
         return;
     }
     
@@ -5580,6 +5601,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
