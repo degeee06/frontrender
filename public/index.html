@@ -2878,109 +2878,69 @@ async function atualizarInterfacePosLogin() {
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
-// TESTE TEMPORÁRIO - Adicione no início da função para ver o que está acontecendo
-async function testePerfil() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
-            headers: { 'Authorization': `Bearer ${userToken}` }
-        });
-        const data = await response.json();
-        console.log('🧪 TESTE DIAGNÓSTICO:', {
-            status: response.status,
-            success: data.success,
-            perfil: data.perfil,
-            perfilId: data.perfil?.id,
-            perfilExiste: !!data.perfil,
-            temId: !!data.perfil?.id
-        });
-        alert('DIAGNÓSTICO:\n' + JSON.stringify({
-            status: response.status,
-            success: data.success,
-            perfil: data.perfil,
-            perfilId: data.perfil?.id,
-            perfilExiste: !!data.perfil,
-            temId: !!data.perfil?.id
-        }, null, 2));
-    } catch (error) {
-        console.error('❌ Erro no teste:', error);
-    }
-}
 
 
 
         
 async function gerarLinkAgendamento() {
     try {
-        console.log('🔍 VERIFICAÇÃO FORÇADA DE PERFIL...');
+        console.log('🔍 Verificando perfil para gerar link...');
         
-        // ✅ VERIFICAÇÃO ULTRA-RIGOROSA
+        // ✅ VERIFICAÇÃO CORRIGIDA E ROBUSTA
         let temPerfil = false;
         let perfilData = null;
         
         try {
-            console.log('📡 Fazendo requisição FORÇADA para /api/meu-perfil...');
-            
-            // 🔥 ADICIONA TIMESTAMP PARA EVITAR CACHE
-            const timestamp = Date.now();
-            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil?t=${timestamp}`, {
-                method: 'GET',
-                headers: { 
-                    'Authorization': `Bearer ${userToken}`,
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                },
-                cache: 'no-store'
+            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+                headers: { 'Authorization': `Bearer ${userToken}` }
             });
             
-            console.log('📊 Status da resposta:', perfilResponse.status);
+            console.log('📊 Status da resposta do perfil:', perfilResponse.status);
             
             if (perfilResponse.ok) {
                 perfilData = await perfilResponse.json();
-                console.log('📦 Dados COMPLETOS do perfil (FORÇADO):', perfilData);
+                console.log('📦 Dados completos do perfil:', perfilData);
                 
-                // 🔥 VERIFICAÇÃO ULTRA-RIGOROSA
-                // O perfil só existe se tiver ID E nome_negocio (campos obrigatórios)
-                const perfilValido = perfilData.perfil && 
-                                   perfilData.perfil.id && 
-                                   perfilData.perfil.nome_negocio &&
-                                   perfilData.perfil.tipo_negocio;
+                // 🔥 VERIFICAÇÃO CORRIGIDA: Checa se existe ID do perfil
+                temPerfil = perfilData.success && 
+                           perfilData.perfil && 
+                           perfilData.perfil.id && 
+                           perfilData.perfil.nome_negocio;
                 
-                temPerfil = perfilData.success && perfilValido;
-                
-                console.log('✅ Resultado da verificação FORÇADA:', {
+                console.log('✅ Resultado da verificação:', {
                     success: perfilData.success,
-                    perfil: perfilData.perfil,
-                    perfilId: perfilData.perfil?.id,
-                    nomeNegocio: perfilData.perfil?.nome_negocio,
-                    tipoNegocio: perfilData.perfil?.tipo_negocio,
-                    perfilValido: perfilValido,
+                    hasPerfil: !!perfilData.perfil,
+                    hasId: !!perfilData.perfil?.id,
+                    hasNome: !!perfilData.perfil?.nome_negocio,
                     temPerfil: temPerfil
                 });
                 
+            } else if (perfilResponse.status === 404) {
+                console.log('❌ Perfil não encontrado (404)');
+                temPerfil = false;
             } else {
-                console.log('❌ Erro HTTP:', perfilResponse.status);
+                console.log('❌ Erro HTTP ao verificar perfil:', perfilResponse.status);
                 temPerfil = false;
             }
         } catch (perfilError) {
-            console.error('❌ Erro na requisição:', perfilError);
+            console.error('❌ Erro na requisição do perfil:', perfilError);
             temPerfil = false;
         }
         
-        // 🔥 BLOQUEIO ABSOLUTO SE NÃO TIVER PERFIL VÁLIDO
+        // 🔥 BLOQUEIO EFETIVO SE NÃO TIVER PERFIL
         if (!temPerfil) {
-            console.log('🚫 BLOQUEADO ABSOLUTO: Nenhum perfil válido encontrado');
-            showToast("❌ Crie um perfil do estabelecimento antes de gerar links", "error");
+            console.log('🚫 BLOQUEADO: Usuário não tem perfil válido');
+            showToast("❌ Crie um perfil do estabelecimento antes de gerar o link", "error");
             
-            // Abre o menu para criar perfil
+            // Abre o menu de configurações para criar perfil
             setTimeout(() => {
                 abrirMenuConfiguracoes();
-            }, 1500);
+            }, 1000);
             
             return;
         }
 
-        console.log('✅ PERFIL CONFIRMADO - Gerando link...');
+        console.log('✅ PERFIL VALIDADO - Gerando link...');
 
         // 🔥 CONTINUA COM A GERAÇÃO DO LINK...
         const { data: { user } } = await supabase.auth.getUser();
@@ -2992,11 +2952,13 @@ async function gerarLinkAgendamento() {
 
         const userId = user.id;
         
+        console.log('🔗 Fazendo requisição para gerar link...');
         const response = await fetch(`${API_BASE_URL}/gerar-link/${userId}`, {
             headers: { 'Authorization': `Bearer ${userToken}` }
         });
         
         const result = await response.json();
+        console.log('📨 Resposta da geração do link:', result);
         
         if (result.success) {
             mostrarModalLinkAgendamento(result.link, result.qr_code);
@@ -3009,7 +2971,6 @@ async function gerarLinkAgendamento() {
     }
 }
 
-        
         
 
         function mostrarModalLinkAgendamento(link, qrCodeUrl) {
@@ -5093,6 +5054,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
