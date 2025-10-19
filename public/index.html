@@ -361,23 +361,39 @@
         color: var(--white-ice);
     }
     
-    .tab-dia.active {
-        background-color: var(--black-light);
-        color: var(--white-pure);
-        border-color: var(--silver-accent);
-        box-shadow: var(--inner-shadow);
-    }
+.tab-dia.active {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4) !important;
+    font-weight: 600 !important;
+}
     
-    .tab-dia:not(.active):hover {
-        background-color: var(--black-light);
-        transform: translateY(-1px);
-    }
+.tab-dia:not(.active):hover {
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
+    transform: translateY(-1px) !important;
+}
     
     .tab-semana:hover {
         background-color: var(--black-light);
         transform: translateY(-1px);
     }
-    
+
+        /* 🔥 COMPLETAR ESTILO DAS TABS - PRATA METÁLICO */
+.tab-semana.active {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4) !important;
+    font-weight: 600 !important;
+}
+
+.tab-semana:hover:not(.active) {
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
+    transform: translateY(-1px) !important;
+}
     .agendamento-card {
         transition: all 0.3s ease-out;
         background-color: var(--black-medium);
@@ -5482,6 +5498,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
