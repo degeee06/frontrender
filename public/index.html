@@ -997,6 +997,141 @@
     .hotmart-fb.hotmart__button-checkout:after {
         display: none !important;
     }
+        /* 🔥 BOTÃO AGENDAR AZUL MODERNO E ELEGANTE */
+#agendamentoForm button[type="submit"] {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 10px 25px -5px rgba(37, 99, 235, 0.4),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 56px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#agendamentoForm button[type="submit"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 20px 40px -10px rgba(37, 99, 235, 0.5),
+        0 8px 12px -4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+#agendamentoForm button[type="submit"]:active {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 5px 15px -3px rgba(37, 99, 235, 0.4),
+        0 2px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito de brilho animado */
+#agendamentoForm button[type="submit"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.7s ease-in-out;
+}
+
+#agendamentoForm button[type="submit"]:hover::before {
+    left: 100%;
+}
+
+/* Efeito de borda luminosa sutil */
+#agendamentoForm button[type="submit"]::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #2563eb, #3b82f6, #60a5fa, #93c5fd);
+    border-radius: 18px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#agendamentoForm button[type="submit"]:hover::after {
+    opacity: 1;
+}
+
+/* Estado desabilitado */
+#agendamentoForm button[type="submit"]:disabled {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 
+        0 2px 8px -2px rgba(156, 163, 175, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    opacity: 0.6;
+}
+
+#agendamentoForm button[type="submit"]:disabled:hover {
+    transform: none;
+    box-shadow: 
+        0 2px 8px -2px rgba(156, 163, 175, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+#agendamentoForm button[type="submit"]:disabled::before,
+#agendamentoForm button[type="submit"]:disabled::after {
+    display: none;
+}
+
+/* Animações de pulso quando em foco */
+@keyframes pulse-blue {
+    0%, 100% {
+        box-shadow: 
+            0 10px 25px -5px rgba(37, 99, 235, 0.4),
+            0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    50% {
+        box-shadow: 
+            0 10px 30px -5px rgba(37, 99, 235, 0.6),
+            0 6px 10px -2px rgba(0, 0, 0, 0.1),
+            0 0 20px rgba(37, 99, 235, 0.4);
+    }
+}
+
+#agendamentoForm:focus-within button[type="submit"] {
+    animation: pulse-blue 2s infinite;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    #agendamentoForm button[type="submit"] {
+        padding: 14px 24px;
+        font-size: 16px;
+        min-height: 52px;
+    }
+}
+
+@media (max-width: 480px) {
+    #agendamentoForm button[type="submit"] {
+        padding: 12px 20px;
+        font-size: 16px;
+        min-height: 48px;
+        border-radius: 14px;
+    }
+}
     </style>
 </head>
 <body class="min-h-screen text-white">
@@ -5250,6 +5385,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
