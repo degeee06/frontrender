@@ -2879,9 +2879,6 @@ async function atualizarInterfacePosLogin() {
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
 
-
-
-        
 async function gerarLinkAgendamento() {
     try {
         console.log('🔍 Verificando perfil para gerar link...');
@@ -2891,7 +2888,8 @@ async function gerarLinkAgendamento() {
         let perfilData = null;
         
         try {
-            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil`, {
+            // 🆕 ADICIONA '?forcado=true' PARA GARANTIR SEM CACHE
+            const perfilResponse = await fetch(`${API_BASE_URL}/api/meu-perfil?forcado=true`, {
                 headers: { 'Authorization': `Bearer ${userToken}` }
             });
             
@@ -5054,6 +5052,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
