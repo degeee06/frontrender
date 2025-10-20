@@ -1502,7 +1502,7 @@
     background: linear-gradient(90deg, transparent, var(--black-absolute));
     pointer-events: none;
 }
-  /* 🔥 CORREÇÃO ESPECÍFICA DO BOTÃO "SAIR" NO MOBILE */
+/* 🔥 CORREÇÃO ESPECÍFICA DO BOTÃO "SAIR" NO MOBILE */
 @media (max-width: 640px) {
     .flex.gap-2.w-full.sm\\:w-auto {
         flex-wrap: nowrap !important; /* Mantém na mesma linha */
@@ -1523,25 +1523,35 @@
         flex: 0 0 auto !important; /* Tamanho automático */
     }
     
-    /* Botões com texto mais curto */
-    #gerarLinkBtn {
-        min-width: 80px !important;
+    /* 🔥 VERSÃO FINAL - BOTÕES MENOS COMPRIMIDOS */
+    #settingsBtn {
+        min-width: 105px !important;
+        max-width: 110px !important;
+        padding: 0.5rem 0.5rem !important;
     }
     
-    #settingsBtn {
-        min-width: 100px !important;
+    /* Aplica apenas no texto, não nos emojis */
+    #settingsBtn:not(:has(span)) {
+        font-size: 0.7rem !important;
+        letter-spacing: -0.3px !important;
+    }
+    
+    #gerarLinkBtn, #logoutBtn {
+        min-width: 85px !important;
+        max-width: 90px !important;
+        padding: 0.5rem 0.5rem !important;
     }
     
     #logoutBtn {
-        min-width: 60px !important; /* "Sair" é mais curto */
+        min-width: 65px !important;
+        max-width: 70px !important;
     }
     
-    /* Esconder texto longo e mostrar apenas ícone + texto curto */
-    #gerarLinkBtn span:not(.sr-only),
-    #settingsBtn span:not(.sr-only),
-    #logoutBtn span:not(.sr-only) {
+    /* Aplica apenas no texto dos outros botões */
+    #gerarLinkBtn:not(:has(span)), 
+    #logoutBtn:not(:has(span)) {
         font-size: 0.7rem !important;
-        white-space: nowrap !important;
+        letter-spacing: -0.3px !important;
     }
 }
 
@@ -1551,11 +1561,28 @@
         padding: 0.4rem 0.5rem !important;
     }
     
-    #gerarLinkBtn { min-width: 70px !important; }
-    #settingsBtn { min-width: 85px !important; }
-    #logoutBtn { min-width: 50px !important; }
+    #settingsBtn {
+        min-width: 95px !important;
+        max-width: 100px !important;
+        padding: 0.45rem 0.4rem !important;
+    }
     
-    .flex.gap-2.w-full.sm\\:w-auto button span:not(.sr-only) {
+    #settingsBtn:not(:has(span)) {
+        font-size: 0.65rem !important;
+        letter-spacing: -0.3px !important;
+    }
+    
+    #gerarLinkBtn { 
+        min-width: 80px !important;
+        max-width: 85px !important;
+    }
+    #logoutBtn { 
+        min-width: 60px !important;
+        max-width: 65px !important;
+    }
+    
+    #gerarLinkBtn:not(:has(span)), 
+    #logoutBtn:not(:has(span)) {
         font-size: 0.65rem !important;
     }
     
@@ -1565,175 +1592,21 @@
     }
 }
 
+/* 🔥 CORREÇÃO ESPECÍFICA CAPACITOR - MAIS ESPAÇOSO */
+@media (max-width: 640px) and (max-height: 1000px) {
+    #settingsBtn:not(:has(span)) {
+        font-size: 0.68rem !important;
+        transform: scaleX(0.97) !important;
+        transform-origin: center !important;
+    }
+}
+
 /* 🔥 GARANTIR SCROLL SUAVE NO MOBILE */
 .flex.gap-2.w-full.sm\\:w-auto {
     -webkit-overflow-scrolling: touch !important;
     scroll-behavior: smooth !important;
 }
-      /* 🔥 CORREÇÃO DEFINITIVA DO TEXTO "CONFIGURAÇÕES" NO MOBILE */
-@media (max-width: 640px) {
-    #settingsBtn {
-        min-width: 95px !important;
-        max-width: 100px !important;
-        padding: 0.4rem 0.5rem !important;
-    }
-    
-    #settingsBtn span:not(.sr-only) {
-        font-size: 0.6rem !important;
-        letter-spacing: -0.5px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        display: block !important;
-        width: 100% !important;
-        text-align: center !important;
-        line-height: 1.2 !important;
-    }
-}
-
-@media (max-width: 380px) {
-    #settingsBtn {
-        min-width: 85px !important;
-        max-width: 90px !important;
-        padding: 0.35rem 0.4rem !important;
-    }
-    
-    #settingsBtn span:not(.sr-only) {
-        font-size: 0.55rem !important;
-        letter-spacing: -0.5px !important;
-    }
-}
-        @media (max-width: 640px) {
-    #gerarLinkBtn {
-        min-width: 75px !important;
-        max-width: 80px !important;
-    }
-    
-    #logoutBtn {
-        min-width: 55px !important;
-        max-width: 60px !important;
-    }
-    
-    /* Garantir que todos os textos fiquem dentro */
-    .flex.gap-2.w-full.sm\\:w-auto button span:not(.sr-only) {
-        font-size: 0.6rem !important;
-        letter-spacing: -0.5px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        display: block !important;
-        width: 100% !important;
-        text-align: center !important;
-        line-height: 1.2 !important;
-    }
-}
-        /* 🔥 AJUSTE FINO DO "CONFIGURAÇÕES" - VERSÃO PERFEITA */
-@media (max-width: 640px) {
-    #settingsBtn {
-        min-width: 98px !important; /* Aumentei mais 3px */
-        max-width: 102px !important;
-        padding: 0.4rem 0.4rem !important; /* Reduzi padding lateral */
-    }
-    
-    #settingsBtn span:not(.sr-only) {
-        font-size: 0.59rem !important; /* Reduzi mais 0.01rem */
-        letter-spacing: -0.6px !important; /* Compactei mais */
-        transform: scaleX(0.95) !important; /* Comprime horizontalmente 5% */
-        transform-origin: center !important;
-    }
-}
-
-@media (max-width: 380px) {
-    #settingsBtn {
-        min-width: 88px !important;
-        max-width: 92px !important;
-        padding: 0.35rem 0.3rem !important;
-    }
-    
-    #settingsBtn span:not(.sr-only) {
-        font-size: 0.54rem !important;
-        letter-spacing: -0.6px !important;
-        transform: scaleX(0.93) !important; /* Comprime mais em telas pequenas */
-    }
-}
-        /* 🔥 CORREÇÃO ESPECÍFICA CAPACITOR MOBILE - "CONFIGURAÇÕES" */
-@media (max-width: 640px) and (max-height: 1000px) {
-    #settingsBtn {
-        min-width: 100px !important; /* +2px extra pro capacitor */
-        max-width: 104px !important;
-        padding: 0.4rem 0.35rem !important; /* menos padding lateral */
-    }
-    
-    #settingsBtn span:not(.sr-only) {
-        font-size: 0.58rem !important; /* mais 0.01rem menor */
-        letter-spacing: -0.7px !important; /* mais compacto */
-        transform: scaleX(0.94) !important; /* mais 1% de compressão */
-        transform-origin: center !important;
-    }
-}
-
-/* 🔥 CORREÇÃO DO TEXTO "CONFIGURAÇÕES" NO MOBILE - VERSÃO EMOJI-SAFE */
-@media (max-width: 640px) {
-    #settingsBtn {
-        min-width: 98px !important;
-        max-width: 102px !important;
-        padding: 0.4rem 0.4rem !important;
-    }
-    
-    /* Aplica apenas no texto, não nos emojis */
-    #settingsBtn:not(:has(span)) {
-        font-size: 0.65rem !important;
-        letter-spacing: -0.5px !important;
-    }
-    
-    #gerarLinkBtn, #logoutBtn {
-        min-width: 75px !important;
-        max-width: 80px !important;
-    }
-    
-    #logoutBtn {
-        min-width: 55px !important;
-        max-width: 60px !important;
-    }
-    
-    /* Aplica apenas no texto dos outros botões */
-    #gerarLinkBtn:not(:has(span)), 
-    #logoutBtn:not(:has(span)) {
-        font-size: 0.65rem !important;
-        letter-spacing: -0.5px !important;
-    }
-}
-
-@media (max-width: 380px) {
-    #settingsBtn {
-        min-width: 88px !important;
-        max-width: 92px !important;
-        padding: 0.35rem 0.3rem !important;
-    }
-    
-    #settingsBtn:not(:has(span)) {
-        font-size: 0.6rem !important;
-        letter-spacing: -0.5px !important;
-    }
-    
-    #gerarLinkBtn { min-width: 70px !important; max-width: 75px !important; }
-    #logoutBtn { min-width: 50px !important; max-width: 55px !important; }
-    
-    #gerarLinkBtn:not(:has(span)), 
-    #logoutBtn:not(:has(span)) {
-        font-size: 0.6rem !important;
-    }
-}
-
-/* 🔥 CORREÇÃO ESPECÍFICA CAPACITOR - PRESERVA EMOJIS */
-@media (max-width: 640px) and (max-height: 1000px) {
-    #settingsBtn:not(:has(span)) {
-        font-size: 0.59rem !important;
-        transform: scaleX(0.95) !important;
-        transform-origin: center !important;
-    }
-}
-    </style>
+</style>        
 </head>
 <body class="min-h-screen">
 <!-- 🎯🎯🎯 TELA DE AUTENTICAÇÃO 🎯🎯🎯 -->
@@ -6104,6 +5977,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
