@@ -1502,80 +1502,73 @@
     background: linear-gradient(90deg, transparent, var(--black-absolute));
     pointer-events: none;
 }
-        /* 🔥 CORREÇÃO DOS BOTÕES DO HEADER NO MOBILE */
+  /* 🔥 CORREÇÃO ESPECÍFICA DO BOTÃO "SAIR" NO MOBILE */
 @media (max-width: 640px) {
     .flex.gap-2.w-full.sm\\:w-auto {
-        flex-wrap: wrap !important;
-        gap: 0.5rem !important;
-        justify-content: center !important;
+        flex-wrap: nowrap !important; /* Mantém na mesma linha */
+        overflow-x: auto !important; /* Scroll horizontal se precisar */
+        scrollbar-width: none !important; /* Firefox */
+        -ms-overflow-style: none !important; /* IE e Edge */
+        padding-bottom: 4px !important;
+    }
+    
+    .flex.gap-2.w-full.sm\\:w-auto::-webkit-scrollbar {
+        display: none !important; /* Chrome, Safari e Opera */
     }
     
     .flex.gap-2.w-full.sm\\:w-auto button {
-        flex: 1 !important;
-        min-width: 100px !important;
-        max-width: 120px !important;
+        flex-shrink: 0 !important; /* Não reduz tamanho */
+        min-width: auto !important;
+        max-width: none !important;
+        flex: 0 0 auto !important; /* Tamanho automático */
     }
     
-    /* Ajuste específico para o texto dos botões */
-    .flex.gap-2.w-full.sm\\:w-auto button span {
+    /* Botões com texto mais curto */
+    #gerarLinkBtn {
+        min-width: 80px !important;
+    }
+    
+    #settingsBtn {
+        min-width: 100px !important;
+    }
+    
+    #logoutBtn {
+        min-width: 60px !important; /* "Sair" é mais curto */
+    }
+    
+    /* Esconder texto longo e mostrar apenas ícone + texto curto */
+    #gerarLinkBtn span:not(.sr-only),
+    #settingsBtn span:not(.sr-only),
+    #logoutBtn span:not(.sr-only) {
         font-size: 0.7rem !important;
         white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
     }
 }
 
-/* 🔥 CORREÇÃO PARA TELAS MUITO PEQUENAS */
+/* 🔥 CORREÇÃO PARA TELAS MUITO PEQUENAS - BOTÕES MAIS COMPACTOS */
 @media (max-width: 380px) {
-    .flex.gap-2.w-full.sm\\:w-auto {
-        gap: 0.25rem !important;
-    }
-    
     .flex.gap-2.w-full.sm\\:w-auto button {
-        min-width: 90px !important;
-        max-width: 100px !important;
-        padding: 0.5rem 0.4rem !important;
+        padding: 0.4rem 0.5rem !important;
     }
     
-    .flex.gap-2.w-full.sm\\:w-auto button span {
+    #gerarLinkBtn { min-width: 70px !important; }
+    #settingsBtn { min-width: 85px !important; }
+    #logoutBtn { min-width: 50px !important; }
+    
+    .flex.gap-2.w-full.sm\\:w-auto button span:not(.sr-only) {
         font-size: 0.65rem !important;
     }
     
-    /* Ajuste nos ícones para telas muito pequenas */
     .flex.gap-2.w-full.sm\\:w-auto button i {
-        width: 12px !important;
-        height: 12px !important;
+        width: 10px !important;
+        height: 10px !important;
     }
 }
 
-/* 🔥 GARANTIR QUE O HEADER FIQUE BEM ORGANIZADO */
-@media (max-width: 640px) {
-    header .flex.flex-col.sm\\:flex-row {
-        gap: 1rem !important;
-    }
-    
-    /* Ajuste no título e badge */
-    header .flex.items-center.justify-center.gap-4 {
-        flex-direction: column !important;
-        gap: 0.5rem !important;
-        text-align: center !important;
-    }
-    
-    header h1.text-2xl.sm\\:text-3xl.md\\:text-5xl {
-        font-size: 1.5rem !important;
-        line-height: 1.2 !important;
-    }
-}
-
-/* 🔥 MELHORIA NO LAYOUT GERAL DO HEADER */
-header .header-gradient {
-    padding: 1.5rem 1rem !important;
-}
-
-@media (max-width: 380px) {
-    header .header-gradient {
-        padding: 1rem 0.75rem !important;
-    }
+/* 🔥 GARANTIR SCROLL SUAVE NO MOBILE */
+.flex.gap-2.w-full.sm\\:w-auto {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
 }
     </style>
 </head>
@@ -5929,6 +5922,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
