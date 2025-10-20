@@ -4691,6 +4691,12 @@ logoutBtn.addEventListener('click', async () => {
             }
         });
         
+        // 🔥🔥🔥 CORREÇÃO CAPACITOR - ADICIONE ESTAS 3 LINHAS:
+        // Limpeza específica para problemas de autenticação no Capacitor
+        localStorage.removeItem('googleAuthState');
+        localStorage.removeItem('oauthState');
+        sessionStorage.clear();
+        
         // Logout no Supabase
         const { error } = await supabase.auth.signOut();
         if (error) {
@@ -4734,10 +4740,16 @@ logoutBtn.addEventListener('click', async () => {
         console.log('✅ Logout realizado com sucesso - interface limpa');
         showToast("Logout realizado com sucesso", "info");
         
-        // 🔥 CORREÇÃO: Remove flag de logout após completar
+        // 🔥🔥🔥 CORREÇÃO CAPACITOR - ADICIONE ESTE TIMEOUT:
+        // Força recarga completa no Capacitor após logout
         setTimeout(() => {
             window.isLoggingOut = false;
-        }, 2000);
+            // 🔥 CORREÇÃO CAPACITOR: Recarga forçada para limpar cache do WebView
+            if (window.Capacitor || /iPad|iPhone|iPod|Android/.test(navigator.userAgent)) {
+                console.log('🔄 Capacitor: Forçando recarga para limpar cache...');
+                window.location.href = window.location.origin + window.location.pathname + '?t=' + Date.now();
+            }
+        }, 1000);
     }
 });
 
@@ -6023,6 +6035,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
