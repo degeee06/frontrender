@@ -1436,6 +1436,147 @@
         opacity: 1 !important;
     }
 }
+        /* 🔥 CORREÇÃO DAS TABS NO MOBILE */
+@media (max-width: 640px) {
+    #diasTabs .flex {
+        justify-content: flex-start !important;
+        padding-bottom: 8px;
+    }
+    
+    #diasTabs .overflow-x-auto {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE e Edge */
+    }
+    
+    #diasTabs .overflow-x-auto::-webkit-scrollbar {
+        display: none; /* Chrome, Safari e Opera */
+    }
+    
+    /* Garantir que as tabs tenham scroll suave */
+    #diasTabs .flex:first-child {
+        padding-right: 20px; /* Espaço para scroll */
+    }
+    
+    /* Tabs individuais - tamanho mínimo para toque */
+    .tab-dia, .tab-semana {
+        min-width: 60px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* Tabs de semana - ajuste específico */
+    #diasTabs .flex:last-child .tab-semana {
+        min-width: 120px !important;
+        font-size: 0.8rem !important;
+    }
+}
+
+/* 🔥 CORREÇÃO PARA TELAS MUITO PEQUENAS */
+@media (max-width: 380px) {
+    .tab-dia {
+        min-width: 55px !important;
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.7rem !important;
+    }
+    
+    #diasTabs .flex:last-child .tab-semana {
+        min-width: 100px !important;
+        font-size: 0.7rem !important;
+        padding: 0.4rem 0.6rem !important;
+    }
+}
+
+/* 🔥 MELHORIA NO SCROLL HORIZONTAL */
+#diasTabs {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
+}
+
+/* 🔥 INDICADOR VISUAL DE SCROLL (opcional) */
+#diasTabs .flex:first-child::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, var(--black-absolute));
+    pointer-events: none;
+}
+        /* 🔥 CORREÇÃO DOS BOTÕES DO HEADER NO MOBILE */
+@media (max-width: 640px) {
+    .flex.gap-2.w-full.sm\\:w-auto {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        justify-content: center !important;
+    }
+    
+    .flex.gap-2.w-full.sm\\:w-auto button {
+        flex: 1 !important;
+        min-width: 100px !important;
+        max-width: 120px !important;
+    }
+    
+    /* Ajuste específico para o texto dos botões */
+    .flex.gap-2.w-full.sm\\:w-auto button span {
+        font-size: 0.7rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+}
+
+/* 🔥 CORREÇÃO PARA TELAS MUITO PEQUENAS */
+@media (max-width: 380px) {
+    .flex.gap-2.w-full.sm\\:w-auto {
+        gap: 0.25rem !important;
+    }
+    
+    .flex.gap-2.w-full.sm\\:w-auto button {
+        min-width: 90px !important;
+        max-width: 100px !important;
+        padding: 0.5rem 0.4rem !important;
+    }
+    
+    .flex.gap-2.w-full.sm\\:w-auto button span {
+        font-size: 0.65rem !important;
+    }
+    
+    /* Ajuste nos ícones para telas muito pequenas */
+    .flex.gap-2.w-full.sm\\:w-auto button i {
+        width: 12px !important;
+        height: 12px !important;
+    }
+}
+
+/* 🔥 GARANTIR QUE O HEADER FIQUE BEM ORGANIZADO */
+@media (max-width: 640px) {
+    header .flex.flex-col.sm\\:flex-row {
+        gap: 1rem !important;
+    }
+    
+    /* Ajuste no título e badge */
+    header .flex.items-center.justify-center.gap-4 {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        text-align: center !important;
+    }
+    
+    header h1.text-2xl.sm\\:text-3xl.md\\:text-5xl {
+        font-size: 1.5rem !important;
+        line-height: 1.2 !important;
+    }
+}
+
+/* 🔥 MELHORIA NO LAYOUT GERAL DO HEADER */
+header .header-gradient {
+    padding: 1.5rem 1rem !important;
+}
+
+@media (max-width: 380px) {
+    header .header-gradient {
+        padding: 1rem 0.75rem !important;
+    }
+}
     </style>
 </head>
 <body class="min-h-screen">
@@ -5788,6 +5929,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
