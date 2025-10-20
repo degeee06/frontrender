@@ -15,10 +15,10 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.2/imask.min.js"></script>
-   <style>
+    <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    :root {
+  :root {
         --black-absolute: #000000;
         --black-deep: #111111;
         --black-medium: #1A1A1A;
@@ -30,25 +30,6 @@
         --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
         --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.5);
         --inner-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        --safe-area-inset-top: env(safe-area-inset-top);
-        --safe-area-inset-bottom: env(safe-area-inset-bottom);
-        --safe-area-inset-left: env(safe-area-inset-left);
-        --safe-area-inset-right: env(safe-area-inset-right);
-    }
-    
-    /* 🔥 RESET CAPACITOR/APP NATIVO */
-    * {
-        -webkit-tap-highlight-color: transparent;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        user-select: none;
-        box-sizing: border-box;
-    }
-    
-    input, textarea, [contenteditable] {
-        -webkit-user-select: text;
-        user-select: text;
-        -webkit-touch-callout: default;
     }
     
     body {
@@ -56,27 +37,11 @@
         background-color: var(--black-absolute);
         color: var(--white-ice);
         min-height: 100vh;
-        min-height: 100dvh;
         line-height: 1.6;
-        padding: 0;
-        margin: 0;
-        overflow-x: hidden;
-        /* 🔥 SAFE AREAS PARA NOTCH/IOS */
-        padding-top: var(--safe-area-inset-top);
-        padding-bottom: var(--safe-area-inset-bottom);
-        padding-left: var(--safe-area-inset-left);
-        padding-right: var(--safe-area-inset-right);
     }
+        /* 🔥 GARANTIR CORES DO TEXTO */
 
-    /* 🔥 CONTAINER PRINCIPAL CAPACITOR */
-    .container {
-        width: 100%;
-        max-width: 100%;
-        padding-left: max(16px, var(--safe-area-inset-left));
-        padding-right: max(16px, var(--safe-area-inset-right));
-        overflow-x: hidden;
-    }
-
+    
     /* ESTILO PARA TELA DE AUTENTICAÇÃO */
     .auth-screen {
         position: fixed;
@@ -84,25 +49,17 @@
         left: 0;
         width: 100%;
         height: 100%;
-        height: 100dvh;
         background-color: var(--black-absolute) !important;
         color: var(--white-ice);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 9999;
-        padding: 20px;
-        padding-top: calc(20px + var(--safe-area-inset-top));
-        padding-bottom: calc(20px + var(--safe-area-inset-bottom));
     }
-    
     .auth-container {
         text-align: center;
         padding: 20px;
-        width: 100%;
-        max-width: 300px;
     }
-    
     .spinner {
         border: 4px solid rgba(255,255,255,0.1);
         border-radius: 50%;
@@ -112,30 +69,27 @@
         animation: spin 1s linear infinite;
         margin: 0 auto 20px;
     }
-    
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-    
     .hidden {
         display: none !important;
     }
     
-    /* 🔥 SEÇÕES IA - CORREÇÃO CAPACITOR */
+    /* ESTILOS PARA AS SEÇÕES IA */
     .assistente-ia-section,
     .agendamento-ia-section,
     .sugestoes-ia-section {
         background-color: var(--black-medium);
         border: 1px solid var(--black-light);
         border-radius: 16px;
-        padding: 20px;
-        margin: 16px 0;
+        padding: 24px;
+        margin: 20px 0;
         box-shadow: var(--shadow-soft);
         transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         position: relative;
         overflow: hidden;
-        width: 100%;
     }
 
     .assistente-ia-section::before,
@@ -159,22 +113,18 @@
         border-color: var(--gray-steel);
     }
 
-    /* 🔥 CHAT IA - CORREÇÃO MOBILE NATIVO */
     .chat-ia {
         border: 1px solid var(--black-light);
         border-radius: 12px;
         overflow: hidden;
         background-color: var(--black-deep);
-        width: 100%;
     }
 
     .historico-chat {
-        max-height: 40vh;
-        min-height: 200px;
+        height: 280px;
         overflow-y: auto;
         padding: 16px;
         background-color: var(--black-deep);
-        -webkit-overflow-scrolling: touch;
     }
 
     .mensagem {
@@ -186,8 +136,6 @@
         line-height: 1.5;
         box-shadow: var(--shadow-soft);
         transition: all 0.2s ease-out;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
     }
 
     .mensagem.usuario {
@@ -216,7 +164,6 @@
         background-color: var(--black-deep);
         border-top: 1px solid var(--black-light);
         gap: 12px;
-        width: 100%;
     }
 
     .input-chat input {
@@ -228,8 +175,6 @@
         color: var(--white-ice);
         font-size: 16px;
         transition: all 0.3s ease-out;
-        min-height: 50px;
-        -webkit-appearance: none;
     }
     
     .input-chat input:focus {
@@ -249,8 +194,6 @@
         white-space: nowrap;
         font-weight: 500;
         transition: all 0.3s ease-out;
-        min-height: 50px;
-        min-width: 60px;
     }
     
     .input-chat button:hover {
@@ -261,7 +204,6 @@
     .agendamento-rapido {
         display: flex;
         gap: 12px;
-        width: 100%;
     }
 
     .agendamento-rapido input {
@@ -273,8 +215,6 @@
         color: var(--white-ice);
         font-size: 16px;
         transition: all 0.3s ease-out;
-        min-height: 50px;
-        -webkit-appearance: none;
     }
     
     .agendamento-rapido input:focus {
@@ -293,8 +233,6 @@
         cursor: pointer;
         font-weight: 500;
         transition: all 0.3s ease-out;
-        min-height: 50px;
-        white-space: nowrap;
     }
     
     .agendamento-rapido button:hover {
@@ -304,7 +242,6 @@
 
     .sugestoes-conteudo {
         margin-top: 20px;
-        width: 100%;
     }
 
     .sugestoes-texto {
@@ -315,11 +252,8 @@
         padding: 16px;
         border-radius: 10px;
         border-left: 3px solid var(--silver-accent);
-        width: 100%;
-        overflow-wrap: break-word;
     }
     
-    /* 🔥 GLASS CARD CAPACITOR */
     .glass-card {
         background-color: var(--black-medium);
         border: 1px solid var(--black-light);
@@ -328,8 +262,6 @@
         transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         position: relative;
         overflow: hidden;
-        width: 100%;
-        margin: 8px 0;
     }
     
     .glass-card::before {
@@ -382,11 +314,6 @@
         background-color: var(--black-medium);
         border: 1px solid var(--black-light);
         color: var(--white-ice);
-        min-height: 50px;
-        -webkit-appearance: none;
-        border-radius: 10px;
-        padding: 14px 16px;
-        width: 100%;
     }
     
     .input-field:focus {
@@ -426,81 +353,57 @@
         font-size: 12px;
     }
     
-    /* 🔥 TABS CAPACITOR - SCROLL OTIMIZADO */
-    .dias-tabs-container {
-        margin: 0 -8px;
-        padding: 0 8px;
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        width: 100%;
-    }
-
-    .dias-tabs-container::-webkit-scrollbar {
-        display: none;
-    }
-
     .tab-dia, .tab-semana {
         transition: all 0.3s ease-out;
         font-weight: 500;
         border-radius: 10px;
-        padding: 10px 14px;
+        padding: 10px 16px;
         background-color: var(--black-medium);
         border: 1px solid var(--black-light);
         color: var(--white-ice);
-        font-size: 14px;
-        white-space: nowrap;
-        flex-shrink: 0;
-        display: inline-block;
-        margin: 0 4px;
-        min-width: 60px;
-        text-align: center;
     }
     
-    .tab-dia.active {
-        background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
-        border: 1px solid #E0E0E0 !important;
-        color: #000000 !important;
-        box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4) !important;
-        font-weight: 600 !important;
-    }
+.tab-dia.active {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4) !important;
+    font-weight: 600 !important;
+}
     
-    .tab-dia:not(.active):hover {
-        background: #1A1A1A !important;
-        border: 1px solid #333333 !important;
-        transform: translateY(-1px) !important;
-    }
+.tab-dia:not(.active):hover {
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
+    transform: translateY(-1px) !important;
+}
     
     .tab-semana:hover {
         background-color: var(--black-light);
         transform: translateY(-1px);
     }
 
-    .tab-semana.active {
-        background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
-        border: 1px solid #E0E0E0 !important;
-        color: #000000 !important;
-        box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4) !important;
-        font-weight: 600 !important;
-    }
+        /* 🔥 COMPLETAR ESTILO DAS TABS - PRATA METÁLICO */
+.tab-semana.active {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4) !important;
+    font-weight: 600 !important;
+}
 
-    .tab-semana:hover:not(.active) {
-        background: #1A1A1A !important;
-        border: 1px solid #333333 !important;
-        transform: translateY(-1px) !important;
-    }
-
+.tab-semana:hover:not(.active) {
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
+    transform: translateY(-1px) !important;
+}
     .agendamento-card {
         transition: all 0.3s ease-out;
         background-color: var(--black-medium);
         border: 1px solid var(--black-light);
         border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
         position: relative;
-        width: 100%;
     }
     
     .agendamento-card::before {
@@ -530,175 +433,544 @@
         animation: spin 1s linear infinite;
     }
     
-    /* 🔥 CORREÇÕES CRÍTICAS CAPACITOR */
-    @media (max-width: 768px) {
+    /* 🔥 CORREÇÕES MOBILE CRÍTICAS */
+    @media (max-width: 640px) {
         .container {
-            padding-left: max(12px, var(--safe-area-inset-left));
-            padding-right: max(12px, var(--safe-area-inset-right));
+            padding-left: 16px;
+            padding-right: 16px;
         }
         
         .glass-card {
-            margin: 6px 0;
+            margin-left: 0;
+            margin-right: 0;
             border-radius: 14px;
-            padding: 16px;
-            width: 100%;
+            padding: 20px;
         }
         
-        /* Inputs mobile capacitor */
+        /* Inputs mobile */
         .input-field {
             font-size: 16px !important;
-            min-height: 52px !important;
-            padding: 15px 16px !important;
+            padding-top: 14px !important;
+            padding-bottom: 14px !important;
         }
         
-        /* Chat IA mobile capacitor */
+        /* Chat IA mobile */
         .input-chat {
-            padding: 12px;
+            padding: 16px;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
         
         .input-chat input {
             margin-right: 0;
             font-size: 16px;
-            min-height: 52px;
-            width: 100%;
         }
         
         .input-chat button {
             width: 100%;
-            min-height: 52px;
         }
         
         /* Mensagens mobile */
         .mensagem {
-            max-width: 90% !important;
+            max-width: 95% !important;
             font-size: 14px;
-            padding: 10px 12px;
+            padding: 12px;
         }
         
         .historico-chat {
-            max-height: 35vh;
-            min-height: 180px;
-            padding: 12px;
+            height: 250px;
+            padding: 16px;
         }
         
         /* Seções IA mobile */
         .assistente-ia-section,
         .agendamento-ia-section,
         .sugestoes-ia-section {
-            padding: 16px;
-            margin: 12px 0;
+            padding: 20px;
+            margin: 16px 0;
             border-radius: 14px;
+        }
+        
+        /* Botões mobile */
+        .mobile-w-full {
             width: 100%;
+        }
+        
+        .mobile-flex-col {
+            flex-direction: column;
         }
         
         /* Header mobile */
         header h1 {
-            font-size: 1.5rem !important;
+            font-size: 1.75rem !important;
         }
         
         header p {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            padding: 0 8px;
         }
         
-        /* 🔥 CORREÇÃO: Grid para 1 coluna no mobile */
-        .grid.grid-cols-2 {
-            grid-template-columns: 1fr !important;
-            gap: 12px;
+        /* Form mobile */
+        .agendamentoForm .grid {
+            gap: 16px !important;
         }
         
-        .grid.grid-cols-1\.xs\:grid-cols-2 {
-            grid-template-columns: 1fr !important;
-        }
-
-        /* 🔥 CORREÇÃO: Modal Perfil Config */
-        #modalPerfilConfig .grid {
-            grid-template-columns: 1fr;
-            gap: 12px;
+        .agendamentoForm .space-y-5 {
+            gap: 20px !important;
         }
     }
 
-    /* 🔥 Breakpoint mobile pequeno CAPACITOR */
+    /* 🔥 Breakpoint extra pequeno */
     @media (max-width: 380px) {
         .text-2xl {
-            font-size: 1.3rem !important;
+            font-size: 1.4rem !important;
         }
         
         .text-xl {
-            font-size: 1.1rem !important;
+            font-size: 1.2rem !important;
         }
         
         .text-lg {
-            font-size: 0.95rem !important;
+            font-size: 1rem !important;
         }
         
         .tab-dia, .tab-semana {
             font-size: 12px !important;
-            padding: 8px 10px !important;
-            min-width: 50px;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
         }
         
         .glass-card {
-            padding: 14px !important;
+            padding: 16px !important;
         }
         
         .historico-chat {
-            max-height: 30vh;
-            min-height: 160px;
+            height: 200px;
         }
         
         .mensagem {
             font-size: 13px;
-            max-width: 95% !important;
+        }
+    }
+
+    /* 🔥 Breakpoint tablets */
+    @media (min-width: 641px) and (max-width: 768px) {
+        .container {
+            padding-left: 20px;
+            padding-right: 20px;
         }
         
-        .container {
-            padding-left: max(8px, var(--safe-area-inset-left));
-            padding-right: max(8px, var(--safe-area-inset-right));
+        .mensagem {
+            max-width: 75%;
+        }
+        
+        .input-chat {
+            flex-direction: row;
+        }
+        
+        .input-chat button {
+            width: auto;
         }
     }
 
-    /* 🔥 CORREÇÃO: Altura para telas maiores */
-    @media (min-height: 700px) {
-        .historico-chat {
-            max-height: 45vh;
+    /* 🔥 Estados de loading para IA */
+    .btn-ia-loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .input-chat input:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .mensagem.carregando {
+        opacity: 0.7;
+        font-style: italic;
+    }
+
+    /* 🔥 Melhorias de acessibilidade */
+    @media (prefers-reduced-motion: reduce) {
+        .animate-fade-in,
+        .agendamento-card,
+        .input-field {
+            animation: none;
+            transition: none;
+        }
+    }
+    
+    /* Botões de configuração */
+    .settings-btn {
+        background-color: var(--black-medium);
+        border: 1px solid var(--black-light);
+        transition: all 0.3s ease-out;
+    }
+
+    .settings-btn:hover {
+        background-color: var(--black-light);
+        transform: translateY(-1px);
+    }
+    
+    /* 🆕 ESTILOS PARA BLOQUEIO POR PERÍODOS */
+    .periodo-bloqueado {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
 
-    /* 🔥 MODAIS CAPACITOR - CORREÇÃO CRÍTICA */
+    #listaPeriodosBloqueados {
+        scrollbar-width: thin;
+        scrollbar-color: var(--gray-steel) transparent;
+    }
+
+    #listaPeriodosBloqueados::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #listaPeriodosBloqueados::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    #listaPeriodosBloqueados::-webkit-scrollbar-thumb {
+        background: var(--gray-steel);
+        border-radius: 3px;
+    }
+
+    .inicio-periodo:invalid + .fim-periodo:valid,
+    .fim-periodo:invalid {
+        border-color: var(--gray-steel) !important;
+    }
+
+    .inicio-periodo:valid + .fim-periodo:valid {
+        border-color: var(--silver-accent) !important;
+    }
+    
+    /* 🔧 Correção visual do select invisível */
+    #tipoNegocioSelect {
+        background-color: var(--black-medium);
+        color: var(--white-ice);
+    }
+
+    #tipoNegocioSelect option {
+        background-color: var(--black-deep);
+        color: var(--white-ice);
+    }
+
+    /* 🔥 CORREÇÃO: Estilos para inputs de data/time no iOS */
+    input[type="date"], input[type="time"] {
+        font-size: 16px !important;
+        min-height: 48px !important;
+    }
+
+    /* 🔥 CORREÇÃO: Garantir que selects sejam visíveis */
+    select {
+        background-color: var(--black-medium) !important;
+        color: var(--white-ice) !important;
+    }
+
+    select option {
+        background-color: var(--black-deep) !important;
+        color: var(--white-ice) !important;
+    }
+
+    /* 🔥 CORREÇÃO: Loading states para botões IA */
+    .btn-loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .btn-loading .loading-spinner {
+        display: inline-block !important;
+    }
+
+    /* 🔥 ESTILOS PARA TELA DE AUTENTICAÇÃO ATUALIZADA */
+    .auth-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--black-absolute);
+        color: var(--white-ice);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        padding: 20px;
+    }
+
+    .animate-pulse-slow {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    /* 🔥 ESTILOS PREMIUM PARA BOTÕES */
+    .btn-premium {
+        background-color: var(--black-light) !important;
+        color: var(--white-pure) !important;
+        padding: 16px 32px !important;
+        border: 1px solid var(--gray-steel) !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        cursor: pointer !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        box-shadow: var(--shadow-soft) !important;
+        position: relative !important;
+        overflow: hidden !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 12px !important;
+        min-height: 56px !important;
+        text-decoration: none !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    /* Efeitos hover premium */
+    .btn-premium:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: var(--shadow-deep) !important;
+        background-color: var(--gray-steel) !important;
+        border-color: var(--silver-accent) !important;
+    }
+
+    /* Efeito de clique premium */
+    .btn-premium:active {
+        transform: translateY(0) !important;
+    }
+
+    /* Efeito de brilho animado premium */
+    .btn-premium::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: -100% !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.05), 
+            transparent) !important;
+        transition: left 0.7s ease-in-out !important;
+    }
+
+    .btn-premium:hover::before {
+        left: 100% !important;
+    }
+
+    /* Estado desabilitado premium */
+    .btn-premium:disabled {
+        background-color: var(--black-medium) !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        box-shadow: none !important;
+        opacity: 0.5 !important;
+        border-color: var(--black-light) !important;
+    }
+
+    .btn-premium:disabled:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .btn-premium:disabled::before {
+        display: none !important;
+    }
+
+    /* Loading spinner premium */
+    .loading-spinner-premium {
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        border-top: 2px solid var(--white-ice);
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+    }
+
+    /* Ícone do botão premium */
+    .btn-premium i {
+        transition: transform 0.3s ease-out;
+    }
+
+    .btn-premium:hover i {
+        transform: scale(1.05);
+    }
+
+    /* 🔥 ANIMAÇÃO DE PULSO PARA CHAMAR ATENÇÃO */
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: var(--shadow-soft);
+        }
+        50% {
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.1);
+        }
+    }
+
+    /* Aplicar animação de pulso quando o formulário estiver em foco */
+    #agendamentoForm:focus-within button[type="submit"] {
+        animation: pulse-glow 2s infinite;
+    }
+
+    /* 🔥 ESTILOS ESPECÍFICOS PARA O BOTÃO DO FORMULÁRIO */
+    #agendamentoForm button[type="submit"] {
+        background-color: var(--black-light);
+        color: var(--white-pure);
+        padding: 16px 32px;
+        border: 1px solid var(--gray-steel);
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-height: 56px;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    #agendamentoForm button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-deep);
+        background-color: var(--gray-steel);
+        border-color: var(--silver-accent);
+    }
+
+    #agendamentoForm button[type="submit"]:active {
+        transform: translateY(0);
+    }
+
+    /* 🔥 RESPONSIVIDADE ESPECÍFICA PARA O BOTÃO AGENDAR */
+    @media (max-width: 768px) {
+        #agendamentoForm button[type="submit"] {
+            padding: 14px 24px;
+            font-size: 16px;
+            min-height: 52px;
+        }
+        
+        .btn-premium {
+            padding: 14px 24px !important;
+            font-size: 16px !important;
+            min-height: 52px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #agendamentoForm button[type="submit"] {
+            padding: 12px 20px;
+            font-size: 16px;
+            min-height: 48px;
+            border-radius: 10px;
+        }
+    }
+    
+    /* 🔥 BADGE PREMIUM */
+    .premium-badge {
+        background-color: var(--black-light);
+        color: var(--white-pure);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 12px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--gray-steel);
+    }
+    
+    /* 🔥 HEADER COM GRADIENTE */
+    .header-gradient {
+        background-color: var(--black-medium);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 1px solid var(--black-light);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .header-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
+        opacity: 0.3;
+    }
+    
+    /* 🔥 BOTÃO GOOGLE MODERNO */
+    .google-btn {
+        background-color: var(--black-medium);
+        color: var(--white-ice);
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 16px;
+        transition: all 0.3s ease-out;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--black-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    .google-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-deep);
+        background-color: var(--black-light);
+        border-color: var(--gray-steel);
+    }
+    
+    /* 🔥 MODAL MODERNO */
     .modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        height: 100dvh;
-        background: rgba(0, 0, 0, 0.9);
-        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000;
+        z-index: 50;
         padding: 20px;
-        padding-top: calc(20px + var(--safe-area-inset-top));
-        padding-bottom: calc(20px + var(--safe-area-inset-bottom));
     }
     
     .modal-content {
         background-color: var(--black-medium);
         border: 1px solid var(--black-light);
         border-radius: 16px;
-        padding: 24px;
-        width: 90vw;
-        max-width: 400px;
-        max-height: 80vh;
-        margin: 0 auto;
+        padding: 32px;
+        max-width: 500px;
+        width: 100%;
         box-shadow: var(--shadow-deep);
         animation: modalAppear 0.3s ease-out;
         position: relative;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
     }
     
     .modal-content::before {
@@ -715,7 +987,7 @@
     @keyframes modalAppear {
         from {
             opacity: 0;
-            transform: scale(0.9) translateY(-20px);
+            transform: scale(0.95) translateY(-10px);
         }
         to {
             opacity: 1;
@@ -723,309 +995,420 @@
         }
     }
 
-    /* 🔥 CORREÇÃO ESPECÍFICA PARA MODAIS MOBILE CAPACITOR */
-    @media (max-width: 480px) {
-        .modal-content {
-            width: 95vw;
-            padding: 20px;
-            margin: 0 auto;
-            border-radius: 14px;
-            max-height: 85vh;
-        }
-        
-        #modalPerfilConfig {
-            max-height: 90vh;
-            overflow-y: auto;
-        }
+    /* 🔥 TÍTULOS COM GRADIENTE MINIMALISTA */
+    .title-gradient {
+        background: linear-gradient(135deg, var(--white-pure), var(--white-ice));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
-    /* 🔥 BOTÕES CAPACITOR - TAPPABLE AREA */
-    .btn-premium, #agendamentoForm button[type="submit"] {
-        min-height: 56px;
-        padding: 16px 24px;
+    /* 🔥 SEPARADORES ELEGANTES */
+    .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gray-steel), transparent);
+        margin: 24px 0;
+        opacity: 0.3;
+    }
+
+    /* 🔥 BOTÕES DE AÇÃO SECUNDÁRIOS */
+    .btn-secondary {
+        background-color: transparent;
+        color: var(--white-ice);
+        border: 1px solid var(--gray-steel);
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease-out;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--black-light);
+        border-color: var(--silver-accent);
+        transform: translateY(-1px);
+    }
+
+    /* 🔥 CARDS DE INFORMAÇÃO */
+    .info-card {
+        background-color: var(--black-deep);
+        border: 1px solid var(--black-light);
         border-radius: 12px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-        -webkit-tap-highlight-color: transparent;
+        padding: 20px;
+        margin-bottom: 16px;
+        transition: all 0.3s ease-out;
     }
 
-    /* 🔥 INPUTS DATE/TIME CAPACITOR */
-    input[type="date"], input[type="time"], input[type="datetime-local"] {
-        font-size: 16px !important;
-        min-height: 52px !important;
-        padding: 14px 16px !important;
-        -webkit-appearance: none;
-        appearance: none;
+    .info-card:hover {
+        border-color: var(--gray-steel);
+        transform: translateY(-2px);
     }
 
-    /* 🔥 SCROLL SUAVE CAPACITOR */
-    .smooth-scroll {
-        -webkit-overflow-scrolling: touch;
-        scroll-behavior: smooth;
+    /* 🔥 ESTADO DE FOCO REFINADO */
+    *:focus {
+        outline: none;
     }
 
-    /* 🔥 PREVENIR ZOOM EM INPUTS iOS */
-    @media screen and (max-width: 768px) {
-        input, select, textarea {
-            font-size: 16px !important;
-        }
+    .focus-visible {
+        box-shadow: 0 0 0 2px var(--silver-accent);
     }
 
-    /* 🔥 CORREÇÃO VIEWPORT HEIGHT DINÂMICO */
-    .full-height {
-        min-height: 100vh;
-        min-height: 100dvh;
-    }
-
-    /* 🔥 HEADER SEGURO PARA NOTCH */
-    .safe-header {
-        padding-top: var(--safe-area-inset-top);
-        background-color: var(--black-medium);
-    }
-
-    /* 🔥 FOOTER SEGURO PARA HOME INDICATOR */
-    .safe-footer {
-        padding-bottom: var(--safe-area-inset-bottom);
-    }
-
-    /* ... (mantenha o restante do seu CSS original abaixo) ... */
-
-    /* 🔥 ESTILOS PREMIUM PARA BOTÕES */
-    .btn-premium {
-        background-color: var(--black-light) !important;
-        color: var(--white-pure) !important;
-        border: 1px solid var(--gray-steel) !important;
-        box-shadow: var(--shadow-soft) !important;
-        position: relative !important;
-        overflow: hidden !important;
-    }
-
-    .btn-premium:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: var(--shadow-deep) !important;
-        background-color: var(--gray-steel) !important;
-        border-color: var(--silver-accent) !important;
-    }
-
-    /* Efeito de clique premium */
-    .btn-premium:active {
-        transform: translateY(0) !important;
-    }
-
-    /* 🔥 BOTÃO DO FORMULÁRIO AGENDAMENTO */
-    #agendamentoForm button[type="submit"] {
-        background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
-        border: 1px solid #E0E0E0 !important;
-        color: #000000 !important;
-        box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3) !important;
-    }
-
-    #agendamentoForm button[type="submit"]:hover {
-        background: linear-gradient(135deg, #E0E0E0 0%, #C0C0C0 100%) !important;
-        border-color: #FFFFFF !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 16px rgba(192, 192, 192, 0.4) !important;
-    }
-
-    /* 🔥 RESPONSIVIDADE BOTÕES CAPACITOR */
-    @media (max-width: 768px) {
-        #agendamentoForm button[type="submit"] {
-            padding: 14px 20px !important;
-            font-size: 16px !important;
-            min-height: 52px !important;
-        }
-        
-        .btn-premium {
-            padding: 14px 20px !important;
-            font-size: 16px !important;
-            min-height: 52px !important;
-        }
-    }
-
-    @media (max-width: 480px) {
-        #agendamentoForm button[type="submit"] {
-            padding: 12px 16px !important;
-            min-height: 48px !important;
-            border-radius: 10px !important;
-        }
-    }
-
-    /* 🔥 CORREÇÃO FINAL: GARANTIR QUE TUDO CAIBA NA TELA */
-    * {
-        max-width: 100%;
-    }
-
-    img, video, iframe {
-        max-width: 100%;
-        height: auto;
-    }
-
-    /* 🔥 REMOVER COMPORTAMENTOS PADRÃO DO MOBILE */
-    textarea, input {
-        border-radius: 10px !important;
-    }
-
-    select {
-        background-color: var(--black-medium) !important;
-        color: var(--white-ice) !important;
-        border-radius: 10px !important;
-        padding: 14px 16px !important;
-        min-height: 50px !important;
-        border: 1px solid var(--black-light) !important;
-    }
-
-    /* 🔥 LOADING STATES CAPACITOR */
-    .btn-loading {
-        opacity: 0.7;
-        cursor: not-allowed;
-        pointer-events: none;
-    }
-
-    .btn-loading .loading-spinner {
-        display: inline-block !important;
-    }
-
-    /* 🔥 ANIMAÇÕES OTIMIZADAS PARA MOBILE */
-    @media (prefers-reduced-motion: reduce) {
-        * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-        }
-    }
-       /* 🔥 ADICIONAR AO SEU CSS EXISTENTE - CORREÇÕES MOBILE PARA MODAIS */
-
-/* === MODAL DE TERMOS === */
-#termsModal .modal-content {
-    background-color: var(--black-medium);
-    border: 1px solid var(--black-light);
-    border-radius: 16px;
-    padding: 24px;
-    width: 95vw;
-    max-width: 400px;
-    max-height: 85vh;
-    margin: 20px auto;
-    box-shadow: var(--shadow-deep);
-    animation: modalAppear 0.3s ease-out;
-    position: relative;
-    overflow-y: auto;
+        /* 🔥 BOTÃO GOOGLE - ULTRA BLACK UI */
+#googleLoginBtn {
+    background: #000000 !important;
+    border: 1px solid #333333 !important;
+    color: #E0E0E0 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+    font-weight: 500 !important;
+    border-radius: 12px !important;
+    padding: 16px 24px !important;
+    transition: all 0.3s ease-out !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    margin: 0 auto !important;
 }
 
-#termsModal .modal-body {
-    max-height: 50vh;
-    overflow-y: auto;
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--white-ice);
+#googleLoginBtn span {
+    color: #E0E0E0 !important;
+    transition: color 0.3s ease-out !important;
 }
 
-/* === MODAL DE LINK AGENDAMENTO === */
-#modalLinkAgendamento .glass-card {
-    width: 95vw;
-    max-width: 400px;
-    max-height: 80vh;
-    margin: 0 auto;
-    padding: 20px;
-    overflow-y: auto;
-    background-color: var(--black-medium);
-    border: 1px solid var(--black-light);
-    border-radius: 16px;
+#googleLoginBtn:hover {
+    background: #111111 !important;
+    border-color: #5A5A5A !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7) !important;
 }
 
-#modalLinkAgendamento code {
-    word-break: break-all;
-    font-size: 12px;
-    background: rgba(255,255,255,0.1);
-    padding: 8px;
-    border-radius: 8px;
-    display: block;
+#googleLoginBtn:hover span {
+    color: #FFFFFF !important;
 }
 
-/* === MODAL DE ESTATÍSTICAS === */
-#modalEstatisticas .glass-card {
-    width: 95vw;
-    max-width: 400px;
-    max-height: 80vh;
-    margin: 0 auto;
-    padding: 20px;
-    overflow-y: auto;
-    background-color: var(--black-medium);
-    border: 1px solid var(--black-light);
-    border-radius: 16px;
-}
-
-/* === BREAKPOINT MOBILE PEQUENO === */
-@media (max-width: 480px) {
-    /* Todos os modais */
-    #termsModal .modal-content,
-    #modalLinkAgendamento .glass-card,
-    #modalEstatisticas .glass-card {
-        width: 92vw;
-        padding: 16px;
-        margin: 10px auto;
-        border-radius: 12px;
-    }
-    
-    /* Botões modais */
-    #copiarLinkBtn,
-    #modalEstatisticas button {
-        min-height: 44px;
-        font-size: 16px;
-    }
-    
-    /* Texto menor */
-    #termsModal .modal-body {
-        font-size: 13px;
-    }
-    
-    #modalLinkAgendamento code {
-        font-size: 11px;
-    }
-    
-    /* QR Code menor */
-    #modalLinkAgendamento img {
-        max-width: 120px;
-        max-height: 120px;
-    }
-}
-
-/* === BREAKPOINT EXTRA PEQUENO === */
-@media (max-width: 380px) {
-    #termsModal .modal-content,
-    #modalLinkAgendamento .glass-card,
-    #modalEstatisticas .glass-card {
-        width: 90vw;
-        padding: 12px;
-    }
-    
-    #modalEstatisticas .grid.grid-cols-2 {
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-    }
-}
-
-/* === SCROLL SUAVE PARA MODAIS CAPACITOR === */
-.modal-content {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-}
-
-/* === PREVENIR ZOOM EM INPUTS MODAIS === */
-#termsModal input,
-#modalLinkAgendamento input,
-#modalEstatisticas input {
+                /* 🔥 FORÇAR DESIGN DO SEU BOTÃO SOBRE O HOTMART */
+.hotmart-fb.hotmart__button-checkout {
+    background: linear-gradient(to right, #f59e0b, #ea580c) !important;
+    background-color: transparent !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 700 !important;
     font-size: 16px !important;
+    text-decoration: none !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
 }
-</style>
+
+.hotmart-fb.hotmart__button-checkout:hover {
+    background: linear-gradient(to right, #d97706, #dc2626) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 🔥 REMOVER ESTILOS PADRÃO DO HOTMART */
+.hotmart-fb.hotmart__button-checkout:before,
+.hotmart-fb.hotmart__button-checkout:after {
+    display: none !important;
+}
+        /* 🔥 CORREÇÃO DOS EMOJIS BRANCOS */
+.agendamento-ia-section span,
+.sugestoes-ia-section span {
+    color: inherit !important;
+    filter: none !important;
+}
+
+/* Especificamente para os emojis das seções IA */
+.agendamento-ia-section [role="img"],
+.sugestoes-ia-section [role="img"] {
+    color: inherit !important;
+    filter: none !important;
+}
+
+/* Garantir que os emojis apareçam com cores naturais */
+.agendamento-ia-section *:not(i):not(svg):not(path),
+.sugestoes-ia-section *:not(i):not(svg):not(path) {
+    color: inherit !important;
+}
+        /* 🔥 EFEITO HOVER PARA BOTÃO DE ESTATÍSTICAS */
+#btn-estatisticas {
+    transition: all 0.3s ease-out !important;
+}
+
+#btn-estatisticas:hover:not(:disabled) {
+    background: #222222 !important;
+    border-color: #5A5A5A !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7) !important;
+}
+
+#btn-estatisticas:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+        /* 🔥 CORREÇÃO DOS EMOJIS - ULTRA BLACK UI */
+.agendamento-ia-section span[role="img"],
+.sugestoes-ia-section span[role="img"],
+.agendamento-ia-section span:contains("🎯"),
+.agendamento-ia-section span:contains("📅"),
+.sugestoes-ia-section span:contains("📊"),
+.sugestoes-ia-section span:contains("📈") {
+    color: inherit !important;
+    filter: none !important;
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+}
+
+/* Correção específica para emojis em headings */
+.agendamento-ia-section h3 span,
+.sugestoes-ia-section h3 span {
+    color: inherit !important;
+    filter: none !important;
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+}
+
+/* 🔥 APENAS o botão do formulário tem display flex */
+#agendamentoForm button[type="submit"] {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3) !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+}
+
+/* 🔥 Botão gerar link - display controlado pelo JavaScript */
+#gerarLinkBtn {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3) !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    /* SEM display: flex - controlado pelo JS */
+}
+
+/* Efeitos Hover para Prata Metálico */
+#gerarLinkBtn:hover, #agendamentoForm button[type="submit"]:hover {
+    background: linear-gradient(135deg, #E0E0E0 0%, #C0C0C0 100%) !important;
+    border-color: #FFFFFF !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(192, 192, 192, 0.4) !important;
+}
+
+/* Efeito Active */
+#gerarLinkBtn:active, #agendamentoForm button[type="submit"]:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3) !important;
+}
+
+/* Estilos específicos para cada botão */
+#gerarLinkBtn {
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+}
+
+#agendamentoForm button[type="submit"] {
+    padding: 16px 32px !important;
+    min-height: 56px !important;
+    width: 100% !important;
+    max-width: 400px !important;
+    margin: 0 auto !important;
+    font-size: 18px !important;
+}
+
+/* 🔥 BOTÕES SECUNDÁRIOS DO HEADER */
+#settingsBtn {
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
+    color: #E0E0E0 !important;
+    transition: all 0.3s ease !important;
+}
+
+#settingsBtn:hover {
+    background: #222222 !important;
+    border-color: #5A5A5A !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+#logoutBtn {
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
+    color: #E0E0E0 !important;
+    transition: all 0.3s ease !important;
+}
+
+#logoutBtn:hover {
+    background: #330000 !important;
+    border-color: #5A0000 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+}
+        /* 🔥 BOTÕES EXPORTAR COM HOVER */
+#exportCSVBtn, #exportPDFBtn {
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
+    color: #E0E0E0 !important;
+    transition: all 0.3s ease !important;
+}
+
+#exportCSVBtn:hover, #exportPDFBtn:hover {
+    background: #222222 !important;
+    border-color: #5A5A5A !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Efeito nos ícones ao passar o mouse */
+#exportCSVBtn:hover i[data-feather], 
+#exportPDFBtn:hover i[data-feather] {
+    color: #FFFFFF !important;
+    transform: scale(1.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* 🔥 BOTÕES MODAL PLANILHAS COM HOVER - PRATA METÁLICO */
+#configSheetsModal button {
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
+    color: #E0E0E0 !important;
+    transition: all 0.3s ease !important;
+}
+
+#configSheetsModal button:hover {
+    background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
+    border: 1px solid #E0E0E0 !important;
+    color: #000000 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3) !important;
+}
+
+/* Efeito nos ícones ao passar o mouse */
+#configSheetsModal button:hover i[data-feather] {
+    color: #000000 !important;
+    transform: scale(1.1) !important;
+    transition: all 0.3s ease !important;
+}
+ /* 🔥 SPINNER PRETO PARA BOTÃO AGENDAR */
+#agendamentoForm .loading-spinner-premium {
+    border: 2px solid rgba(0, 0, 0, 0.2) !important;
+    border-top: 2px solid #000000 !important;
+}
+        /* 🔥 CORREÇÃO: Input da planilha com texto visível */
+#spreadsheetIdInput {
+    color: #000000 !important;
+    background-color: #FFFFFF !important;
+}
+
+/* 🔥 Placeholder também escuro */
+#spreadsheetIdInput::placeholder {
+    color: #666666 !important;
+    opacity: 1;
+}
+        /* Modal Mobile Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  padding: 24px 20px;
+  border: 1px solid #2d3748;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 360px) {
+  .modal-content {
+    padding: 20px 16px;
+    max-height: 85vh;
+  }
+}
+
+/* Ajustes para orientação paisagem em mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-content {
+    max-height: 80vh;
+    padding: 16px;
+  }
+  
+  .modal-overlay {
+    padding: 8px;
+  }
+}
+
+/* Ajustes de texto para mobile */
+.modal-content h3 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+.modal-content p {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Ajustes dos botões para toque fácil */
+.config-option button {
+  min-height: 48px; /* Tamanho mínimo para toque */
+  padding: 12px 16px;
+}
+
+/* Input ajustado para mobile */
+#spreadsheetIdInput {
+  min-height: 44px; /* Tamanho mínimo para toque */
+  padding: 12px;
+  font-size: 0.9rem;
+}
+
+/* Ajuste do código de exemplo */
+.modal-content code {
+  font-size: 0.75rem;
+  word-break: break-all;
+  padding: 8px;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.hidden {
+  display: none !important;
+}
+
+    </style>
 </head>
 <body class="min-h-screen">
 <!-- 🎯🎯🎯 TELA DE AUTENTICAÇÃO 🎯🎯🎯 -->
@@ -1413,82 +1796,55 @@
     </div>
 </div>
 
-<!-- Modal de Configuração do Google Sheets - DESIGN ULTRA BLACK UI -->
+<!-- Modal de Configuração do Google Sheets - VERSÃO MOBILE -->
 <div id="configSheetsModal" class="modal-overlay hidden">
-    <div class="bg-black-medium border border-gray-700 rounded-2xl p-6 max-w-md w-full mx-4 animate-fade-in shadow-2xl">
-        <!-- Header Elegante -->
-        <div class="text-center mb-6">
-            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500 to-emerald-400 border border-green-400 shadow-lg flex items-center justify-center">
-                <i data-feather="file-text" class="w-6 h-6 text-white"></i>
+    <div class="modal-content">
+        <div class="flex items-center justify-center mb-6">
+            <div class="p-3 rounded-full bg-black-light border border-gray-steel shadow-lg">
+                <i data-feather="file-text" class="w-6 h-6 text-white-ice"></i>
             </div>
-            <h3 class="text-xl font-bold title-gradient mb-1">Google Planilhas</h3>
-            <p class="text-gray-400 text-sm">Sincronize seus agendamentos</p>
         </div>
         
-        <!-- Separador Elegante -->
-        <div class="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-6"></div>
+        <h3 class="text-xl md:text-2xl font-semibold text-center mb-2 title-gradient">🎯 Configurar Google Planilhas</h3>
+        <p class="text-center text-white-ice mb-6 text-sm md:text-base">Escolha como deseja sincronizar seus agendamentos</p>
         
-        <!-- Opções de Configuração -->
-        <div class="space-y-4">
-            <!-- Usar Planilha Existente -->
-            <div class="config-option p-4 rounded-xl bg-black-light border border-gray-600 hover:border-green-400 transition-all duration-300">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center">
-                        <i data-feather="link" class="w-4 h-4 text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-white">Usar Planilha Existente</h4>
-                        <p class="text-sm text-gray-400">Cole o ID da sua planilha</p>
-                    </div>
-                </div>
-                
+        <div class="space-y-4 md:space-y-6">
+            <div class="config-option p-4 rounded-lg bg-black-deep border border-black-light">
+                <h4 class="font-semibold mb-2 flex items-center gap-2 text-white-ice text-sm md:text-base">
+                    <i data-feather="link" class="w-4 h-4 text-silver-accent"></i>
+                     Usar Minha Planilha Existente
+                </h4>
+                <p class="text-xs md:text-sm text-white-ice mb-3">Cole o ID da sua planilha do Google Planilhas</p>
                 <input type="text" id="spreadsheetIdInput" 
                        placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-                       class="w-full px-3 py-3 rounded-lg bg-black-deep border border-gray-600 focus:border-green-400 focus:outline-none text-white text-sm mb-3">
-                
-                <button class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 text-white font-medium flex items-center justify-center gap-2 transition-all duration-300">
+                       class="w-full px-3 py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none mb-2 text-sm text-white-ice">
+                <button class="w-full bg-black-light hover:bg-gray-steel text-white-ice py-3 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 border border-black-light text-sm md:text-base">
                     <i data-feather="save" class="w-4 h-4"></i>
-                    Usar Esta Planilha
+                    💾 Usar Esta Planilha
                 </button>
             </div>
 
-            <!-- Configurar Depois -->
-            <div class="config-option p-4 rounded-xl bg-black-light border border-gray-600 hover:border-blue-400 transition-all duration-300">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
-                        <i data-feather="clock" class="w-4 h-4 text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-white">Configurar Depois</h4>
-                        <p class="text-sm text-gray-400">Agende agora, configure depois</p>
-                    </div>
-                </div>
-                
-                <button class="w-full px-4 py-3 rounded-lg bg-black-deep border border-gray-600 hover:border-blue-400 hover:bg-gray-800 text-white font-medium transition-all duration-300">
+            <div class="config-option p-4 rounded-lg bg-black-deep border border-black-light">
+                <h4 class="font-semibold mb-2 flex items-center gap-2 text-white-ice text-sm md:text-base">
+                    <i data-feather="clock" class="w-4 h-4 text-silver-accent"></i>
+                    ⏭️ Configurar Depois
+                </h4>
+                <p class="text-xs md:text-sm text-white-ice mb-3">Você pode agendar normalmente e configurar depois</p>
+                <button class="w-full bg-black-light hover:bg-gray-steel text-white-ice py-3 px-4 rounded-lg font-medium transition-all border border-black-light text-sm md:text-base">
                     Pular por enquanto
                 </button>
             </div>
         </div>
 
-        <!-- Informações de Ajuda -->
-        <div class="mt-6 p-4 rounded-xl bg-black-deep border border-gray-600">
-            <div class="flex items-start gap-3">
-                <div class="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span class="text-xs text-gray-300">💡</span>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-300 mb-1">Como encontrar o ID da planilha:</p>
-                    <p class="text-xs text-gray-400">
-                        Abra sua planilha no Google Planilhas e veja na URL:<br>
-                        <code class="bg-black-medium px-2 py-1 rounded text-green-400 font-mono text-xs">
-                            docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit
-                        </code>
-                    </p>
-                </div>
-            </div>
+        <div class="mt-4 text-center">
+            <p class="text-xs text-gray-steel">
+                💡 <strong class="text-white-ice">Como encontrar o ID da planilha:</strong><br>
+                Abra sua planilha no Google Planilhas e veja na URL:<br>
+                <code class="bg-black-deep px-1 rounded text-silver-accent text-xs">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
+            </p>
         </div>
-
-
+    </div>
+</div>
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
@@ -2367,7 +2723,7 @@ function abrirMenuConfiguracoes() {
 
  const modalHTML = `
     <div id="modalMenuConfig" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-black-medium border border-gray-700 rounded-2xl p-6 max-w-sm w-full mx-4 animate-fade-in shadow-2xl">
+        <div class="bg-black-medium border border-gray-700 rounded-2xl p-6 max-w-sm w-full mx-4 max-h-[90vh] overflow-y-auto animate-fade-in shadow-2xl">
             <!-- Header Elegante -->
             <div class="text-center mb-6">
                 <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-gray-800 to-gray-600 border border-gray-600 shadow-lg flex items-center justify-center">
@@ -2427,6 +2783,12 @@ function abrirMenuConfiguracoes() {
                 </button>
             </div>
             
+            <!-- Footer Minimalista -->
+            <div class="mt-6 text-center">
+                <p class="text-xs text-gray-500">Oubook v1.0 • Ultra Black UI</p>
+            </div>
+        </div>
+    </div>
 `;
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
@@ -2495,34 +2857,30 @@ function abrirModalPerfil() {
     if (modalExistente) modalExistente.remove();
 
    const modalHTML = `
-    <div id="modalPerfilConfig" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-black-medium border border-gray-700 rounded-2xl p-6 max-w-2xl w-full mx-4 animate-fade-in shadow-2xl" style="max-height: 90vh; overflow-y: auto;">
-            <!-- Cabeçalho Elegante -->
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 border border-cyan-300 shadow-lg flex items-center justify-center">
-                    <i data-feather="user" class="w-6 h-6 text-white"></i>
-                </div>
-                <h3 class="text-xl font-bold title-gradient mb-1">Perfil do Negócio</h3>
-                <p class="text-gray-400 text-sm">Configure suas informações comerciais</p>
+    <div id="modalPerfilConfig" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div class="glass-card rounded-2xl p-4 md:p-6 max-w-2xl w-full mx-2 md:mx-4 animate-fade-in" style="max-height: 90vh; overflow-y: auto;">
+            <!-- Cabeçalho -->
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg md:text-xl font-semibold">🏪 Perfil do Negócio</h3>
+                <button id="btnFecharModalPerfil" class="text-gray-400 hover:text-white p-1">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
             </div>
             
-            <!-- Separador Elegante -->
-            <div class="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent mb-6"></div>
-            
-            <div class="space-y-6">
+            <div class="space-y-4 md:space-y-6">
                 <!-- Informações Básicas -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 gap-3 md:gap-4">
                     <!-- Nome do Negócio -->
-<div>
-    <label class="block text-sm font-medium text-gray-300 mb-2">Nome do Negócio</label>
-    <input type="text" id="nomeNegocioInput" placeholder="Ex: Barbearia do João" 
-           class="w-full px-3 py-3 rounded-lg bg-white border border-gray-600 focus:border-cyan-400 focus:outline-none text-black text-sm">
-</div>
+                    <div>
+                        <label class="block text-sm font-medium opacity-80 mb-1">Nome do Negócio</label>
+                        <input type="text" id="nomeNegocioInput" placeholder="Ex: Barbearia do João" 
+                               class="w-full px-3 py-3 md:py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm md:text-base">
+                    </div>
                     
                     <!-- Tipo de Negócio -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Tipo de Negócio</label>
-                        <select id="tipoNegocioSelect" class="w-full px-3 py-3 rounded-lg bg-black-light border border-gray-600 focus:border-cyan-400 focus:outline-none text-white text-sm">
+                        <label class="block text-sm font-medium opacity-80 mb-1">Tipo de Negócio</label>
+                        <select id="tipoNegocioSelect" class="w-full px-3 py-3 md:py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm md:text-base">
                             <option value="barbearia">💈 Barbearia</option>
                             <option value="consultorio">🏥 Consultório</option>
                             <option value="salao">💇 Salão de Beleza</option>
@@ -2535,73 +2893,64 @@ function abrirModalPerfil() {
                 </div>
                 
                 <!-- Dias de Funcionamento -->
-                <div class="p-4 rounded-xl bg-black-light border border-gray-600">
-                    <label class="block text-sm font-medium text-gray-300 mb-3">📅 Dias de Funcionamento</label>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div>
+                    <label class="block text-sm font-medium opacity-80 mb-2">📅 Dias de Funcionamento</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 md:gap-2">
                         ${['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'].map(dia => `
-                            <label class="flex items-center gap-2 text-sm cursor-pointer p-2 rounded-lg hover:bg-gray-700 transition-all border border-gray-600 hover:border-cyan-400">
-                                <input type="checkbox" value="${dia}" class="dias-checkbox rounded bg-black-deep border-gray-500 focus:ring-cyan-400">
-                                <span class="capitalize text-gray-300">${dia}</span>
+                            <label class="flex items-center gap-1 text-xs md:text-sm cursor-pointer p-2 md:p-2 rounded hover:bg-white/5 transition-all">
+                                <input type="checkbox" value="${dia}" class="dias-checkbox rounded bg-white/10 border-white/20 w-4 h-4">
+                                <span class="capitalize">${dia.substring(0,3)}</span>
                             </label>
                         `).join('')}
                     </div>
                 </div>
                 
-              <!-- Horários Padrão -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="p-4 rounded-xl bg-black-light border border-gray-600">
-        <label class="block text-sm font-medium text-gray-300 mb-2">⏰ Horário de Abertura</label>
-        <input type="time" id="horarioAbertura" value="08:00" 
-               class="w-full px-3 py-3 rounded-lg bg-white border border-gray-600 focus:border-cyan-400 focus:outline-none text-black text-sm">
-    </div>
-    <div class="p-4 rounded-xl bg-black-light border border-gray-600">
-        <label class="block text-sm font-medium text-gray-300 mb-2">⏰ Horário de Fechamento</label>
-        <input type="time" id="horarioFechamento" value="18:00" 
-               class="w-full px-3 py-3 rounded-lg bg-white border border-gray-600 focus:border-cyan-400 focus:outline-none text-black text-sm">
+                <!-- Horários Padrão -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    <div>
+                        <label class="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Abertura</label>
+                        <input type="time" id="horarioAbertura" value="08:00" 
+                               class="w-full px-3 py-3 md:py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm md:text-base">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Fechamento</label>
+                        <input type="time" id="horarioFechamento" value="18:00" 
+                               class="w-full px-3 py-3 md:py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm md:text-base">
                     </div>
                 </div>
                 
                 <!-- 🆕 SEÇÃO: BLOQUEIO POR PERÍODOS -->
-                <div class="border-t border-gray-600 pt-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h4 class="text-lg font-semibold text-white">🚫 Bloquear Períodos</h4>
-                            <p class="text-sm text-gray-400 mt-1">
-                                Bloqueie faixas de horário indisponíveis
-                            </p>
-                        </div>
-                        <button id="btnAdicionarPeriodo" class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-medium text-sm transition-all duration-300 flex items-center gap-2">
-                            <i data-feather="plus" class="w-4 h-4"></i>
-                            Adicionar Período
+                <div class="border-t border-white/10 pt-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                        <h4 class="text-base md:text-lg font-semibold">🚫 Bloquear Períodos</h4>
+                        <button id="btnAdicionarPeriodo" class="px-3 py-2 md:py-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90 transition-all text-sm w-full sm:w-auto">
+                            + Adicionar Período
                         </button>
                     </div>
                     
+                    <p class="text-xs md:text-sm text-gray-300 mb-4">
+                        Bloqueie faixas de horário indisponíveis. Ex: 10:30 até 12:00 bloqueia todos horários entre 10:30 e 12:00.
+                    </p>
+                    
                     <!-- Lista de Períodos Bloqueados -->
-                    <div id="listaPeriodosBloqueados" class="space-y-3 max-h-40 overflow-y-auto p-1">
-                        <div class="text-center py-6 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg">
-                            <i data-feather="clock" class="w-8 h-8 mx-auto mb-2 text-gray-500"></i>
-                            <p class="text-sm">Nenhum período bloqueado</p>
-                            <p class="text-xs text-gray-400 mt-1">Clique em "Adicionar Período" para começar</p>
+                    <div id="listaPeriodosBloqueados" class="space-y-2 max-h-32 md:max-h-40 overflow-y-auto">
+                        <!-- Períodos serão adicionados aqui dinamicamente -->
+                        <div class="text-center py-3 text-gray-400 text-sm">
+                            Nenhum período bloqueado
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Botões -->
-            <div class="flex gap-3 mt-8 pt-6 border-t border-gray-600">
-                <button id="btnCancelarPerfil" class="flex-1 px-4 py-3 rounded-xl bg-black-light border border-gray-600 hover:border-red-400 hover:bg-gray-800 transition-all duration-300 text-white font-medium flex items-center justify-center gap-2">
-                    <i data-feather="x" class="w-4 h-4"></i>
+            <div class="flex flex-col sm:flex-row gap-2 mt-6">
+                <button id="btnCancelarPerfil" class="flex-1 px-4 py-3 md:py-2 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white text-sm md:text-base order-2 sm:order-1">
                     Cancelar
                 </button>
-                <button id="btnSalvarPerfil" class="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 transition-all duration-300 text-white font-semibold flex items-center justify-center gap-2">
+                <button id="btnSalvarPerfil" class="flex-1 px-4 py-3 md:py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2 text-sm md:text-base order-1 sm:order-2">
                     <i data-feather="save" class="w-4 h-4"></i>
-                    Salvar Configurações
+                    Salvar
                 </button>
-            </div>
-
-            <!-- Footer -->
-            <div class="mt-6 text-center">
-                <p class="text-xs text-gray-500">Configurações salvas automaticamente •</p>
             </div>
         </div>
     </div>
@@ -5411,14 +5760,6 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
 
 
 
