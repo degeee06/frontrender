@@ -1415,6 +1415,184 @@ input, select, textarea {
     font-size: 16px !important;
     transform: scale(1);
 }
+        /* 🔥 CORREÇÃO CRÍTICA PARA RESPONSIVIDADE PERFEITA */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* Garantir que todos os elementos respeitem o box-sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* 🔥 CORREÇÃO ESPECÍFICA PARA MOBILE - UI IDÊNTICA */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        max-width: 100% !important;
+    }
+    
+    /* Garantir que cards tenham o mesmo padding relativo */
+    .glass-card {
+        padding: 16px !important;
+        margin: 12px 0 !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Header responsivo */
+    header h1 {
+        font-size: 1.5rem !important;
+        line-height: 1.2 !important;
+        padding: 0 8px;
+    }
+    
+    header p {
+        font-size: 0.9rem !important;
+        padding: 0 8px;
+    }
+    
+    /* Tabs responsivas */
+    #diasTabs {
+        padding: 0 8px;
+    }
+    
+    .tab-dia, .tab-semana {
+        font-size: 12px !important;
+        padding: 8px 12px !important;
+        white-space: nowrap;
+    }
+    
+    /* Forms com grid responsivo */
+    .agendamentoForm .grid {
+        gap: 12px !important;
+    }
+    
+    /* Inputs com tamanho consistente */
+    .input-field {
+        font-size: 16px !important;
+        min-height: 44px !important;
+        padding: 12px !important;
+    }
+    
+    /* Botões com proporções idênticas */
+    button, .btn-premium {
+        min-height: 44px !important;
+        font-size: 16px !important;
+        padding: 12px 16px !important;
+    }
+    
+    /* Seções IA com padding consistente */
+    .assistente-ia-section,
+    .agendamento-ia-section,
+    .sugestoes-ia-section {
+        padding: 16px !important;
+        margin: 12px 0 !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Modal responsivo */
+    .modal-content {
+        margin: 20px !important;
+        padding: 20px !important;
+        max-width: calc(100vw - 40px) !important;
+    }
+    
+    /* Chat com altura proporcional */
+    .historico-chat {
+        height: 200px !important;
+        padding: 12px !important;
+    }
+    
+    /* Mensagens com largura adaptativa */
+    .mensagem {
+        max-width: 90% !important;
+        font-size: 14px !important;
+        padding: 10px !important;
+    }
+    
+    /* Lista de agendamentos */
+    #meusAgendamentos {
+        max-height: 400px !important;
+        padding: 12px !important;
+    }
+    
+    /* Filters section */
+    #filtersSection {
+        padding: 16px !important;
+    }
+    
+    /* Grid responsivo para formulário */
+    .grid.grid-cols-1.xs\\:grid-cols-2 {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+}
+
+/* 🔥 CORREÇÃO PARA TABLETS */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        padding-left: 20px;
+        padding-right: 20px;
+        max-width: 100%;
+    }
+    
+    .glass-card {
+        padding: 20px !important;
+    }
+}
+
+/* 🔥 GARANTIR SCROLL SUAVE */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 🔥 PREVENIR ZOOM EM INPUTS NO iOS */
+input, select, textarea {
+    font-size: 16px !important;
+    transform: scale(1);
+}
+
+/* 🔥 CORREÇÃO PARA OVERFLOW NAS TABS */
+#diasTabs {
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+#diasTabs::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
+/* 🔥 GARANTIR QUE MODAIS NÃO ULTRAPASSEM A TELA */
+.modal-overlay {
+    padding: 16px !important;
+}
+
+.modal-content {
+    max-width: calc(100vw - 32px) !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+/* 🔥 CORREÇÃO PARA BOTÕES DO HEADER NO MOBILE */
+@media (max-width: 640px) {
+    .flex.gap-2.w-full.sm\\:w-auto {
+        flex-direction: column;
+        gap: 8px !important;
+    }
+    
+    #gerarLinkBtn,
+    #settingsBtn,
+    #logoutBtn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
 
     </style>
 </head>
@@ -5767,30 +5945,39 @@ function forcarAtualizacaoAgendamentos() {
         feather.replace();
         init();
     </script>
-
-    <!-- 🔥 CORREÇÃO DINÂMICA PARA MOBILE -->
     <script>
-    function ajustarLayoutMobile() {
-        const isMobile = window.innerWidth <= 768;
+// 🔥 CORREÇÃO SIMPLES E EFICAZ PARA MOBILE
+function ajustarLayoutMobile() {
+    const isMobile = window.innerWidth <= 768;
+    const body = document.body;
+    
+    if (isMobile) {
+        body.classList.add('mobile-view');
+        // Força o viewport correto
+        document.querySelector('meta[name="viewport"]')?.setAttribute('content', 
+            'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
         
-        if (isMobile) {
-            document.body.classList.add('mobile-view');
-            // Garantir que o viewport esteja correto
-            const viewport = document.querySelector('meta[name="viewport"]');
-            if (viewport) {
-                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-            }
-        } else {
-            document.body.classList.remove('mobile-view');
+        // Corrige overflow nas tabs
+        const tabsContainer = document.getElementById('diasTabs');
+        if (tabsContainer) {
+            tabsContainer.style.overflowX = 'auto';
+            tabsContainer.style.paddingBottom = '8px';
         }
+    } else {
+        body.classList.remove('mobile-view');
     }
+}
 
-    // Executar ao carregar e redimensionar
-    window.addEventListener('load', ajustarLayoutMobile);
-    window.addEventListener('resize', ajustarLayoutMobile);
-    </script>
+// Executar ao carregar e redimensionar
+window.addEventListener('load', ajustarLayoutMobile);
+window.addEventListener('resize', ajustarLayoutMobile);
+
+// Executar também quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', ajustarLayoutMobile);
+</script>
 </body>
 </html>
+
 
 
 
