@@ -1672,53 +1672,63 @@
     }
 }
 
-/* 🔥 DETECÇÃO CAPACITOR - telas mais altas que largas (mobile) */
-@media (max-width: 640px) and (orientation: portrait) {
-    #settingsBtn span:not(.sr-only) {
-        font-size: 0.57rem !important; /* ajuste extra para portrait */
-    }
-}
-        /* 🔥 CORREÇÃO DO TEXTO "CONFIGURAÇÕES" NO MOBILE */
+/* 🔥 CORREÇÃO DO TEXTO "CONFIGURAÇÕES" NO MOBILE - VERSÃO EMOJI-SAFE */
 @media (max-width: 640px) {
     #settingsBtn {
-        font-size: 0.65rem !important; /* Aplica direto no botão */
-        letter-spacing: -0.5px !important;
         min-width: 98px !important;
         max-width: 102px !important;
         padding: 0.4rem 0.4rem !important;
     }
     
-    #gerarLinkBtn, #logoutBtn {
-        font-size: 0.65rem !important; /* Aplica nos outros também */
+    /* Aplica apenas no texto, não nos emojis */
+    #settingsBtn:not(:has(span)) {
+        font-size: 0.65rem !important;
         letter-spacing: -0.5px !important;
     }
     
-    #gerarLinkBtn { min-width: 75px !important; max-width: 80px !important; }
-    #logoutBtn { min-width: 55px !important; max-width: 60px !important; }
+    #gerarLinkBtn, #logoutBtn {
+        min-width: 75px !important;
+        max-width: 80px !important;
+    }
+    
+    #logoutBtn {
+        min-width: 55px !important;
+        max-width: 60px !important;
+    }
+    
+    /* Aplica apenas no texto dos outros botões */
+    #gerarLinkBtn:not(:has(span)), 
+    #logoutBtn:not(:has(span)) {
+        font-size: 0.65rem !important;
+        letter-spacing: -0.5px !important;
+    }
 }
 
 @media (max-width: 380px) {
     #settingsBtn {
-        font-size: 0.6rem !important;
-        letter-spacing: -0.5px !important;
         min-width: 88px !important;
         max-width: 92px !important;
         padding: 0.35rem 0.3rem !important;
     }
     
-    #gerarLinkBtn, #logoutBtn {
+    #settingsBtn:not(:has(span)) {
         font-size: 0.6rem !important;
+        letter-spacing: -0.5px !important;
     }
     
     #gerarLinkBtn { min-width: 70px !important; max-width: 75px !important; }
     #logoutBtn { min-width: 50px !important; max-width: 55px !important; }
+    
+    #gerarLinkBtn:not(:has(span)), 
+    #logoutBtn:not(:has(span)) {
+        font-size: 0.6rem !important;
+    }
 }
 
-/* 🔥 CORREÇÃO ESPECÍFICA CAPACITOR */
+/* 🔥 CORREÇÃO ESPECÍFICA CAPACITOR - PRESERVA EMOJIS */
 @media (max-width: 640px) and (max-height: 1000px) {
-    #settingsBtn {
+    #settingsBtn:not(:has(span)) {
         font-size: 0.59rem !important;
-        min-width: 100px !important;
         transform: scaleX(0.95) !important;
         transform-origin: center !important;
     }
@@ -6094,6 +6104,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
