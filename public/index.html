@@ -4313,8 +4313,8 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         const btnCancelar = document.createElement("button");
         btnCancelar.innerHTML = `<i data-feather="x" class="w-4 h-4"></i> Cancelar`;
         btnCancelar.className = "px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-red-500 to-rose-600 text-white flex items-center gap-1 shadow-md hover:opacity-90 transition-all";
-        btnCancelar.addEventListener("click", () => cancelarAgendamento(a.id));
-        btnContainer.appendChild(btnCancelar);
+            btnCancelar.addEventListener("click", () => cancelarAgendamento(a.id));
+            btnContainer.appendChild(btnCancelar);
 
         // Reagendar
         const btnReagendar = document.createElement("button");
@@ -6035,27 +6035,3 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
