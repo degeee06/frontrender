@@ -1407,7 +1407,35 @@
 .hidden {
   display: none !important;
 }
+/* 🔥 CORREÇÃO: Grid de dias muito apertado em mobile muito pequeno */
+@media (max-width: 380px) {
+    .grid-cols-2\.xs\:grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
+    }
+    
+    .tab-dia, .tab-semana {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.75rem !important;
+    }
+}
 
+/* 🔥 CORREÇÃO CRÍTICA: Inputs date/time no iOS */
+@media (max-width: 768px) {
+    input[type="date"], 
+    input[type="time"] {
+        font-size: 16px !important; /* Previne zoom no iOS */
+        min-height: 48px !important;
+        padding: 12px 16px !important;
+    }
+    
+    /* Garantir que o placeholder seja visível */
+    input[type="date"]::placeholder,
+    input[type="time"]::placeholder {
+        color: #666666 !important;
+        opacity: 1 !important;
+    }
+}
     </style>
 </head>
 <body class="min-h-screen">
@@ -5760,6 +5788,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
