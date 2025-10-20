@@ -1627,6 +1627,35 @@
         line-height: 1.2 !important;
     }
 }
+        /* 🔥 AJUSTE FINO DO "CONFIGURAÇÕES" - VERSÃO PERFEITA */
+@media (max-width: 640px) {
+    #settingsBtn {
+        min-width: 98px !important; /* Aumentei mais 3px */
+        max-width: 102px !important;
+        padding: 0.4rem 0.4rem !important; /* Reduzi padding lateral */
+    }
+    
+    #settingsBtn span:not(.sr-only) {
+        font-size: 0.59rem !important; /* Reduzi mais 0.01rem */
+        letter-spacing: -0.6px !important; /* Compactei mais */
+        transform: scaleX(0.95) !important; /* Comprime horizontalmente 5% */
+        transform-origin: center !important;
+    }
+}
+
+@media (max-width: 380px) {
+    #settingsBtn {
+        min-width: 88px !important;
+        max-width: 92px !important;
+        padding: 0.35rem 0.3rem !important;
+    }
+    
+    #settingsBtn span:not(.sr-only) {
+        font-size: 0.54rem !important;
+        letter-spacing: -0.6px !important;
+        transform: scaleX(0.93) !important; /* Comprime mais em telas pequenas */
+    }
+}
     </style>
 </head>
 <body class="min-h-screen">
@@ -5998,6 +6027,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
