@@ -1606,11 +1606,24 @@
     -webkit-overflow-scrolling: touch !important;
     scroll-behavior: smooth !important;
 }
-        /* 🔥 CORREÇÃO PARA EMOJI ✅ NO BOTÃO CONFIGURAÇÕES */
+       /* 🔥 CORREÇÃO PARA EMOJI ✅ NO BOTÃO CONFIGURAÇÕES */
 @media (max-width: 640px) {
     #settingsBtn {
-        min-width: 110px !important; /* +5px para o emoji */
+        min-width: 110px !important;
         max-width: 115px !important;
+        padding: 0.5rem 0.5rem !important;
+    }
+    
+    /* Aplica quando tem o checkmark (span) */
+    #settingsBtn:has(span) {
+        font-size: 0.65rem !important;
+        letter-spacing: -0.3px !important;
+    }
+    
+    /* Estilo específico para o checkmark */
+    #settingsBtn span.ml-1 {
+        margin-left: 2px !important;
+        font-size: 0.5rem !important;
     }
 }
 
@@ -1618,6 +1631,16 @@
     #settingsBtn {
         min-width: 100px !important;
         max-width: 105px !important;
+        padding: 0.45rem 0.4rem !important;
+    }
+    
+    #settingsBtn:has(span) {
+        font-size: 0.6rem !important;
+    }
+    
+    #settingsBtn span.ml-1 {
+        margin-left: 1px !important;
+        font-size: 0.45rem !important;
     }
 }
 </style>        
@@ -5991,6 +6014,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
