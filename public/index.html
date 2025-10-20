@@ -1678,6 +1678,51 @@
         font-size: 0.57rem !important; /* ajuste extra para portrait */
     }
 }
+        /* 🔥 CORREÇÃO DO TEXTO "CONFIGURAÇÕES" NO MOBILE */
+@media (max-width: 640px) {
+    #settingsBtn {
+        font-size: 0.65rem !important; /* Aplica direto no botão */
+        letter-spacing: -0.5px !important;
+        min-width: 98px !important;
+        max-width: 102px !important;
+        padding: 0.4rem 0.4rem !important;
+    }
+    
+    #gerarLinkBtn, #logoutBtn {
+        font-size: 0.65rem !important; /* Aplica nos outros também */
+        letter-spacing: -0.5px !important;
+    }
+    
+    #gerarLinkBtn { min-width: 75px !important; max-width: 80px !important; }
+    #logoutBtn { min-width: 55px !important; max-width: 60px !important; }
+}
+
+@media (max-width: 380px) {
+    #settingsBtn {
+        font-size: 0.6rem !important;
+        letter-spacing: -0.5px !important;
+        min-width: 88px !important;
+        max-width: 92px !important;
+        padding: 0.35rem 0.3rem !important;
+    }
+    
+    #gerarLinkBtn, #logoutBtn {
+        font-size: 0.6rem !important;
+    }
+    
+    #gerarLinkBtn { min-width: 70px !important; max-width: 75px !important; }
+    #logoutBtn { min-width: 50px !important; max-width: 55px !important; }
+}
+
+/* 🔥 CORREÇÃO ESPECÍFICA CAPACITOR */
+@media (max-width: 640px) and (max-height: 1000px) {
+    #settingsBtn {
+        font-size: 0.59rem !important;
+        min-width: 100px !important;
+        transform: scaleX(0.95) !important;
+        transform-origin: center !important;
+    }
+}
     </style>
 </head>
 <body class="min-h-screen">
@@ -6049,6 +6094,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
