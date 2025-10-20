@@ -1656,6 +1656,28 @@
         transform: scaleX(0.93) !important; /* Comprime mais em telas pequenas */
     }
 }
+        /* 🔥 CORREÇÃO ESPECÍFICA CAPACITOR MOBILE - "CONFIGURAÇÕES" */
+@media (max-width: 640px) and (max-height: 1000px) {
+    #settingsBtn {
+        min-width: 100px !important; /* +2px extra pro capacitor */
+        max-width: 104px !important;
+        padding: 0.4rem 0.35rem !important; /* menos padding lateral */
+    }
+    
+    #settingsBtn span:not(.sr-only) {
+        font-size: 0.58rem !important; /* mais 0.01rem menor */
+        letter-spacing: -0.7px !important; /* mais compacto */
+        transform: scaleX(0.94) !important; /* mais 1% de compressão */
+        transform-origin: center !important;
+    }
+}
+
+/* 🔥 DETECÇÃO CAPACITOR - telas mais altas que largas (mobile) */
+@media (max-width: 640px) and (orientation: portrait) {
+    #settingsBtn span:not(.sr-only) {
+        font-size: 0.57rem !important; /* ajuste extra para portrait */
+    }
+}
     </style>
 </head>
 <body class="min-h-screen">
@@ -6027,6 +6049,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
