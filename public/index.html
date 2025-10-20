@@ -1324,234 +1324,46 @@
     color: #666666 !important;
     opacity: 1;
 }
-        /* 🔥 CORREÇÕES CRÍTICAS PARA MOBILE - BOTÕES E OVERFLOW */
-@media (max-width: 640px) {
-    /* CONTAINER PRINCIPAL COM OVERFLOW CONTROLADO */
+      
+
+/* 🔥 ADICIONAR PARA RESPONSIVIDADE PERFEITA */
+.container {
+    width: 100%;
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
     .container {
-        max-width: 100vw !important;
-        overflow-x: hidden !important;
-        padding-left: 12px !important;
-        padding-right: 12px !important;
+        padding-left: 12px;
+        padding-right: 12px;
     }
     
-    /* HEADER COM WRAP CORRETO */
-    header .flex {
-        flex-wrap: wrap !important;
-        gap: 12px !important;
+    /* Garantir que inputs não zoom in no iOS */
+    input, select, textarea {
+        font-size: 16px !important;
     }
     
-    /* BOTÕES DO HEADER - LARGURA CONTROLADA */
-    #gerarLinkBtn,
-    #settingsBtn, 
-    #logoutBtn {
-        min-width: auto !important;
-        flex: 1 !important;
-        font-size: 11px !important;
-        padding: 8px 12px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
-    
-    /* GRUPO DE BOTÕES DO HEADER */
-    .flex.gap-2 {
-        flex-wrap: wrap !important;
-        gap: 8px !important;
-        width: 100% !important;
-        justify-content: space-between !important;
-    }
-    
-    /* TABS DIAS DA SEMANA - SCROLL HORIZONTAL CONTROLADO */
-    #diasTabs {
-        max-width: 100vw !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
-        padding-bottom: 8px !important;
-    }
-    
-    #diasTabs::-webkit-scrollbar {
-        display: none !important;
-    }
-    
-    .tab-dia, .tab-semana {
-        flex-shrink: 0 !important;
-        font-size: 12px !important;
-        padding: 10px 14px !important;
-    }
-    
-    /* FORMULÁRIO COM LARGURA SEGURA */
-    .glass-card {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* BOTÕES LARGOS COM MARGEM SEGURA */
-    .btn-premium,
-    #agendamentoForm button[type="submit"] {
-        width: 100% !important;
-        max-width: none !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
-    
-    /* SEÇÕES IA COM LARGURA CONTROLADA */
+    /* Ajuste específico para as seções IA no mobile */
     .assistente-ia-section,
-    .agendamento-ia-section, 
+    .agendamento-ia-section,
     .sugestoes-ia-section {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        width: 100% !important;
-    }
-    
-    /* BOTÕES DENTRO DAS SEÇÕES IA */
-    .agendamento-rapido button,
-    #btn-estatisticas {
-        width: 100% !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
-    
-    /* FILTROS - LAYOUT VERTICAL */
-    #filtersSection .flex {
-        flex-direction: column !important;
-        gap: 12px !important;
-    }
-    
-    #filtersSection .flex > * {
-        width: 100% !important;
-    }
-    
-    /* BOTÕES EXPORTAR LADO A LADO */
-    #filtersSection .flex.gap-2 {
-        flex-direction: row !important;
-        justify-content: space-between !important;
-    }
-    
-    #exportCSVBtn, #exportPDFBtn {
-        flex: 1 !important;
-        min-width: 0 !important;
-    }
-    
-    /* MODAIS - LARGURA SEGURA */
-    .modal-content {
-        margin: 0 12px !important;
-        width: calc(100vw - 24px) !important;
-        max-width: calc(100vw - 24px) !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* PADDING DE SEGURANÇA PARA IOS */
-    @supports (padding: max(0px)) {
-        .container {
-            padding-left: max(12px, env(safe-area-inset-left)) !important;
-            padding-right: max(12px, env(safe-area-inset-right)) !important;
-        }
+        margin: 12px 0;
+        padding: 16px;
     }
 }
 
-/* 🔥 CORREÇÕES ESPECÍFICAS PARA TELAS MUITO PEQUENAS */
-@media (max-width: 380px) {
-    /* HEADER COMPACTO */
-    header .flex.flex-col.sm\\:flex-row {
-        gap: 8px !important;
-    }
-    
-    /* BOTÕES DO HEADER MAIS COMPACTOS */
-    #gerarLinkBtn,
-    #settingsBtn,
-    #logoutBtn {
-        font-size: 10px !important;
-        padding: 6px 8px !important;
-    }
-    
-    /* TABS MAIS COMPACTAS */
-    .tab-dia, .tab-semana {
-        padding: 8px 10px !important;
-        font-size: 11px !important;
-    }
-    
-    /* TEXTO DOS BOTÕES COM ELLIPSIS */
-    .btn-premium span,
-    #agendamentoForm button[type="submit"] span {
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        max-width: 100% !important;
-    }
+/* 🔥 GARANTIR QUE TUDO ESCALE CORRETAMENTE */
+html {
+    -webkit-text-size-adjust: 100%;
 }
 
-/* 🔥 PREVENIR ZOOM EM INPUTS NO IOS */
-@media (max-width: 640px) {
-    input[type="text"],
-    input[type="email"], 
-    input[type="tel"],
-    input[type="date"],
-    input[type="time"],
-    select,
-    textarea {
-        font-size: 16px !important; /* Previne zoom no iOS */
-        transform: scale(1) !important;
-    }
+* {
+    box-sizing: border-box;
 }
-
-/* 🔥 CORREÇÃO PARA BOTÕES FLUTUANTES EM MOBILE */
-@media (max-width: 640px) {
-    .fixed {
-        padding-left: env(safe-area-inset-left) !important;
-        padding-right: env(safe-area-inset-right) !important;
-    }
-    
-    /* TOASTS COM LARGURA CONTROLADA */
-    #toast-container {
-        left: 12px !important;
-        right: 12px !important;
-        width: calc(100vw - 24px) !important;
-        max-width: calc(100vw - 24px) !important;
-    }
-    
-    #toast-container > div {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-}
-
-/* 🔥 MELHORIAS DE TOUCH/TAP PARA MOBILE */
-@media (max-width: 640px) {
-    button, 
-    [role="button"],
-    .tab-dia,
-    .tab-semana {
-        min-height: 44px !important; /* Tamanho mínimo de toque */
-        min-width: 44px !important;
-        touch-action: manipulation !important; /* Melhora resposta ao toque */
-    }
-    
-    /* INPUTS COM ALTURA ADEQUADA PARA TOUCH */
-    .input-field {
-        min-height: 48px !important;
-    }
-}
-
-/* 🔥 CORREÇÃO ESPECÍFICA PARA GRID NO MOBILE */
-@media (max-width: 640px) {
-    .grid.grid-cols-1.xs\\:grid-cols-2 {
-        grid-template-columns: 1fr !important; /* Força 1 coluna em mobile */
-        gap: 16px !important;
-    }
-    
-    /* ESPAÇAMENTO SEGURO ENTRE ELEMENTOS */
-    .space-y-4 > * + *,
-    .space-y-5 > * + * {
-        margin-top: 16px !important;
-    }
-}
-
     </style>
 </head>
 <body class="min-h-screen">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <!-- 🎯🎯🎯 TELA DE AUTENTICAÇÃO 🎯🎯🎯 -->
 <div id="authCallbackScreen" class="auth-screen hidden">
     <div class="glass-card rounded-2xl p-6 md:p-8 w-full max-w-md mx-auto animate-fade-in" data-aos="fade-up">
@@ -5935,6 +5747,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
