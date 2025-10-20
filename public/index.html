@@ -1570,25 +1570,61 @@
     -webkit-overflow-scrolling: touch !important;
     scroll-behavior: smooth !important;
 }
-        /* 🔥 CORREÇÃO DO TEXTO "CONFIGURAÇÕES" NO MOBILE */
+      /* 🔥 CORREÇÃO DEFINITIVA DO TEXTO "CONFIGURAÇÕES" NO MOBILE */
 @media (max-width: 640px) {
+    #settingsBtn {
+        min-width: 95px !important;
+        max-width: 100px !important;
+        padding: 0.4rem 0.5rem !important;
+    }
+    
     #settingsBtn span:not(.sr-only) {
-        font-size: 0.65rem !important; /* Reduz um pouco mais */
-        padding: 0 2px !important;
-        letter-spacing: -0.5px !important; /* Compacta as letras */
+        font-size: 0.6rem !important;
+        letter-spacing: -0.5px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+        line-height: 1.2 !important;
     }
 }
 
 @media (max-width: 380px) {
-    #settingsBtn span:not(.sr-only) {
-        font-size: 0.6rem !important; /* Reduz ainda mais em telas muito pequenas */
-        letter-spacing: -0.5px !important;
+    #settingsBtn {
+        min-width: 85px !important;
+        max-width: 90px !important;
+        padding: 0.35rem 0.4rem !important;
     }
     
-    /* Opcional: reduzir ainda mais o botão se necessário */
-    #settingsBtn {
-        min-width: 80px !important; /* Reduz de 85px para 80px */
-        padding: 0.35rem 0.4rem !important;
+    #settingsBtn span:not(.sr-only) {
+        font-size: 0.55rem !important;
+        letter-spacing: -0.5px !important;
+    }
+}
+        @media (max-width: 640px) {
+    #gerarLinkBtn {
+        min-width: 75px !important;
+        max-width: 80px !important;
+    }
+    
+    #logoutBtn {
+        min-width: 55px !important;
+        max-width: 60px !important;
+    }
+    
+    /* Garantir que todos os textos fiquem dentro */
+    .flex.gap-2.w-full.sm\\:w-auto button span:not(.sr-only) {
+        font-size: 0.6rem !important;
+        letter-spacing: -0.5px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+        line-height: 1.2 !important;
     }
 }
     </style>
@@ -2036,12 +2072,14 @@
             </div>
         </div>
 
-        <!-- Informação do ID -->
-        <div class="mt-4 text-center">
-            <p class="text-xs text-gray-400">
-                💡 <strong class="text-white">Como encontrar o ID:</strong><br>
-                <code class="bg-black-deep px-1 rounded text-green-400 text-xs">docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit</code>
-            </p>
+      <!-- Informação do ID - CORRIGIDO -->
+<div class="mt-4 text-center px-2">
+    <p class="text-xs text-gray-400">
+        💡 <strong class="text-white">Como encontrar o ID:</strong><br>
+        <code class="bg-black-deep px-1 rounded text-green-400 text-xs break-all inline-block max-w-full">
+            docs.google.com/spreadsheets/d/<strong>SEU_ID_AQUI</strong>/edit
+        </code>
+    </p>
         </div>
     </div>
 </div>
@@ -5960,6 +5998,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
