@@ -4493,6 +4493,7 @@ async function logoutSilencioso() {
 
         
        async function listarAgendamentos(){
+        cacheManager.delete(`agendamentos_${req.userId}`);
     // 🔥 CORREÇÃO: Verifica se usuário está logado ANTES de fazer qualquer coisa
     if (!userToken) {
         console.log('❌ listarAgendamentos: Usuário não logado - abortando');
@@ -6087,7 +6088,18 @@ function iniciarOuvinteAgendamentos() {
     console.error('❌ Erro ao iniciar ouvinte:', error);
   });
 }
-
+setInterval(async () => {
+  if (userToken && premiumManager && !document.hidden) {
+    try {
+      await premiumManager.updateUsageBadge();
+      if (document.getElementById('meusAgendamentos').style.display !== 'none') {
+        await listarAgendamentos();
+      }
+    } catch (error) {
+      console.log('⚠️ Atualização automática:', error);
+    }
+  }
+}, 10000); // Atualiza a cada 10 segundos
         // ---------------- INIT ----------------
         AOS.init({
             duration: 800,
@@ -6099,6 +6111,7 @@ function iniciarOuvinteAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
