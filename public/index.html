@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1914,43 +1915,44 @@
                     </div>
                 </div>
                 <div class="space-y-4 sm:space-y-5">
-                    <!-- Telefone -->
-                    <div>
-                        <label for="telefone" class="block mb-2 text-sm font-medium text-white-ice">Telefone</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-feather="phone" class="w-5 h-5 text-gray-steel"></i>
-                            </div>
-                           <input type="tel" id="Telefone" name="Telefone" placeholder="(00) 00000-0000" required 
-       class="w-full pl-10 pr-4 py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
-                        <div>
-                            <label for="Data" class="block mb-2 text-sm font-medium text-white-ice">Data</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="calendar" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
-                                </div>
-                                <input type="date" id="Data" name="Data" placeholder="Data do Agendamento" required 
-                                       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="Horario" class="block mb-2 text-sm font-medium text-white-ice">Horário</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
-                                </div>
-                                <input type="time" id="Horario" name="Horario" placeholder="Horário" required 
-                                       class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
-                            </div>
-                            <p class="text-xs text-gray-steel mt-1 flex items-center gap-1">
-                                <i data-feather="info" class="w-3 h-3"></i>
-                                <span>Dica: Horários flexíveis disponíveis (ex: 09:25, 14:45)</span>
-                            </p>
-                        </div>
-                    </div>
+                  <!-- Telefone -->
+<div>
+    <label for="telefone" class="block mb-2 text-sm font-medium text-white-ice">Telefone</label>
+    <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i data-feather="phone" class="w-5 h-5 text-gray-steel"></i>
+        </div>
+        <input type="tel" id="Telefone" name="Telefone" placeholder="(00) 00000-0000" required 
+               class="w-full pl-10 pr-4 py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field">
+    </div>
+</div>
+
+<div class="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+    <div>
+        <label for="Data" class="block mb-3 sm:mb-2 text-sm font-medium text-white-ice">Data</label>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-feather="calendar" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
+            </div>
+            <input type="date" id="Data" name="Data" placeholder="Data do Agendamento" required 
+                   class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
+        </div>
+    </div>
+    <div>
+        <label for="Horario" class="block mb-3 sm:mb-2 text-sm font-medium text-white-ice">Horário</label>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-feather="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-steel"></i>
+            </div>
+            <input type="time" id="Horario" name="Horario" placeholder="Horário" required 
+                   class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-lg bg-black-medium border border-black-light focus:outline-none input-field text-sm sm:text-base">
+        </div>
+        <p class="text-xs text-gray-steel mt-1 flex items-center gap-1">
+            <i data-feather="info" class="w-3 h-3"></i>
+            <span>Dica: Horários flexíveis disponíveis (ex: 09:25, 14:45)</span>
+        </p>
+    </div>
+</div>
                 </div>
             </div>
             <div class="max-w-md mx-auto mt-6 md:mt-8">
@@ -3749,52 +3751,7 @@ async function atualizarInterfacePosLogin() {
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
-// 🆕 FUNÇÃO: Buscar trial do usuário (BACKEND)
-async function getUserTrialBackend(userId) {
-    try {
-        const { data, error } = await supabase
-            .from('user_trials')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-            
-        if (error) {
-            if (error.code === 'PGRST116') return null;
-            throw error;
-        }
-        
-        return data;
-    } catch (error) {
-        console.error('❌ Erro ao buscar trial (backend):', error);
-        return null;
-    }
-}
 
-// 🆕 FUNÇÃO: Verificar uso diário (BACKEND)  
-async function getDailyUsageBackend(trial, dailyLimit) {
-    if (!trial) return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
-    
-    const today = new Date().toISOString().split('T')[0];
-    const lastUsageDate = trial.last_usage_date ? new Date(trial.last_usage_date).toISOString().split('T')[0] : null;
-    
-    let dailyUsageCount = trial.daily_usage_count || 0;
-    
-    // Reset diário se for um novo dia
-    if (lastUsageDate !== today) {
-        dailyUsageCount = 0;
-    }
-    
-    const dailyUsagesLeft = Math.max(0, dailyLimit - dailyUsageCount);
-    
-    return {
-        dailyUsageCount: dailyUsageCount,
-        dailyUsagesLeft: dailyUsagesLeft,
-        lastUsageDate: lastUsageDate
-    };
-}
-        
 async function gerarLinkAgendamento() {
     try {
         console.log('🔍 Verificando perfil para gerar link...');
@@ -4358,8 +4315,8 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         const btnCancelar = document.createElement("button");
         btnCancelar.innerHTML = `<i data-feather="x" class="w-4 h-4"></i> Cancelar`;
         btnCancelar.className = "px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-red-500 to-rose-600 text-white flex items-center gap-1 shadow-md hover:opacity-90 transition-all";
-            btnCancelar.addEventListener("click", () => cancelarAgendamento(a.id));
-            btnContainer.appendChild(btnCancelar);
+        btnCancelar.addEventListener("click", () => cancelarAgendamento(a.id));
+        btnContainer.appendChild(btnCancelar);
 
         // Reagendar
         const btnReagendar = document.createElement("button");
@@ -6080,4 +6037,26 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
