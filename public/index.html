@@ -6039,36 +6039,52 @@ function forcarAtualizacaoAgendamentos() {
         // 🆕 ADICIONE ESTE CÓDIGO ao seu frontend principal
 
 
+// 🆕 FUNÇÃO: Ouvir mudanças em tempo real nos agendamentos
 function iniciarOuvinteAgendamentos() {
   if (!userToken || agendamentosSubscription) return;
   
-  agendamentosSubscription = supabase
-    .channel('agendamentos-' + userToken)
-    .on('postgres_changes', 
-      { 
-        event: '*', // INSERT, UPDATE, DELETE
-        schema: 'public', 
-        table: 'agendamentos',
-        filter: `user_id=eq.${(await supabase.auth.getUser()).data.user.id}`
-      }, 
-      (payload) => {
-        console.log('🔔 Mudança nos agendamentos:', payload);
-        
-        if (payload.eventType === 'INSERT') {
-          showToast("🎉 Novo agendamento recebido!", "success");
+  console.log('📡 Iniciando ouvinte realtime de agendamentos...');
+  
+  // Usar then/catch em vez de async/await para evitar problemas
+  supabase.auth.getUser().then(({ data: { user } }) => {
+    if (!user) return;
+    
+    agendamentosSubscription = supabase
+      .channel('agendamentos-' + user.id)
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // INSERT, UPDATE, DELETE
+          schema: 'public',
+          table: 'agendamentos',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('🔔 Mudança nos agendamentos:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            showToast("🎉 Novo agendamento recebido via link!", "success");
+          }
+          
+          // ✅ ATUALIZA TUDO automaticamente
+          setTimeout(() => {
+            listarAgendamentos();
+            if (premiumManager) {
+              premiumManager.updateUsageBadge();
+              if (typeof controlarBotaoGerarLink === 'function') {
+                controlarBotaoGerarLink();
+              }
+            }
+          }, 1000);
         }
-        
-        // ✅ ATUALIZA TUDO
-        listarAgendamentos();
-        if (premiumManager) {
-          premiumManager.updateUsageBadge();
-          controlarBotaoGerarLink();
-        }
-      }
-    )
-    .subscribe((status) => {
-      console.log('📡 Status Realtime:', status);
-    });
+      )
+      .subscribe((status) => {
+        console.log('📡 Status Realtime:', status);
+      });
+      
+  }).catch(error => {
+    console.error('❌ Erro ao iniciar ouvinte:', error);
+  });
 }
 
         // ---------------- INIT ----------------
@@ -6082,6 +6098,7 @@ function iniciarOuvinteAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
