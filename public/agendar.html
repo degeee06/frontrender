@@ -522,29 +522,29 @@
             </div>
         </div>
 
-        <!-- Data e Horário -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label for="data" class="block mb-2 text-sm font-medium text-gray-300">Data</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-feather="calendar" class="w-5 h-5 text-gray-400"></i>
-                    </div>
-                    <input type="date" id="data" placeholder="Data do Agendamento" required 
-                           class="w-full pl-10 pr-4 py-3 rounded-lg bg-white border border-gray-300 focus:border-cyan-400 focus:outline-none text-black text-sm">
-                </div>
+       <!-- Data e Horário -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+        <label for="data" class="block mb-3 md:mb-2 text-sm font-medium text-gray-300">Data</label>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-feather="calendar" class="w-5 h-5 text-gray-400"></i>
             </div>
-            <div>
-                <label for="horario" class="block mb-2 text-sm font-medium text-gray-300">Horário</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-feather="clock" class="w-5 h-5 text-gray-400"></i>
-                    </div>
-                    <input type="time" id="horario" placeholder="Horário" required 
-                           class="w-full pl-10 pr-4 py-3 rounded-lg bg-white border border-gray-300 focus:border-cyan-400 focus:outline-none text-black text-sm">
-                </div>
-            </div>
+            <input type="date" id="data" placeholder="Data do Agendamento" required 
+                   class="w-full pl-10 pr-4 py-3 rounded-lg bg-white border border-gray-300 focus:border-cyan-400 focus:outline-none text-black text-sm">
         </div>
+    </div>
+    <div>
+        <label for="horario" class="block mb-3 md:mb-2 text-sm font-medium text-gray-300">Horário</label>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-feather="clock" class="w-5 h-5 text-gray-400"></i>
+            </div>
+            <input type="time" id="horario" placeholder="Horário" required 
+                   class="w-full pl-10 pr-4 py-3 rounded-lg bg-white border border-gray-300 focus:border-cyan-400 focus:outline-none text-black text-sm">
+        </div>
+    </div>
+</div>
 
                 <!-- Botão Agendar -->
                 <button type="submit" class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 transition-all duration-300 text-white font-semibold flex items-center justify-center gap-2 mt-6">
