@@ -2299,7 +2299,8 @@ async function processarCallbackOAuth() {
         let diaSelecionado = 1;
         let telefoneMask = null;
         let premiumManager = null;
-
+        let agendamentosSubscription = null;
+        
     // 🔥 ADICIONAR CLASSE COMPLETA DO PREMIUM MANAGER
 class PremiumManager {
     constructor() {
@@ -3740,6 +3741,8 @@ async function atualizarInterfacePosLogin() {
     // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
     await premiumManager.updateUsageBadge();
     
+    iniciarOuvinteAgendamentos();
+    
     // Configura botão settings
     configurarBotaoSettings();
     
@@ -3750,7 +3753,14 @@ async function atualizarInterfacePosLogin() {
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
-
+// 🆕 PARE quando usuário deslogar
+function pararOuvinteAgendamentos() {
+  if (agendamentosSubscription) {
+    supabase.removeChannel(agendamentosSubscription);
+    agendamentosSubscription = null;
+  }
+}
+        
 async function gerarLinkAgendamento() {
     try {
         console.log('🔍 Verificando perfil para gerar link...');
@@ -4669,6 +4679,7 @@ logoutBtn.addEventListener('click', async () => {
     window.isLoggingOut = true;
     try {
         // Para todas as operações
+        pararOuvinteAgendamentos(); // 🆕 ADICIONE ESTA LINHA
         desconectarSSE();
         if (intervaloAtualizacao) {
             clearInterval(intervaloAtualizacao);
@@ -6024,6 +6035,41 @@ function forcarAtualizacaoAgendamentos() {
             fecharModalConfiguracao();
             mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
         }
+
+        // 🆕 ADICIONE ESTE CÓDIGO ao seu frontend principal
+
+
+function iniciarOuvinteAgendamentos() {
+  if (!userToken || agendamentosSubscription) return;
+  
+  agendamentosSubscription = supabase
+    .channel('agendamentos-' + userToken)
+    .on('postgres_changes', 
+      { 
+        event: '*', // INSERT, UPDATE, DELETE
+        schema: 'public', 
+        table: 'agendamentos',
+        filter: `user_id=eq.${(await supabase.auth.getUser()).data.user.id}`
+      }, 
+      (payload) => {
+        console.log('🔔 Mudança nos agendamentos:', payload);
+        
+        if (payload.eventType === 'INSERT') {
+          showToast("🎉 Novo agendamento recebido!", "success");
+        }
+        
+        // ✅ ATUALIZA TUDO
+        listarAgendamentos();
+        if (premiumManager) {
+          premiumManager.updateUsageBadge();
+          controlarBotaoGerarLink();
+        }
+      }
+    )
+    .subscribe((status) => {
+      console.log('📡 Status Realtime:', status);
+    });
+}
 
         // ---------------- INIT ----------------
         AOS.init({
