@@ -925,78 +925,84 @@
             }
         }
 
-        // 🔥 CORRIGIDO: Função mostrarHorariosDisponiveis - BLOQUEIA HORÁRIOS NO PASSADO
-        function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados = [], periodosBloqueados = []) {
-            // 🆕 CRÍTICO: Remove horários no PASSADO
-            const agora = new Date();
-            const horariosFuturos = horariosDisponiveis.filter(horario => {
-                const dataHorario = new Date(`${data}T${horario}`);
-                return dataHorario > agora;
-            });
+       // ✅✅✅ CORREÇÃO COMPLETA: Função mostrarHorariosDisponiveis corrigida
+function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados = [], periodosBloqueados = []) {
+    // 🆕 CRÍTICO: Remove horários no PASSADO
+    const agora = new Date();
+    const horariosFuturos = horariosDisponiveis.filter(horario => {
+        const dataHorario = new Date(`${data}T${horario}`);
+        return dataHorario > agora;
+    });
 
-            if (horariosFuturos.length === 0) {
-                adicionarMensagemChat(`
-                    <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
-                        <strong>❌ Nenhum horário disponível</strong><br>
-                        ${horariosDisponiveis.length > 0 ? 'Todos os horários estão no passado.' : 'Todos os horários estão ocupados ou bloqueados.'}<br><br>
-                        <em>💡 Tente selecionar outra data</em>
-                    </div>
-                `);
-                return;
+    if (horariosFuturos.length === 0) {
+        adicionarMensagemChat(`
+            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                <strong>❌ Nenhum horário disponível</strong><br>
+                ${horariosDisponiveis.length > 0 ? 'Todos os horários estão no passado.' : 'Todos os horários estão ocupados ou bloqueados.'}<br><br>
+                <em>💡 Tente selecionar outra data</em>
+            </div>
+        `);
+        return;
+    }
+
+    // 🎯 CORREÇÃO: Converte estrutura nova para array simples (compatibilidade)
+    let periodosArray = [];
+    if (periodosBloqueados && typeof periodosBloqueados === 'object') {
+        if (periodosBloqueados.recorrentes) {
+            periodosArray = periodosArray.concat(periodosBloqueados.recorrentes);
+        }
+        if (periodosBloqueados.data_especifica) {
+            periodosArray = periodosArray.concat(periodosBloqueados.data_especifica);
+        }
+    } else {
+        periodosArray = periodosBloqueados || [];
+    }
+
+    // 🎯 ORGANIZA HORÁRIOS POR PERÍODOS BLOQUEADOS (usa os REALMENTE disponíveis e futuros)
+    let horariosAgrupados = agruparHorariosPorPeriodo(horariosFuturos, periodosArray);
+    
+    // ✅✅✅ CORREÇÃO CRÍTICA: Remove horários que estão em horariosOcupados
+    horariosAgrupados = horariosAgrupados.map(grupo => {
+        return {
+            ...grupo,
+            horarios: grupo.horarios.filter(horario => !horariosOcupados.includes(horario))
+        };
+    }).filter(grupo => grupo.horarios.length > 0); // Remove grupos vazios
+
+    if (horariosAgrupados.length === 0) {
+        adicionarMensagemChat(`
+            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                <strong>❌ Nenhum horário disponível</strong><br>
+                Todos os horários estão ocupados ou bloqueados.<br><br>
+                <em>💡 Tente selecionar outra data</em>
+            </div>
+        `);
+        return;
+    }
+
+    adicionarMensagemChat(`
+        <div class="info-box">
+            <strong>🕐 Horários Disponíveis para ${formatarData(data)}:</strong>
+    `);
+
+    // 🎯 MOSTRA HORÁRIOS DISPONÍVEIS AGRUPADOS (apenas os futuros e não ocupados)
+    horariosAgrupados.forEach(grupo => {
+        if (grupo.horarios.length > 0) {
+            let tituloGrupo = '';
+            
+            if (grupo.periodoAnterior && grupo.periodoPosterior) {
+                tituloGrupo = `<div style="font-size: 11px; color: #fbbf24; margin-bottom: 4px;">⏳ Período livre entre bloqueios</div>`;
             }
-
-            // 🎯 CORREÇÃO: Converte estrutura nova para array simples (compatibilidade)
-            let periodosArray = [];
-            if (periodosBloqueados && typeof periodosBloqueados === 'object') {
-                if (periodosBloqueados.recorrentes) {
-                    periodosArray = periodosArray.concat(periodosBloqueados.recorrentes);
-                }
-                if (periodosBloqueados.data_especifica) {
-                    periodosArray = periodosArray.concat(periodosBloqueados.data_especifica);
-                }
-            } else {
-                periodosArray = periodosBloqueados || [];
-            }
-
-            // 🎯 ORGANIZA HORÁRIOS POR PERÍODOS BLOQUEADOS (usa os REALMENTE disponíveis e futuros)
-            let horariosAgrupados = agruparHorariosPorPeriodo(horariosFuturos, periodosArray);
             
             adicionarMensagemChat(`
-                <div class="info-box">
-                    <strong>🕐 Horários Disponíveis para ${formatarData(data)}:</strong>
-            `);
-
-           // ✅✅✅ CORREÇÃO: Mostra horários disponíveis filtrando ocupados
-horariosAgrupados.forEach(grupo => {
-    if (grupo.horarios.length > 0) {
-        let tituloGrupo = '';
-        
-        if (grupo.periodoAnterior && grupo.periodoPosterior) {
-            tituloGrupo = `<div style="font-size: 11px; color: #fbbf24; margin-bottom: 4px;">⏳ Período livre entre bloqueios</div>`;
-        }
-        
-        adicionarMensagemChat(`
-            ${tituloGrupo}
-            <div class="horarios-grid" style="margin-top: 6px; margin-bottom: 10px;">
-                ${grupo.horarios.map(horario => {
-                    const dataHorario = new Date(`${data}T${horario}`);
-                    const ehPassado = dataHorario <= agora;
-                    const ehOcupado = horariosOcupados.includes(horario); // ✅ VERIFICA SE ESTÁ OCUPADO
-                    
-                    // 🆕 BOTÃO DESABILITADO SE FOR NO PASSADO OU OCUPADO
-                    if (ehPassado || ehOcupado) {
-                        const motivo = ehPassado ? "⏰ Passado" : "❌ Ocupado";
-                        return `
-                            <button class="horario-btn horario-bloqueado" disabled
-                                    style="padding: 8px 12px; background: rgba(107, 114, 128, 0.3); 
-                                           border: 1px solid rgba(107, 114, 128, 0.5); 
-                                           border-radius: 6px; color: #9ca3af; cursor: not-allowed;">
-                                <strong>${horario}</strong>
-                                <div style="font-size: 9px; margin-top: 2px;">${motivo}</div>
-                            </button>
-                        `;
-                    } else {
+                ${tituloGrupo}
+                <div class="horarios-grid" style="margin-top: 6px; margin-bottom: 10px;">
+                    ${grupo.horarios.map(horario => {
+                        const dataHorario = new Date(`${data}T${horario}`);
+                        const ehPassado = dataHorario <= agora;
+                        
                         // ✅✅✅ AGORA SÓ MOSTRA HORÁRIOS REALMENTE DISPONÍVEIS
+                        // (já foram filtrados os ocupados e passados)
                         return `
                             <button class="horario-btn" onclick="selecionarHorarioChat('${data}', '${horario}')"
                                     style="padding: 8px 12px; background: rgba(34, 197, 94, 0.2); 
@@ -1005,29 +1011,35 @@ horariosAgrupados.forEach(grupo => {
                                 <strong>${horario}</strong>
                             </button>
                         `;
-                    }
-                }).join('')}
-            </div>
-        `);
-    }
-});
-
-            adicionarMensagemChat(`</div>`);
-
-            // 🎯 MOSTRA ESTATÍSTICAS ATUALIZADAS
-            const totalHorariosFuturos = horariosFuturos.length;
-            const totalHorariosPassados = horariosDisponiveis.length - totalHorariosFuturos;
-
-            adicionarMensagemChat(`
-                <div class="info-box" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3);">
-                    <strong>📊 Status Final:</strong><br>
-                    ✅ <strong>${totalHorariosFuturos}</strong> horários disponíveis<br>
-                    ⏰ <strong>${totalHorariosPassados}</strong> horários no passado<br>
-                    ❌ <strong>${horariosOcupados.length}</strong> horários ocupados<br>
-                    🚫 <strong>${periodosArray.length}</strong> períodos bloqueados
+                    }).join('')}
                 </div>
             `);
         }
+    });
+
+    adicionarMensagemChat(`</div>`);
+
+    // 🎯 MOSTRA ESTATÍSTICAS ATUALIZADAS
+    const totalHorariosFuturos = horariosFuturos.length;
+    const totalHorariosPassados = horariosDisponiveis.length - totalHorariosFuturos;
+    const totalHorariosOcupados = horariosOcupados.length;
+    const totalHorariosMostrados = horariosAgrupados.reduce((total, grupo) => total + grupo.horarios.length, 0);
+
+    adicionarMensagemChat(`
+        <div class="info-box" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3);">
+            <strong>📊 Status Final:</strong><br>
+            ✅ <strong>${totalHorariosMostrados}</strong> horários disponíveis<br>
+            ⏰ <strong>${totalHorariosPassados}</strong> horários no passado<br>
+            ❌ <strong>${totalHorariosOcupados}</strong> horários ocupados<br>
+            🚫 <strong>${periodosArray.length}</strong> períodos bloqueados<br>
+            <div style="font-size: 11px; margin-top: 4px; color: #60a5fa;">
+                💡 Filtrados: ${totalHorariosFuturos - totalHorariosMostrados} horários futuros mas ocupados
+            </div>
+        </div>
+    `);
+}
+
+           
 
         // 🆕 FUNÇÃO: Agrupa horários considerando períodos bloqueados
         function agruparHorariosPorPeriodo(horariosDisponiveis, periodosBloqueados) {
