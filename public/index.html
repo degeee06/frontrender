@@ -1644,14 +1644,8 @@
         font-size: 0.45rem !important;
     }
 }
-/* 🔥 CORREÇÃO COMPLETA: Inputs date/time mobile */
+/* 🔥 SOLUÇÃO DEFINITIVA: Apenas ajustes necessários */
 @media (max-width: 768px) {
-    /* Container dos inputs */
-    .input-field {
-        position: relative;
-    }
-    
-    /* Inputs específicos */
     input[type="date"],
     input[type="time"] {
         padding: 14px 12px 14px 40px !important;
@@ -1659,34 +1653,15 @@
         min-height: 48px !important;
     }
     
-    /* Ícones posicionados corretamente */
     .input-field .absolute.left-0 {
         left: 12px !important;
-        z-index: 10;
     }
     
-    /* Placeholder customizado quando vazio */
-    input[type="date"]:invalid:not(:focus),
-    input[type="time"]:invalid:not(:focus) {
-        color: transparent;
-    }
-    
-    input[type="date"]:invalid:not(:focus)::before {
-        content: "Data";
+    /* 🔥 GARANTIR que os placeholders nativos fiquem à direita dos ícones */
+    input[type="date"]::placeholder,
+    input[type="time"]::placeholder {
         color: #666666;
-        position: absolute;
-        left: 40px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    
-    input[type="time"]:invalid:not(:focus)::before {
-        content: "Horário";
-        color: #666666;
-        position: absolute;
-        left: 40px;
-        top: 50%;
-        transform: translateY(-50%);
+        opacity: 1;
     }
 }
 </style>        
@@ -6012,6 +5987,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
