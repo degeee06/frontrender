@@ -866,74 +866,93 @@
             adicionarMensagemChat('<strong>Assistente:</strong> Clique em uma data para ver os horários disponíveis! 🕐');
         }
         
-        // 🔥 ATUALIZAR: Função quando usuário seleciona uma data (com filtro de horas cheias)
-        async function selecionarData(dataSelecionada) {
-            const dataFormatada = formatarData(dataSelecionada);
-            adicionarMensagemChat(`<strong>Você:</strong> Selecionou ${dataFormatada}`, 'user');
+       // 🔥 ATUALIZAR: Função quando usuário seleciona uma data (com normalização de horários)
+async function selecionarData(dataSelecionada) {
+    const dataFormatada = formatarData(dataSelecionada);
+    adicionarMensagemChat(`<strong>Você:</strong> Selecionou ${dataFormatada}`, 'user');
+    
+    adicionarMensagemChat('<strong>Assistente:</strong> Verificando horários disponíveis... 🔄');
+
+    try {
+        // 🎯 BUSCA HORÁRIOS DISPONÍVEIS REAIS DO BACKEND
+        const response = await fetch(`https://agendamento-ynxr.onrender.com/api/horarios-disponiveis/${user_id}?data=${dataSelecionada}`);
+        
+        if (response.ok) {
+            const data = await response.json();
             
-            adicionarMensagemChat('<strong>Assistente:</strong> Verificando horários disponíveis... 🔄');
-
-            try {
-                // 🎯 BUSCA HORÁRIOS DISPONÍVEIS REAIS DO BACKEND
-                const response = await fetch(`https://agendamento-ynxr.onrender.com/api/horarios-disponiveis/${user_id}?data=${dataSelecionada}`);
+            if (data.success && data.horariosDisponiveis && data.horariosDisponiveis.length > 0) {
+                // 🆕 NORMALIZA HORÁRIOS: Remove segundos (HH:MM:SS → HH:MM)
+                const horariosDisponiveisNormalizados = data.horariosDisponiveis.map(horario => 
+                    horario.length === 8 ? horario.substring(0, 5) : horario
+                );
                 
-                if (response.ok) {
-                    const data = await response.json();
+                const horariosOcupadosNormalizados = (data.horariosOcupados || []).map(horario => 
+                    horario.length === 8 ? horario.substring(0, 5) : horario
+                );
+                
+                // 🆕 FILTRA APENAS HORAS CHEIAS da resposta da API
+                const horasCheiasDisponiveis = filtrarHorasCheias(horariosDisponiveisNormalizados);
+                const horasCheiasOcupadas = filtrarHorasCheias(horariosOcupadosNormalizados);
+                
+                if (horasCheiasDisponiveis.length > 0) {
+                    mostrarHorariosDisponiveis(
+                        dataSelecionada, 
+                        horasCheiasDisponiveis, 
+                        horasCheiasOcupadas,
+                        data.periodosBloqueados
+                    );
                     
-                    if (data.success && data.horariosDisponiveis && data.horariosDisponiveis.length > 0) {
-                        // 🆕 FILTRA APENAS HORAS CHEIAS da resposta da API
-                        const horasCheiasDisponiveis = filtrarHorasCheias(data.horariosDisponiveis);
-                        const horasCheiasOcupadas = filtrarHorasCheias(data.horariosOcupados || []);
-                        
-                        if (horasCheiasDisponiveis.length > 0) {
-                            mostrarHorariosDisponiveis(
-                                dataSelecionada, 
-                                horasCheiasDisponiveis, 
-                                horasCheiasOcupadas,
-                                data.periodosBloqueados
-                            );
-                            
-                        } else {
-                            adicionarMensagemChat(`
-                                <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
-                                    <strong>❌ Nenhuma hora cheia disponível</strong><br>
-                                    Todos os horários de hora em hora estão ocupados ou bloqueados.<br><br>
-                                    <em>💡 Tente selecionar outra data</em>
-                                </div>
-                            `);
-                        }
-                    } else {
-                        // Se não tiver horários disponíveis
-                        let motivo = data.motivo || "Todos os horários estão ocupados ou bloqueados";
-                        adicionarMensagemChat(`
-                            <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
-                                <strong>❌ Nenhum horário disponível</strong><br>
-                                ${motivo}<br><br>
-                                <em>💡 Tente selecionar outra data</em>
-                            </div>
-                        `);
-                    }
                 } else {
-                    // Fallback se a rota não funcionar
-                    await gerarHorariosBasePerfil(dataSelecionada);
+                    adicionarMensagemChat(`
+                        <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                            <strong>❌ Nenhuma hora cheia disponível</strong><br>
+                            Todos os horários de hora em hora estão ocupados ou bloqueados.<br><br>
+                            <em>💡 Tente selecionar outra data</em>
+                        </div>
+                    `);
                 }
-                
-            } catch (error) {
-                console.error('Erro ao buscar horários:', error);
-                // Fallback em caso de erro
-                await gerarHorariosBasePerfil(dataSelecionada);
+            } else {
+                // Se não tiver horários disponíveis
+                let motivo = data.motivo || "Todos os horários estão ocupados ou bloqueados";
+                adicionarMensagemChat(`
+                    <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
+                        <strong>❌ Nenhum horário disponível</strong><br>
+                        ${motivo}<br><br>
+                        <em>💡 Tente selecionar outra data</em>
+                    </div>
+                `);
             }
+        } else {
+            // Fallback se a rota não funcionar
+            await gerarHorariosBasePerfil(dataSelecionada);
         }
+        
+    } catch (error) {
+        console.error('Erro ao buscar horários:', error);
+        // Fallback em caso de erro
+        await gerarHorariosBasePerfil(dataSelecionada);
+    }
+}
 
-       // ✅✅✅ CORREÇÃO COMPLETA: Função mostrarHorariosDisponiveis corrigida
+  // ✅✅✅ CORREÇÃO COMPLETA: Função mostrarHorariosDisponiveis corrigida
 function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados = [], periodosBloqueados = []) {
-    // 🆕 CRÍTICO: Remove horários no PASSADO
+    // 🆕 NORMALIZA TODOS OS HORÁRIOS PARA HH:MM
+    const horariosDisponiveisNormalizados = horariosDisponiveis.map(horario => 
+        horario.length === 8 ? horario.substring(0, 5) : horario
+    );
+    
+    const horariosOcupadosNormalizados = horariosOcupados.map(horario => 
+        horario.length === 8 ? horario.substring(0, 5) : horario
+    );
+
+    // 🆕 CRÍTICO: Remove horários no PASSADO (usando arrays NORMALIZADOS)
     const agora = new Date();
-    const horariosFuturos = horariosDisponiveis.filter(horario => {
+    const horariosFuturos = horariosDisponiveisNormalizados.filter(horario => {
         const dataHorario = new Date(`${data}T${horario}`);
         return dataHorario > agora;
     });
 
+    // ✅✅✅ AGORA SIM: Verifica se há horários futuros
     if (horariosFuturos.length === 0) {
         adicionarMensagemChat(`
             <div class="info-box" style="background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3);">
@@ -961,11 +980,11 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
     // 🎯 ORGANIZA HORÁRIOS POR PERÍODOS BLOQUEADOS (usa os REALMENTE disponíveis e futuros)
     let horariosAgrupados = agruparHorariosPorPeriodo(horariosFuturos, periodosArray);
     
-    // ✅✅✅ CORREÇÃO CRÍTICA: Remove horários que estão em horariosOcupados
+    // ✅✅✅ CORREÇÃO CRÍTICA: Remove horários que estão em horariosOcupados (usando NORMALIZADOS)
     horariosAgrupados = horariosAgrupados.map(grupo => {
         return {
             ...grupo,
-            horarios: grupo.horarios.filter(horario => !horariosOcupados.includes(horario))
+            horarios: grupo.horarios.filter(horario => !horariosOcupadosNormalizados.includes(horario))
         };
     }).filter(grupo => grupo.horarios.length > 0); // Remove grupos vazios
 
@@ -998,9 +1017,6 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
                 ${tituloGrupo}
                 <div class="horarios-grid" style="margin-top: 6px; margin-bottom: 10px;">
                     ${grupo.horarios.map(horario => {
-                        const dataHorario = new Date(`${data}T${horario}`);
-                        const ehPassado = dataHorario <= agora;
-                        
                         // ✅✅✅ AGORA SÓ MOSTRA HORÁRIOS REALMENTE DISPONÍVEIS
                         // (já foram filtrados os ocupados e passados)
                         return `
@@ -1019,10 +1035,10 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
 
     adicionarMensagemChat(`</div>`);
 
-    // 🎯 MOSTRA ESTATÍSTICAS ATUALIZADAS
+    // 🎯 MOSTRA ESTATÍSTICAS ATUALIZADAS (usando arrays NORMALIZADOS)
     const totalHorariosFuturos = horariosFuturos.length;
-    const totalHorariosPassados = horariosDisponiveis.length - totalHorariosFuturos;
-    const totalHorariosOcupados = horariosOcupados.length;
+    const totalHorariosPassados = horariosDisponiveisNormalizados.length - totalHorariosFuturos;
+    const totalHorariosOcupados = horariosOcupadosNormalizados.length;
     const totalHorariosMostrados = horariosAgrupados.reduce((total, grupo) => total + grupo.horarios.length, 0);
 
     adicionarMensagemChat(`
@@ -1091,14 +1107,16 @@ function mostrarHorariosDisponiveis(data, horariosDisponiveis, horariosOcupados 
             return grupos;
         }
         
-        // 🆕 FUNÇÃO: Filtra apenas horas cheias (00 minutos)
-        function filtrarHorasCheias(horarios) {
-            return horarios.filter(horario => {
-                const minutos = horario.split(':')[1];
-                // ✅ Permite apenas: 00 minutos (horas cheias)
-                return minutos === '00';
-            });
-        }
+      // 🆕 FUNÇÃO: Filtra apenas horas cheias (00 minutos) - compatível com HH:MM e HH:MM:SS
+function filtrarHorasCheias(horarios) {
+    return horarios.filter(horario => {
+        // ✅ Normaliza para HH:MM primeiro
+        const horarioNormalizado = horario.length === 8 ? horario.substring(0, 5) : horario;
+        const minutos = horarioNormalizado.split(':')[1];
+        // ✅ Permite apenas: 00 minutos (horas cheias)
+        return minutos === '00';
+    });
+}
         
         // 🔥 SUBSTITUIR: Função corrigida que usa APENAS HORAS CHEIAS
         async function gerarHorariosBasePerfil(dataSelecionada) {
