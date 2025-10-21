@@ -6039,13 +6039,12 @@ function forcarAtualizacaoAgendamentos() {
         // 🆕 ADICIONE ESTE CÓDIGO ao seu frontend principal
 
 
-// 🆕 FUNÇÃO: Ouvir mudanças em tempo real nos agendamentos
+// 🆕 FUNÇÃO: Ouvir mudanças em tempo real nos agendamentos (VERSÃO CORRIGIDA)
 function iniciarOuvinteAgendamentos() {
   if (!userToken || agendamentosSubscription) return;
   
   console.log('📡 Iniciando ouvinte realtime de agendamentos...');
   
-  // Usar then/catch em vez de async/await para evitar problemas
   supabase.auth.getUser().then(({ data: { user } }) => {
     if (!user) return;
     
@@ -6064,22 +6063,24 @@ function iniciarOuvinteAgendamentos() {
           
           if (payload.eventType === 'INSERT') {
             showToast("🎉 Novo agendamento recebido via link!", "success");
-          }
-          
-          // ✅ ATUALIZA TUDO automaticamente
-          setTimeout(() => {
-            listarAgendamentos();
+            
+            // ✅ ATUALIZAÇÃO IMEDIATA - SEM DELAY
+            listarAgendamentos(); // Chama DIRETO
+            
             if (premiumManager) {
               premiumManager.updateUsageBadge();
               if (typeof controlarBotaoGerarLink === 'function') {
                 controlarBotaoGerarLink();
               }
             }
-          }, 1000);
+          }
         }
       )
       .subscribe((status) => {
         console.log('📡 Status Realtime:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Ouvinte realtime ativo!');
+        }
       });
       
   }).catch(error => {
@@ -6098,6 +6099,7 @@ function iniciarOuvinteAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
