@@ -3749,7 +3749,52 @@ async function atualizarInterfacePosLogin() {
         // 🔥 ADICIONE: Event listener para o botão gerar link
         document.getElementById('gerarLinkBtn').addEventListener('click', gerarLinkAgendamento);
 
+// 🆕 FUNÇÃO: Buscar trial do usuário (BACKEND)
+async function getUserTrialBackend(userId) {
+    try {
+        const { data, error } = await supabase
+            .from('user_trials')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+            
+        if (error) {
+            if (error.code === 'PGRST116') return null;
+            throw error;
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('❌ Erro ao buscar trial (backend):', error);
+        return null;
+    }
+}
 
+// 🆕 FUNÇÃO: Verificar uso diário (BACKEND)  
+async function getDailyUsageBackend(trial, dailyLimit) {
+    if (!trial) return { dailyUsageCount: 0, dailyUsagesLeft: 0, lastUsageDate: null };
+    
+    const today = new Date().toISOString().split('T')[0];
+    const lastUsageDate = trial.last_usage_date ? new Date(trial.last_usage_date).toISOString().split('T')[0] : null;
+    
+    let dailyUsageCount = trial.daily_usage_count || 0;
+    
+    // Reset diário se for um novo dia
+    if (lastUsageDate !== today) {
+        dailyUsageCount = 0;
+    }
+    
+    const dailyUsagesLeft = Math.max(0, dailyLimit - dailyUsageCount);
+    
+    return {
+        dailyUsageCount: dailyUsageCount,
+        dailyUsagesLeft: dailyUsagesLeft,
+        lastUsageDate: lastUsageDate
+    };
+}
+        
 async function gerarLinkAgendamento() {
     try {
         console.log('🔍 Verificando perfil para gerar link...');
@@ -6035,3 +6080,4 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
