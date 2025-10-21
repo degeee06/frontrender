@@ -4444,7 +4444,6 @@ async function logoutSilencioso() {
         }
         
         // Para todas as operações
-        desconectarSSE();
         if (intervaloAtualizacao) {
             clearInterval(intervaloAtualizacao);
         }
@@ -4492,8 +4491,7 @@ async function logoutSilencioso() {
 }
 
         
-       async function listarAgendamentos(){
-        cacheManager.delete(`agendamentos_${req.userId}`);
+     async function listarAgendamentos(){
     // 🔥 CORREÇÃO: Verifica se usuário está logado ANTES de fazer qualquer coisa
     if (!userToken) {
         console.log('❌ listarAgendamentos: Usuário não logado - abortando');
@@ -4680,8 +4678,8 @@ logoutBtn.addEventListener('click', async () => {
     window.isLoggingOut = true;
     try {
         // Para todas as operações
-        pararOuvinteAgendamentos(); // 🆕 ADICIONE ESTA LINHA
-        desconectarSSE();
+        pararOuvinteAgendamentos();
+        clearInterval(intervaloAtualizacao); // ← APENAS ISSO!
         if (intervaloAtualizacao) {
             clearInterval(intervaloAtualizacao);
         }
@@ -5531,138 +5529,7 @@ window.sugerirHorarios = async function() {
     }
 }
 
-        // ==================== SSE NO FRONTEND ====================
-        let eventSource = null;
-
-       // 🔥 CORREÇÃO: Função conectarSSE simplificada
-function conectarSSE() {
-    if (!userToken) {
-        console.log('❌ SSE: Token não disponível');
-        return;
-    }
-    
-    try {
-        // Usa EventSource nativo (mais confiável)
-        eventSource = new EventSource(`${API_BASE_URL}/api/updates?token=${encodeURIComponent(userToken)}`);
-        
-        eventSource.onopen = () => {
-            console.log('✅ SSE: Conectado com sucesso!');
-        };
-        
-        eventSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                processarEventoSSE(data);
-            } catch (e) {
-                console.log('📨 SSE: Mensagem recebida:', event.data);
-            }
-        };
-        
-        eventSource.onerror = (error) => {
-            console.error('❌ SSE: Erro na conexão:', error);
-            eventSource.close();
-            
-            // Reconexão automática
-            setTimeout(() => {
-                console.log('🔄 SSE: Tentando reconectar...');
-                conectarSSE();
-            }, 5000);
-        };
-        
-    } catch (error) {
-        console.error('❌ SSE: Erro na inicialização:', error);
-    }
-}
-
-        // 🔥 NOVA: Conexão SSE usando fetch (mais confiável)
-        async function conectarSSEComFetch() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/updates`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${userToken}`,
-                        'Content-Type': 'text/event-stream',
-                        'Cache-Control': 'no-cache'
-                    },
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                console.log('✅ SSE: Conectado com fetch!');
-                
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                
-                while (true) {
-                    const { value, done } = await reader.read();
-                    
-                    if (done) {
-                        console.log('🔔 SSE: Conexão fechada pelo servidor');
-                        break;
-                    }
-                    
-                    const chunk = decoder.decode(value);
-                    console.log('🔔 SSE: Dados recebidos:', chunk);
-                    
-                    // Processa cada linha do SSE
-                    const lines = chunk.split('\n');
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            try {
-                                const data = JSON.parse(line.slice(6));
-                                processarEventoSSE(data);
-                            } catch (e) {
-                                // Ignora linhas que não são JSON
-                            }
-                        }
-                    }
-                }
-                
-            } catch (error) {
-                console.error('❌ SSE: Erro na conexão fetch:', error);
-                
-                // 🔥 RECONEXÃO AUTOMÁTICA
-                setTimeout(() => {
-                    console.log('🔄 SSE: Tentando reconectar em 3 segundos...');
-                    conectarSSE();
-                }, 3000);
-            }
-        }
-
-        // 🔥 FUNÇÃO: Processar eventos SSE
-        function processarEventoSSE(data) {
-            console.log('🔔 SSE: Evento recebido:', data);
-            
-            switch (data.type) {
-                case 'connected':
-                    console.log('✅ SSE: Conectado com sucesso!');
-                    showToast("🔔 Conectado - atualizações em tempo real ativas", "success");
-                    break;
-                    
-                case 'novo_agendamento':
-                    console.log('🎉 SSE: Novo agendamento!', data.agendamento);
-                    
-                    // 🔥 ATUALIZAÇÃO IMEDIATA
-                    mostrarNotificacaoAgendamento(data.agendamento);
-                    
-                    // 🔥 FORÇA ATUALIZAÇÃO DA LISTA
-                    setTimeout(() => {
-                        forcarAtualizacaoAgendamentos();
-                    }, 500);
-                    
-                    break;
-                    
-                case 'ping':
-                    console.log('🏓 SSE: Ping recebido');
-                    break;
-                    
-                default:
-                    console.log('🔔 SSE: Evento desconhecido:', data);
-            }
-        }
+      
 
         // 🔥 FUNÇÃO: Mostrar notificação do novo agendamento
         function mostrarNotificacaoAgendamento(agendamento) {
@@ -5692,18 +5559,7 @@ function conectarSSE() {
             }, 5000);
         }
 
-// 🔥 CORREÇÃO: Função desconectarSSE robusta
-function desconectarSSE() {
-    if (eventSource) {
-        try {
-            eventSource.close();
-            eventSource = null;
-            console.log('🔗 Conexão SSE fechada');
-        } catch (error) {
-            console.log('⚠️ Erro ao fechar SSE:', error);
-        }
-    }
-}
+
 
         // 🔧 FUNÇÃO AUXILIAR: Abrir formulário de agendamento
         window.abrirFormAgendamento = function() {
@@ -6111,6 +5967,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
