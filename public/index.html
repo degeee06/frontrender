@@ -4785,47 +4785,68 @@ logoutBtn.addEventListener('click', async () => {
 
 
         
-    // 🔥 ATUALIZAR FUNÇÃO AGENDAR EXISTENTE - ADICIONAR VERIFICAÇÃO DE USO
-form.addEventListener('submit', async (e)=>{
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-      // Mostrar loading
+    
+    // 🔥 CORREÇÃO: Variável para controlar estado
+    let agendamentoSucesso = false;
+    
+    // Mostrar loading IMEDIATAMENTE
     agendarText.classList.add('hidden');
     agendarSpinner.classList.remove('hidden');
-    form.querySelector('button[type="submit"]').disabled = true;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
     
-    // 🔥 NOVO: VERIFICAÇÃO DE USO PREMIUM (SÓ VERIFICA, NÃO REGISTRA AINDA)
-    if (premiumManager && userToken) {
+    try {
+        // 🔥 VERIFICAÇÃO 1: Usuário logado
+        if (!userToken) {
+            showToast("Faça login para agendar", "warning");
+            return;
+        }
+
+        // 🔥 VERIFICAÇÃO 2: Premium Manager ativo
+        if (!premiumManager) {
+            showToast("Sistema não inicializado", "error");
+            return;
+        }
+
+        // 🔥 VERIFICAÇÃO 3: Limite diário (APENAS VERIFICAÇÃO)
         const status = await premiumManager.checkTrialStatus();
+        console.log('📊 Status antes do agendamento:', status);
         
-        // 🔥 BLOQUEIA SE JÁ ESTIVER NO LIMITE
         if (status.dailyUsagesLeft <= 0) {
             console.log('🚫 Limite atingido - bloqueando agendamento');
             const limit = status.isPremiumTrial ? 15 : 5;
             premiumManager.showDailyLimitModal(limit);
             return;
         }
-    } else if (!userToken) {
-        showToast("Faça login para agendar", "warning");
-        return;
-    }
-    
-    const formData = new FormData(form);
-    const dataToSend = {};
-    formData.forEach((v,k) => dataToSend[k] = v);
 
-    // Validação dos campos
-    if(!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
-        showToast("Preencha todos os campos obrigatórios", "warning");
-        return;
-    }
+        // ✅ PREPARA DADOS DO FORMULÁRIO
+        const formData = new FormData(form);
+        const dataToSend = {};
+        formData.forEach((v, k) => dataToSend[k] = v);
 
-    if(!dataToSend.Email || dataToSend.Email.trim() === '') {
-        dataToSend.Email = 'Não informado';
-    }
+        // Validação dos campos
+        if (!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
+            showToast("Preencha todos os campos obrigatórios", "warning");
+            return;
+        }
 
+        if (!dataToSend.Email || dataToSend.Email.trim() === '') {
+            dataToSend.Email = 'Não informado';
+        }
 
+        // 🔥 VERIFICAÇÃO 4: Data no passado
+        const dataAgendamento = new Date(`${dataToSend.Data}T${dataToSend.Horario}`);
+        const agora = new Date();
+        if (dataAgendamento < agora) {
+            showToast("Não é possível agendar no passado", "error");
+            return;
+        }
 
-    try{
+        console.log('📤 Enviando agendamento para API...');
+        
+        // ✅ FAZ AGENDAMENTO NA API
         const response = await fetch(`${API_BASE_URL}/agendar`, {
             method: 'POST',
             headers: {
@@ -4835,59 +4856,79 @@ form.addEventListener('submit', async (e)=>{
             body: JSON.stringify(dataToSend)
         });
         
-        if(response.ok){ 
-            // 🔥 SÓ REGISTRA USO SE O AGENDAMENTO FOR BEM-SUCEDIDO
+        // 🔥 TRATAMENTO DE RESPOSTA MELHORADO
+        if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Agendamento bem-sucedido:', result);
+            
+            // 🔥 CORREÇÃO CRÍTICA: SÓ REGISTRA USO SE O AGENDAMENTO FOI BEM-SUCEDIDO
             if (premiumManager && userToken) {
                 const canUse = await premiumManager.registerUsage();
+                
                 if (!canUse) {
-                    // Se não puder usar (limite atingido durante o processo)
-                    showToast("Limite atingido durante o agendamento", "error");
-                    return;
+                    // ⚠️ CASO RARO: Limite foi atingido DURANTE o agendamento
+                    console.log('⚠️ Limite atingido durante o agendamento');
+                    showToast("Agendamento criado, mas limite foi atingido", "warning");
+                } else {
+                    console.log('✅ Uso registrado com sucesso');
                 }
             }
             
-            showToast("Agendado com sucesso!", "success"); 
-            form.reset(); 
-            listarAgendamentos(); 
+            // ✅ SUCESSO COMPLETO
+            agendamentoSucesso = true;
+            showToast("Agendado com sucesso!", "success");
+            form.reset();
             
-            // 🔥 ATUALIZA BADGE APÓS AGENDAMENTO BEM-SUCEDIDO
+            // 🔥 ATUALIZAÇÕES APÓS SUCESSO
             if (premiumManager) {
                 await premiumManager.updateUsageBadge();
             }
+            
+            listarAgendamentos();
+            
         } else {
-    const data = await response.json();
-    
-    // 🔥 TRATAMENTO DE ERRO MELHORADO
-    if (response.status === 400) {
-        // Agora trata diferentes tipos de erro 400 do backend
-        if (data.msg?.includes("Horário indisponível")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("Fora do horário")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("bloqueado")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("passado")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("conflito") || data.msg?.includes("já possui")) {
-            showToast(data.msg, "error");
-        } else {
-            showToast(data.msg || "Erro ao agendar", "error");
+            // 🔥 TRATAMENTO DE ERROS ESPECÍFICOS
+            const errorData = await response.json();
+            console.error('❌ Erro na API:', errorData);
+            
+            if (response.status === 400) {
+                if (errorData.msg?.includes("Horário indisponível")) {
+                    showToast(errorData.msg, "error");
+                } else if (errorData.msg?.includes("Fora do horário")) {
+                    showToast(errorData.msg, "error");
+                } else if (errorData.msg?.includes("bloqueado")) {
+                    showToast(errorData.msg, "error");
+                } else if (errorData.msg?.includes("passado")) {
+                    showToast(errorData.msg, "error");
+                } else if (errorData.msg?.includes("conflito") || errorData.msg?.includes("já possui")) {
+                    showToast(errorData.msg, "error");
+                } else if (errorData.msg?.includes("Limite diário")) {
+                    showToast(errorData.msg, "error");
+                } else {
+                    showToast(errorData.msg || "Erro ao agendar", "error");
+                }
+            } else {
+                showToast(errorData.msg || "Erro ao agendar", "error");
+            }
         }
-    } else {
-        // Outros códigos de erro (401, 500, etc)
-        showToast(data.msg || "Erro ao agendar", "error");
-    }
-    
-    console.log("Detalhes do erro:", data);
-}
-    } catch(err){ 
-        console.error(err); 
-        showToast("Erro ao enviar agendamento", "error"); 
+        
+    } catch (err) {
+        console.error('❌ Erro geral:', err);
+        showToast("Erro de conexão", "error");
     } finally {
-        // Esconder loading
-        agendarText.classList.remove('hidden');
-        agendarSpinner.classList.add('hidden');
-        form.querySelector('button[type="submit"]').disabled = false;
+        // 🔥 CORREÇÃO CRÍTICA: SEMPRE restaura o botão, independente do resultado
+        if (!agendamentoSucesso) {
+            agendarText.classList.remove('hidden');
+            agendarSpinner.classList.add('hidden');
+            submitBtn.disabled = false;
+        } else {
+            // Se foi sucesso, mantém desabilitado por mais 1s para evitar duplo clique
+            setTimeout(() => {
+                agendarText.classList.remove('hidden');
+                agendarSpinner.classList.add('hidden');
+                submitBtn.disabled = false;
+            }, 1000);
+        }
     }
 });
 
@@ -5596,81 +5637,74 @@ window.sugerirHorarios = async function() {
             }, 2000);
         }
 
-        // 📊 FUNÇÃO: Estatísticas com IA CORRIGIDA (CACHE INTELIGENTE)
-        window.verEstatisticasIA = async function() {
-            const btn = document.getElementById('btn-estatisticas');
-            const btnText = document.getElementById('btn-estatisticas-text');
-            const btnSpinner = document.getElementById('btn-estatisticas-spinner');
-            
-            // 🔥 CORREÇÃO: Disable button imediatamente
-            if (btn && btnText && btnSpinner) {
-                btn.disabled = true;
-                btnText.classList.add('hidden');
-                btnSpinner.classList.remove('hidden');
-            }
-            
-            try {
-                const token = getToken();
-                if (!token) {
-                    showToast("Faça login para ver estatísticas", "error");
-                    return;
-                }
-
-                // 🔥 CACHE INTELIGENTE (2 minutos)
-                const cacheKey = `estatisticas_${userToken}`;
-                const cacheData = localStorage.getItem(cacheKey);
-                const cacheTimestamp = localStorage.getItem(`${cacheKey}_timestamp`);
-                const now = Date.now();
-                const twoMinutes = 2 * 60 * 1000;
-
-                // ⚡ USA CACHE se for recente
-                if (cacheData && cacheTimestamp && (now - parseInt(cacheTimestamp)) < twoMinutes) {
-                    console.log('⚡ Estatísticas do cache');
-                    const data = JSON.parse(cacheData);
-                    mostrarModalEstatisticas(data);
-                    
-                    // 🔥 CORREÇÃO CRÍTICA: Restaura botão IMEDIATAMENTE
-                    if (btn && btnText && btnSpinner) {
-                        btn.disabled = false;
-                        btnText.classList.remove('hidden');
-                        btnSpinner.classList.add('hidden');
-                    }
-                    return;
-                }
-
-                // 🔄 Busca dados novos se cache expirou
-                const response = await fetch(`${API_BASE_URL}/api/estatisticas-pessoais`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) throw new Error(`Erro ${response.status}`);
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // 💾 Salva novo cache
-                    localStorage.setItem(cacheKey, JSON.stringify(data));
-                    localStorage.setItem(`${cacheKey}_timestamp`, now.toString());
-                    
-                    mostrarModalEstatisticas(data);
-                } else {
-                    showToast("Erro: " + (data.msg || ""), "error");
-                }
-
-            } catch (error) {
-                console.error('❌ Erro:', error);
-                showToast("Erro ao carregar estatísticas", "error");
-            } finally {
-                // 🔥 Restaura botão se NÃO usou cache
-                if (btn && btnText && btnSpinner && btn.disabled) {
-                    btn.disabled = false;
-                    btnText.classList.remove('hidden');
-                    btnSpinner.classList.add('hidden');
-                }
-            }
+       // 📊 FUNÇÃO: Estatísticas com IA CORRIGIDA (CACHE INTELIGENTE)
+window.verEstatisticasIA = async function() {
+    const btn = document.getElementById('btn-estatisticas');
+    const btnText = document.getElementById('btn-estatisticas-text');
+    const btnSpinner = document.getElementById('btn-estatisticas-spinner');
+    
+    // 🔥 CORREÇÃO: Disable button imediatamente
+    if (btn && btnText && btnSpinner) {
+        btn.disabled = true;
+        btnText.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+    }
+    
+    try {
+        const token = getToken();
+        if (!token) {
+            showToast("Faça login para ver estatísticas", "error");
+            return;
         }
+
+        // 🔥 CACHE INTELIGENTE (2 minutos)
+        const cacheKey = `estatisticas_${userToken}`;
+        const cacheData = localStorage.getItem(cacheKey);
+        const cacheTimestamp = localStorage.getItem(`${cacheKey}_timestamp`);
+        const now = Date.now();
+        const twoMinutes = 2 * 60 * 1000;
+
+        // ⚡ USA CACHE se for recente
+        if (cacheData && cacheTimestamp && (now - parseInt(cacheTimestamp)) < twoMinutes) {
+            console.log('⚡ Estatísticas do cache');
+            const data = JSON.parse(cacheData);
+            mostrarModalEstatisticas(data);
+            return;
+        }
+
+        // 🔄 Busca dados novos se cache expirou
+        const response = await fetch(`${API_BASE_URL}/api/estatisticas-pessoais`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) throw new Error(`Erro ${response.status}`);
+
+        const data = await response.json();
+
+        if (data.success) {
+            // 💾 Salva novo cache
+            localStorage.setItem(cacheKey, JSON.stringify(data));
+            localStorage.setItem(`${cacheKey}_timestamp`, now.toString());
+            
+            mostrarModalEstatisticas(data);
+        } else {
+            showToast("Erro: " + (data.msg || ""), "error");
+        }
+
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        showToast("Erro ao carregar estatísticas", "error");
+    } finally {
+        // 🔥 CORREÇÃO CRÍTICA: SEMPRE restaura o botão
+        if (btn && btnText && btnSpinner) {
+            btn.disabled = false;
+            btnText.classList.remove('hidden');
+            btnSpinner.classList.add('hidden');
+        }
+    }
+}
 
         // 🔥 ADICIONE ESTA FUNÇÃO PARA LIMPAR CACHE QUANDO PRECISAR
         window.limparCacheEstatisticas = function() {
@@ -5987,6 +6021,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
