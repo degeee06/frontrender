@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2327,57 +2326,76 @@ class PremiumManager {
         this.cache = new Map();
     }
 
-   // ✅ VERIFICAÇÃO: Garantir que hasTrial continua true mesmo sem usos
+ // ✅ VERIFICAÇÃO CORRIGIDA - SEMPRE CONSULTA O BACKEND
 async checkTrialStatus() {
     if (!userToken) {
         return { hasTrial: false, dailyUsagesLeft: 0 };
     }
     
     try {
-        const trial = await this.getUserTrial();
-        if (!trial) {
-            return { hasTrial: false, dailyUsagesLeft: 0 };
-        }
-        
-        const subscription = await this.getUserSubscription();
-        if (subscription && subscription.status === 'active') {
-            const subscriptionDays = Math.floor((new Date() - new Date(subscription.starts_at)) / (1000 * 60 * 60 * 24));
-            
-            if (subscriptionDays < 7) {
-                const dailyUsage = await this.getDailyUsage(trial, 15);
-                return {
-                    hasTrial: true, // 🔥 SEMPRE true se tem trial
-                    isPremiumTrial: true,
-                    dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
-                    unlimited: false
-                };
-            } else {
-                return {
-                    hasTrial: true, // 🔥 SEMPRE true se tem trial  
-                    unlimited: true,
-                    dailyUsagesLeft: 999
-                };
+        // 🔥 FORÇA CONSULTA DIRETA AO BACKEND (SEM CACHE)
+        const response = await fetch(`${API_BASE_URL}/api/trial-status?forcado=true`, {
+            headers: {
+                'Authorization': `Bearer ${userToken}`,
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
             }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('📊 Status REAL do backend:', data);
+            return data;
         }
         
-        const dailyUsage = await this.getDailyUsage(trial, 5);
-        
-        // 🔥 CORREÇÃO: hasTrial continua true mesmo sem usos disponíveis
-        if (trial.status !== 'active') {
-            return { hasTrial: false, dailyUsagesLeft: 0 };
-        }
-        
-        // 🔥 MANTÉM hasTrial: true MESMO QUANDO dailyUsagesLeft = 0
-        return {
-            hasTrial: true, // 🔥 ESTA É A CORREÇÃO PRINCIPAL
-            isFreeTrial: true,
-            dailyUsagesLeft: dailyUsage.dailyUsagesLeft
-        };
+        // Fallback para método antigo se o endpoint novo não existir
+        return await this.getTrialStatusLegacy();
         
     } catch (error) {
         console.error('❌ Erro ao verificar trial:', error);
+        return await this.getTrialStatusLegacy();
+    }
+}
+
+// Método legado como fallback
+async getTrialStatusLegacy() {
+    const trial = await this.getUserTrial();
+    if (!trial) {
         return { hasTrial: false, dailyUsagesLeft: 0 };
     }
+    
+    const subscription = await this.getUserSubscription();
+    
+    if (subscription && subscription.status === 'active') {
+        const subscriptionDays = Math.floor((new Date() - new Date(subscription.starts_at)) / (1000 * 60 * 60 * 24));
+        
+        if (subscriptionDays < 7) {
+            const dailyUsage = await this.getDailyUsage(trial, 15);
+            return {
+                hasTrial: true,
+                isPremiumTrial: true,
+                dailyUsagesLeft: dailyUsage.dailyUsagesLeft,
+                unlimited: false
+            };
+        } else {
+            return {
+                hasTrial: true,
+                unlimited: true,
+                dailyUsagesLeft: 999
+            };
+        }
+    }
+    
+    const dailyUsage = await this.getDailyUsage(trial, 5);
+    
+    if (trial.status !== 'active') {
+        return { hasTrial: false, dailyUsagesLeft: 0 };
+    }
+    
+    return {
+        hasTrial: true,
+        isFreeTrial: true,
+        dailyUsagesLeft: dailyUsage.dailyUsagesLeft
+    };
 }
 
     // ✅ REGISTRAR USO
@@ -2697,14 +2715,13 @@ showDailyLimitModal(dailyLimit) {
 
 
 
-// 🔥 CORREÇÃO: Função updateUsageBadge - VERIFICAÇÃO DE LOGOUT MELHORADA
+// 🔥 ATUALIZAÇÃO CORRIGIDA DO BADGE
 async updateUsageBadge() {
-    // 🔥 VERIFICAÇÃO CRÍTICA: Se não tem userToken, esconde badge IMEDIATAMENTE
+    // Verificação crítica de logout
     if (!userToken || window.isLoggingOut) {
         const badge = document.getElementById('premiumBadge');
         if (badge) {
             badge.style.display = 'none';
-            console.log('🚫 Badge escondido - sem token ou logout em andamento');
         }
         return;
     }
@@ -2713,23 +2730,23 @@ async updateUsageBadge() {
     if (!badge) return;
     
     try {
+        // 🔥 SEMPRE CONSULTA STATUS ATUALIZADO
         const status = await this.checkTrialStatus();
         
-        console.log('📊 Status do badge:', status);
+        console.log('📊 Status REAL para badge:', status);
         
         if (status.unlimited) {
             badge.innerHTML = '<span>🚀 Premium</span>';
             badge.className = 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             badge.style.display = 'flex';
         } else if (status.hasTrial) {
-            // 🔥 CORREÇÃO: Calcula usado/total CORRETAMENTE
+            // 🔥 USA OS DADOS REAIS DO BACKEND
             const total = status.isPremiumTrial ? 15 : 5;
             const used = total - status.dailyUsagesLeft;
             
-            // 🔥 AGORA SEMPRE MOSTRA, MESMO QUANDO 5/5
             badge.innerHTML = `<span>🎯 ${used}/${total}</span>`;
             
-            // Muda a cor baseado no status
+            // Muda a cor baseado no status REAL
             if (status.dailyUsagesLeft <= 0) {
                 badge.className = 'bg-gradient-to-r from-red-500 to-rose-600 text-white text-xs px-3 py-2 rounded-lg flex items-center justify-center gap-2';
             } else if (status.dailyUsagesLeft <= 2) {
@@ -2741,7 +2758,6 @@ async updateUsageBadge() {
             badge.style.display = 'flex';
             
         } else {
-            // 🔥 CORREÇÃO: Esconde completamente se não tiver trial ativo
             badge.style.display = 'none';
         }
     } catch (error) {
@@ -2750,7 +2766,6 @@ async updateUsageBadge() {
     }
 }
 }
-
         
 console.log('🚀 Script carregado! Iniciando aplicação...');
 
@@ -4785,11 +4800,11 @@ logoutBtn.addEventListener('click', async () => {
 });
 
 
-        
-    // 🔥 ATUALIZAR FUNÇÃO AGENDAR EXISTENTE - ADICIONAR VERIFICAÇÃO DE USO
+  // 🔥 ATUALIZAR FUNÇÃO AGENDAR EXISTENTE - ADICIONAR VERIFICAÇÃO DE USO
 form.addEventListener('submit', async (e)=>{
     e.preventDefault();
-      // Mostrar loading
+    
+    // Mostrar loading
     agendarText.classList.add('hidden');
     agendarSpinner.classList.remove('hidden');
     form.querySelector('button[type="submit"]').disabled = true;
@@ -4803,10 +4818,20 @@ form.addEventListener('submit', async (e)=>{
             console.log('🚫 Limite atingido - bloqueando agendamento');
             const limit = status.isPremiumTrial ? 15 : 5;
             premiumManager.showDailyLimitModal(limit);
+            
+            // Restaurar botão
+            agendarText.classList.remove('hidden');
+            agendarSpinner.classList.add('hidden');
+            form.querySelector('button[type="submit"]').disabled = false;
             return;
         }
     } else if (!userToken) {
         showToast("Faça login para agendar", "warning");
+        
+        // Restaurar botão
+        agendarText.classList.remove('hidden');
+        agendarSpinner.classList.add('hidden');
+        form.querySelector('button[type="submit"]').disabled = false;
         return;
     }
     
@@ -4817,14 +4842,17 @@ form.addEventListener('submit', async (e)=>{
     // Validação dos campos
     if(!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
         showToast("Preencha todos os campos obrigatórios", "warning");
+        
+        // Restaurar botão
+        agendarText.classList.remove('hidden');
+        agendarSpinner.classList.add('hidden');
+        form.querySelector('button[type="submit"]').disabled = false;
         return;
     }
 
     if(!dataToSend.Email || dataToSend.Email.trim() === '') {
         dataToSend.Email = 'Não informado';
     }
-
-
 
     try{
         const response = await fetch(`${API_BASE_URL}/agendar`, {
@@ -4836,6 +4864,7 @@ form.addEventListener('submit', async (e)=>{
             body: JSON.stringify(dataToSend)
         });
         
+        // 🔥 AQUI É O LUGAR CORRETO PARA response.ok
         if(response.ok){ 
             // 🔥 SÓ REGISTRA USO SE O AGENDAMENTO FOR BEM-SUCEDIDO
             if (premiumManager && userToken) {
@@ -4851,36 +4880,39 @@ form.addEventListener('submit', async (e)=>{
             form.reset(); 
             listarAgendamentos(); 
             
-            // 🔥 ATUALIZA BADGE APÓS AGENDAMENTO BEM-SUCEDIDO
-            if (premiumManager) {
-                await premiumManager.updateUsageBadge();
+            // 🔥 ATUALIZAÇÃO IMEDIATA APÓS AGENDAMENTO BEM-SUCEDIDO
+            if (premiumManager && userToken) {
+                // Força atualização do status REAL
+                setTimeout(async () => {
+                    await premiumManager.updateUsageBadge();
+                }, 500);
             }
         } else {
-    const data = await response.json();
-    
-    // 🔥 TRATAMENTO DE ERRO MELHORADO
-    if (response.status === 400) {
-        // Agora trata diferentes tipos de erro 400 do backend
-        if (data.msg?.includes("Horário indisponível")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("Fora do horário")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("bloqueado")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("passado")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("conflito") || data.msg?.includes("já possui")) {
-            showToast(data.msg, "error");
-        } else {
-            showToast(data.msg || "Erro ao agendar", "error");
+            const data = await response.json();
+            
+            // 🔥 TRATAMENTO DE ERRO MELHORADO
+            if (response.status === 400) {
+                // Agora trata diferentes tipos de erro 400 do backend
+                if (data.msg?.includes("Horário indisponível")) {
+                    showToast(data.msg, "error");
+                } else if (data.msg?.includes("Fora do horário")) {
+                    showToast(data.msg, "error");
+                } else if (data.msg?.includes("bloqueado")) {
+                    showToast(data.msg, "error");
+                } else if (data.msg?.includes("passado")) {
+                    showToast(data.msg, "error");
+                } else if (data.msg?.includes("conflito") || data.msg?.includes("já possui")) {
+                    showToast(data.msg, "error");
+                } else {
+                    showToast(data.msg || "Erro ao agendar", "error");
+                }
+            } else {
+                // Outros códigos de erro (401, 500, etc)
+                showToast(data.msg || "Erro ao agendar", "error");
+            }
+            
+            console.log("Detalhes do erro:", data);
         }
-    } else {
-        // Outros códigos de erro (401, 500, etc)
-        showToast(data.msg || "Erro ao agendar", "error");
-    }
-    
-    console.log("Detalhes do erro:", data);
-}
     } catch(err){ 
         console.error(err); 
         showToast("Erro ao enviar agendamento", "error"); 
@@ -6036,6 +6068,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
