@@ -5986,9 +5986,56 @@ setInterval(async () => {
         feather.replace();
         init();
     </script>
+    <script>
+// 🔥 PUSH NOTIFICATIONS - VERSÃO PRODUÇÃO (SEM ALERTS)
+console.log('🔔 Inicializando notificações push...');
+
+const BACKEND_URL = 'https://agendamento-ynxr.onrender.com';
+
+setTimeout(() => {
+    if (window.Capacitor?.Plugins?.PushNotifications) {
+        
+        const { PushNotifications } = window.Capacitor.Plugins;
+        
+        // Configurar listeners silenciosamente
+        PushNotifications.addListener('registration', async (token) => {
+            console.log('✅ Token FCM gerado');
+            
+            try {
+                await fetch(BACKEND_URL + '/api/salvar-token-simples', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        push_token: token.value
+                    })
+                });
+                console.log('✅ Token salvo no servidor');
+            } catch (error) {
+                console.log('❌ Erro ao salvar token:', error);
+            }
+        });
+        
+        PushNotifications.addListener('registrationError', (error) => {
+            console.log('❌ Erro no registro FCM:', error);
+        });
+        
+        PushNotifications.addListener('pushNotificationReceived', (notification) => {
+            console.log('📱 Notificação recebida:', notification);
+        });
+        
+        // Solicitar permissões silenciosamente
+        PushNotifications.requestPermissions().then(result => {
+            if (result.receive === 'granted') {
+                PushNotifications.register();
+            }
+        });
+    }
+}, 2000);
+</script>
 </body>
 </html>
-
 
 
 
