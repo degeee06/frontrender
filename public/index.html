@@ -2440,7 +2440,6 @@ async registerDailyUsage(dailyLimit) {
     if (dailyUsageCount >= dailyLimit) {
         console.log(`🚫 Limite diário de ${dailyLimit} usos atingido`);
         
-        // 🔥 VERIFICAÇÃO CORRETA - Procura QUALQUER chave do Supabase
         const hasSupabaseAuth = Object.keys(localStorage).some(key => 
             key.startsWith('sb-') || key.includes('supabase')
         );
@@ -2451,14 +2450,14 @@ async registerDailyUsage(dailyLimit) {
         return false;
     }
     
+    // ✅ CORREÇÃO: Incrementa APENAS daily_usage_count
     const newDailyUsageCount = dailyUsageCount + 1;
-    const newTotalUsageCount = (trial.usage_count || 0) + 1;
     
     const { error } = await supabase
         .from('user_trials')
         .update({ 
-            usage_count: newTotalUsageCount,
-            daily_usage_count: newDailyUsageCount,
+            // 🚨 REMOVIDO: usage_count: newTotalUsageCount,
+            daily_usage_count: newDailyUsageCount,  // ✅ APENAS ESTE
             last_usage_date: today
         })
         .eq('id', trial.id);
@@ -5988,6 +5987,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
