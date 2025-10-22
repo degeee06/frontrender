@@ -2304,10 +2304,13 @@ async function processarCallbackOAuth() {
         let premiumManager = null;
 
 // 🔄 SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA PARA AGENDAMENTOS VIA LINK
+// 🔄 SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA - VERSÃO ROBUSTA
 function iniciarVerificacaoAgendamentos() {
     if (!userToken) return;
     
-    // Verifica a cada 30 segundos se há novos agendamentos via link
+    console.log('🔔 Iniciando verificação de agendamentos...');
+    
+    // Verifica a cada 30 segundos
     setInterval(async () => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -2319,20 +2322,28 @@ function iniciarVerificacaoAgendamentos() {
                 }
             });
             
+            if (!response.ok) {
+                console.log('🔔 Verificação falhou, tentando novamente...');
+                return;
+            }
+            
             const data = await response.json();
             
             if (data.success && data.total_novos > 0) {
+                console.log('🎉 Novos agendamentos encontrados:', data.total_novos);
+                
                 // 🎯 MOSTRA NOTIFICAÇÃO
                 mostrarNotificacaoAgendamentoLink(data.novos_agendamentos);
                 
                 // 🔄 ATUALIZA A LISTA AUTOMATICAMENTE
                 listarAgendamentos();
                 
-                // 🔥 ATUALIZA ESTATÍSTICAS SE NECESSÁRIO
+                // 🔥 ATUALIZA ESTATÍSTICAS
                 limparCacheEstatisticas();
             }
         } catch (error) {
-            console.log('🔔 Erro na verificação de agendamentos:', error);
+            console.log('🔔 Erro na verificação (ignorado):', error.message);
+            // Não mostra erro para o usuário, só tenta novamente
         }
     }, 30000); // 30 segundos
 }
@@ -6172,6 +6183,7 @@ function forcarAtualizacaoAgendamentos() {
     </script>
 </body>
 </html>
+
 
 
 
