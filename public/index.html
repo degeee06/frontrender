@@ -2201,17 +2201,9 @@ function verificarCallbackOAuth() {
             return true;
         }
         
-       // ✅ WEB: Supabase processa automaticamente
-console.log('🌐 WEB: Callback detectado - Supabase processando automaticamente');
-
-// Apenas monitora (opcional)
-setTimeout(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-        if (user) {
-            console.log('✅ Supabase processou automaticamente!');
-        }
-    });
-}, 2000);
+        // ✅ WEB: Processa MANUALMENTE (fallback necessário)
+        console.log('🌐 WEB: Processando callback manualmente...');
+        processarCallbackOAuthWeb(); // 🔥 REATIVA ESTA LINHA
         
         return true;
     }
@@ -5995,6 +5987,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
