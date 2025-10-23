@@ -5894,10 +5894,6 @@ async function processarRetornoOAuth(url) {
                     listarAgendamentos();
                     showToast("Login com Google realizado!", "success");
                     
-                    // 🔥 FECHA ABA APÓS LOGIN
-                    setTimeout(() => {
-                        fecharAbaPosLogin();
-                    }, 1000);
                 }
             }
         }
@@ -6006,6 +6002,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
