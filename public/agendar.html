@@ -604,24 +604,7 @@
         // 🔥 CONTROLE DO CHAT FLUTUANTE
         let chatAberto = false;
 
-        function toggleChat() {
-            const chat = document.getElementById('chatFlutuante');
-            const botao = document.querySelector('.chat-abrir-btn');
-            
-            if (chatAberto) {
-                chat.classList.remove('chat-aberto');
-                chat.classList.add('chat-fechado');
-                botao.style.display = 'flex';
-            } else {
-                chat.classList.remove('chat-fechado');
-                chat.classList.add('chat-aberto');
-                botao.style.display = 'none';
-            }
-            
-            chatAberto = !chatAberto;
-            feather.replace();
-        }
-
+      
         // 🔔 FUNÇÕES PARA CONTROLAR A NOTIFICAÇÃO
         function mostrarNotificacao() {
             const badge = document.getElementById('chatBadge');
