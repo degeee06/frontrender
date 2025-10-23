@@ -4627,6 +4627,40 @@ function getRedirectUrl() {
     return 'https://oubook.vercel.app/auth-callback';
 }
 
+        // 🔥 FUNÇÃO MELHORADA PARA FECHAR BROWSER (OPÇÃO 5)
+async function fecharAbaPosLogin() {
+    console.log('🎯 Fechando aba após login...');
+    
+    if (window.Capacitor?.Plugins?.Browser) {
+        try {
+            // Tentativa mais agressiva - 3 tentativas
+            for (let i = 0; i < 3; i++) {
+                try {
+                    await window.Capacitor.Plugins.Browser.close();
+                    console.log(`✅ Browser fechado na tentativa ${i + 1}`);
+                    return; // Sai se conseguiu fechar
+                } catch (error) {
+                    console.log(`❌ Tentativa ${i + 1} falhou, tentando novamente...`);
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Aguarda 500ms
+                }
+            }
+            console.log('❌ Todas as tentativas de fechar o browser falharam');
+        } catch (error) {
+            console.log('❌ Erro geral ao fechar browser:', error);
+        }
+    }
+    
+    // Fallback para web
+    try {
+        if (window.opener || window.history.length <= 1) {
+            window.close();
+            console.log('✅ Janela fechada via window.close()');
+        }
+    } catch (error) {
+        console.log('❌ window.close() falhou');
+    }
+}
+
 // ✅ LOGIN GOOGLE CORRIGIDO (ISSO VEM DEPOIS DA FUNÇÃO)
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const aceiteTermos = document.getElementById('aceiteTermos');
@@ -4652,13 +4686,18 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         const redirectUrl = getRedirectUrl();
         console.log('🎯 Redirect URL:', redirectUrl);
         
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: redirectUrl,
-                skipBrowserRedirect: false
-            }
-        });
+      const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+        redirectTo: redirectUrl,
+        skipBrowserRedirect: false,
+        // 🔥 OPÇÃO 1: Google One Tap
+        queryParams: {
+            display: 'popup',
+            prompt: 'select_account'
+        }
+    }
+});
         
         if (error) throw error;
         
@@ -4685,53 +4724,7 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
 });
 
 
-// 🔥 FUNÇÃO MELHORADA PARA FECHAR BROWSER
-async function fecharAbaPosLogin() {
-    console.log('🎯 Tentando fechar aba após login...');
-    
-    // Método 1: Capacitor Browser (prioridade)
-    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-        try {
-            console.log('✅ Fechando via Capacitor Browser...');
-            
-            // Estratégia agressiva para Android
-            const platform = window.Capacitor.getPlatform();
-            if (platform === 'android') {
-                // No Android, tenta múltiplas vezes
-                setTimeout(async () => {
-                    try {
-                        await window.Capacitor.Plugins.Browser.close();
-                    } catch (error) {
-                        console.log('❌ Tentativa 1 Android falhou:', error);
-                        // Segunda tentativa
-                        setTimeout(async () => {
-                            try {
-                                await window.Capacitor.Plugins.Browser.close();
-                            } catch (e) {
-                                console.log('❌ Tentativa 2 Android falhou');
-                            }
-                        }, 1000);
-                    }
-                }, 1500);
-            } else {
-                // iOS - fecha normalmente
-                await window.Capacitor.Plugins.Browser.close();
-            }
-            return;
-        } catch (error) {
-            console.log('❌ Capacitor Browser.close() falhou:', error);
-        }
-    }
-    
-    // Método 2: window.close() para popups web
-    try {
-        if (window.opener) {
-            window.close();
-        }
-    } catch (error) {
-        console.log('❌ window.close() falhou');
-    }
-}
+        
         
 // 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
 async function saveTermsAcceptanceToDatabase() {
@@ -5958,9 +5951,10 @@ async function processarRetornoOAuth(url) {
                     showToast("Login com Google realizado!", "success");
                     
                     // 🔥 FECHA ABA APÓS LOGIN
-                    setTimeout(() => {
-                        fecharAbaPosLogin();
-                    }, 1000);
+                   // 🔥 FECHA ABA APÓS LOGIN (MAIS TEMPO)
+setTimeout(() => {
+    fecharAbaPosLogin();
+}, 2000); // Aumentei para 2 segundos
                 }
             }
         }
@@ -6071,6 +6065,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
