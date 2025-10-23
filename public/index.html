@@ -2183,7 +2183,6 @@ window.declineTerms = function() {
 
         
         
-      // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
 function verificarCallbackOAuth() {
     console.log('🔄 Verificando se é callback OAuth...');
     
@@ -2193,11 +2192,16 @@ function verificarCallbackOAuth() {
     if (isCallback) {
         console.log('🎯 Detectado callback OAuth - processando...');
         
-        // MOSTRA TELA DE AUTENTICAÇÃO
+        // ✅ DIFERENÇA CRÍTICA: Na WEB não mostra tela de auth
+        if (!window.Capacitor) {
+            console.log('🌐 Processando callback OAuth na WEB...');
+            processarCallbackOAuthWeb();
+            return true;
+        }
+        
+        // ✅ APP: Mostra tela de auth normalmente
         document.getElementById('authCallbackScreen').classList.remove('hidden');
         document.getElementById('mainAppContent').classList.add('hidden');
-        
-        // Processa o callback
         processarCallbackOAuth();
         return true;
     }
@@ -2205,6 +2209,59 @@ function verificarCallbackOAuth() {
     return false;
 }
 
+        // 🔥 NOVA FUNÇÃO: Processa OAuth especificamente para WEB
+async function processarCallbackOAuthWeb() {
+    try {
+        console.log('🌐 Processando OAuth callback na WEB...');
+        
+        // Tenta obter a sessão do URL hash
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+            console.error('❌ Erro ao obter sessão na WEB:', error);
+            throw error;
+        }
+        
+        if (session) {
+            console.log('✅ Sessão OAuth restaurada na WEB!');
+            
+            userToken = session.access_token;
+            localStorage.setItem('userToken', userToken);
+            
+            // Limpa a URL (remove o hash)
+            window.history.replaceState(null, '', window.location.pathname);
+            
+            // 🔥 INICIALIZAÇÃO DO PREMIUM MANAGER
+            if (!premiumManager) {
+                premiumManager = new PremiumManager();
+                await premiumManager.startTrial();
+            }
+            
+            // Atualiza interface
+            await premiumManager.updateUsageBadge();
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            atualizarInterfacePosLogin();
+            document.getElementById('secoesIA').style.display = 'block';
+            listarAgendamentos();
+            
+            showToast("Login com Google realizado!", "success");
+            
+        } else {
+            throw new Error('Sessão não encontrada na WEB');
+        }
+    } catch (error) {
+        console.error('❌ Erro OAuth na WEB:', error);
+        showToast("Erro ao processar login", "error");
+        
+        // Redireciona para home após erro
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 3000);
+    }
+}
+
+        
         
 // 🔥 CORREÇÃO: Função processarCallbackOAuth atualizada para carregar usos
 async function processarCallbackOAuth() {
@@ -2239,34 +2296,15 @@ async function processarCallbackOAuth() {
             document.getElementById('authCallbackScreen').classList.add('hidden');
             document.getElementById('mainAppContent').classList.remove('hidden');
             
-            // Atualiza interface
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            
             // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
             await premiumManager.updateUsageBadge();
             
             atualizarInterfacePosLogin();
             document.getElementById('secoesIA').style.display = 'block';
-            
             listarAgendamentos();
             setTimeout(() => iniciarSistemaAtualizacao(), 1000);
             showToast("Login realizado com sucesso!", "success");
             await saveTermsAcceptanceToDatabase();
-
-            // 🔥 VERIFICAÇÃO DE LIMITE APÓS LOGIN
-            setTimeout(async () => {
-                if (premiumManager && userToken) {
-                    const status = await premiumManager.checkTrialStatus();
-                    console.log('📊 Status no login OAuth:', status);
-                    
-                    if (status.hasTrial && status.dailyUsagesLeft <= 0) {
-                        console.log('🚫 Usuário logou já sem usos disponíveis');
-                        const limit = status.isPremiumTrial ? 15 : 5;
-                        premiumManager.showDailyLimitModal(limit);
-                    }
-                }
-            }, 2000);
 
         } else {
             throw new Error('Sessão não encontrada');
@@ -2855,7 +2893,7 @@ async function init() {
     // Configura listeners
     configurarEventListenersModal();
     
-  // ✅ LISTENER CAPACITOR CORRIGIDO
+// ✅ LISTENER CAPACITOR CORRIGIDO
 if (window.Capacitor && window.Capacitor.Plugins?.App) {
     window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
         console.log('🔗 App aberto via URL:', data.url);
@@ -2864,9 +2902,15 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
         if (data.url.includes('auth-callback') || 
             data.url.includes('com.oubook.agendamento://')) {
             console.log('📱 Processando retorno OAuth no app...');
-            processarRetornoOAuth(data.url); // 🔥 USA A URL DIRETAMENTE
+            processarRetornoOAuth(data.url);
         }
     });
+}
+
+// 🔥 ATUALIZADO: Detecta callback OAuth na WEB também
+if ((window.location.hash.includes('access_token') || window.location.hash.includes('error')) && !window.Capacitor) {
+    console.log('🌐 Callback OAuth detectado na WEB');
+    // Já será processado pela verificarCallbackOAuth()
 }
 
 // 🔥 ATUALIZE PARA DETECTAR /auth-callback
@@ -6003,6 +6047,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
