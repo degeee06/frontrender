@@ -2890,16 +2890,6 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
     });
 }
 
-// 🔥 FUNÇÃO INTELIGENTE PARA REDIRECT URL (ADICIONE AQUI)
-function getRedirectUrl() {
-    // No Capacitor App - usa custom scheme
-    if (window.Capacitor && window.Capacitor.isNativePlatform) {
-        return 'com.oubook.agendamento://auth-callback';
-    }
-    
-    // No navegador web - usa HTTPS
-    return 'https://oubook.vercel.app/auth-callback';
-}
 
 // 🔥 TAMBÉM ADICIONE ESTE LISTENER PARA CAPTURAR CALLBACKS DA URL ATUAL
 if (window.location.href.includes('auth-callback') || 
@@ -4626,8 +4616,18 @@ async function logoutSilencioso() {
         }
 
       
+// 🔥 FUNÇÃO INTELIGENTE PARA REDIRECT URL (ADICIONE ISSO ANTES DO BOTÃO GOOGLE)
+function getRedirectUrl() {
+    // No Capacitor App - usa custom scheme
+    if (window.Capacitor && window.Capacitor.isNativePlatform) {
+        return 'com.oubook.agendamento://auth-callback';
+    }
+    
+    // No navegador web - usa HTTPS
+    return 'https://oubook.vercel.app/auth-callback';
+}
 
-  // ✅ LOGIN GOOGLE CORRIGIDO
+// ✅ LOGIN GOOGLE CORRIGIDO (ISSO VEM DEPOIS DA FUNÇÃO)
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const aceiteTermos = document.getElementById('aceiteTermos');
     if (!aceiteTermos?.checked) {
@@ -4648,14 +4648,14 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         const isMobileApp = !!(window.Capacitor || window.cordova);
         console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
         
-        // 🔥 USA A FUNÇÃO INTELIGENTE
+        // 🔥 AGORA A FUNÇÃO JÁ ESTÁ DEFINIDA
         const redirectUrl = getRedirectUrl();
         console.log('🎯 Redirect URL:', redirectUrl);
         
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: redirectUrl, // 🔥 USA A VARIÁVEL redirectUrl
+                redirectTo: redirectUrl,
                 skipBrowserRedirect: false
             }
         });
@@ -6071,6 +6071,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
