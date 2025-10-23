@@ -2212,17 +2212,21 @@ function verificarCallbackOAuth() {
 
 
 // 🔥 FUNÇÃO CORRIGIDA: Processa OAuth especificamente para WEB
+// 🔥 FUNÇÃO CORRIGIDA: Processa OAuth com hash codificado
 async function processarCallbackOAuthWeb() {
     try {
         console.log('🌐 Processando OAuth callback na WEB...');
-        console.log('📨 Hash da URL:', window.location.hash);
+        console.log('📨 Hash original:', window.location.hash);
         
-        // 🔥 MÉTODO CORRETO PARA WEB: Usa setSession com o hash
-        if (window.location.hash.includes('access_token')) {
+        // 🔥 DECODIFICA A URL PRIMEIRO
+        const decodedHash = decodeURIComponent(window.location.hash);
+        console.log('🔓 Hash decodificado:', decodedHash);
+        
+        if (decodedHash.includes('access_token')) {
             console.log('✅ Token encontrado no hash - processando...');
             
-            // Extrai os parâmetros do hash
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            // Remove o # do início e cria URLSearchParams
+            const hashParams = new URLSearchParams(decodedHash.substring(1));
             const access_token = hashParams.get('access_token');
             const refresh_token = hashParams.get('refresh_token');
             
@@ -2230,6 +2234,8 @@ async function processarCallbackOAuthWeb() {
             console.log('🔄 Refresh token:', refresh_token ? '✅' : '❌');
             
             if (access_token) {
+                console.log('🎯 Definindo sessão com tokens...');
+                
                 // 🔥 DEFINE A SESSÃO MANUALMENTE
                 const { data, error } = await supabase.auth.setSession({
                     access_token: access_token,
@@ -2241,7 +2247,7 @@ async function processarCallbackOAuthWeb() {
                     throw error;
                 }
                 
-                console.log('✅ Sessão definida com sucesso!', data);
+                console.log('✅ Sessão definida com sucesso!');
                 
                 userToken = access_token;
                 localStorage.setItem('userToken', userToken);
@@ -2273,11 +2279,11 @@ async function processarCallbackOAuthWeb() {
         }
         
         // Se chegou aqui, não conseguiu processar
-        throw new Error('Não foi possível processar o token OAuth');
+        throw new Error('Não foi possível extrair tokens do hash');
         
     } catch (error) {
         console.error('❌ Erro OAuth na WEB:', error);
-        showToast("Erro ao processar login: " + error.message, "error");
+        showToast("Erro ao processar login", "error");
         
         // Redireciona para home após erro
         setTimeout(() => {
@@ -6076,6 +6082,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
