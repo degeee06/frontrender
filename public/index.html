@@ -4661,7 +4661,7 @@ async function fecharAbaPosLogin() {
     }
 }
 
-// ✅ LOGIN GOOGLE COM WEBVIEW INTERNO
+// ✅ LOGIN GOOGLE SIMPLIFICADO (SEM PLUGINS EXTERNOS)
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const aceiteTermos = document.getElementById('aceiteTermos');
     if (!aceiteTermos?.checked) {
@@ -4682,16 +4682,15 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         const redirectUrl = getRedirectUrl();
         console.log('🎯 Redirect URL:', redirectUrl);
         
-        // 🔥 ABORDAGEM CORRIGIDA: WebView interno
+        // 🔥 ABORDAGEM SIMPLES: Browser nativo do Capacitor
         if (window.Capacitor?.Plugins?.Browser) {
-            console.log('📱 Abrindo WebView interno do Capacitor...');
+            console.log('📱 Usando Browser nativo do Capacitor...');
             
-            // 🔥 CRÍTICO: skipBrowserRedirect: true para evitar navegador externo
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: redirectUrl,
-                    skipBrowserRedirect: true // 🔥 IMPEDE NAVEGADOR EXTERNO
+                    skipBrowserRedirect: false // Deixa o Supabase controlar
                 }
             });
             
@@ -4699,15 +4698,14 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
             
             console.log('🌐 URL de autenticação:', data.url);
             
-            // 🔥 ABRE NO BROWSER DO CAPACITOR (WebView interno)
+            // Abre no Browser do Capacitor (já é um WebView)
             await window.Capacitor.Plugins.Browser.open({ 
-                url: data.url,
-                windowName: '_self'
+                url: data.url
             });
             
         } else {
-            // Fallback para web normal
-            console.log('🌐 Ambiente Web - usando redirecionamento normal...');
+            // Web normal
+            console.log('🌐 Ambiente Web - redirecionamento normal');
             
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
@@ -6072,6 +6070,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
