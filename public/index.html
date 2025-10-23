@@ -2869,8 +2869,9 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
     });
 }
 
-// 🔥 TAMBÉM ADICIONE ESTE LISTENER PARA CAPTURAR CALLBACKS DA URL ATUAL
-if (window.location.href.includes('auth-callback') || 
+// 🔥 ATUALIZE PARA DETECTAR /auth-callback
+if (window.location.pathname === '/auth-callback' || 
+    window.location.href.includes('/auth-callback') ||
     window.location.href.includes('com.oubook.agendamento://')) {
     console.log('🔗 Capturando auth callback da URL atual...');
     processarRetornoOAuth(window.location.href);
@@ -6002,6 +6003,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
