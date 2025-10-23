@@ -2181,101 +2181,7 @@ window.declineTerms = function() {
     document.getElementById('termsModal').classList.add('hidden');
 };
 
-
-// 🔥 FUNÇÃO ATUALIZADA: Processar callback OAuth do Supabase
-async function processarCallbackOAuthCapacitor(url) {
-    try {
-        console.log('🔄 Processando callback OAuth do Supabase...', url);
         
-        // Extrai os parâmetros da URL
-        const urlObj = new URL(url);
-        const hash = urlObj.hash.substring(1);
-        const params = new URLSearchParams(hash);
-        
-        const access_token = params.get('access_token');
-        const refresh_token = params.get('refresh_token');
-        const error = params.get('error');
-        
-        console.log('🔑 Token recebido:', !!access_token);
-        
-        if (error) {
-            console.error('❌ Erro no OAuth:', error);
-            showToast("Erro no login: " + error, "error");
-            return;
-        }
-        
-        if (access_token) {
-            // Define a sessão manualmente
-            const { data: { session }, error } = await supabase.auth.setSession({
-                access_token: access_token,
-                refresh_token: refresh_token
-            });
-            
-            if (error) {
-                console.error('❌ Erro ao definir sessão:', error);
-                throw error;
-            }
-            
-            if (session) {
-                console.log('✅ Sessão restaurada no Capacitor!');
-                userToken = session.access_token;
-                localStorage.setItem('userToken', userToken);
-                
-                // 🔥 INICIALIZAÇÃO DO PREMIUM MANAGER
-                if (!premiumManager) {
-                    premiumManager = new PremiumManager();
-                    await premiumManager.startTrial();
-                }
-                
-                // 🔥 CORREÇÃO: Fecha browser se estiver aberto
-                if (window.Capacitor?.Plugins?.Browser) {
-                    try {
-                        await window.Capacitor.Plugins.Browser.close();
-                        console.log('✅ Browser fechado com sucesso!');
-                    } catch (e) {
-                        console.log('⚠️ Browser já fechado ou não estava aberto');
-                    }
-                }
-                
-                // Atualiza a interface
-                document.getElementById('authCallbackScreen').classList.add('hidden');
-                document.getElementById('mainAppContent').classList.remove('hidden');
-                
-                loginSection.style.display = 'none';
-                form.style.display = 'block';
-                
-                // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
-                await premiumManager.updateUsageBadge();
-                
-                atualizarInterfacePosLogin();
-                document.getElementById('secoesIA').style.display = 'block';
-                listarAgendamentos();
-                
-                showToast("Login realizado com sucesso!", "success");
-                
-                // 🔥 VERIFICAÇÃO DE LIMITE APÓS LOGIN
-                setTimeout(async () => {
-                    if (premiumManager && userToken) {
-                        const status = await premiumManager.checkTrialStatus();
-                        console.log('📊 Status no login:', status);
-                        
-                        if (status.hasTrial && status.dailyUsagesLeft <= 0) {
-                            console.log('🚫 Usuário logou já sem usos disponíveis');
-                            const limit = status.isPremiumTrial ? 15 : 5;
-                            premiumManager.showDailyLimitModal(limit);
-                        }
-                    }
-                }, 2000);
-            }
-        } else {
-            console.error('❌ Nenhum access_token encontrado na URL');
-            showToast("Erro: Token não recebido", "error");
-        }
-    } catch (error) {
-        console.error('❌ Erro no callback Capacitor:', error);
-        showToast("Erro ao processar login: " + error.message, "error");
-    }
-}
         
       // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
 function verificarCallbackOAuth() {
@@ -2923,159 +2829,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
-
-// 🔥 SOLUÇÃO: URL web para OAuth MAS forçando retorno para app
-function getRedirectUrl() {
-    // SEMPRE usa URL web para OAuth (Google aceita)
-    return 'https://oubook.vercel.app/';
-}
-
-
-
-// 🔥 NOVA FUNÇÃO: Verificar callback do Capacitor
-function verificarCallbackCapacitor() {
-    // Verifica se está no Capacitor e tem parâmetros OAuth na URL atual
-    if (window.Capacitor && (window.location.href.includes('access_token') || window.location.href.includes('error='))) {
-        console.log('🎯 Detectado callback OAuth no Capacitor (URL atual)');
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
-        processarCallbackOAuthCapacitor(window.location.href);
-        return true;
-    }
-    return false;
-}
-// ==================== FIM CORREÇÕES CAPACITOR ====================
-
-console.log('🚀 Script carregado! Iniciando aplicação...');
-
-
-// ==================== CORREÇÃO CAPACITOR OAUTH ====================
-
-// 🔥 FUNÇÃO: Processar OAuth e forçar retorno para app
-async function processarOAuthCapacitor() {
-    console.log('🔄 Iniciando OAuth no Capacitor...');
-    
-    try {
-        // Abre o browser para OAuth
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: 'https://oubook.vercel.app/',
-                skipBrowserRedirect: false
-            }
-        });
-        
-        if (error) throw error;
-        
-        console.log('🌐 Abrindo URL de autenticação:', data.url);
-        
-        // 🔥 ABRE NO BROWSER EXTERNO com timeout
-        if (window.Capacitor?.Plugins?.Browser) {
-            await window.Capacitor.Plugins.Browser.open({ 
-                url: data.url,
-                windowName: '_blank'
-            });
-            
-            // 🔥 MONITORA se voltou para o app (verifica a cada segundo)
-            const checkInterval = setInterval(() => {
-                if (document.visibilityState === 'visible') {
-                    console.log('✅ App está visível novamente - verificando sessão...');
-                    clearInterval(checkInterval);
-                    verificarSessaoAposOAuth();
-                }
-            }, 1000);
-            
-            // Timeout de segurança
-            setTimeout(() => {
-                clearInterval(checkInterval);
-                console.log('⏰ Timeout - forçando verificação de sessão');
-                verificarSessaoAposOAuth();
-            }, 30000);
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro no OAuth:', error);
-        showToast("Erro ao conectar com Google", "error");
-    }
-}
-
-// 🔥 FUNÇÃO: Verificar sessão após OAuth
-async function verificarSessaoAposOAuth() {
-    try {
-        console.log('🔍 Verificando sessão após OAuth...');
-        
-        // Aguarda um pouco para o Supabase processar
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) throw error;
-        
-        if (session) {
-            console.log('✅ Sessão encontrada após OAuth!');
-            userToken = session.access_token;
-            localStorage.setItem('userToken', userToken);
-            
-            // INICIALIZA PREMIUM MANAGER
-            if (!premiumManager) {
-                premiumManager = new PremiumManager();
-                await premiumManager.startTrial();
-            }
-            
-            // ATUALIZA INTERFACE
-            document.getElementById('authCallbackScreen').classList.add('hidden');
-            document.getElementById('mainAppContent').classList.remove('hidden');
-            
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            
-            await premiumManager.updateUsageBadge();
-            atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
-            listarAgendamentos();
-            
-            showToast("Login realizado com sucesso!", "success");
-            
-        } else {
-            console.log('❌ Nenhuma sessão encontrada após OAuth');
-            showToast("Login não concluído - tente novamente", "error");
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro ao verificar sessão:', error);
-        showToast("Erro ao verificar login", "error");
-    }
-}
-
-// 🔥 FUNÇÃO: Fechar browser manualmente
-async function fecharBrowserManual() {
-    if (window.Capacitor?.Plugins?.Browser) {
-        try {
-            await window.Capacitor.Plugins.Browser.close();
-            console.log('✅ Browser fechado manualmente');
-        } catch (e) {
-            console.log('⚠️ Browser já fechado');
-        }
-    }
-}
-
         
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
     
-    // 🔥 CORREÇÃO: Verifica primeiro se é callback do Capacitor
-    if (verificarCallbackCapacitor()) {
-        console.log('⏸️ Parando init - é callback OAuth do Capacitor');
+    if (verificarCallbackOAuth()) {
+        console.log('⏸️ Parando init - é callback OAuth');
         return;
     }
     
-    if (verificarCallbackOAuth()) {
-        console.log('⏸️ Parando init - é callback OAuth Web');
-        return;
-    }
     console.log('▶️ Continuando init normal...');
+
+      // 🔥🔥🔥 ADICIONAR ESTE BLOCO - Listener Capacitor para OAuth
+    if (window.Capacitor && window.Capacitor.Plugins?.App) {
+        window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
+            console.log('🔗 App aberto via URL:', data.url);
+            
+            if (data.url.includes('auth-callback')) {
+                console.log('📱 Processando retorno OAuth no Capacitor...');
+                processarRetornoOAuth(data.url);
+            }
+        });
+    }
     
     // Aplica máscara de telefone
     setTimeout(() => {
@@ -3091,24 +2867,24 @@ async function init() {
     // Configura listeners
     configurarEventListenersModal();
     
-// ✅ LISTENER CAPACITOR QUE FUNCIONAVA
-if (window.Capacitor && window.Capacitor.Plugins?.App) {
-    window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-        console.log('🔗 App aberto via URL:', data.url);
-        
-        if (data.url.includes('auth-callback')) {
-            console.log('📱 Processando retorno OAuth no app...');
+    // ✅ LISTENER CAPACITOR CORRIGIDO
+    if (window.Capacitor && window.Capacitor.Plugins?.App) {
+        window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
+            console.log('🔗 App aberto via URL:', data.url);
             
-            const url = new URL(data.url);
-            const hash = url.hash;
-            
-            if (hash) {
-                const webUrl = `https://oubook.vercel.app/auth-callback.html${hash}`;
-                processarRetornoOAuth(webUrl);
+            if (data.url.includes('auth-callback')) {
+                console.log('📱 Processando retorno OAuth no app...');
+                
+                const url = new URL(data.url);
+                const hash = url.hash;
+                
+                if (hash) {
+                    const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
+                    processarRetornoOAuth(webUrl);
+                }
             }
-        }
-    });
-}
+        });
+    }
     
     // ✅ VERIFICAÇÃO SIMPLES DE LOGIN - COM CARREGAMENTO IMEDIATO DO PREMIUM
     const token = localStorage.getItem('userToken');
@@ -3163,7 +2939,6 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
     } else {
         mostrarTelaLogin();
     }
-    
     
     feather.replace();
 }
@@ -4830,61 +4605,68 @@ async function logoutSilencioso() {
 
       
 
-
-   // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS (SUBSTITUA O EXISTENTE)
+        // ✅ LOGIN GOOGLE CORRIGIDO
+      // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS (SUBSTITUA O EXISTENTE)
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('googleLoginBtn');
-    const originalText = btn.innerHTML;
-    
-    btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
-    btn.disabled = true;
-    
-    try {
-        console.log('🔐 Iniciando autenticação Google...');
-        
-        // 🔥 DETECÇÃO CORRETA DE AMBIENTE
-        const isMobileApp = !!(window.Capacitor || window.cordova);
-        console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
-        
-        // 🔥🔥🔥 CORREÇÃO AQUI - SUBSTITUA ESTAS LINHAS:
-        const redirectUrl = isMobileApp 
-            ? 'com.oubook.agendamento://auth-callback'
-            : 'https://oubook.vercel.app/';
-        
-        console.log('🎯 Redirect URL:', redirectUrl);
-        
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: redirectUrl, // ← USA A VARIÁVEL CORRIGIDA
-                skipBrowserRedirect: false
+    // 🔒 VERIFICAR CHECKBOX (NOVO - IMPORTANTE!)
+    const aceiteTermos = document.getElementById('aceiteTermos');
+    if (!aceiteTermos?.checked) {
+        showToast("❌ Você precisa aceitar os termos para continuar", "error");
+        aceiteTermos?.focus();
+        return;
+    }
+            const btn = document.getElementById('googleLoginBtn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
+            btn.disabled = true;
+            
+            try {
+                console.log('🔐 Iniciando autenticação Google...');
+                
+                // 🔥 DETECÇÃO CORRETA DE AMBIENTE
+                const isMobileApp = !!(window.Capacitor || window.cordova);
+                console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
+                
+                // 🔥 URL DE REDIRECT CORRETA
+                const redirectUrl = isMobileApp 
+                    ? 'com.oubook.agendamento://auth-callback'
+                    : 'https://frontrender-iota.vercel.app/';
+                
+                console.log('🎯 Redirect URL:', redirectUrl);
+                
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: redirectUrl,
+                        skipBrowserRedirect: false
+                    }
+                });
+                
+                if (error) throw error;
+                
+                console.log('🌐 URL de autenticação:', data.url);
+                
+                // 🔥 ABRE O BROWSER CORRETAMENTE
+                if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
+                    console.log('📱 Abrindo no Capacitor Browser...');
+                    await window.Capacitor.Plugins.Browser.open({ 
+                        url: data.url,
+                        windowName: '_self'
+                    });
+                } else {
+                    console.log('🌐 Redirecionando para URL...');
+                    window.location.href = data.url;
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro no login Google:', error);
+                showToast("Erro ao conectar com Google", "error");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         });
-        
-        if (error) throw error;
-        
-        console.log('🌐 URL de autenticação:', data.url);
-        
-        // 🔥 ABRE O BROWSER CORRETAMENTE
-        if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
-            console.log('📱 Abrindo no Capacitor Browser...');
-            await window.Capacitor.Plugins.Browser.open({ 
-                url: data.url,
-                windowName: '_self'
-            });
-        } else {
-            console.log('🌐 Redirecionando para URL...');
-            window.location.href = data.url;
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro no login Google:', error);
-        showToast("Erro ao conectar com Google", "error");
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-});
 
 // 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
 async function saveTermsAcceptanceToDatabase() {
@@ -6055,20 +5837,23 @@ window.sugerirHorarios = async function() {
             }
         });
 
-// 🔥 FUNÇÃO QUE FUNCIONAVA
+// 🔥 ATUALIZAR: Função processarRetornoOAuth para Capacitor
 async function processarRetornoOAuth(url) {
     try {
-        console.log('🔄 Processando retorno OAuth...', url);
+        console.log('🔄 Processando URL OAuth:', url);
         
-        const urlObj = new URL(url);
-        const hash = urlObj.hash.substring(1);
-        
-        if (hash) {
-            const params = new URLSearchParams(hash);
+        // Para Capacitor, a URL já vem no formato: com.oubook.agendamento://auth-callback#access_token=...
+        const hashIndex = url.indexOf('#');
+        if (hashIndex !== -1) {
+            const hash = url.substring(hashIndex);
+            const params = new URLSearchParams(hash.substring(1)); // Remove o #
+            
             const accessToken = params.get('access_token');
             const refreshToken = params.get('refresh_token');
             
             if (accessToken) {
+                console.log('✅ Token OAuth recebido, configurando sessão...');
+                
                 const { data, error } = await supabase.auth.setSession({
                     access_token: accessToken,
                     refresh_token: refreshToken
@@ -6078,8 +5863,14 @@ async function processarRetornoOAuth(url) {
                     userToken = data.session.access_token;
                     localStorage.setItem('userToken', userToken);
                     
+                    // 🔥 INICIALIZAÇÃO IMEDIATA DO PREMIUM MANAGER
+                    if (!premiumManager) {
+                        premiumManager = new PremiumManager();
+                        await premiumManager.startTrial();
+                    }
+                    
                     // Fecha browser do Capacitor
-                    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+                    if (window.Capacitor?.Plugins?.Browser) {
                         try {
                             await window.Capacitor.Plugins.Browser.close();
                         } catch (e) {
@@ -6087,9 +5878,37 @@ async function processarRetornoOAuth(url) {
                         }
                     }
                     
+                    // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
+                    await premiumManager.updateUsageBadge();
+                    
                     // Atualiza interface
-                    showToast("Login realizado com sucesso!", "success");
-                    window.location.reload();
+                    document.getElementById('authCallbackScreen').classList.add('hidden');
+                    document.getElementById('mainAppContent').classList.remove('hidden');
+                    loginSection.style.display = 'none';
+                    form.style.display = 'block';
+                    
+                    atualizarInterfacePosLogin();
+                    document.getElementById('secoesIA').style.display = 'block';
+                    listarAgendamentos();
+                    
+                    showToast("Login com Google realizado!", "success");
+                    
+                    // 🔥 VERIFICAÇÃO DE LIMITE APÓS LOGIN
+                    setTimeout(async () => {
+                        if (premiumManager && userToken) {
+                            const status = await premiumManager.checkTrialStatus();
+                            console.log('📊 Status no login OAuth:', status);
+                            
+                            if (status.hasTrial && status.dailyUsagesLeft <= 0) {
+                                console.log('🚫 Usuário logou já sem usos disponíveis');
+                                const limit = status.isPremiumTrial ? 15 : 5;
+                                premiumManager.showDailyLimitModal(limit);
+                            }
+                        }
+                    }, 2000);
+                    
+                } else {
+                    throw new Error('Erro ao configurar sessão: ' + error?.message);
                 }
             }
         }
@@ -6187,71 +6006,6 @@ setInterval(async () => {
     }
   }
 }, 10000); // Atualiza a cada 10 segundos
-
-
-// 🔥 CAPACITOR 7: Configuração específica (ADICIONAR)
-function configurarCapacitor7() {
-    if (!window.Capacitor) return;
-    
-    console.log('📱 Configurando Capacitor 7...');
-    
-    // Deep Links para OAuth
-    window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-        console.log('🔗 App aberto via URL:', data.url);
-        
-        if (data.url.includes('auth-callback')) {
-            console.log('🎯 Processando retorno OAuth no Capacitor...');
-            processarRetornoOAuthCapacitor(data.url);
-        }
-    });
-}
-
-// 🔥 CAPACITOR 7: Processar retorno OAuth (ADICIONAR)
-async function processarRetornoOAuthCapacitor(url) {
-    try {
-        console.log('🔄 Processando OAuth no Capacitor:', url);
-        
-        const urlObj = new URL(url);
-        const hash = urlObj.hash.substring(1);
-        
-        if (hash) {
-            const params = new URLSearchParams(hash);
-            const accessToken = params.get('access_token');
-            const refreshToken = params.get('refresh_token');
-            
-            if (accessToken) {
-                const { data, error } = await supabase.auth.setSession({
-                    access_token: accessToken,
-                    refresh_token: refreshToken
-                });
-                
-                if (!error && data.session) {
-                    userToken = data.session.access_token;
-                    localStorage.setItem('userToken', userToken);
-                    
-                    // Fecha browser de autenticação
-                    if (window.Capacitor.Plugins?.Browser) {
-                        try {
-                            await window.Capacitor.Plugins.Browser.close();
-                        } catch (e) {
-                            console.log('Browser já fechado');
-                        }
-                    }
-                    
-                    // Atualiza interface
-                    document.getElementById('authCallbackScreen').classList.add('hidden');
-                    document.getElementById('mainAppContent').classList.remove('hidden');
-                    
-                    showToast("Login realizado com sucesso!", "success");
-                }
-            }
-        }
-    } catch (error) {
-        console.error('❌ Erro OAuth Capacitor:', error);
-    }
-}
-
-        
         // ---------------- INIT ----------------
         AOS.init({
             duration: 800,
@@ -6261,65 +6015,8 @@ async function processarRetornoOAuthCapacitor(url) {
         feather.replace();
         init();
     </script>
-    <script>
-// 🔥 PUSH NOTIFICATIONS - VERSÃO PRODUÇÃO (SEM ALERTS)
-console.log('🔔 Inicializando notificações push...');
-
-const BACKEND_URL = 'https://agendamento-ynxr.onrender.com';
-
-setTimeout(() => {
-    if (window.Capacitor?.Plugins?.PushNotifications) {
-        
-        const { PushNotifications } = window.Capacitor.Plugins;
-        
-        // Configurar listeners silenciosamente
-        PushNotifications.addListener('registration', async (token) => {
-            console.log('✅ Token FCM gerado');
-            
-            try {
-                await fetch(BACKEND_URL + '/api/salvar-token-simples', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        push_token: token.value
-                    })
-                });
-                console.log('✅ Token salvo no servidor');
-            } catch (error) {
-                console.log('❌ Erro ao salvar token:', error);
-            }
-        });
-        
-        PushNotifications.addListener('registrationError', (error) => {
-            console.log('❌ Erro no registro FCM:', error);
-        });
-        
-        PushNotifications.addListener('pushNotificationReceived', (notification) => {
-            console.log('📱 Notificação recebida:', notification);
-        });
-        
-        // Solicitar permissões silenciosamente
-        PushNotifications.requestPermissions().then(result => {
-            if (result.receive === 'granted') {
-                PushNotifications.register();
-            }
-        });
-    }
-}, 2000);
-</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
 
 
 
