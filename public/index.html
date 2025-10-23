@@ -2925,18 +2925,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// 🔥 SOLUÇÃO: Use a URL do Supabase para OAuth + scheme para retorno
+// 🔥 SOLUÇÃO: URL web para OAuth MAS forçando retorno para app
 function getRedirectUrl() {
-    // Detecta se está no Capacitor
-    const isCapacitor = !!(window.Capacitor || window.cordova);
-    
-    if (isCapacitor) {
-        // 🔥 URL DO SUPABASE para OAuth (funciona com Google)
-        return 'https://otyxjcxxqwjotnuyrvmc.supabase.co/auth/v1/callback';
-    } else {
-        // URL para web normal
-        return 'https://oubook.vercel.app/';
-    }
+    // SEMPRE usa URL web para OAuth (Google aceita)
+    return 'https://oubook.vercel.app/';
 }
 
 
@@ -2956,6 +2948,118 @@ function verificarCallbackCapacitor() {
 // ==================== FIM CORREÇÕES CAPACITOR ====================
 
 console.log('🚀 Script carregado! Iniciando aplicação...');
+
+
+// ==================== CORREÇÃO CAPACITOR OAUTH ====================
+
+// 🔥 FUNÇÃO: Processar OAuth e forçar retorno para app
+async function processarOAuthCapacitor() {
+    console.log('🔄 Iniciando OAuth no Capacitor...');
+    
+    try {
+        // Abre o browser para OAuth
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: 'https://oubook.vercel.app/',
+                skipBrowserRedirect: false
+            }
+        });
+        
+        if (error) throw error;
+        
+        console.log('🌐 Abrindo URL de autenticação:', data.url);
+        
+        // 🔥 ABRE NO BROWSER EXTERNO com timeout
+        if (window.Capacitor?.Plugins?.Browser) {
+            await window.Capacitor.Plugins.Browser.open({ 
+                url: data.url,
+                windowName: '_blank'
+            });
+            
+            // 🔥 MONITORA se voltou para o app (verifica a cada segundo)
+            const checkInterval = setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    console.log('✅ App está visível novamente - verificando sessão...');
+                    clearInterval(checkInterval);
+                    verificarSessaoAposOAuth();
+                }
+            }, 1000);
+            
+            // Timeout de segurança
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                console.log('⏰ Timeout - forçando verificação de sessão');
+                verificarSessaoAposOAuth();
+            }, 30000);
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro no OAuth:', error);
+        showToast("Erro ao conectar com Google", "error");
+    }
+}
+
+// 🔥 FUNÇÃO: Verificar sessão após OAuth
+async function verificarSessaoAposOAuth() {
+    try {
+        console.log('🔍 Verificando sessão após OAuth...');
+        
+        // Aguarda um pouco para o Supabase processar
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) throw error;
+        
+        if (session) {
+            console.log('✅ Sessão encontrada após OAuth!');
+            userToken = session.access_token;
+            localStorage.setItem('userToken', userToken);
+            
+            // INICIALIZA PREMIUM MANAGER
+            if (!premiumManager) {
+                premiumManager = new PremiumManager();
+                await premiumManager.startTrial();
+            }
+            
+            // ATUALIZA INTERFACE
+            document.getElementById('authCallbackScreen').classList.add('hidden');
+            document.getElementById('mainAppContent').classList.remove('hidden');
+            
+            loginSection.style.display = 'none';
+            form.style.display = 'block';
+            
+            await premiumManager.updateUsageBadge();
+            atualizarInterfacePosLogin();
+            document.getElementById('secoesIA').style.display = 'block';
+            listarAgendamentos();
+            
+            showToast("Login realizado com sucesso!", "success");
+            
+        } else {
+            console.log('❌ Nenhuma sessão encontrada após OAuth');
+            showToast("Login não concluído - tente novamente", "error");
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao verificar sessão:', error);
+        showToast("Erro ao verificar login", "error");
+    }
+}
+
+// 🔥 FUNÇÃO: Fechar browser manualmente
+async function fecharBrowserManual() {
+    if (window.Capacitor?.Plugins?.Browser) {
+        try {
+            await window.Capacitor.Plugins.Browser.close();
+            console.log('✅ Browser fechado manualmente');
+        } catch (e) {
+            console.log('⚠️ Browser já fechado');
+        }
+    }
+}
+
         
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
@@ -4729,66 +4833,47 @@ async function logoutSilencioso() {
       
 
 
-      // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS (SUBSTITUA O EXISTENTE)
+     // ✅ BOTÃO GOOGLE LOGIN CORRIGIDO
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-    // 🔒 VERIFICAR CHECKBOX (NOVO - IMPORTANTE!)
-    const aceiteTermos = document.getElementById('aceiteTermos');
-    if (!aceiteTermos?.checked) {
-        showToast("❌ Você precisa aceitar os termos para continuar", "error");
-        aceiteTermos?.focus();
-        return;
-    }
-            const btn = document.getElementById('googleLoginBtn');
-            const originalText = btn.innerHTML;
-            
-            btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
-            btn.disabled = true;
-            
-            try {
-                console.log('🔐 Iniciando autenticação Google...');
-                
-                // 🔥 DETECÇÃO CORRETA DE AMBIENTE
-                const isMobileApp = !!(window.Capacitor || window.cordova);
-                console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
-                
-                // 🔥 URL DE REDIRECT CORRETA
-               // 🔥 CORREÇÃO: Use a função getRedirectUrl() corrigida
-                const redirectUrl = getRedirectUrl();
-                
-                console.log('🎯 Redirect URL:', redirectUrl);
-                
-                const { data, error } = await supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                        redirectTo: redirectUrl,
-                        skipBrowserRedirect: false
-                    }
-                });
-                
-                if (error) throw error;
-                
-                console.log('🌐 URL de autenticação:', data.url);
-                
-                // 🔥 ABRE O BROWSER CORRETAMENTE
-                if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
-                    console.log('📱 Abrindo no Capacitor Browser...');
-                    await window.Capacitor.Plugins.Browser.open({ 
-                        url: data.url,
-                        windowName: '_self'
-                    });
-                } else {
-                    console.log('🌐 Redirecionando para URL...');
-                    window.location.href = data.url;
+    const btn = document.getElementById('googleLoginBtn');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
+    btn.disabled = true;
+    
+    try {
+        console.log('🔐 Iniciando autenticação Google...');
+        
+        // Detecta ambiente
+        const isCapacitor = !!(window.Capacitor || window.cordova);
+        
+        if (isCapacitor) {
+            // 🔥 USA NOVA FUNÇÃO PARA CAPACITOR
+            await processarOAuthCapacitor();
+        } else {
+            // Web normal
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: 'https://oubook.vercel.app/',
+                    skipBrowserRedirect: false
                 }
-                
-            } catch (error) {
-                console.error('❌ Erro no login Google:', error);
-                showToast("Erro ao conectar com Google", "error");
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
+            });
+            
+            if (error) throw error;
+            
+            console.log('🌐 Redirecionando para URL...');
+            window.location.href = data.url;
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro no login Google:', error);
+        showToast("Erro ao conectar com Google", "error");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+});
 
 // 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
 async function saveTermsAcceptanceToDatabase() {
@@ -6243,6 +6328,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
