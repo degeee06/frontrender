@@ -4645,10 +4645,10 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
                 
                 console.log('🎯 Redirect URL:', redirectUrl);
                 
-               const { data, error } = await supabase.auth.signInWithOAuth({
+              const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-        redirectTo: 'oubook://auth-callback', // 🔥 USE O MESMO SCHEME
+        redirectTo: 'com.oubook.agendamento://auth-callback', // 🔥 MESMO SCHEME
         skipBrowserRedirect: false
     }
 });
@@ -6056,6 +6056,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
