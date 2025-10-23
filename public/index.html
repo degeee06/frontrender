@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2267,7 +2268,6 @@ async function processarCallbackOAuth() {
                 }
             }, 2000);
 
-            
         } else {
             throw new Error('Sessão não encontrada');
         }
@@ -2280,47 +2280,30 @@ async function processarCallbackOAuth() {
     }
 }
         
-      async function fecharBrowserCapacitor() {
-    console.log('🎯 Tentando fechar browser...');
-    
-    // Tentativa 1: Capacitor Browser (prioridade)
-    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-        try {
-            console.log('✅ Usando Capacitor Browser.close()');
-            await window.Capacitor.Plugins.Browser.close();
-            return true;
-        } catch (error) {
-            console.log('❌ Capacitor Browser.close() falhou:', error);
-        }
-    }
-    
-    // Tentativa 2: window.close() em popups
-    try {
-        if (window.opener) {
-            window.close();
-            return true;
-        }
-    } catch (error) {
-        console.log('❌ window.close() falhou:', error);
-    }
-    
-    // Tentativa 3: Redirecionamento forçado
-    try {
-        window.location.href = 'about:blank';
-        setTimeout(() => {
+      
+
+       
+
+        // 🔥 FUNÇÃO PARA FECHAR BROWSER
+        async function fecharBrowserCapacitor() {
+            console.log('🎯 Tentando fechar browser...');
+            
+            if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+                try {
+                    console.log('✅ Usando Capacitor Browser.close()');
+                    await window.Capacitor.Plugins.Browser.close();
+                    return;
+                } catch (error) {
+                    console.log('❌ Capacitor Browser.close() falhou:', error);
+                }
+            }
+            
             try {
                 window.close();
-            } catch (e) {
-                // Ignora erro
+            } catch (error) {
+                window.location.href = 'about:blank';
             }
-        }, 100);
-        return true;
-    } catch (error) {
-        console.log('❌ Redirecionamento falhou:', error);
-    }
-    
-    return false;
-}
+        }
 
 
         // ---------------- CONFIGURAÇÃO BACKEND ----------------
@@ -2885,7 +2868,6 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
         }
     });
 }
-
 
 // 🔥 TAMBÉM ADICIONE ESTE LISTENER PARA CAPTURAR CALLBACKS DA URL ATUAL
 if (window.location.href.includes('auth-callback') || 
@@ -4611,90 +4593,76 @@ async function logoutSilencioso() {
             }
         }
 
-      
-// 🔥 FUNÇÃO INTELIGENTE PARA REDIRECT URL (ADICIONE ISSO ANTES DO BOTÃO GOOGLE)
-function getRedirectUrl() {
-    // No Capacitor App - usa custom scheme
+      function getRedirectUrl() {
     if (window.Capacitor && window.Capacitor.isNativePlatform) {
         return 'com.oubook.agendamento://auth-callback';
     }
-    
-    // No navegador web - usa HTTPS
     return 'https://oubook.vercel.app/auth-callback';
 }
 
-    
-
-// ✅ LOGIN GOOGLE SIMPLIFICADO (SEM PLUGINS EXTERNOS)
+        // ✅ LOGIN GOOGLE CORRIGIDO
+      // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS (SUBSTITUA O EXISTENTE)
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+    // 🔒 VERIFICAR CHECKBOX (NOVO - IMPORTANTE!)
     const aceiteTermos = document.getElementById('aceiteTermos');
     if (!aceiteTermos?.checked) {
         showToast("❌ Você precisa aceitar os termos para continuar", "error");
         aceiteTermos?.focus();
         return;
     }
-
-    const btn = document.getElementById('googleLoginBtn');
-    const originalText = btn.innerHTML;
-    
-    btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
-    btn.disabled = true;
-    
-    try {
-        console.log('🔐 Iniciando autenticação Google...');
-        
-        const redirectUrl = getRedirectUrl();
-        console.log('🎯 Redirect URL:', redirectUrl);
-        
-        // 🔥 ABORDAGEM SIMPLES: Browser nativo do Capacitor
-        if (window.Capacitor?.Plugins?.Browser) {
-            console.log('📱 Usando Browser nativo do Capacitor...');
+            const btn = document.getElementById('googleLoginBtn');
+            const originalText = btn.innerHTML;
             
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: redirectUrl,
-                    skipBrowserRedirect: false // Deixa o Supabase controlar
+            btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
+            btn.disabled = true;
+            
+            try {
+                console.log('🔐 Iniciando autenticação Google...');
+                
+                // 🔥 DETECÇÃO CORRETA DE AMBIENTE
+                const isMobileApp = !!(window.Capacitor || window.cordova);
+                console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
+                
+                // 🔥 URL DE REDIRECT CORRETA
+                const redirectUrl = isMobileApp 
+                    ? 'com.oubook.agendamento://auth-callback'
+                    : 'https://frontrender-iota.vercel.app/';
+                
+                console.log('🎯 Redirect URL:', redirectUrl);
+                
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: redirectUrl,
+                        skipBrowserRedirect: false
+                    }
+                });
+                
+                if (error) throw error;
+                
+                console.log('🌐 URL de autenticação:', data.url);
+                
+                // 🔥 ABRE O BROWSER CORRETAMENTE
+                if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
+                    console.log('📱 Abrindo no Capacitor Browser...');
+                    await window.Capacitor.Plugins.Browser.open({ 
+                        url: data.url,
+                        windowName: '_self'
+                    });
+                } else {
+                    console.log('🌐 Redirecionando para URL...');
+                    window.location.href = data.url;
                 }
-            });
-            
-            if (error) throw error;
-            
-            console.log('🌐 URL de autenticação:', data.url);
-            
-            // Abre no Browser do Capacitor (já é um WebView)
-            await window.Capacitor.Plugins.Browser.open({ 
-                url: data.url
-            });
-            
-        } else {
-            // Web normal
-            console.log('🌐 Ambiente Web - redirecionamento normal');
-            
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: redirectUrl,
-                    skipBrowserRedirect: false
-                }
-            });
-            
-            if (error) throw error;
-            window.location.href = data.url;
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro no login Google:', error);
-        showToast("Erro ao conectar com Google", "error");
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-});
+                
+            } catch (error) {
+                console.error('❌ Erro no login Google:', error);
+                showToast("Erro ao conectar com Google", "error");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
 
-
-        
-        
 // 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
 async function saveTermsAcceptanceToDatabase() {
     try {
@@ -5918,6 +5886,11 @@ async function processarRetornoOAuth(url) {
                     setTimeout(() => atualizarBadgePerfil(), 2000);
                     listarAgendamentos();
                     showToast("Login com Google realizado!", "success");
+                    
+                    // 🔥 FECHA ABA APÓS LOGIN
+                    setTimeout(() => {
+                        fecharAbaPosLogin();
+                    }, 1000);
                 }
             }
         }
@@ -5926,7 +5899,6 @@ async function processarRetornoOAuth(url) {
         showToast("Erro ao finalizar login", "error");
     }
 }
-
         
 // 🔥 CORREÇÃO: Adicionar função debounce faltante
 function debounce(func, wait) {
@@ -5940,21 +5912,20 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
-
 // 🔥 CORREÇÃO: Adicionar função forcarAtualizacaoAgendamentos faltante
 function forcarAtualizacaoAgendamentos() {
     console.log('🔄 Forçando atualização de agendamentos...');
     listarAgendamentos();
 }
 
-// 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
-function fecharConfiguracao() {
-    console.log('🎯 Usuário pulou configuração');
-    fecharModalConfiguracao();
-    mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
-}
+        // 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
+        function fecharConfiguracao() {
+            console.log('🎯 Usuário pulou configuração');
+            fecharModalConfiguracao();
+            mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
+        }
 
-    
+        // 🆕 ADICIONE ESTE CÓDIGO ao seu frontend principal
 
 
 // 🆕 FUNÇÃO: Ouvir mudanças em tempo real nos agendamentos (VERSÃO CORRIGIDA)
@@ -6028,13 +5999,6 @@ setInterval(async () => {
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 
