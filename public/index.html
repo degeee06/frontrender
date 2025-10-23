@@ -2192,14 +2192,15 @@ function verificarCallbackOAuth() {
     if (isCallback) {
         console.log('🎯 Detectado callback OAuth - processando...');
         
-        // ✅ DIFERENÇA CRÍTICA: Na WEB não mostra tela de auth
+        // ✅ DIFERENÇA CRÍTICA: Na WEB processa diferente
         if (!window.Capacitor) {
-            console.log('🌐 Processando callback OAuth na WEB...');
+            console.log('🌐 Ambiente WEB detectado');
             processarCallbackOAuthWeb();
             return true;
         }
         
-        // ✅ APP: Mostra tela de auth normalmente
+        // ✅ APP: Processa normalmente
+        console.log('📱 Ambiente APP detectado');
         document.getElementById('authCallbackScreen').classList.remove('hidden');
         document.getElementById('mainAppContent').classList.add('hidden');
         processarCallbackOAuth();
@@ -2209,50 +2210,74 @@ function verificarCallbackOAuth() {
     return false;
 }
 
-        // 🔥 NOVA FUNÇÃO: Processa OAuth especificamente para WEB
+
+// 🔥 FUNÇÃO CORRIGIDA: Processa OAuth especificamente para WEB
 async function processarCallbackOAuthWeb() {
     try {
         console.log('🌐 Processando OAuth callback na WEB...');
+        console.log('📨 Hash da URL:', window.location.hash);
         
-        // Tenta obter a sessão do URL hash
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-            console.error('❌ Erro ao obter sessão na WEB:', error);
-            throw error;
-        }
-        
-        if (session) {
-            console.log('✅ Sessão OAuth restaurada na WEB!');
+        // 🔥 MÉTODO CORRETO PARA WEB: Usa setSession com o hash
+        if (window.location.hash.includes('access_token')) {
+            console.log('✅ Token encontrado no hash - processando...');
             
-            userToken = session.access_token;
-            localStorage.setItem('userToken', userToken);
+            // Extrai os parâmetros do hash
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const access_token = hashParams.get('access_token');
+            const refresh_token = hashParams.get('refresh_token');
             
-            // Limpa a URL (remove o hash)
-            window.history.replaceState(null, '', window.location.pathname);
+            console.log('🔑 Access token:', access_token ? '✅' : '❌');
+            console.log('🔄 Refresh token:', refresh_token ? '✅' : '❌');
             
-            // 🔥 INICIALIZAÇÃO DO PREMIUM MANAGER
-            if (!premiumManager) {
-                premiumManager = new PremiumManager();
-                await premiumManager.startTrial();
+            if (access_token) {
+                // 🔥 DEFINE A SESSÃO MANUALMENTE
+                const { data, error } = await supabase.auth.setSession({
+                    access_token: access_token,
+                    refresh_token: refresh_token
+                });
+                
+                if (error) {
+                    console.error('❌ Erro ao definir sessão:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Sessão definida com sucesso!', data);
+                
+                userToken = access_token;
+                localStorage.setItem('userToken', userToken);
+                
+                // Limpa a URL (remove o hash)
+                window.history.replaceState(null, '', window.location.pathname);
+                
+                // 🔥 INICIALIZAÇÃO DO PREMIUM MANAGER
+                if (!premiumManager) {
+                    premiumManager = new PremiumManager();
+                    await premiumManager.startTrial();
+                }
+                
+                // Atualiza interface
+                await premiumManager.updateUsageBadge();
+                loginSection.style.display = 'none';
+                form.style.display = 'block';
+                atualizarInterfacePosLogin();
+                document.getElementById('secoesIA').style.display = 'block';
+                
+                // Pequeno delay para garantir tudo carregou
+                setTimeout(() => {
+                    listarAgendamentos();
+                    showToast("Login com Google realizado!", "success");
+                }, 500);
+                
+                return;
             }
-            
-            // Atualiza interface
-            await premiumManager.updateUsageBadge();
-            loginSection.style.display = 'none';
-            form.style.display = 'block';
-            atualizarInterfacePosLogin();
-            document.getElementById('secoesIA').style.display = 'block';
-            listarAgendamentos();
-            
-            showToast("Login com Google realizado!", "success");
-            
-        } else {
-            throw new Error('Sessão não encontrada na WEB');
         }
+        
+        // Se chegou aqui, não conseguiu processar
+        throw new Error('Não foi possível processar o token OAuth');
+        
     } catch (error) {
         console.error('❌ Erro OAuth na WEB:', error);
-        showToast("Erro ao processar login", "error");
+        showToast("Erro ao processar login: " + error.message, "error");
         
         // Redireciona para home após erro
         setTimeout(() => {
@@ -2871,6 +2896,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
+    // No início do init(), adicione:
+console.log('🔍 DEBUG init - URL:', window.location.href);
+console.log('🔍 DEBUG init - Hash:', window.location.hash);
+console.log('🔍 DEBUG init - Capacitor:', !!window.Capacitor);
     
     if (verificarCallbackOAuth()) {
         console.log('⏸️ Parando init - é callback OAuth');
@@ -6047,6 +6076,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
