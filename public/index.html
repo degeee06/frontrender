@@ -2877,24 +2877,37 @@ async function init() {
     // Configura listeners
     configurarEventListenersModal();
     
-    // ✅ LISTENER CAPACITOR CORRIGIDO
-    if (window.Capacitor && window.Capacitor.Plugins?.App) {
-        window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-            console.log('🔗 App aberto via URL:', data.url);
-            
-            if (data.url.includes('auth-callback')) {
-                console.log('📱 Processando retorno OAuth no app...');
-                
-                const url = new URL(data.url);
-                const hash = url.hash;
-                
-                if (hash) {
-                    const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
-                    processarRetornoOAuth(webUrl);
-                }
-            }
-        });
+  // ✅ LISTENER CAPACITOR CORRIGIDO
+if (window.Capacitor && window.Capacitor.Plugins?.App) {
+    window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
+        console.log('🔗 App aberto via URL:', data.url);
+        
+        // 🔥 CAPTURA TANTO CUSTOM SCHEME QUANTO HTTPS
+        if (data.url.includes('auth-callback') || 
+            data.url.includes('com.oubook.agendamento://')) {
+            console.log('📱 Processando retorno OAuth no app...');
+            processarRetornoOAuth(data.url); // 🔥 USA A URL DIRETAMENTE
+        }
+    });
+}
+
+// 🔥 FUNÇÃO INTELIGENTE PARA REDIRECT URL (ADICIONE AQUI)
+function getRedirectUrl() {
+    // No Capacitor App - usa custom scheme
+    if (window.Capacitor && window.Capacitor.isNativePlatform) {
+        return 'com.oubook.agendamento://auth-callback';
     }
+    
+    // No navegador web - usa HTTPS
+    return 'https://oubook.vercel.app/auth-callback';
+}
+
+// 🔥 TAMBÉM ADICIONE ESTE LISTENER PARA CAPTURAR CALLBACKS DA URL ATUAL
+if (window.location.href.includes('auth-callback') || 
+    window.location.href.includes('com.oubook.agendamento://')) {
+    console.log('🔗 Capturando auth callback da URL atual...');
+    processarRetornoOAuth(window.location.href);
+}
     
     // ✅ VERIFICAÇÃO SIMPLES DE LOGIN - COM CARREGAMENTO IMEDIATO DO PREMIUM
     const token = localStorage.getItem('userToken');
@@ -4615,41 +4628,60 @@ async function logoutSilencioso() {
 
       
 
-        // ✅ LOGIN GOOGLE CORRIGIDO
-      // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS (SUBSTITUA O EXISTENTE)
+   // ✅ LOGIN GOOGLE CORRIGIDO
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-    // 🔒 VERIFICAR CHECKBOX (NOVO - IMPORTANTE!)
     const aceiteTermos = document.getElementById('aceiteTermos');
     if (!aceiteTermos?.checked) {
         showToast("❌ Você precisa aceitar os termos para continuar", "error");
         aceiteTermos?.focus();
         return;
     }
-            const btn = document.getElementById('googleLoginBtn');
-            const originalText = btn.innerHTML;
-            
-            btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
-            btn.disabled = true;
-            
-            try {
-                console.log('🔐 Iniciando autenticação Google...');
-                
-                // 🔥 DETECÇÃO CORRETA DE AMBIENTE
-                const isMobileApp = !!(window.Capacitor || window.cordova);
-                console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
-                
-                // 🔥 URL DE REDIRECT CORRETA
-                const redirectUrl = isMobileApp 
-                    ? 'com.oubook.agendamento://auth-callback'
-                    : 'https://frontrender-iota.vercel.app/';
-                
-                console.log('🎯 Redirect URL:', redirectUrl);
-                
-              const { data, error } = await supabase.auth.signInWithOAuth({
+
+    const btn = document.getElementById('googleLoginBtn');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
+    btn.disabled = true;
+    
+    try {
+        console.log('🔐 Iniciando autenticação Google...');
+        
+        const isMobileApp = !!(window.Capacitor || window.cordova);
+        console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
+        
+        // 🔥 USA A FUNÇÃO INTELIGENTE
+        const redirectUrl = getRedirectUrl();
+        console.log('🎯 Redirect URL:', redirectUrl);
+        
+      const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-        redirectTo: 'com.oubook.agendamento://auth-callback', // 🔥 MESMO SCHEME
+        redirectTo: getRedirectUrl(), // 🔥 USA A FUNÇÃO INTELIGENTE
         skipBrowserRedirect: false
+    }
+});
+        
+        if (error) throw error;
+        
+        console.log('🌐 URL de autenticação:', data.url);
+        
+        if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
+            console.log('📱 Abrindo no Capacitor Browser...');
+            await window.Capacitor.Plugins.Browser.open({ 
+                url: data.url,
+                windowName: '_self'
+            });
+        } else {
+            console.log('🌐 Redirecionando para URL...');
+            window.location.href = data.url;
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro no login Google:', error);
+        showToast("Erro ao conectar com Google", "error");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     }
 });
                 
@@ -4678,37 +4710,52 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
             }
         });
 
-// 🔥 FUNÇÃO PARA FECHAR ABA APÓS LOGIN GOOGLE
+// 🔥 FUNÇÃO MELHORADA PARA FECHAR BROWSER
 async function fecharAbaPosLogin() {
     console.log('🎯 Tentando fechar aba após login...');
     
-    // Método 1: Capacitor Browser
+    // Método 1: Capacitor Browser (prioridade)
     if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
         try {
             console.log('✅ Fechando via Capacitor Browser...');
-            await window.Capacitor.Plugins.Browser.close();
+            
+            // Estratégia agressiva para Android
+            const platform = window.Capacitor.getPlatform();
+            if (platform === 'android') {
+                // No Android, tenta múltiplas vezes
+                setTimeout(async () => {
+                    try {
+                        await window.Capacitor.Plugins.Browser.close();
+                    } catch (error) {
+                        console.log('❌ Tentativa 1 Android falhou:', error);
+                        // Segunda tentativa
+                        setTimeout(async () => {
+                            try {
+                                await window.Capacitor.Plugins.Browser.close();
+                            } catch (e) {
+                                console.log('❌ Tentativa 2 Android falhou');
+                            }
+                        }, 1000);
+                    }
+                }, 1500);
+            } else {
+                // iOS - fecha normalmente
+                await window.Capacitor.Plugins.Browser.close();
+            }
             return;
         } catch (error) {
             console.log('❌ Capacitor Browser.close() falhou:', error);
         }
     }
     
-    // Método 2: window.close() (funciona em algumas abas popup)
+    // Método 2: window.close() para popups web
     try {
-        if (window.opener || window.history.length <= 1) {
+        if (window.opener) {
             window.close();
         }
     } catch (error) {
-        console.log('❌ window.close() falhou:', error);
+        console.log('❌ window.close() falhou');
     }
-    
-    // Método 3: Redirecionar para página em branco (fallback)
-    setTimeout(() => {
-        window.location.href = 'about:blank';
-        setTimeout(() => {
-            window.close();
-        }, 100);
-    }, 500);
 }
         
 // 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
@@ -5880,7 +5927,7 @@ window.sugerirHorarios = async function() {
             }
         });
 
-// 🔥 CORREÇÃO: Função processarRetornoOAuth atualizada
+// 🔥 FUNÇÃO processarRetornoOAuth ATUALIZADA
 async function processarRetornoOAuth(url) {
     try {
         console.log('🔄 Processando URL OAuth:', url);
@@ -5909,15 +5956,6 @@ async function processarRetornoOAuth(url) {
                         await premiumManager.startTrial();
                     }
                     
-                    // Fecha browser do Capacitor
-                    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-                        try {
-                            await window.Capacitor.Plugins.Browser.close();
-                        } catch (e) {
-                            console.log('Browser já fechado');
-                        }
-                    }
-                    
                     // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
                     await premiumManager.updateUsageBadge();
                     
@@ -5944,18 +5982,20 @@ async function processarRetornoOAuth(url) {
                     listarAgendamentos();
                     showToast("Login com Google realizado!", "success");
                     
+                    // 🔥 FECHA ABA APÓS LOGIN
                     setTimeout(() => {
                         fecharAbaPosLogin();
                     }, 1000);
-                } // Fecha if (!error && data.session)
-            } // Fecha if (accessToken)
-        } // Fecha if (hash)
+                }
+            }
+        }
     } catch (error) {
         console.error('❌ Erro ao processar OAuth:', error);
         showToast("Erro ao finalizar login", "error");
     }
-} // Fecha a função processarRetornoOAuth
+}
 
+        
 // 🔥 CORREÇÃO: Adicionar função debounce faltante
 function debounce(func, wait) {
     let timeout;
@@ -6056,6 +6096,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
