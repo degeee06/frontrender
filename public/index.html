@@ -2831,33 +2831,34 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// ==================== CORREÇÕES CAPACITOR ====================
-// 🔥 CORREÇÃO 1: Função para detectar redirect URL correta
+// 🔥 CORREÇÃO CAPACITOR - Função para detectar redirect URL correta
 function getRedirectUrl() {
     // Detecta se está no Capacitor
     const isCapacitor = !!(window.Capacitor || window.cordova);
     
     if (isCapacitor) {
-        // URL específica para Capacitor
-        return 'com.oubook.agendamento://auth-callback';
+        // 🔥🔥🔥 URL CORRIGIDA - APENAS O SCHEME
+        return 'com.oubook.agendamento://';
     } else {
         // URL para web
-        return 'https://frontrender-iota.vercel.app/auth-callback.html';
+        return 'https://frontrender-iota.vercel.app/';
     }
 }
 
-// 🔥 CORREÇÃO 2: Função específica para processar callback no Capacitor
+// 🔥 CORREÇÃO: Função específica para processar callback no Capacitor
 async function processarCallbackOAuthCapacitor(url) {
     try {
-        console.log('🔄 Processando callback OAuth no Capacitor...');
+        console.log('🔄 Processando callback OAuth no Capacitor...', url);
         
-        // Extrai os parâmetros da URL
+        // 🔥 CORREÇÃO: Extrai os parâmetros CORRETAMENTE
         const urlObj = new URL(url);
         const hash = urlObj.hash.substring(1);
         const params = new URLSearchParams(hash);
         
         const access_token = params.get('access_token');
         const refresh_token = params.get('refresh_token');
+        
+        console.log('🔑 Token recebido:', !!access_token);
         
         if (access_token) {
             // Define a sessão manualmente
@@ -2866,28 +2867,42 @@ async function processarCallbackOAuthCapacitor(url) {
                 refresh_token: refresh_token
             });
             
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Erro ao definir sessão:', error);
+                throw error;
+            }
             
             if (session) {
                 console.log('✅ Sessão restaurada no Capacitor!');
                 userToken = session.access_token;
                 localStorage.setItem('userToken', userToken);
                 
-                // Fecha a tela de autenticação e mostra o app
+                // 🔥 CORREÇÃO: Fecha browser se estiver aberto
+                if (window.Capacitor?.Plugins?.Browser) {
+                    try {
+                        await window.Capacitor.Plugins.Browser.close();
+                    } catch (e) {
+                        console.log('Browser já fechado ou não estava aberto');
+                    }
+                }
+                
+                // Atualiza a interface
                 document.getElementById('authCallbackScreen').classList.add('hidden');
                 document.getElementById('mainAppContent').classList.remove('hidden');
                 
-                // Atualiza a interface
                 loginSection.style.display = 'none';
                 form.style.display = 'block';
                 atualizarInterfacePosLogin();
                 
                 showToast("Login realizado com sucesso!", "success");
             }
+        } else {
+            console.error('❌ Nenhum access_token encontrado na URL');
+            showToast("Erro: Token não recebido", "error");
         }
     } catch (error) {
         console.error('❌ Erro no callback Capacitor:', error);
-        showToast("Erro ao processar login", "error");
+        showToast("Erro ao processar login: " + error.message, "error");
     }
 }
 
@@ -2941,23 +2956,25 @@ async function init() {
     // Configura listeners
     configurarEventListenersModal();
     
-    // ✅ LISTENER CAPACITOR CORRIGIDO
    // ✅ LISTENER CAPACITOR CORRIGIDO
 if (window.Capacitor && window.Capacitor.Plugins?.App) {
     window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-        console.log('🔗 App aberto via URL:', data.url);
+        console.log('🔗 App aberto via URL no Capacitor:', data.url);
         
+        // 🔥 CORREÇÃO: Verifica se é callback OAuth
         if (data.url.includes('access_token') || data.url.includes('error=')) {
-            console.log('🎯 Processando callback OAuth no Capacitor...');
+            console.log('🎯 Detectado callback OAuth no Capacitor - Processando...');
             
             // Mostra tela de autenticação
             document.getElementById('authCallbackScreen').classList.remove('hidden');
             document.getElementById('mainAppContent').classList.add('hidden');
             
-            // Processa o callback
+            // 🔥 CORREÇÃO: Processa IMEDIATAMENTE
             processarCallbackOAuthCapacitor(data.url);
         }
     });
+    
+    console.log('✅ Listener Capacitor configurado!');
 }
     
     // ✅ VERIFICAÇÃO SIMPLES DE LOGIN - COM CARREGAMENTO IMEDIATO DO PREMIUM
@@ -6195,6 +6212,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
