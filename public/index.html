@@ -2181,10 +2181,11 @@ window.declineTerms = function() {
     document.getElementById('termsModal').classList.add('hidden');
 };
 
-      // 🔥 NOVA FUNÇÃO: Processar callback OAuth no Capacitor
+
+// 🔥 FUNÇÃO ATUALIZADA: Processar callback OAuth do Supabase
 async function processarCallbackOAuthCapacitor(url) {
     try {
-        console.log('🔄 Processando callback OAuth no Capacitor...', url);
+        console.log('🔄 Processando callback OAuth do Supabase...', url);
         
         // Extrai os parâmetros da URL
         const urlObj = new URL(url);
@@ -2193,8 +2194,15 @@ async function processarCallbackOAuthCapacitor(url) {
         
         const access_token = params.get('access_token');
         const refresh_token = params.get('refresh_token');
+        const error = params.get('error');
         
         console.log('🔑 Token recebido:', !!access_token);
+        
+        if (error) {
+            console.error('❌ Erro no OAuth:', error);
+            showToast("Erro no login: " + error, "error");
+            return;
+        }
         
         if (access_token) {
             // Define a sessão manualmente
@@ -2213,6 +2221,12 @@ async function processarCallbackOAuthCapacitor(url) {
                 userToken = session.access_token;
                 localStorage.setItem('userToken', userToken);
                 
+                // 🔥 INICIALIZAÇÃO DO PREMIUM MANAGER
+                if (!premiumManager) {
+                    premiumManager = new PremiumManager();
+                    await premiumManager.startTrial();
+                }
+                
                 // 🔥 CORREÇÃO: Fecha browser se estiver aberto
                 if (window.Capacitor?.Plugins?.Browser) {
                     try {
@@ -2229,9 +2243,29 @@ async function processarCallbackOAuthCapacitor(url) {
                 
                 loginSection.style.display = 'none';
                 form.style.display = 'block';
+                
+                // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
+                await premiumManager.updateUsageBadge();
+                
                 atualizarInterfacePosLogin();
+                document.getElementById('secoesIA').style.display = 'block';
+                listarAgendamentos();
                 
                 showToast("Login realizado com sucesso!", "success");
+                
+                // 🔥 VERIFICAÇÃO DE LIMITE APÓS LOGIN
+                setTimeout(async () => {
+                    if (premiumManager && userToken) {
+                        const status = await premiumManager.checkTrialStatus();
+                        console.log('📊 Status no login:', status);
+                        
+                        if (status.hasTrial && status.dailyUsagesLeft <= 0) {
+                            console.log('🚫 Usuário logou já sem usos disponíveis');
+                            const limit = status.isPremiumTrial ? 15 : 5;
+                            premiumManager.showDailyLimitModal(limit);
+                        }
+                    }
+                }, 2000);
             }
         } else {
             console.error('❌ Nenhum access_token encontrado na URL');
@@ -2241,7 +2275,7 @@ async function processarCallbackOAuthCapacitor(url) {
         console.error('❌ Erro no callback Capacitor:', error);
         showToast("Erro ao processar login: " + error.message, "error");
     }
-}  
+}
         
       // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
 function verificarCallbackOAuth() {
@@ -2891,17 +2925,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// 🔥 CORREÇÃO: Função para detectar redirect URL correta
+// 🔥 SOLUÇÃO: Use a URL do Supabase para OAuth + scheme para retorno
 function getRedirectUrl() {
     // Detecta se está no Capacitor
     const isCapacitor = !!(window.Capacitor || window.cordova);
     
     if (isCapacitor) {
-        // 🔥 URL CORRIGIDA para Capacitor - COM SCHEME COMPLETO
-        return 'com.oubook.agendamento://auth-callback';
+        // 🔥 URL DO SUPABASE para OAuth (funciona com Google)
+        return 'https://otyxjcxxqwjotnuyrvmc.supabase.co/auth/v1/callback';
     } else {
-        // URL para web
-        return 'https://frontrender-iota.vercel.app/';
+        // URL para web normal
+        return 'https://oubook.vercel.app/';
     }
 }
 
@@ -2953,20 +2987,20 @@ async function init() {
     // Configura listeners
     configurarEventListenersModal();
     
- // ✅ LISTENER CAPACITOR CORRIGIDO - CAPTURA DEEP LINKS
+// ✅ LISTENER CAPACITOR CORRIGIDO - CAPTURA DEEP LINKS DO SUPABASE
 if (window.Capacitor && window.Capacitor.Plugins?.App) {
     window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
         console.log('🔗 App aberto via URL no Capacitor:', data.url);
         
-        // 🔥 CORREÇÃO: Verifica se é callback OAuth
+        // 🔥 CORREÇÃO: Verifica se é callback do Supabase OAuth
         if (data.url.includes('access_token') || data.url.includes('error=')) {
-            console.log('🎯 Detectado callback OAuth no Capacitor - Processando...');
+            console.log('🎯 Detectado callback OAuth do Supabase - Processando...');
             
             // Mostra tela de autenticação
             document.getElementById('authCallbackScreen').classList.remove('hidden');
             document.getElementById('mainAppContent').classList.add('hidden');
             
-            // 🔥 CORREÇÃO: Processa IMEDIATAMENTE
+            // Processa o callback
             processarCallbackOAuthCapacitor(data.url);
         }
     });
@@ -6209,6 +6243,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
