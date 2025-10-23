@@ -2135,20 +2135,27 @@
 
     <!-- 🔥 CDN + script normal -->
     <script src="https://unpkg.com/@capacitor/core/dist/capacitor.js"></script>
-    <script src="https://unpkg.com/@capacitor/push-notifications/dist/plugin.js"></script>
-    <script src="https://unpkg.com/@capacitor/local-notifications/dist/plugin.js"></script>
-    <script src="js/push-notifications.js"></script>
-
+<script src="https://unpkg.com/@capacitor/push-notifications/dist/plugin.js"></script>
+<script src="https://unpkg.com/@capacitor/local-notifications/dist/plugin.js"></script>
+<script src="js/push-notifications.js"></script>
     <script>
-    // 🔥 FUNÇÃO GLOBAL PARA TESTAR NOTIFICAÇÕES
-    window.testarNotificacoes = function() {
-        if (window.pushNotificationService) {
-            window.pushNotificationService.testPushNotifications();
-        } else {
-            alert('Serviço de notificações não carregado. Só funciona no app Android.');
-        }
-    }
-    </script>
+// 🔥 FUNÇÃO GLOBAL PARA TESTAR
+window.testarNotificacoes = async function() {
+  if (window.pushNotificationService) {
+    // Mostra status atual primeiro
+    const status = await window.pushNotificationService.checkStatus();
+    console.log('📊 Status das notificações:', status);
+    
+    // Testa as notificações
+    await window.pushNotificationService.testPushNotifications();
+  } else {
+    alert('Serviço de notificações não carregado. Recarregue a página.');
+  }
+}
+
+// 🔥 BOTÃO DE DEBUG NO CONSOLE
+console.log('💡 Digite testarNotificacoes() no console para testar');
+</script>
 
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
