@@ -1,0 +1,15 @@
+{
+  "routes": [
+    {
+      "src": "/auth-callback",
+      "dest": "/auth-callback.html",
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
