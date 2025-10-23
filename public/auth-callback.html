@@ -5,73 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autenticando - Oubook</title>
     <style>
-        body {
-            background: #000;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-            padding: 20px;
-        }
-        .spinner {
-            border: 4px solid rgba(255,255,255,0.1);
-            border-radius: 50%;
-            border-top: 4px solid #fff;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; 
+               display: flex; justify-content: center; align-items: center; 
+               height: 100vh; margin: 0; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-radius: 50%; 
+                   border-top: 4px solid #fff; width: 40px; height: 40px; 
+                   animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div style="text-align: center;">
         <div class="spinner"></div>
         <h2>Autenticando...</h2>
         <p>Redirecionando de volta para o app</p>
     </div>
 
     <script>
-        console.log('🔗 Página de callback carregada:', window.location.href);
-        
-        function processOAuthCallback() {
-            console.log('🔄 Processando callback OAuth...');
-            
-            // Se tem hash, processa o OAuth
-            if (window.location.hash) {
-                console.log('📨 Hash encontrado:', window.location.hash);
-                
-                try {
-                    // 🔥 REDIRECIONA PARA A PÁGINA PRINCIPAL COM O HASH
-                    const mainUrl = 'https://oubook.vercel.app/#' + window.location.hash;
-                    console.log('🎯 Redirecionando para:', mainUrl);
-                    
-                    window.location.href = mainUrl;
-                } catch (error) {
-                    console.error('❌ Erro no redirecionamento:', error);
-                    window.location.href = 'https://oubook.vercel.app/';
-                }
-                
-            } else {
-                console.log('❌ Nenhum hash encontrado - redirecionando para home');
-                setTimeout(() => {
-                    window.location.href = 'https://oubook.vercel.app/';
-                }, 2000);
-            }
-        }
+        console.log('🔗 Auth callback page loaded');
         
         // Processa imediatamente
-        processOAuthCallback();
+        if (window.location.hash) {
+            console.log('📨 OAuth hash found:', window.location.hash);
+            // Redireciona para página principal com o hash
+            window.location.href = 'https://oubook.vercel.app/#' + window.location.hash;
+        } else {
+            console.log('❌ No OAuth hash - redirecting home');
+            setTimeout(() => {
+                window.location.href = 'https://oubook.vercel.app/';
+            }, 2000);
+        }
     </script>
 </body>
 </html>
