@@ -1787,6 +1787,7 @@
                     </div>
                 </div>
                 
+                
                 <div class="flex gap-2 w-full sm:w-auto">
                     <button id="gerarLinkBtn" style="display:none;" 
                             class="text-xs sm:text-sm bg-black-light hover:bg-gray-steel px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto border border-black-light">
@@ -2123,6 +2124,8 @@
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
+
+
 
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
@@ -2975,7 +2978,17 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
     
     feather.replace();
 }
-        
+   
+
+// 🔥 FUNÇÃO PARA TESTAR NOTIFICAÇÕES (adicione esta função)
+function testarNotificacoes() {
+    if (window.pushNotificationService) {
+        window.pushNotificationService.testPushNotifications();
+    } else {
+        alert('Serviço de notificações não carregado ainda. Aguarde alguns segundos.');
+    }
+}
+
 // 🔥 CORREÇÃO: Monitoramento do badge - VERIFICA SE USUÁRIO ESTÁ LOGADO
 setInterval(async () => {
     if (premiumManager && userToken && !window.isLoggingOut) {
@@ -6032,15 +6045,23 @@ setInterval(async () => {
     }
   }
 }, 10000); // Atualiza a cada 10 segundos
-        // ---------------- INIT ----------------
-        AOS.init({
-            duration: 800,
-            easing: 'ease-out-quart',
-            once: true
-        });
-        feather.replace();
-        init();
-    </script>
+      // ---------------- INIT ----------------
+AOS.init({
+    duration: 800,
+    easing: 'ease-out-quart',
+    once: true
+});
+feather.replace();
+init();
+
+// 🔥 INICIALIZAÇÃO DAS NOTIFICAÇÕES - NO LUGAR CORRETO!
+if (window.pushNotificationService) {
+    setTimeout(() => {
+        window.pushNotificationService.initialize();
+    }, 2000); // Aguarda 2 segundos para tudo carregar
+}
+</script>
+<script src="js/push-notifications.js"></script>
 </body>
 </html>
 
