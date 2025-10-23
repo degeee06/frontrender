@@ -2267,10 +2267,6 @@ async function processarCallbackOAuth() {
                 }
             }, 2000);
 
-             // 🔥 ADICIONE ESTA LINHA NO FINAL DO BLOCO if (session)
-            setTimeout(() => {
-                fecharAbaPosLogin();
-            }, 1000);
             
         } else {
             throw new Error('Sessão não encontrada');
@@ -4627,39 +4623,7 @@ function getRedirectUrl() {
     return 'https://oubook.vercel.app/auth-callback';
 }
 
-        // 🔥 FUNÇÃO MELHORADA PARA FECHAR BROWSER (OPÇÃO 5)
-async function fecharAbaPosLogin() {
-    console.log('🎯 Fechando aba após login...');
     
-    if (window.Capacitor?.Plugins?.Browser) {
-        try {
-            // Tentativa mais agressiva - 3 tentativas
-            for (let i = 0; i < 3; i++) {
-                try {
-                    await window.Capacitor.Plugins.Browser.close();
-                    console.log(`✅ Browser fechado na tentativa ${i + 1}`);
-                    return; // Sai se conseguiu fechar
-                } catch (error) {
-                    console.log(`❌ Tentativa ${i + 1} falhou, tentando novamente...`);
-                    await new Promise(resolve => setTimeout(resolve, 500)); // Aguarda 500ms
-                }
-            }
-            console.log('❌ Todas as tentativas de fechar o browser falharam');
-        } catch (error) {
-            console.log('❌ Erro geral ao fechar browser:', error);
-        }
-    }
-    
-    // Fallback para web
-    try {
-        if (window.opener || window.history.length <= 1) {
-            window.close();
-            console.log('✅ Janela fechada via window.close()');
-        }
-    } catch (error) {
-        console.log('❌ window.close() falhou');
-    }
-}
 
 // ✅ LOGIN GOOGLE SIMPLIFICADO (SEM PLUGINS EXTERNOS)
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
@@ -5954,12 +5918,6 @@ async function processarRetornoOAuth(url) {
                     setTimeout(() => atualizarBadgePerfil(), 2000);
                     listarAgendamentos();
                     showToast("Login com Google realizado!", "success");
-                    
-                    // 🔥 FECHA ABA APÓS LOGIN
-                   // 🔥 FECHA ABA APÓS LOGIN (MAIS TEMPO)
-setTimeout(() => {
-    fecharAbaPosLogin();
-}, 2000); // Aumentei para 2 segundos
                 }
             }
         }
@@ -6070,6 +6028,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
