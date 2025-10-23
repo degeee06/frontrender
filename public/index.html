@@ -4645,13 +4645,13 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
                 
                 console.log('🎯 Redirect URL:', redirectUrl);
                 
-                const { data, error } = await supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                        redirectTo: redirectUrl,
-                        skipBrowserRedirect: false
-                    }
-                });
+               const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+        redirectTo: 'oubook://auth-callback', // 🔥 USE O MESMO SCHEME
+        skipBrowserRedirect: false
+    }
+});
                 
                 if (error) throw error;
                 
@@ -6056,6 +6056,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
