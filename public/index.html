@@ -4759,10 +4759,6 @@ logoutBtn.addEventListener('click', async () => {
         // Para todas as operações
         pararOuvinteAgendamentos();
         clearInterval(intervaloAtualizacao); // ← APENAS ISSO!
-        if (intervaloAtualizacao) {
-            clearInterval(intervaloAtualizacao);
-        }
-        
         // Para o Premium Manager
         premiumManager = null;
         
@@ -4999,7 +4995,6 @@ form.addEventListener('submit', async (e)=>{
         }
 
         // 3. ATUALIZAÇÃO AUTOMÁTICA (a cada 30 segundos)
-        let intervaloAtualizacao;
 
         function iniciarAtualizacaoAutomatica() {
             // Atualiza imediatamente ao carregar
@@ -5971,7 +5966,7 @@ function forcarAtualizacaoAgendamentos() {
         function fecharConfiguracao() {
             console.log('🎯 Usuário pulou configuração');
             fecharModalConfiguracao();
-            mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
+            showToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
         }
 
         // 🆕 ADICIONE ESTE CÓDIGO ao seu frontend principal
@@ -6048,7 +6043,6 @@ setInterval(async () => {
     </script>
 </body>
 </html>
-
 
 
 
