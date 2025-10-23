@@ -2135,6 +2135,17 @@
 
 
     <script src="js/push-notifications.js"></script>
+    <script>
+// 🔥 FUNÇÃO GLOBAL PARA TESTAR NOTIFICAÇÕES
+window.testarNotificacoes = function() {
+    if (window.pushNotificationService) {
+        window.pushNotificationService.testPushNotifications();
+    } else {
+        alert('Serviço de notificações não carregado. Só funciona no app Android.');
+    }
+}
+</script>
+
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
