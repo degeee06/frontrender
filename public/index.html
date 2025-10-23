@@ -4785,10 +4785,11 @@ logoutBtn.addEventListener('click', async () => {
 
 
         
-    // 🔥 ATUALIZAR FUNÇÃO AGENDAR EXISTENTE - ADICIONAR VERIFICAÇÃO DE USO
+   // 🔥 ATUALIZAR FUNÇÃO AGENDAR EXISTENTE - REMOVER INCREMENTO DUPLO
 form.addEventListener('submit', async (e)=>{
     e.preventDefault();
-      // Mostrar loading
+    
+    // Mostrar loading
     agendarText.classList.add('hidden');
     agendarSpinner.classList.remove('hidden');
     form.querySelector('button[type="submit"]').disabled = true;
@@ -4802,10 +4803,20 @@ form.addEventListener('submit', async (e)=>{
             console.log('🚫 Limite atingido - bloqueando agendamento');
             const limit = status.isPremiumTrial ? 15 : 5;
             premiumManager.showDailyLimitModal(limit);
+            
+            // Restaurar botão
+            agendarText.classList.remove('hidden');
+            agendarSpinner.classList.add('hidden');
+            form.querySelector('button[type="submit"]').disabled = false;
             return;
         }
     } else if (!userToken) {
         showToast("Faça login para agendar", "warning");
+        
+        // Restaurar botão
+        agendarText.classList.remove('hidden');
+        agendarSpinner.classList.add('hidden');
+        form.querySelector('button[type="submit"]').disabled = false;
         return;
     }
     
@@ -4816,6 +4827,11 @@ form.addEventListener('submit', async (e)=>{
     // Validação dos campos
     if(!dataToSend.Nome || !dataToSend.Telefone || !dataToSend.Data || !dataToSend.Horario) {
         showToast("Preencha todos os campos obrigatórios", "warning");
+        
+        // Restaurar botão
+        agendarText.classList.remove('hidden');
+        agendarSpinner.classList.add('hidden');
+        form.querySelector('button[type="submit"]').disabled = false;
         return;
     }
 
@@ -4823,9 +4839,8 @@ form.addEventListener('submit', async (e)=>{
         dataToSend.Email = 'Não informado';
     }
 
-
-
-    try{
+    try {
+        console.log('📤 Enviando agendamento para backend...');
         const response = await fetch(`${API_BASE_URL}/agendar`, {
             method: 'POST',
             headers: {
@@ -4836,15 +4851,10 @@ form.addEventListener('submit', async (e)=>{
         });
         
         if(response.ok){ 
-            // 🔥 SÓ REGISTRA USO SE O AGENDAMENTO FOR BEM-SUCEDIDO
-            if (premiumManager && userToken) {
-                const canUse = await premiumManager.registerUsage();
-                if (!canUse) {
-                    // Se não puder usar (limite atingido durante o processo)
-                    showToast("Limite atingido durante o agendamento", "error");
-                    return;
-                }
-            }
+            console.log('✅ Agendamento criado com sucesso no backend');
+            
+            // 🔥🔥🔥 CORREÇÃO CRÍTICA: NÃO CHAMAR registerUsage() AQUI
+            // O BACKEND JÁ INCREMENTOU O USO, NÃO PRECISA INCREMENTAR NOVAMENTE
             
             showToast("Agendado com sucesso!", "success"); 
             form.reset(); 
@@ -4852,34 +4862,33 @@ form.addEventListener('submit', async (e)=>{
             
             // 🔥 ATUALIZA BADGE APÓS AGENDAMENTO BEM-SUCEDIDO
             if (premiumManager) {
-                await premiumManager.updateUsageBadge();
+                await premiumManager.updateUsageBadge(); // ✅ APENAS ATUALIZA EXIBIÇÃO
             }
         } else {
-    const data = await response.json();
-    
-    // 🔥 TRATAMENTO DE ERRO MELHORADO
-    if (response.status === 400) {
-        // Agora trata diferentes tipos de erro 400 do backend
-        if (data.msg?.includes("Horário indisponível")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("Fora do horário")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("bloqueado")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("passado")) {
-            showToast(data.msg, "error");
-        } else if (data.msg?.includes("conflito") || data.msg?.includes("já possui")) {
-            showToast(data.msg, "error");
-        } else {
-            showToast(data.msg || "Erro ao agendar", "error");
+            const data = await response.json();
+            
+            // 🔥 TRATAMENTO DE ERRO MELHORADO
+            if (response.status === 400) {
+                if (data.msg?.includes("Horário indisponível")) {
+                    showToast(data.msg, "error");
+                } else if (data.msg?.includes("Fora do horário")) {
+                    showToast(data.msg, "error");
+                } else if (data.msg?.includes("bloqueado")) {
+                    showToast(data.msg, "error");
+                } else if (data.msg?.includes("passado")) {
+                    showToast(data.msg, "error");
+                } else if (data.msg?.includes("conflito") || data.msg?.includes("já possui")) {
+                    showToast(data.msg, "error");
+                } else {
+                    showToast(data.msg || "Erro ao agendar", "error");
+                }
+            } else {
+                // Outros códigos de erro (401, 500, etc)
+                showToast(data.msg || "Erro ao agendar", "error");
+            }
+            
+            console.log("Detalhes do erro:", data);
         }
-    } else {
-        // Outros códigos de erro (401, 500, etc)
-        showToast(data.msg || "Erro ao agendar", "error");
-    }
-    
-    console.log("Detalhes do erro:", data);
-}
     } catch(err){ 
         console.error(err); 
         showToast("Erro ao enviar agendamento", "error"); 
@@ -5987,6 +5996,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
