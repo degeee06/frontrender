@@ -3091,25 +3091,23 @@ async function init() {
     // Configura listeners
     configurarEventListenersModal();
     
-// ✅ LISTENER CAPACITOR CORRIGIDO - CAPTURA DEEP LINKS DO SUPABASE
+// ✅ LISTENER CAPACITOR QUE FUNCIONAVA
 if (window.Capacitor && window.Capacitor.Plugins?.App) {
     window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-        console.log('🔗 App aberto via URL no Capacitor:', data.url);
+        console.log('🔗 App aberto via URL:', data.url);
         
-        // 🔥 CORREÇÃO: Verifica se é callback do Supabase OAuth
-        if (data.url.includes('access_token') || data.url.includes('error=')) {
-            console.log('🎯 Detectado callback OAuth do Supabase - Processando...');
+        if (data.url.includes('auth-callback')) {
+            console.log('📱 Processando retorno OAuth no app...');
             
-            // Mostra tela de autenticação
-            document.getElementById('authCallbackScreen').classList.remove('hidden');
-            document.getElementById('mainAppContent').classList.add('hidden');
+            const url = new URL(data.url);
+            const hash = url.hash;
             
-            // Processa o callback
-            processarCallbackOAuthCapacitor(data.url);
+            if (hash) {
+                const webUrl = `https://oubook.vercel.app/auth-callback.html${hash}`;
+                processarRetornoOAuth(webUrl);
+            }
         }
     });
-    
-    console.log('✅ Listener Capacitor configurado!');
 }
     
     // ✅ VERIFICAÇÃO SIMPLES DE LOGIN - COM CARREGAMENTO IMEDIATO DO PREMIUM
@@ -4833,7 +4831,7 @@ async function logoutSilencioso() {
       
 
 
-     // ✅ BOTÃO GOOGLE LOGIN CORRIGIDO
+   // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS (SUBSTITUA O EXISTENTE)
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const btn = document.getElementById('googleLoginBtn');
     const originalText = btn.innerHTML;
@@ -4844,24 +4842,37 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
     try {
         console.log('🔐 Iniciando autenticação Google...');
         
-        // Detecta ambiente
-        const isCapacitor = !!(window.Capacitor || window.cordova);
+        // 🔥 DETECÇÃO CORRETA DE AMBIENTE
+        const isMobileApp = !!(window.Capacitor || window.cordova);
+        console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
         
-        if (isCapacitor) {
-            // 🔥 USA NOVA FUNÇÃO PARA CAPACITOR
-            await processarOAuthCapacitor();
-        } else {
-            // Web normal
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: 'https://oubook.vercel.app/',
-                    skipBrowserRedirect: false
-                }
+        // 🔥🔥🔥 CORREÇÃO AQUI - SUBSTITUA ESTAS LINHAS:
+        const redirectUrl = isMobileApp 
+            ? 'com.oubook.agendamento://auth-callback'
+            : 'https://oubook.vercel.app/';
+        
+        console.log('🎯 Redirect URL:', redirectUrl);
+        
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: redirectUrl, // ← USA A VARIÁVEL CORRIGIDA
+                skipBrowserRedirect: false
+            }
+        });
+        
+        if (error) throw error;
+        
+        console.log('🌐 URL de autenticação:', data.url);
+        
+        // 🔥 ABRE O BROWSER CORRETAMENTE
+        if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
+            console.log('📱 Abrindo no Capacitor Browser...');
+            await window.Capacitor.Plugins.Browser.open({ 
+                url: data.url,
+                windowName: '_self'
             });
-            
-            if (error) throw error;
-            
+        } else {
             console.log('🌐 Redirecionando para URL...');
             window.location.href = data.url;
         }
@@ -6044,10 +6055,10 @@ window.sugerirHorarios = async function() {
             }
         });
 
-// 🔥 CORREÇÃO: Função processarRetornoOAuth atualizada
+// 🔥 FUNÇÃO QUE FUNCIONAVA
 async function processarRetornoOAuth(url) {
     try {
-        console.log('🔄 Processando URL OAuth:', url);
+        console.log('🔄 Processando retorno OAuth...', url);
         
         const urlObj = new URL(url);
         const hash = urlObj.hash.substring(1);
@@ -6067,12 +6078,6 @@ async function processarRetornoOAuth(url) {
                     userToken = data.session.access_token;
                     localStorage.setItem('userToken', userToken);
                     
-                    // 🔥 INICIALIZAÇÃO IMEDIATA DO PREMIUM MANAGER
-                    if (!premiumManager) {
-                        premiumManager = new PremiumManager();
-                        await premiumManager.startTrial();
-                    }
-                    
                     // Fecha browser do Capacitor
                     if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
                         try {
@@ -6082,31 +6087,9 @@ async function processarRetornoOAuth(url) {
                         }
                     }
                     
-                    // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
-                    await premiumManager.updateUsageBadge();
-                    
-                    // 🔥 VERIFICAÇÃO DE USOS NO LOGIN MOBILE
-                    setTimeout(async () => {
-                        if (premiumManager && userToken) {
-                            const status = await premiumManager.checkTrialStatus();
-                            console.log('📊 Status no login mobile:', status);
-                            
-                            if (status.hasTrial && status.dailyUsagesLeft <= 0) {
-                                console.log('🚫 Usuário mobile logou sem usos');
-                                const limit = status.isPremiumTrial ? 15 : 5;
-                                premiumManager.showDailyLimitModal(limit);
-                            }
-                        }
-                    }, 2000);
-                    
-                    // 🔥 CORREÇÃO: Atualiza interface COMPLETAMENTE
-                    loginSection.style.display = 'none';
-                    form.style.display = 'block';
-                    atualizarInterfacePosLogin();
-                    document.getElementById('secoesIA').style.display = 'block';
-                    setTimeout(() => atualizarBadgePerfil(), 2000);
-                    listarAgendamentos();
-                    showToast("Login com Google realizado!", "success");
+                    // Atualiza interface
+                    showToast("Login realizado com sucesso!", "success");
+                    window.location.reload();
                 }
             }
         }
@@ -6328,6 +6311,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
