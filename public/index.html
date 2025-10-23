@@ -5976,6 +5976,7 @@ function forcarAtualizacaoAgendamentos() {
         // 🆕 ADICIONE ESTE CÓDIGO ao seu frontend principal
 
 
+
 // 🆕 FUNÇÃO: Ouvir mudanças em tempo real nos agendamentos (VERSÃO CORRIGIDA)
 function iniciarOuvinteAgendamentos() {
   if (!userToken || agendamentosSubscription) return;
@@ -6006,13 +6007,10 @@ function iniciarOuvinteAgendamentos() {
             
             if (premiumManager) {
               premiumManager.updateUsageBadge();
-              if (typeof controlarBotaoGerarLink === 'function') {
-                controlarBotaoGerarLink();
-              }
-            }
-          }
-        }
-      )
+            } // ✅ FECHOU O if do premiumManager
+          } // ✅ FECHOU O if do payload.eventType
+        } // ✅ FECHOU a função do payload
+      ) // ✅ FECHOU o .on()
       .subscribe((status) => {
         console.log('📡 Status Realtime:', status);
         if (status === 'SUBSCRIBED') {
@@ -6024,6 +6022,8 @@ function iniciarOuvinteAgendamentos() {
     console.error('❌ Erro ao iniciar ouvinte:', error);
   });
 }
+
+// Interval separado (mantém como estava)
 setInterval(async () => {
   if (userToken && premiumManager && !document.hidden) {
     try {
@@ -6047,6 +6047,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
