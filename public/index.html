@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -4628,7 +4627,7 @@ async function logoutSilencioso() {
 
       
 
-   // ✅ LOGIN GOOGLE CORRIGIDO
+  // ✅ LOGIN GOOGLE CORRIGIDO
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const aceiteTermos = document.getElementById('aceiteTermos');
     if (!aceiteTermos?.checked) {
@@ -4653,13 +4652,13 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         const redirectUrl = getRedirectUrl();
         console.log('🎯 Redirect URL:', redirectUrl);
         
-      const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-        redirectTo: getRedirectUrl(), // 🔥 USA A FUNÇÃO INTELIGENTE
-        skipBrowserRedirect: false
-    }
-});
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: redirectUrl, // 🔥 USA A VARIÁVEL redirectUrl
+                skipBrowserRedirect: false
+            }
+        });
         
         if (error) throw error;
         
@@ -4684,31 +4683,7 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
         btn.disabled = false;
     }
 });
-                
-                if (error) throw error;
-                
-                console.log('🌐 URL de autenticação:', data.url);
-                
-                // 🔥 ABRE O BROWSER CORRETAMENTE
-                if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
-                    console.log('📱 Abrindo no Capacitor Browser...');
-                    await window.Capacitor.Plugins.Browser.open({ 
-                        url: data.url,
-                        windowName: '_self'
-                    });
-                } else {
-                    console.log('🌐 Redirecionando para URL...');
-                    window.location.href = data.url;
-                }
-                
-            } catch (error) {
-                console.error('❌ Erro no login Google:', error);
-                showToast("Erro ao conectar com Google", "error");
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
+
 
 // 🔥 FUNÇÃO MELHORADA PARA FECHAR BROWSER
 async function fecharAbaPosLogin() {
@@ -6096,7 +6071,6 @@ setInterval(async () => {
     </script>
 </body>
 </html>
-
 
 
 
