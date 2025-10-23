@@ -2268,6 +2268,11 @@ async function processarCallbackOAuth() {
                 }
             }, 2000);
 
+             // 🔥 ADICIONE ESTA LINHA NO FINAL DO BLOCO if (session)
+            setTimeout(() => {
+                fecharAbaPosLogin();
+            }, 1000);
+            
         } else {
             throw new Error('Sessão não encontrada');
         }
@@ -2280,30 +2285,47 @@ async function processarCallbackOAuth() {
     }
 }
         
-      
-
-       
-
-        // 🔥 FUNÇÃO PARA FECHAR BROWSER
-        async function fecharBrowserCapacitor() {
-            console.log('🎯 Tentando fechar browser...');
-            
-            if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-                try {
-                    console.log('✅ Usando Capacitor Browser.close()');
-                    await window.Capacitor.Plugins.Browser.close();
-                    return;
-                } catch (error) {
-                    console.log('❌ Capacitor Browser.close() falhou:', error);
-                }
-            }
-            
+      async function fecharBrowserCapacitor() {
+    console.log('🎯 Tentando fechar browser...');
+    
+    // Tentativa 1: Capacitor Browser (prioridade)
+    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+        try {
+            console.log('✅ Usando Capacitor Browser.close()');
+            await window.Capacitor.Plugins.Browser.close();
+            return true;
+        } catch (error) {
+            console.log('❌ Capacitor Browser.close() falhou:', error);
+        }
+    }
+    
+    // Tentativa 2: window.close() em popups
+    try {
+        if (window.opener) {
+            window.close();
+            return true;
+        }
+    } catch (error) {
+        console.log('❌ window.close() falhou:', error);
+    }
+    
+    // Tentativa 3: Redirecionamento forçado
+    try {
+        window.location.href = 'about:blank';
+        setTimeout(() => {
             try {
                 window.close();
-            } catch (error) {
-                window.location.href = 'about:blank';
+            } catch (e) {
+                // Ignora erro
             }
-        }
+        }, 100);
+        return true;
+    } catch (error) {
+        console.log('❌ Redirecionamento falhou:', error);
+    }
+    
+    return false;
+}
 
 
         // ---------------- CONFIGURAÇÃO BACKEND ----------------
@@ -4656,6 +4678,39 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
             }
         });
 
+// 🔥 FUNÇÃO PARA FECHAR ABA APÓS LOGIN GOOGLE
+async function fecharAbaPosLogin() {
+    console.log('🎯 Tentando fechar aba após login...');
+    
+    // Método 1: Capacitor Browser
+    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
+        try {
+            console.log('✅ Fechando via Capacitor Browser...');
+            await window.Capacitor.Plugins.Browser.close();
+            return;
+        } catch (error) {
+            console.log('❌ Capacitor Browser.close() falhou:', error);
+        }
+    }
+    
+    // Método 2: window.close() (funciona em algumas abas popup)
+    try {
+        if (window.opener || window.history.length <= 1) {
+            window.close();
+        }
+    } catch (error) {
+        console.log('❌ window.close() falhou:', error);
+    }
+    
+    // Método 3: Redirecionar para página em branco (fallback)
+    setTimeout(() => {
+        window.location.href = 'about:blank';
+        setTimeout(() => {
+            window.close();
+        }, 100);
+    }, 500);
+}
+        
 // 🔒 SALVAR TERMOS NO BANCO APÓS LOGIN (se ainda não salvou)
 async function saveTermsAcceptanceToDatabase() {
     try {
@@ -5888,7 +5943,10 @@ async function processarRetornoOAuth(url) {
                     setTimeout(() => atualizarBadgePerfil(), 2000);
                     listarAgendamentos();
                     showToast("Login com Google realizado!", "success");
-                }
+                     setTimeout(() => {
+                    fecharAbaPosLogin();
+                }, 1000);
+                
             }
         }
     } catch (error) {
@@ -5996,6 +6054,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
