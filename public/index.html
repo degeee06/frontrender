@@ -2190,107 +2190,35 @@ function verificarCallbackOAuth() {
                        window.location.hash.includes('error');
     
     if (isCallback) {
-        console.log('🎯 Detectado callback OAuth - processando...');
+        console.log('🎯 Detectado callback OAuth...');
         
-        // ✅ DIFERENÇA CRÍTICA: Na WEB processa diferente
-        if (!window.Capacitor) {
-            console.log('🌐 Ambiente WEB detectado');
-            processarCallbackOAuthWeb();
+        // ✅ APP: Processa normalmente
+        if (window.Capacitor) {
+            console.log('📱 APP: Processando callback...');
+            document.getElementById('authCallbackScreen').classList.remove('hidden');
+            document.getElementById('mainAppContent').classList.add('hidden');
+            processarCallbackOAuth();
             return true;
         }
         
-        // ✅ APP: Processa normalmente
-        console.log('📱 Ambiente APP detectado');
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
-        processarCallbackOAuth();
+       // ✅ WEB: Supabase processa automaticamente
+console.log('🌐 WEB: Callback detectado - Supabase processando automaticamente');
+
+// Apenas monitora (opcional)
+setTimeout(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+            console.log('✅ Supabase processou automaticamente!');
+        }
+    });
+}, 2000);
+        
         return true;
     }
     
     return false;
 }
-
-
-// 🔥 FUNÇÃO CORRIGIDA: Processa OAuth especificamente para WEB
-// 🔥 FUNÇÃO CORRIGIDA: Processa OAuth com hash codificado
-async function processarCallbackOAuthWeb() {
-    try {
-        console.log('🌐 Processando OAuth callback na WEB...');
-        console.log('📨 Hash original:', window.location.hash);
         
-        // 🔥 DECODIFICA A URL PRIMEIRO
-        const decodedHash = decodeURIComponent(window.location.hash);
-        console.log('🔓 Hash decodificado:', decodedHash);
-        
-        if (decodedHash.includes('access_token')) {
-            console.log('✅ Token encontrado no hash - processando...');
-            
-            // Remove o # do início e cria URLSearchParams
-            const hashParams = new URLSearchParams(decodedHash.substring(1));
-            const access_token = hashParams.get('access_token');
-            const refresh_token = hashParams.get('refresh_token');
-            
-            console.log('🔑 Access token:', access_token ? '✅' : '❌');
-            console.log('🔄 Refresh token:', refresh_token ? '✅' : '❌');
-            
-            if (access_token) {
-                console.log('🎯 Definindo sessão com tokens...');
-                
-                // 🔥 DEFINE A SESSÃO MANUALMENTE
-                const { data, error } = await supabase.auth.setSession({
-                    access_token: access_token,
-                    refresh_token: refresh_token
-                });
-                
-                if (error) {
-                    console.error('❌ Erro ao definir sessão:', error);
-                    throw error;
-                }
-                
-                console.log('✅ Sessão definida com sucesso!');
-                
-                userToken = access_token;
-                localStorage.setItem('userToken', userToken);
-                
-                // Limpa a URL (remove o hash)
-                window.history.replaceState(null, '', window.location.pathname);
-                
-                // 🔥 INICIALIZAÇÃO DO PREMIUM MANAGER
-                if (!premiumManager) {
-                    premiumManager = new PremiumManager();
-                    await premiumManager.startTrial();
-                }
-                
-                // Atualiza interface
-                await premiumManager.updateUsageBadge();
-                loginSection.style.display = 'none';
-                form.style.display = 'block';
-                atualizarInterfacePosLogin();
-                document.getElementById('secoesIA').style.display = 'block';
-                
-                // Pequeno delay para garantir tudo carregou
-                setTimeout(() => {
-                    listarAgendamentos();
-                    showToast("Login com Google realizado!", "success");
-                }, 500);
-                
-                return;
-            }
-        }
-        
-        // Se chegou aqui, não conseguiu processar
-        throw new Error('Não foi possível extrair tokens do hash');
-        
-    } catch (error) {
-        console.error('❌ Erro OAuth na WEB:', error);
-        showToast("Erro ao processar login", "error");
-        
-        // Redireciona para home após erro
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 3000);
-    }
-}
 
         
         
@@ -2942,20 +2870,6 @@ if (window.Capacitor && window.Capacitor.Plugins?.App) {
     });
 }
 
-// 🔥 ATUALIZADO: Detecta callback OAuth na WEB também
-if ((window.location.hash.includes('access_token') || window.location.hash.includes('error')) && !window.Capacitor) {
-    console.log('🌐 Callback OAuth detectado na WEB');
-    // Já será processado pela verificarCallbackOAuth()
-}
-
-// 🔥 ATUALIZE PARA DETECTAR /auth-callback
-if (window.location.pathname === '/auth-callback' || 
-    window.location.href.includes('/auth-callback') ||
-    window.location.href.includes('com.oubook.agendamento://')) {
-    console.log('🔗 Capturando auth callback da URL atual...');
-    processarRetornoOAuth(window.location.href);
-}
-    
     // ✅ VERIFICAÇÃO SIMPLES DE LOGIN - COM CARREGAMENTO IMEDIATO DO PREMIUM
     const token = localStorage.getItem('userToken');
     console.log('🔑 Token no localStorage:', !!token);
@@ -4681,36 +4595,33 @@ async function logoutSilencioso() {
 }
 
      // ✅ LOGIN GOOGLE COM WEBVIEW INTERNO (VERSÃO FINAL)
+// ✅ LOGIN GOOGLE DEFINITIVO - FUNCIONA EM AMBOS
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const aceiteTermos = document.getElementById('aceiteTermos');
     if (!aceiteTermos?.checked) {
-        showToast("❌ Você precisa aceitar os termos para continuar", "error");
-        aceiteTermos?.focus();
+        showToast("❌ Aceite os termos para continuar", "error");
         return;
     }
 
     const btn = document.getElementById('googleLoginBtn');
     const originalText = btn.innerHTML;
     
-    btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando com Google...</span>';
+    btn.innerHTML = '<div class="loading-spinner"></div> <span>Conectando...</span>';
     btn.disabled = true;
     
     try {
-        console.log('🔐 Iniciando autenticação Google...');
-        
         const redirectUrl = getRedirectUrl();
         console.log('🎯 Redirect URL:', redirectUrl);
         
-        // 🔥 ABORDAGEM FINAL: WebView interno do Capacitor
         if (window.Capacitor?.Plugins?.Browser) {
-            console.log('📱 Abrindo WebView interno do Capacitor...');
+            // 🔥 APP: Nós controlamos o WebView
+            console.log('📱 APP: Abrindo WebView interno...');
             
-            // 🔥 CRÍTICO: skipBrowserRedirect: true para controlar nós mesmos
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: redirectUrl,
-                    skipBrowserRedirect: true // 🔥 IMPEDE NAVEGADOR EXTERNO
+                    skipBrowserRedirect: true // ✅ APP: nós controlamos
                 }
             });
             
@@ -4718,25 +4629,27 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
             
             console.log('🌐 URL de autenticação:', data.url);
             
-            // 🔥 ABRE NO BROWSER DO CAPACITOR (WebView interno)
+            // Abre no WebView do Capacitor
             await window.Capacitor.Plugins.Browser.open({ 
                 url: data.url,
                 windowName: '_self'
             });
             
         } else {
-            // Fallback para web normal
-            console.log('🌐 Ambiente Web - redirecionamento normal');
+            // 🔥 WEB: Supabase controla automaticamente
+            console.log('🌐 WEB: Supabase controlando redirecionamento...');
             
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: redirectUrl,
-                    skipBrowserRedirect: false
+                    skipBrowserRedirect: false // ✅ WEB: Supabase controla
                 }
             });
             
             if (error) throw error;
+            
+            // Supabase redireciona automaticamente e processa o callback
             window.location.href = data.url;
         }
         
@@ -6082,6 +5995,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
