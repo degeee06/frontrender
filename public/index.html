@@ -5943,18 +5943,19 @@ async function processarRetornoOAuth(url) {
                     setTimeout(() => atualizarBadgePerfil(), 2000);
                     listarAgendamentos();
                     showToast("Login com Google realizado!", "success");
-                     setTimeout(() => {
-                    fecharAbaPosLogin();
-                }, 1000);
-                
-            }
-        }
+                    
+                    setTimeout(() => {
+                        fecharAbaPosLogin();
+                    }, 1000);
+                } // Fecha if (!error && data.session)
+            } // Fecha if (accessToken)
+        } // Fecha if (hash)
     } catch (error) {
         console.error('❌ Erro ao processar OAuth:', error);
         showToast("Erro ao finalizar login", "error");
     }
-}
-        
+} // Fecha a função processarRetornoOAuth
+
 // 🔥 CORREÇÃO: Adicionar função debounce faltante
 function debounce(func, wait) {
     let timeout;
@@ -5967,20 +5968,21 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
+
 // 🔥 CORREÇÃO: Adicionar função forcarAtualizacaoAgendamentos faltante
 function forcarAtualizacaoAgendamentos() {
     console.log('🔄 Forçando atualização de agendamentos...');
     listarAgendamentos();
 }
 
-        // 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
-        function fecharConfiguracao() {
-            console.log('🎯 Usuário pulou configuração');
-            fecharModalConfiguracao();
-            mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
-        }
+// 🔧 ATUALIZAR: Função para pular configuração (quando usuário clicar em "Pular")
+function fecharConfiguracao() {
+    console.log('🎯 Usuário pulou configuração');
+    fecharModalConfiguracao();
+    mostrarToast('⚙️ Você pode configurar depois clicando na engrenagem', 'info');
+}
 
-        // 🆕 ADICIONE ESTE CÓDIGO ao seu frontend principal
+    
 
 
 // 🆕 FUNÇÃO: Ouvir mudanças em tempo real nos agendamentos (VERSÃO CORRIGIDA)
@@ -6054,7 +6056,6 @@ setInterval(async () => {
     </script>
 </body>
 </html>
-
 
 
 
