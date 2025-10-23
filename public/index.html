@@ -2840,25 +2840,6 @@ async function init() {
     }
     
     console.log('▶️ Continuando init normal...');
-
-    // 🔥 ADICIONAR APENAS ESTE BLOCO NO init() - Listener Capacitor para OAuth
-if (window.Capacitor?.Plugins?.App) {
-    window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-        console.log('🔗 App aberto via URL:', data.url);
-        
-        if (data.url.includes('auth-callback')) {
-            console.log('📱 Processando retorno OAuth no app...');
-            
-            // Processa a URL diretamente - método que funcionava antes
-            const hashIndex = data.url.indexOf('#');
-            if (hashIndex !== -1) {
-                const hash = data.url.substring(hashIndex);
-                const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
-                processarRetornoOAuth(webUrl);
-            }
-        }
-    });
-}
     
     // Aplica máscara de telefone
     setTimeout(() => {
@@ -5844,12 +5825,11 @@ window.sugerirHorarios = async function() {
             }
         });
 
-// 🔥 ATUALIZAR: Função processarRetornoOAuth para usar método comprovado
+// 🔥 CORREÇÃO: Função processarRetornoOAuth atualizada
 async function processarRetornoOAuth(url) {
     try {
         console.log('🔄 Processando URL OAuth:', url);
         
-        // Método que funcionava no código anterior
         const urlObj = new URL(url);
         const hash = urlObj.hash.substring(1);
         
@@ -5859,8 +5839,6 @@ async function processarRetornoOAuth(url) {
             const refreshToken = params.get('refresh_token');
             
             if (accessToken) {
-                console.log('✅ Token OAuth recebido, configurando sessão...');
-                
                 const { data, error } = await supabase.auth.setSession({
                     access_token: accessToken,
                     refresh_token: refreshToken
@@ -5877,7 +5855,7 @@ async function processarRetornoOAuth(url) {
                     }
                     
                     // Fecha browser do Capacitor
-                    if (window.Capacitor?.Plugins?.Browser) {
+                    if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
                         try {
                             await window.Capacitor.Plugins.Browser.close();
                         } catch (e) {
@@ -5888,34 +5866,28 @@ async function processarRetornoOAuth(url) {
                     // 🔥 ATUALIZAÇÃO IMEDIATA DO BADGE
                     await premiumManager.updateUsageBadge();
                     
-                    // Atualiza interface
-                    document.getElementById('authCallbackScreen').classList.add('hidden');
-                    document.getElementById('mainAppContent').classList.remove('hidden');
-                    loginSection.style.display = 'none';
-                    form.style.display = 'block';
-                    
-                    atualizarInterfacePosLogin();
-                    document.getElementById('secoesIA').style.display = 'block';
-                    listarAgendamentos();
-                    
-                    showToast("Login com Google realizado!", "success");
-                    
-                    // 🔥 VERIFICAÇÃO DE LIMITE APÓS LOGIN
+                    // 🔥 VERIFICAÇÃO DE USOS NO LOGIN MOBILE
                     setTimeout(async () => {
                         if (premiumManager && userToken) {
                             const status = await premiumManager.checkTrialStatus();
-                            console.log('📊 Status no login OAuth:', status);
+                            console.log('📊 Status no login mobile:', status);
                             
                             if (status.hasTrial && status.dailyUsagesLeft <= 0) {
-                                console.log('🚫 Usuário logou já sem usos disponíveis');
+                                console.log('🚫 Usuário mobile logou sem usos');
                                 const limit = status.isPremiumTrial ? 15 : 5;
                                 premiumManager.showDailyLimitModal(limit);
                             }
                         }
                     }, 2000);
                     
-                } else {
-                    throw new Error('Erro ao configurar sessão: ' + error?.message);
+                    // 🔥 CORREÇÃO: Atualiza interface COMPLETAMENTE
+                    loginSection.style.display = 'none';
+                    form.style.display = 'block';
+                    atualizarInterfacePosLogin();
+                    document.getElementById('secoesIA').style.display = 'block';
+                    setTimeout(() => atualizarBadgePerfil(), 2000);
+                    listarAgendamentos();
+                    showToast("Login com Google realizado!", "success");
                 }
             }
         }
@@ -6024,7 +5996,6 @@ setInterval(async () => {
     </script>
 </body>
 </html>
-
 
 
 
