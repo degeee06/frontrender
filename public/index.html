@@ -2133,18 +2133,22 @@
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
-
+    <!-- 🔥 CDN + script normal -->
+    <script src="https://unpkg.com/@capacitor/core/dist/capacitor.js"></script>
+    <script src="https://unpkg.com/@capacitor/push-notifications/dist/plugin.js"></script>
+    <script src="https://unpkg.com/@capacitor/local-notifications/dist/plugin.js"></script>
     <script src="js/push-notifications.js"></script>
+
     <script>
-// 🔥 FUNÇÃO GLOBAL PARA TESTAR NOTIFICAÇÕES
-window.testarNotificacoes = function() {
-    if (window.pushNotificationService) {
-        window.pushNotificationService.testPushNotifications();
-    } else {
-        alert('Serviço de notificações não carregado. Só funciona no app Android.');
+    // 🔥 FUNÇÃO GLOBAL PARA TESTAR NOTIFICAÇÕES
+    window.testarNotificacoes = function() {
+        if (window.pushNotificationService) {
+            window.pushNotificationService.testPushNotifications();
+        } else {
+            alert('Serviço de notificações não carregado. Só funciona no app Android.');
+        }
     }
-}
-</script>
+    </script>
 
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
