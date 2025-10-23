@@ -2829,13 +2829,99 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+
+// ==================== CORREÇÕES CAPACITOR ====================
+// 🔥 CORREÇÃO 1: Função para detectar redirect URL correta
+function getRedirectUrl() {
+    // Detecta se está no Capacitor
+    const isCapacitor = !!(window.Capacitor || window.cordova);
+    
+    if (isCapacitor) {
+        // URL específica para Capacitor
+        return 'com.oubook.agendamento://auth-callback';
+    } else {
+        // URL para web
+        return 'https://frontrender-iota.vercel.app/auth-callback.html';
+    }
+}
+
+// 🔥 CORREÇÃO 2: Função específica para processar callback no Capacitor
+async function processarCallbackOAuthCapacitor(url) {
+    try {
+        console.log('🔄 Processando callback OAuth no Capacitor...');
+        
+        // Extrai os parâmetros da URL
+        const urlObj = new URL(url);
+        const hash = urlObj.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        
+        const access_token = params.get('access_token');
+        const refresh_token = params.get('refresh_token');
+        
+        if (access_token) {
+            // Define a sessão manualmente
+            const { data: { session }, error } = await supabase.auth.setSession({
+                access_token: access_token,
+                refresh_token: refresh_token
+            });
+            
+            if (error) throw error;
+            
+            if (session) {
+                console.log('✅ Sessão restaurada no Capacitor!');
+                userToken = session.access_token;
+                localStorage.setItem('userToken', userToken);
+                
+                // Fecha a tela de autenticação e mostra o app
+                document.getElementById('authCallbackScreen').classList.add('hidden');
+                document.getElementById('mainAppContent').classList.remove('hidden');
+                
+                // Atualiza a interface
+                loginSection.style.display = 'none';
+                form.style.display = 'block';
+                atualizarInterfacePosLogin();
+                
+                showToast("Login realizado com sucesso!", "success");
+            }
+        }
+    } catch (error) {
+        console.error('❌ Erro no callback Capacitor:', error);
+        showToast("Erro ao processar login", "error");
+    }
+}
+
+// 🔥 CORREÇÃO 3: Verificação inicial para Capacitor
+function verificarCallbackCapacitor() {
+    if (window.Capacitor && !window.location.href.startsWith('http')) {
+        // Está no Capacitor - verifica se tem parâmetros OAuth na URL atual
+        if (window.location.href.includes('access_token') || 
+            window.location.href.includes('error=')) {
+            console.log('🎯 Detectado callback OAuth no Capacitor');
+            document.getElementById('authCallbackScreen').classList.remove('hidden');
+            document.getElementById('mainAppContent').classList.add('hidden');
+            processarCallbackOAuthCapacitor(window.location.href);
+            return true;
+        }
+    }
+    return false;
+}
+// ==================== FIM CORREÇÕES CAPACITOR ====================
+
+console.log('🚀 Script carregado! Iniciando aplicação...');
         
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
     
+    // 🔥 CORREÇÃO: Verifica primeiro se é callback do Capacitor
+    if (verificarCallbackCapacitor()) {
+        console.log('⏸️ Parando init - é callback OAuth do Capacitor');
+        return;
+    }
+    
     if (verificarCallbackOAuth()) {
-        console.log('⏸️ Parando init - é callback OAuth');
+        console.log('⏸️ Parando init - é callback OAuth Web');
         return;
     }
     
@@ -2856,23 +2942,23 @@ async function init() {
     configurarEventListenersModal();
     
     // ✅ LISTENER CAPACITOR CORRIGIDO
-    if (window.Capacitor && window.Capacitor.Plugins?.App) {
-        window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-            console.log('🔗 App aberto via URL:', data.url);
+   // ✅ LISTENER CAPACITOR CORRIGIDO
+if (window.Capacitor && window.Capacitor.Plugins?.App) {
+    window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
+        console.log('🔗 App aberto via URL:', data.url);
+        
+        if (data.url.includes('access_token') || data.url.includes('error=')) {
+            console.log('🎯 Processando callback OAuth no Capacitor...');
             
-            if (data.url.includes('auth-callback')) {
-                console.log('📱 Processando retorno OAuth no app...');
-                
-                const url = new URL(data.url);
-                const hash = url.hash;
-                
-                if (hash) {
-                    const webUrl = `https://frontrender-iota.vercel.app/auth-callback.html${hash}`;
-                    processarRetornoOAuth(webUrl);
-                }
-            }
-        });
-    }
+            // Mostra tela de autenticação
+            document.getElementById('authCallbackScreen').classList.remove('hidden');
+            document.getElementById('mainAppContent').classList.add('hidden');
+            
+            // Processa o callback
+            processarCallbackOAuthCapacitor(data.url);
+        }
+    });
+}
     
     // ✅ VERIFICAÇÃO SIMPLES DE LOGIN - COM CARREGAMENTO IMEDIATO DO PREMIUM
     const token = localStorage.getItem('userToken');
@@ -2928,8 +3014,6 @@ async function init() {
         mostrarTelaLogin();
     }
     
-   // 🔥 ADICIONE APENAS ESTA LINHA:
-    if (window.Capacitor) configurarCapacitor7();
     
     feather.replace();
 }
@@ -4596,7 +4680,7 @@ async function logoutSilencioso() {
 
       
 
-        // ✅ LOGIN GOOGLE CORRIGIDO
+
       // ✅ LOGIN GOOGLE COM VERIFICAÇÃO DE TERMOS (SUBSTITUA O EXISTENTE)
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     // 🔒 VERIFICAR CHECKBOX (NOVO - IMPORTANTE!)
@@ -4620,9 +4704,8 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
                 console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
                 
                 // 🔥 URL DE REDIRECT CORRETA
-                const redirectUrl = isMobileApp 
-                    ? 'com.oubook.agendamento://auth-callback'
-                    : 'https://frontrender-iota.vercel.app/';
+               // 🔥 CORREÇÃO: Use a função getRedirectUrl() corrigida
+                const redirectUrl = getRedirectUrl();
                 
                 console.log('🎯 Redirect URL:', redirectUrl);
                 
@@ -6112,6 +6195,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
