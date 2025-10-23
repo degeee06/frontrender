@@ -2212,23 +2212,21 @@ function verificarCallbackOAuth() {
 }
         
 
-// 🔥 FUNÇÃO TEMPORÁRIA PARA WEB
 async function processarCallbackOAuthWeb() {
     try {
         console.log('🌐 Processando OAuth callback na WEB...');
-        console.log('📨 Hash:', window.location.hash);
         
-        // Corrige hash duplo ## para #
         let hash = window.location.hash;
+        
+        // 🔥 CORREÇÃO: Remove hash duplo se existir
         if (hash.startsWith('##')) {
             hash = '#' + hash.substring(2);
-            console.log('🔧 Hash corrigido:', hash);
+            console.log('🔧 Hash duplo corrigido:', hash);
         }
         
         if (hash.includes('access_token')) {
             console.log('✅ Token encontrado - processando...');
             
-            // Extrai tokens manualmente
             const accessTokenMatch = hash.match(/access_token=([^&]+)/);
             const refreshTokenMatch = hash.match(/refresh_token=([^&]+)/);
             
@@ -2236,8 +2234,6 @@ async function processarCallbackOAuthWeb() {
             const refresh_token = refreshTokenMatch ? decodeURIComponent(refreshTokenMatch[1]) : null;
             
             if (access_token) {
-                console.log('🎯 Definindo sessão...');
-                
                 const { data, error } = await supabase.auth.setSession({
                     access_token: access_token,
                     refresh_token: refresh_token
@@ -2245,15 +2241,18 @@ async function processarCallbackOAuthWeb() {
                 
                 if (error) throw error;
                 
-                console.log('✅ Login realizado via fallback!');
+                console.log('✅ Sessão definida com sucesso!');
                 
-                // Limpa a URL e redireciona
+                userToken = access_token;
+                localStorage.setItem('userToken', userToken);
+                
+                // 🔥 LIMPA A URL COMPLETAMENTE
                 window.history.replaceState(null, '', '/');
                 
-                // Recarrega a página para aplicar o login
+                // Recarrega para aplicar todas as mudanças
                 setTimeout(() => {
                     window.location.reload();
-                }, 500);
+                }, 100);
                 
                 return;
             }
@@ -2263,12 +2262,13 @@ async function processarCallbackOAuthWeb() {
         
     } catch (error) {
         console.error('❌ Erro OAuth na WEB:', error);
-        // Redireciona para home
         setTimeout(() => {
             window.location.href = '/';
         }, 2000);
     }
-}        
+}
+
+        
         
 // 🔥 CORREÇÃO: Função processarCallbackOAuth atualizada para carregar usos
 async function processarCallbackOAuth() {
@@ -4635,11 +4635,15 @@ async function logoutSilencioso() {
             }
         }
 
-      function getRedirectUrl() {
+  function getRedirectUrl() {
     if (window.Capacitor && window.Capacitor.isNativePlatform) {
         return 'com.oubook.agendamento://auth-callback';
     }
-    return 'https://oubook.vercel.app/auth-callback';
+    
+    // 🔥 CORREÇÃO: Remove # da URL para evitar hash duplo
+    const baseUrl = 'https://oubook.vercel.app';
+    console.log('🎯 Redirect URL (WEB):', baseUrl);
+    return baseUrl;
 }
 
      // ✅ LOGIN GOOGLE COM WEBVIEW INTERNO (VERSÃO FINAL)
@@ -6043,6 +6047,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
