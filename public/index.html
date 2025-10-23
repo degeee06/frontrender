@@ -6058,21 +6058,52 @@ setInterval(async () => {
   }
 }, 10000); // Atualiza a cada 10 segundos
       // ---------------- INIT ----------------
-AOS.init({
-    duration: 800,
-    easing: 'ease-out-quart',
-    once: true
-});
-feather.replace();
-init();
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-quart',
+            once: true
+        });
+        feather.replace();
+        init();
 
-// 🔥 INICIALIZAÇÃO DAS NOTIFICAÇÕES - NO LUGAR CORRETO!
-if (window.pushNotificationService) {
-    setTimeout(() => {
-        window.pushNotificationService.initialize();
-    }, 2000); // Aguarda 2 segundos para tudo carregar
-}
-</script>
+        // 🔥 AGORA CARREGUE OS PLUGINS DEPOIS QUE TUDO INICIALIZOU
+        setTimeout(() => {
+            // Carrega os plugins dinamicamente
+            const script1 = document.createElement('script');
+            script1.src = 'https://unpkg.com/@capacitor/push-notifications/dist/plugin.js';
+            document.head.appendChild(script1);
+
+            const script2 = document.createElement('script');
+            script2.src = 'https://unpkg.com/@capacitor/local-notifications/dist/plugin.js';
+            document.head.appendChild(script2);
+
+            // 🔥 CARREGA O SERVIÇO DEPOIS DOS PLUGINS
+            script2.onload = () => {
+                const serviceScript = document.createElement('script');
+                serviceScript.src = 'js/push-notifications.js';
+                document.head.appendChild(serviceScript);
+
+                serviceScript.onload = () => {
+                    console.log('✅ Todos os scripts de notificação carregados!');
+                    // 🔥 INICIALIZA AS NOTIFICAÇÕES
+                    if (window.pushNotificationService) {
+                        window.pushNotificationService.initialize();
+                    }
+                };
+            };
+        }, 3000); // Aguarda 3 segundos para tudo carregar
+    </script>
+
+    <script>
+    // 🔥 FUNÇÃO GLOBAL PARA TESTAR NOTIFICAÇÕES
+    window.testarNotificacoes = function() {
+        if (window.pushNotificationService) {
+            window.pushNotificationService.testPushNotifications();
+        } else {
+            alert('Serviço de notificações não carregado. Aguarde o carregamento.');
+        }
+    }
+    </script>
 </body>
 </html>
 
