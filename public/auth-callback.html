@@ -3,289 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autenticando no Oubook...</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
+    <title>Autenticando - Oubook</title>
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    body {
-        font-family: 'Inter', sans-serif;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        color: white;
-    }
-  
-    .glass-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-    
-    .spinner {
-        border: 4px solid rgba(255,255,255,0.3);
-        border-radius: 50%;
-        border-top: 4px solid white;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    .animate-pulse-slow {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-    
-    /* 🔥 CORREÇÕES MOBILE CRÍTICAS */
-    @media (max-width: 640px) {
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
         .container {
-            padding-left: 12px;
-            padding-right: 12px;
+            text-align: center;
+            padding: 20px;
         }
-        
-        .glass-card {
-            margin-left: -8px;
-            margin-right: -8px;
-            border-radius: 16px;
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
-    }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 text-white">
-    <div class="container mx-auto px-4 py-8 max-w-6xl min-h-screen flex items-center justify-center">
-        <div class="glass-card rounded-2xl p-6 md:p-8 w-full max-w-md mx-auto animate-fade-in" data-aos="fade-up">
-            <!-- Header Elegante -->
-            <div class="flex items-center justify-center mb-6">
-                <div class="p-3 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg">
-                    <i data-feather="lock" class="w-6 h-6 text-white"></i>
-                </div>
-            </div>
-
-            <h2 class="text-xl sm:text-2xl font-semibold text-center mb-2">Autenticando</h2>
-            <p class="text-center text-gray-300 mb-6">Conectando sua conta...</p>
-
-            <!-- Spinner Central -->
-            <div class="flex justify-center mb-6">
-                <div class="spinner"></div>
-            </div>
-
-            <!-- Status e Informações -->
-            <div class="text-center space-y-4">
-                <p class="text-gray-300 animate-pulse-slow">Redirecionando de volta para o app</p>
-                
-                <!-- Informações de Debug (apenas em desenvolvimento) -->
-                <div id="debugInfo" class="mt-6 p-4 bg-white/5 rounded-lg border border-white/10 text-left hidden">
-                    <h3 class="text-sm font-semibold mb-2">🔍 Informações de Conexão:</h3>
-                    <div class="text-xs space-y-1">
-                        <div id="urlInfo"></div>
-                        <div id="hashInfo"></div>
-                        <div id="envInfo"></div>
-                        <div id="tokenInfo"></div>
-                    </div>
-                </div>
-
-                <!-- Botão de Fallback -->
-                <div class="mt-6 pt-6 border-t border-white/10">
-                    <button id="manualRedirect" class="text-sm text-cyan-300 hover:text-cyan-200 transition-colors hidden flex items-center justify-center gap-2 w-full">
-                        <i data-feather="refresh-cw" class="w-4 h-4"></i>
-                        Redirecionar manualmente
-                    </button>
-                </div>
-            </div>
-        </div>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h2>Autenticando...</h2>
+        <p>Redirecionando de volta para o app</p>
     </div>
 
     <script>
-        // Inicializa AOS e Feather Icons
-        AOS.init({
-            duration: 800,
-            easing: 'ease-out-quart',
-            once: true
-        });
-        feather.replace();
-
-        // 🔥 DETECÇÃO MAIS ROBUSTA DE AMBIENTE
-        function redirectToApp() {
-            console.log('🎯 Iniciando processo de autenticação...');
-            
-            // Mostra informações de debug (opcional)
-            showDebugInfo();
-            
-            // 🔥 DETECTA SE ESTÁ NO WEB OU APP (VERSÃO MELHORADA)
-            const isWeb = !(window.Browser || window.cordova || 
-                           navigator.userAgent.includes('Capacitor') ||
-                           navigator.userAgent.includes('Cordova'));
-            console.log('🏁 Ambiente:', isWeb ? 'WEB' : 'APP');
-            
-            if (window.location.hash) {
-                if (isWeb) {
-                    // 🔥 WEB: Redireciona para a página principal com o token
-                    console.log('🌐 Processando autenticação web...');
-                    handleWebAuthentication();
-                } else {
-                    // 🔥 APP: Redireciona para o app nativo
-                    console.log('📱 Redirecionando para app...');
-                    const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
-                    console.log('🎯 App URL:', appUrl);
-                    window.location.href = appUrl;
-                    
-                    // Mostra botão de fallback após 3 segundos
-                    setTimeout(() => {
-                        document.getElementById('manualRedirect').classList.remove('hidden');
-                    }, 3000);
-                    
-                    setTimeout(() => {
-                        fecharBrowserCapacitor();
-                    }, 1000);
-                }
-            } else {
-                console.log('❌ Nenhum token encontrado, fechando...');
-                showError('Nenhum token de autenticação encontrado');
-                setTimeout(() => {
-                    fecharBrowserCapacitor();
-                }, 2000);
-            }
-        }
-
-        // 🔥 FUNÇÃO PARA AUTENTICAÇÃO WEB
-        function handleWebAuthentication() {
-            try {
-                console.log('🔑 Processando token para web...');
-                
-                // Extrai o token do hash
-                const hash = window.location.hash.substring(1);
-                const params = new URLSearchParams(hash);
-                
-                const accessToken = params.get('access_token');
-                const refreshToken = params.get('refresh_token');
-                
-                console.log('✅ Access Token:', accessToken ? 'Encontrado' : 'Não encontrado');
-                console.log('✅ Refresh Token:', refreshToken ? 'Encontrado' : 'Não encontrado');
-                
-                if (accessToken) {
-                    // 🔥 WEB: Armazena o token e redireciona para a página principal
-                    localStorage.setItem('access_token', accessToken);
-                    if (refreshToken) {
-                        localStorage.setItem('refresh_token', refreshToken);
-                    }
-                    
-                    console.log('✅ Tokens armazenados no localStorage');
-                    
-                    // Atualiza UI para sucesso
-                    document.querySelector('h2').textContent = 'Autenticado com sucesso!';
-                    document.querySelector('p').textContent = 'Redirecionando para o Oubook...';
-                    
-                    // Redireciona para a página principal após breve delay
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 1500);
-                } else {
-                    console.log('❌ Token de acesso não encontrado');
-                    showError('Token de acesso não encontrado');
-                    setTimeout(() => {
-                        window.location.href = '/?error=auth_failed';
-                    }, 2000);
-                }
-            } catch (error) {
-                console.log('❌ Erro na autenticação web:', error);
-                showError('Erro na autenticação');
-                setTimeout(() => {
-                    window.location.href = '/?error=auth_error';
-                }, 2000);
-            }
-        }
-
-        // 🔥🔥🔥 FUNÇÃO CORRIGIDA PARA FECHAR NO CAPACITOR
-        async function fecharBrowserCapacitor() {
-            console.log('🎯 Tentando fechar browser...');
-            
-            // PRIMEIRO: Tenta fechar com Capacitor Browser API
-            if (window.Capacitor && window.Capacitor.Plugins?.Browser) {
-                try {
-                    console.log('✅ Usando Capacitor Browser.close()');
-                    await window.Capacitor.Plugins.Browser.close();
-                    console.log('✅ Browser fechado via Capacitor!');
-                    return;
-                } catch (error) {
-                    console.log('❌ Capacitor Browser.close() falhou:', error);
-                }
-            }
-            
-            // SEGUNDO: Fallback para window.close() com timeout
-            console.log('🔄 Tentando window.close()...');
-            setTimeout(() => {
-                try {
-                    window.close();
-                    console.log('✅ Janela fechada via window.close()');
-                } catch (error) {
-                    console.log('❌ window.close() falhou');
-                    // Último recurso: redireciona para about:blank
-                    window.location.href = 'about:blank';
-                }
-            }, 300);
-        }
-
-        // 🔥 FUNÇÃO PARA MOSTRAR INFORMAÇÕES DE DEBUG
-        function showDebugInfo() {
-            const debugEl = document.getElementById('debugInfo');
-            const urlEl = document.getElementById('urlInfo');
-            const hashEl = document.getElementById('hashInfo');
-            const envEl = document.getElementById('envInfo');
-            const tokenEl = document.getElementById('tokenInfo');
-            
-            // Apenas mostra debug em desenvolvimento
-            if (window.location.hostname === 'localhost' || window.location.hostname.includes('dev')) {
-                debugEl.classList.remove('hidden');
-                
-                urlEl.textContent = `📱 URL: ${window.location.href.substring(0, 80)}...`;
-                hashEl.textContent = `🔑 Hash: ${window.location.hash ? 'Presente' : 'Ausente'}`;
-                envEl.textContent = `🏁 Ambiente: ${window.Capacitor ? 'APP' : 'WEB'}`;
-                
-                // Verifica se há token
-                const hash = window.location.hash.substring(1);
-                const params = new URLSearchParams(hash);
-                const accessToken = params.get('access_token');
-                tokenEl.textContent = `✅ Token: ${accessToken ? 'Encontrado' : 'Não encontrado'}`;
-            }
-        }
-
-        // 🔥 FUNÇÃO PARA MOSTRAR ERRO
-        function showError(message) {
-            document.querySelector('h2').textContent = 'Erro na autenticação';
-            document.querySelector('p').textContent = message;
-            document.querySelector('.spinner').style.borderTopColor = '#ef4444'; // Vermelho
-        }
-
-        // 🔥 CONFIGURA BOTÃO DE REDIRECIONAMENTO MANUAL
-        document.getElementById('manualRedirect').addEventListener('click', function() {
-            const appUrl = `com.oubook.agendamento://auth-callback${window.location.hash}`;
-            window.location.href = appUrl;
-        });
-
-        // Executa quando a página carrega
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Página carregada, iniciando autenticação...');
-            setTimeout(redirectToApp, 1000); // Pequeno delay para animação
-        });
+        console.log('🔗 Página de callback carregada:', window.location.href);
         
-        // Também tenta se a página já estiver carregada
-        if (document.readyState === 'complete') {
-            setTimeout(redirectToApp, 500);
+        function processOAuthCallback() {
+            console.log('🔄 Processando callback OAuth...');
+            
+            // Se tem hash, processa o OAuth
+            if (window.location.hash) {
+                console.log('📨 Hash encontrado:', window.location.hash);
+                
+                try {
+                    // 🔥 REDIRECIONA PARA A PÁGINA PRINCIPAL COM O HASH
+                    const mainUrl = 'https://oubook.vercel.app/#' + window.location.hash;
+                    console.log('🎯 Redirecionando para:', mainUrl);
+                    
+                    window.location.href = mainUrl;
+                } catch (error) {
+                    console.error('❌ Erro no redirecionamento:', error);
+                    window.location.href = 'https://oubook.vercel.app/';
+                }
+                
+            } else {
+                console.log('❌ Nenhum hash encontrado - redirecionando para home');
+                setTimeout(() => {
+                    window.location.href = 'https://oubook.vercel.app/';
+                }, 2000);
+            }
         }
+        
+        // Processa imediatamente
+        processOAuthCallback();
     </script>
 </body>
 </html>
