@@ -4661,7 +4661,7 @@ async function fecharAbaPosLogin() {
     }
 }
 
-// ✅ LOGIN GOOGLE CORRIGIDO (ISSO VEM DEPOIS DA FUNÇÃO)
+// ✅ LOGIN GOOGLE COM WEBVIEW INTERNO
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
     const aceiteTermos = document.getElementById('aceiteTermos');
     if (!aceiteTermos?.checked) {
@@ -4679,38 +4679,45 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
     try {
         console.log('🔐 Iniciando autenticação Google...');
         
-        const isMobileApp = !!(window.Capacitor || window.cordova);
-        console.log('📱 Ambiente:', isMobileApp ? 'APP' : 'WEB');
-        
-        // 🔥 AGORA A FUNÇÃO JÁ ESTÁ DEFINIDA
         const redirectUrl = getRedirectUrl();
         console.log('🎯 Redirect URL:', redirectUrl);
         
-      const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-        redirectTo: redirectUrl,
-        skipBrowserRedirect: false,
-        // 🔥 OPÇÃO 1: Google One Tap
-        queryParams: {
-            display: 'popup',
-            prompt: 'select_account'
-        }
-    }
-});
-        
-        if (error) throw error;
-        
-        console.log('🌐 URL de autenticação:', data.url);
-        
-        if (isMobileApp && window.Capacitor?.Plugins?.Browser) {
-            console.log('📱 Abrindo no Capacitor Browser...');
+        // 🔥 ABORDAGEM CORRIGIDA: WebView interno
+        if (window.Capacitor?.Plugins?.Browser) {
+            console.log('📱 Abrindo WebView interno do Capacitor...');
+            
+            // 🔥 CRÍTICO: skipBrowserRedirect: true para evitar navegador externo
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: redirectUrl,
+                    skipBrowserRedirect: true // 🔥 IMPEDE NAVEGADOR EXTERNO
+                }
+            });
+            
+            if (error) throw error;
+            
+            console.log('🌐 URL de autenticação:', data.url);
+            
+            // 🔥 ABRE NO BROWSER DO CAPACITOR (WebView interno)
             await window.Capacitor.Plugins.Browser.open({ 
                 url: data.url,
                 windowName: '_self'
             });
+            
         } else {
-            console.log('🌐 Redirecionando para URL...');
+            // Fallback para web normal
+            console.log('🌐 Ambiente Web - usando redirecionamento normal...');
+            
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: redirectUrl,
+                    skipBrowserRedirect: false
+                }
+            });
+            
+            if (error) throw error;
             window.location.href = data.url;
         }
         
@@ -6065,6 +6072,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
