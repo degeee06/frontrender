@@ -2181,7 +2181,67 @@ window.declineTerms = function() {
     document.getElementById('termsModal').classList.add('hidden');
 };
 
+      // 🔥 NOVA FUNÇÃO: Processar callback OAuth no Capacitor
+async function processarCallbackOAuthCapacitor(url) {
+    try {
+        console.log('🔄 Processando callback OAuth no Capacitor...', url);
         
+        // Extrai os parâmetros da URL
+        const urlObj = new URL(url);
+        const hash = urlObj.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        
+        const access_token = params.get('access_token');
+        const refresh_token = params.get('refresh_token');
+        
+        console.log('🔑 Token recebido:', !!access_token);
+        
+        if (access_token) {
+            // Define a sessão manualmente
+            const { data: { session }, error } = await supabase.auth.setSession({
+                access_token: access_token,
+                refresh_token: refresh_token
+            });
+            
+            if (error) {
+                console.error('❌ Erro ao definir sessão:', error);
+                throw error;
+            }
+            
+            if (session) {
+                console.log('✅ Sessão restaurada no Capacitor!');
+                userToken = session.access_token;
+                localStorage.setItem('userToken', userToken);
+                
+                // 🔥 CORREÇÃO: Fecha browser se estiver aberto
+                if (window.Capacitor?.Plugins?.Browser) {
+                    try {
+                        await window.Capacitor.Plugins.Browser.close();
+                        console.log('✅ Browser fechado com sucesso!');
+                    } catch (e) {
+                        console.log('⚠️ Browser já fechado ou não estava aberto');
+                    }
+                }
+                
+                // Atualiza a interface
+                document.getElementById('authCallbackScreen').classList.add('hidden');
+                document.getElementById('mainAppContent').classList.remove('hidden');
+                
+                loginSection.style.display = 'none';
+                form.style.display = 'block';
+                atualizarInterfacePosLogin();
+                
+                showToast("Login realizado com sucesso!", "success");
+            }
+        } else {
+            console.error('❌ Nenhum access_token encontrado na URL');
+            showToast("Erro: Token não recebido", "error");
+        }
+    } catch (error) {
+        console.error('❌ Erro no callback Capacitor:', error);
+        showToast("Erro ao processar login: " + error.message, "error");
+    }
+}  
         
       // 🔥 CORREÇÃO: Função verificarCallbackOAuth atualizada
 function verificarCallbackOAuth() {
@@ -2831,93 +2891,31 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// 🔥 CORREÇÃO CAPACITOR - Função para detectar redirect URL correta
+// 🔥 CORREÇÃO: Função para detectar redirect URL correta
 function getRedirectUrl() {
     // Detecta se está no Capacitor
     const isCapacitor = !!(window.Capacitor || window.cordova);
     
     if (isCapacitor) {
-        // 🔥🔥🔥 URL CORRIGIDA - APENAS O SCHEME
-        return 'com.oubook.agendamento://';
+        // 🔥 URL CORRIGIDA para Capacitor - COM SCHEME COMPLETO
+        return 'com.oubook.agendamento://auth-callback';
     } else {
         // URL para web
         return 'https://frontrender-iota.vercel.app/';
     }
 }
 
-// 🔥 CORREÇÃO: Função específica para processar callback no Capacitor
-async function processarCallbackOAuthCapacitor(url) {
-    try {
-        console.log('🔄 Processando callback OAuth no Capacitor...', url);
-        
-        // 🔥 CORREÇÃO: Extrai os parâmetros CORRETAMENTE
-        const urlObj = new URL(url);
-        const hash = urlObj.hash.substring(1);
-        const params = new URLSearchParams(hash);
-        
-        const access_token = params.get('access_token');
-        const refresh_token = params.get('refresh_token');
-        
-        console.log('🔑 Token recebido:', !!access_token);
-        
-        if (access_token) {
-            // Define a sessão manualmente
-            const { data: { session }, error } = await supabase.auth.setSession({
-                access_token: access_token,
-                refresh_token: refresh_token
-            });
-            
-            if (error) {
-                console.error('❌ Erro ao definir sessão:', error);
-                throw error;
-            }
-            
-            if (session) {
-                console.log('✅ Sessão restaurada no Capacitor!');
-                userToken = session.access_token;
-                localStorage.setItem('userToken', userToken);
-                
-                // 🔥 CORREÇÃO: Fecha browser se estiver aberto
-                if (window.Capacitor?.Plugins?.Browser) {
-                    try {
-                        await window.Capacitor.Plugins.Browser.close();
-                    } catch (e) {
-                        console.log('Browser já fechado ou não estava aberto');
-                    }
-                }
-                
-                // Atualiza a interface
-                document.getElementById('authCallbackScreen').classList.add('hidden');
-                document.getElementById('mainAppContent').classList.remove('hidden');
-                
-                loginSection.style.display = 'none';
-                form.style.display = 'block';
-                atualizarInterfacePosLogin();
-                
-                showToast("Login realizado com sucesso!", "success");
-            }
-        } else {
-            console.error('❌ Nenhum access_token encontrado na URL');
-            showToast("Erro: Token não recebido", "error");
-        }
-    } catch (error) {
-        console.error('❌ Erro no callback Capacitor:', error);
-        showToast("Erro ao processar login: " + error.message, "error");
-    }
-}
 
-// 🔥 CORREÇÃO 3: Verificação inicial para Capacitor
+
+// 🔥 NOVA FUNÇÃO: Verificar callback do Capacitor
 function verificarCallbackCapacitor() {
-    if (window.Capacitor && !window.location.href.startsWith('http')) {
-        // Está no Capacitor - verifica se tem parâmetros OAuth na URL atual
-        if (window.location.href.includes('access_token') || 
-            window.location.href.includes('error=')) {
-            console.log('🎯 Detectado callback OAuth no Capacitor');
-            document.getElementById('authCallbackScreen').classList.remove('hidden');
-            document.getElementById('mainAppContent').classList.add('hidden');
-            processarCallbackOAuthCapacitor(window.location.href);
-            return true;
-        }
+    // Verifica se está no Capacitor e tem parâmetros OAuth na URL atual
+    if (window.Capacitor && (window.location.href.includes('access_token') || window.location.href.includes('error='))) {
+        console.log('🎯 Detectado callback OAuth no Capacitor (URL atual)');
+        document.getElementById('authCallbackScreen').classList.remove('hidden');
+        document.getElementById('mainAppContent').classList.add('hidden');
+        processarCallbackOAuthCapacitor(window.location.href);
+        return true;
     }
     return false;
 }
@@ -2939,7 +2937,6 @@ async function init() {
         console.log('⏸️ Parando init - é callback OAuth Web');
         return;
     }
-    
     console.log('▶️ Continuando init normal...');
     
     // Aplica máscara de telefone
@@ -2956,7 +2953,7 @@ async function init() {
     // Configura listeners
     configurarEventListenersModal();
     
-   // ✅ LISTENER CAPACITOR CORRIGIDO
+ // ✅ LISTENER CAPACITOR CORRIGIDO - CAPTURA DEEP LINKS
 if (window.Capacitor && window.Capacitor.Plugins?.App) {
     window.Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
         console.log('🔗 App aberto via URL no Capacitor:', data.url);
@@ -6212,6 +6209,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
