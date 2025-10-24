@@ -2199,22 +2199,28 @@ window.declineTerms = function() {
 
         
         
-// 🔥 FUNÇÃO PARA PROCESSAR CALLBACK NA WEB
-function processarCallbackWeb() {
-    console.log('🌐 Verificando callback OAuth na web...');
+function verificarCallbackOAuth() {
+    console.log('🔄 Verificando se é callback OAuth...');
     
-    const hash = window.location.hash;
-    console.log('🔍 Hash atual:', hash);
+    const isCallback = window.location.hash.includes('access_token') || 
+                       window.location.hash.includes('error');
     
-    if (hash && (hash.includes('access_token') || hash.includes('error'))) {
-        console.log('✅ Callback OAuth detectado na web');
+    if (isCallback) {
+        console.log('🎯 Detectado callback OAuth...');
         
-        // Mostra tela de autenticação
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
+        // ✅ APP: Processa normalmente
+        if (window.Capacitor) {
+            console.log('📱 APP: Processando callback...');
+            document.getElementById('authCallbackScreen').classList.remove('hidden');
+            document.getElementById('mainAppContent').classList.add('hidden');
+            processarCallbackOAuth();
+            return true;
+        }
         
-        // Processa o callback
-        processarCallbackOAuthWeb();
+        // ✅ WEB: Processa MANUALMENTE (fallback necessário)
+        console.log('🌐 WEB: Processando callback manualmente...');
+        processarCallbackOAuthWeb(); // 🔥 REATIVA ESTA LINHA
+        
         return true;
     }
     
@@ -2228,7 +2234,7 @@ async function processarCallbackOAuthWeb() {
         
         let hash = window.location.hash;
         
-        // Remove # duplo se existir
+        // 🔥 CORREÇÃO: Remove hash duplo se existir
         if (hash.startsWith('##')) {
             hash = '#' + hash.substring(2);
             console.log('🔧 Hash duplo corrigido:', hash);
@@ -2244,17 +2250,12 @@ async function processarCallbackOAuthWeb() {
             const refresh_token = refreshTokenMatch ? decodeURIComponent(refreshTokenMatch[1]) : null;
             
             if (access_token) {
-                console.log('🔑 Definindo sessão com token:', access_token.substring(0, 20) + '...');
-                
                 const { data, error } = await supabase.auth.setSession({
                     access_token: access_token,
                     refresh_token: refresh_token
                 });
                 
-                if (error) {
-                    console.error('❌ Erro ao definir sessão:', error);
-                    throw error;
-                }
+                if (error) throw error;
                 
                 console.log('✅ Sessão definida com sucesso!');
                 
@@ -2262,9 +2263,7 @@ async function processarCallbackOAuthWeb() {
                 localStorage.setItem('userToken', userToken);
                 
                 // 🔥 LIMPA A URL COMPLETAMENTE
-                window.history.replaceState(null, '', window.location.pathname);
-                
-                console.log('🔄 Recarregando página...');
+                window.history.replaceState(null, '', '/');
                 
                 // Recarrega para aplicar todas as mudanças
                 setTimeout(() => {
@@ -2279,7 +2278,6 @@ async function processarCallbackOAuthWeb() {
         
     } catch (error) {
         console.error('❌ Erro OAuth na WEB:', error);
-        showToast("Erro ao processar login", "error");
         setTimeout(() => {
             window.location.href = '/';
         }, 2000);
@@ -2902,7 +2900,7 @@ console.log('🔍 DEBUG init - URL:', window.location.href);
 console.log('🔍 DEBUG init - Hash:', window.location.hash);
 console.log('🔍 DEBUG init - Capacitor:', !!window.Capacitor);
     
-    if (processarCallbackWeb()) {
+    if (verificarCallbackOAuth()) {
         console.log('⏸️ Parando init - é callback OAuth');
         return;
     }
@@ -4642,15 +4640,31 @@ async function logoutSilencioso() {
             }
         }
 
-  function getRedirectUrl() {
-    if (window.Capacitor && window.Capacitor.isNativePlatform) {
-        return 'com.oubook.agendamento://auth-callback';
-    }
+function getRedirectUrl() {
+    console.log('🔧 Calculando redirect URL...');
     
-    // 🔥 CORREÇÃO: Remove # da URL para evitar hash duplo
-    const baseUrl = 'https://oubook.vercel.app';
-    console.log('🎯 Redirect URL (WEB):', baseUrl);
-    return baseUrl;
+    // 🔥 DETECÇÃO MAIS PRECISA
+    const isCapacitor = window.Capacitor && 
+                        window.Capacitor.isNativePlatform && 
+                        window.Capacitor.isNativePlatform();
+    
+    console.log('📱 Plataforma detectada:', {
+        isCapacitor: isCapacitor,
+        userAgent: navigator.userAgent,
+        hostname: window.location.hostname
+    });
+    
+    if (isCapacitor) {
+        // 📱 APP
+        const appUrl = 'com.oubook.agendamento://auth-callback';
+        console.log('📱 URL do App:', appUrl);
+        return appUrl;
+    } else {
+        // 🌐 WEB - usa a URL atual como base
+        const webUrl = window.location.origin;
+        console.log('🌐 URL da Web:', webUrl);
+        return webUrl;
+    }
 }
 
      // ✅ LOGIN GOOGLE COM WEBVIEW INTERNO (VERSÃO FINAL)
@@ -6026,6 +6040,7 @@ function iniciarOuvinteAgendamentos() {
 }
 
 
+
 // Interval separado (mantém como estava)
 setInterval(async () => {
   if (userToken && premiumManager && !document.hidden) {
@@ -6088,7 +6103,6 @@ setInterval(async () => {
     </script>
 </body>
 </html>
-
 
 
 
