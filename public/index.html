@@ -2234,7 +2234,7 @@ async function processarCallbackOAuthWeb() {
         
         let hash = window.location.hash;
         
-        // 🔥 CORREÇÃO: Remove hash duplo se existir
+        // Remove # duplo se existir
         if (hash.startsWith('##')) {
             hash = '#' + hash.substring(2);
             console.log('🔧 Hash duplo corrigido:', hash);
@@ -2250,12 +2250,17 @@ async function processarCallbackOAuthWeb() {
             const refresh_token = refreshTokenMatch ? decodeURIComponent(refreshTokenMatch[1]) : null;
             
             if (access_token) {
+                console.log('🔑 Definindo sessão com token:', access_token.substring(0, 20) + '...');
+                
                 const { data, error } = await supabase.auth.setSession({
                     access_token: access_token,
                     refresh_token: refresh_token
                 });
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Erro ao definir sessão:', error);
+                    throw error;
+                }
                 
                 console.log('✅ Sessão definida com sucesso!');
                 
@@ -2263,7 +2268,9 @@ async function processarCallbackOAuthWeb() {
                 localStorage.setItem('userToken', userToken);
                 
                 // 🔥 LIMPA A URL COMPLETAMENTE
-                window.history.replaceState(null, '', '/');
+                window.history.replaceState(null, '', window.location.pathname);
+                
+                console.log('🔄 Recarregando página...');
                 
                 // Recarrega para aplicar todas as mudanças
                 setTimeout(() => {
@@ -2278,6 +2285,7 @@ async function processarCallbackOAuthWeb() {
         
     } catch (error) {
         console.error('❌ Erro OAuth na WEB:', error);
+        showToast("Erro ao processar login", "error");
         setTimeout(() => {
             window.location.href = '/';
         }, 2000);
@@ -2813,9 +2821,6 @@ async updateUsageBadge() {
 }
 
         
-console.log('🚀 Script carregado! Iniciando aplicação...');
-
-
         
 // 🔥 ADICIONAR: Alias para manter compatibilidade
 function mostrarToast(message, type = "success") {
@@ -2895,6 +2900,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
+     // 🔥 ADICIONE ESTA VERIFICAÇÃO NO INÍCIO DO INIT
+    if (processarCallbackWeb()) {
+        console.log('⏸️ Parando init - é callback OAuth');
+        return;
+    }
     // No início do init(), adicione:
 console.log('🔍 DEBUG init - URL:', window.location.href);
 console.log('🔍 DEBUG init - Hash:', window.location.hash);
@@ -4640,17 +4650,50 @@ async function logoutSilencioso() {
             }
         }
 
-  function getRedirectUrl() {
-    if (window.Capacitor && window.Capacitor.isNativePlatform) {
-        return 'com.oubook.agendamento://auth-callback';
-    }
+ function getRedirectUrl() {
+    // 🔥 DETECÇÃO CORRETA: Web vs App
+    const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform;
     
-    // 🔥 CORREÇÃO: Remove # da URL para evitar hash duplo
-    const baseUrl = 'https://oubook.vercel.app';
-    console.log('🎯 Redirect URL (WEB):', baseUrl);
-    return baseUrl;
+    console.log('🔍 Plataforma detectada:', {
+        isCapacitor: isCapacitor,
+        userAgent: navigator.userAgent,
+        platform: navigator.platform
+    });
+    
+    if (isCapacitor) {
+        // 📱 APP: Usar scheme personalizado
+        console.log('📱 APP: Usando scheme personalizado');
+        return 'com.oubook.agendamento://auth-callback';
+    } else {
+        // 🌐 WEB: Usar URL HTTPS normal
+        console.log('🌐 WEB: Usando URL HTTPS');
+        return 'https://oubook.vercel.app';
+    }
 }
 
+
+// 🔥 FUNÇÃO PARA PROCESSAR CALLBACK NA WEB
+function processarCallbackWeb() {
+    console.log('🌐 Verificando callback OAuth na web...');
+    
+    const hash = window.location.hash;
+    console.log('🔍 Hash atual:', hash);
+    
+    if (hash && (hash.includes('access_token') || hash.includes('error'))) {
+        console.log('✅ Callback OAuth detectado na web');
+        
+        // Mostra tela de autenticação
+        document.getElementById('authCallbackScreen').classList.remove('hidden');
+        document.getElementById('mainAppContent').classList.add('hidden');
+        
+        // Processa o callback
+        processarCallbackOAuthWeb();
+        return true;
+    }
+    
+    return false;
+}
+        
      // ✅ LOGIN GOOGLE COM WEBVIEW INTERNO (VERSÃO FINAL)
 // ✅ LOGIN GOOGLE DEFINITIVO - FUNCIONA EM AMBOS
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
@@ -6096,6 +6139,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
