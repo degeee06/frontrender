@@ -2197,7 +2197,15 @@ window.declineTerms = function() {
     document.getElementById('termsModal').classList.add('hidden');
 };
 
-        
+  // 🔥 CÓDIGO DE DEBUG - Adicione no início do script
+console.log('=== DEBUG OAUTH ===');
+console.log('URL Atual:', window.location.href);
+console.log('Hash:', window.location.hash);
+console.log('É Capacitor?', !!window.Capacitor);
+console.log('Supabase URL:', SUPABASE_URL);
+
+// Teste a função getRedirectUrl
+console.log('Redirect URL calculada:', getRedirectUrl());      
         
 function verificarCallbackOAuth() {
     console.log('🔄 Verificando se é callback OAuth...');
@@ -4650,24 +4658,30 @@ async function logoutSilencioso() {
             }
         }
 
- function getRedirectUrl() {
-    // 🔥 DETECÇÃO CORRETA: Web vs App
-    const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform;
+function getRedirectUrl() {
+    console.log('🔧 Calculando redirect URL...');
     
-    console.log('🔍 Plataforma detectada:', {
+    // 🔥 DETECÇÃO MAIS PRECISA
+    const isCapacitor = window.Capacitor && 
+                        window.Capacitor.isNativePlatform && 
+                        window.Capacitor.isNativePlatform();
+    
+    console.log('📱 Plataforma detectada:', {
         isCapacitor: isCapacitor,
         userAgent: navigator.userAgent,
-        platform: navigator.platform
+        hostname: window.location.hostname
     });
     
     if (isCapacitor) {
-        // 📱 APP: Usar scheme personalizado
-        console.log('📱 APP: Usando scheme personalizado');
-        return 'com.oubook.agendamento://auth-callback';
+        // 📱 APP
+        const appUrl = 'com.oubook.agendamento://auth-callback';
+        console.log('📱 URL do App:', appUrl);
+        return appUrl;
     } else {
-        // 🌐 WEB: Usar URL HTTPS normal
-        console.log('🌐 WEB: Usando URL HTTPS');
-        return 'https://oubook.vercel.app';
+        // 🌐 WEB - usa a URL atual como base
+        const webUrl = window.location.origin;
+        console.log('🌐 URL da Web:', webUrl);
+        return webUrl;
     }
 }
 
@@ -6139,6 +6153,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
