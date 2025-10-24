@@ -4268,28 +4268,28 @@ window.criarPerfilAgora = function() {
         const dataAgendamento = new Date(`${a.data}T${a.horario}`);
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
-        
-        // 🔥 CORREÇÃO COMPLETA - Substitua toda a lógica de data:
+
+// 🔥 CORREÇÃO COMPLETA - Substitua toda a lógica de data:
 if(diaSelecionado >= 0 && diaSelecionado <= 6) {
     // Dias da semana (Seg, Ter, Qua, etc.) - FUTURO
     return dataAgendamento.getDay() === diaSelecionado && 
            dataAgendamento >= hoje;
 } else {
     // Tabs de tempo PASSADO - CORREÇÃO CRÍTICA
-    const hoje = new Date();
-    hoje.setHours(23, 59, 59, 999); // Fim do dia de hoje
+    const hojeFim = new Date();
+    hojeFim.setHours(23, 59, 59, 999);
     
     const dataAgendamentoCompleta = new Date(`${a.data}T${a.horario}`);
     
-    if (diaSelecionado === -1) { // SEM PASSADA
+    if (diaSelecionado === -1) { // SEM PASSADA (últimos 7 dias)
         const umaSemanaAtras = new Date();
         umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
         umaSemanaAtras.setHours(0, 0, 0, 0);
         
         return dataAgendamentoCompleta >= umaSemanaAtras && 
-               dataAgendamentoCompleta <= hoje;
+               dataAgendamentoCompleta <= hojeFim;
                 
-    } else if (diaSelecionado === -2) { // 2 SEMANAS
+    } else if (diaSelecionado === -2) { // 2 SEMANAS (8-14 dias atrás)
         const duasSemanasAtras = new Date();
         duasSemanasAtras.setDate(duasSemanasAtras.getDate() - 14);
         duasSemanasAtras.setHours(0, 0, 0, 0);
@@ -4299,9 +4299,9 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         umaSemanaAtras.setHours(0, 0, 0, 0);
         
         return dataAgendamentoCompleta >= duasSemanasAtras && 
-               dataAgendamentoCompleta < umaSemanaAtras;
+               dataAgendamentoCompleta < umaSemanaAtras; // ❌ CORRIJA PARA <=
                 
-    } else if (diaSelecionado === -4) { // 1 MÊS
+    } else if (diaSelecionado === -4) { // 1 MÊS (15-30 dias atrás)
         const umMesAtras = new Date();
         umMesAtras.setDate(umMesAtras.getDate() - 30);
         umMesAtras.setHours(0, 0, 0, 0);
@@ -4311,7 +4311,7 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
         duasSemanasAtras.setHours(0, 0, 0, 0);
         
         return dataAgendamentoCompleta >= umMesAtras && 
-               dataAgendamentoCompleta < duasSemanasAtras;
+               dataAgendamentoCompleta < duasSemanasAtras; // ❌ CORRIJA PARA <=
     }
     
     return false;
@@ -6103,6 +6103,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
