@@ -1826,14 +1826,7 @@
         </button>
     </div>
     
-    <!-- 🔥 BOTÃO DE TESTE DE NOTIFICAÇÕES -->
-<div class="mt-2 text-center">
-    <button onclick="testarNotificacoes()" 
-            class="text-xs bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-white">
-        🔔 Testar Notificações
-    </button>
-</div>
-    
+  
     <div id="sugestoes-horarios" class="mt-3">
         <!-- Sugestões aparecem aqui -->
     </div>
@@ -2133,48 +2126,20 @@
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
-    <!-- ✅ CARREGAMENTO CORRETO DOS PLUGINS -->
+  <!-- ✅ CARREGAMENTO CORRETO DOS PLUGINS -->
 <script src="https://unpkg.com/@capacitor/core/dist/capacitor.js"></script>
 <script src="https://unpkg.com/@capacitor/push-notifications/dist/plugin.js"></script>
 <script src="https://unpkg.com/@capacitor/local-notifications/dist/plugin.js"></script>
 
 <!-- 🔥 CARREGUE O SERVIÇO DEPOIS DOS PLUGINS -->
 <script>
-// Aguarda os plugins carregarem
+// Carregamento simplificado
 setTimeout(() => {
     const serviceScript = document.createElement('script');
     serviceScript.src = 'js/push-notifications.js';
     document.head.appendChild(serviceScript);
-    
-    serviceScript.onload = () => {
-        console.log('✅ Todos os scripts de notificação carregados!');
-        // 🔥 INICIALIZA AS NOTIFICAÇÕES
-        if (window.pushNotificationService) {
-            window.pushNotificationService.initialize();
-        }
-    };
-}, 2000);
+}, 1000);
 </script>
-    <script>
-// 🔥 FUNÇÃO GLOBAL PARA TESTAR NOTIFICAÇÕES
-window.testarNotificacoes = async function() {
-  if (window.pushNotificationService) {
-    // Mostra status atual primeiro
-    const status = await window.pushNotificationService.checkStatus();
-    console.log('📊 Status das notificações:', status);
-    
-    // Testa as notificações
-    await window.pushNotificationService.testPushNotifications();
-  } else {
-    alert('Serviço de notificações não carregado. Recarregue a página.');
-  }
-}
-
-// 🔥 BOTÃO DE DEBUG NO CONSOLE
-console.log('💡 Digite testarNotificacoes() no console para testar');
-
-</script>
-
     <script type="module">
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -6131,6 +6096,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
