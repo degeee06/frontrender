@@ -2199,28 +2199,22 @@ window.declineTerms = function() {
 
         
         
-function verificarCallbackOAuth() {
-    console.log('🔄 Verificando se é callback OAuth...');
+// 🔥 FUNÇÃO PARA PROCESSAR CALLBACK NA WEB
+function processarCallbackWeb() {
+    console.log('🌐 Verificando callback OAuth na web...');
     
-    const isCallback = window.location.hash.includes('access_token') || 
-                       window.location.hash.includes('error');
+    const hash = window.location.hash;
+    console.log('🔍 Hash atual:', hash);
     
-    if (isCallback) {
-        console.log('🎯 Detectado callback OAuth...');
+    if (hash && (hash.includes('access_token') || hash.includes('error'))) {
+        console.log('✅ Callback OAuth detectado na web');
         
-        // ✅ APP: Processa normalmente
-        if (window.Capacitor) {
-            console.log('📱 APP: Processando callback...');
-            document.getElementById('authCallbackScreen').classList.remove('hidden');
-            document.getElementById('mainAppContent').classList.add('hidden');
-            processarCallbackOAuth();
-            return true;
-        }
+        // Mostra tela de autenticação
+        document.getElementById('authCallbackScreen').classList.remove('hidden');
+        document.getElementById('mainAppContent').classList.add('hidden');
         
-        // ✅ WEB: Processa MANUALMENTE (fallback necessário)
-        console.log('🌐 WEB: Processando callback manualmente...');
-        processarCallbackOAuthWeb(); // 🔥 REATIVA ESTA LINHA
-        
+        // Processa o callback
+        processarCallbackOAuthWeb();
         return true;
     }
     
@@ -2234,7 +2228,7 @@ async function processarCallbackOAuthWeb() {
         
         let hash = window.location.hash;
         
-        // 🔥 CORREÇÃO: Remove hash duplo se existir
+        // Remove # duplo se existir
         if (hash.startsWith('##')) {
             hash = '#' + hash.substring(2);
             console.log('🔧 Hash duplo corrigido:', hash);
@@ -2250,12 +2244,17 @@ async function processarCallbackOAuthWeb() {
             const refresh_token = refreshTokenMatch ? decodeURIComponent(refreshTokenMatch[1]) : null;
             
             if (access_token) {
+                console.log('🔑 Definindo sessão com token:', access_token.substring(0, 20) + '...');
+                
                 const { data, error } = await supabase.auth.setSession({
                     access_token: access_token,
                     refresh_token: refresh_token
                 });
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Erro ao definir sessão:', error);
+                    throw error;
+                }
                 
                 console.log('✅ Sessão definida com sucesso!');
                 
@@ -2263,7 +2262,9 @@ async function processarCallbackOAuthWeb() {
                 localStorage.setItem('userToken', userToken);
                 
                 // 🔥 LIMPA A URL COMPLETAMENTE
-                window.history.replaceState(null, '', '/');
+                window.history.replaceState(null, '', window.location.pathname);
+                
+                console.log('🔄 Recarregando página...');
                 
                 // Recarrega para aplicar todas as mudanças
                 setTimeout(() => {
@@ -2278,6 +2279,7 @@ async function processarCallbackOAuthWeb() {
         
     } catch (error) {
         console.error('❌ Erro OAuth na WEB:', error);
+        showToast("Erro ao processar login", "error");
         setTimeout(() => {
             window.location.href = '/';
         }, 2000);
@@ -2900,7 +2902,7 @@ console.log('🔍 DEBUG init - URL:', window.location.href);
 console.log('🔍 DEBUG init - Hash:', window.location.hash);
 console.log('🔍 DEBUG init - Capacitor:', !!window.Capacitor);
     
-    if (verificarCallbackOAuth()) {
+    if (processarCallbackWeb()) {
         console.log('⏸️ Parando init - é callback OAuth');
         return;
     }
@@ -6086,6 +6088,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
