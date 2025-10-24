@@ -4252,7 +4252,7 @@ window.criarPerfilAgora = function() {
             },3000);
         }
 
-       function renderAgendamentos() {
+     function renderAgendamentos() {
     console.log('🎨 Frontend: Renderizando agendamentos...');
     console.log('📊 Frontend: agendamentosCache:', agendamentosCache);
     console.log('📊 Frontend: diaSelecionado:', diaSelecionado);
@@ -4277,63 +4277,46 @@ window.criarPerfilAgora = function() {
             return false;
         }
         
-        // 🔥 CORREÇÃO: Lógica de data corrigida para tabs de semana
+        // 🔥 CORREÇÃO CRÍTICA: Lógica de data SIMPLIFICADA
+        // Se diaSelecionado for >= 0 (dias da semana), mostra FUTURO
+        // Se for negativo (tabs de tempo), mostra PASSADO
+        
         const dataAgendamento = new Date(`${a.data}T${a.horario}`);
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
         
-        // 🔥 CORREÇÃO COMPLETA - Substitua toda a lógica de data:
-if(diaSelecionado >= 0 && diaSelecionado <= 6) {
-    // Dias da semana (Seg, Ter, Qua, etc.) - FUTURO
-    return dataAgendamento.getDay() === diaSelecionado && 
-           dataAgendamento >= hoje;
-} else {
-    // Tabs de tempo PASSADO - CORREÇÃO CRÍTICA
-    const hoje = new Date();
-    hoje.setHours(23, 59, 59, 999); // Fim do dia de hoje
-    
-    const dataAgendamentoCompleta = new Date(`${a.data}T${a.horario}`);
-    
-    if (diaSelecionado === -1) { // SEM PASSADA
-        const umaSemanaAtras = new Date();
-        umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
-        umaSemanaAtras.setHours(0, 0, 0, 0);
-        
-        return dataAgendamentoCompleta >= umaSemanaAtras && 
-               dataAgendamentoCompleta <= hoje;
-                
-    } else if (diaSelecionado === -2) { // 2 SEMANAS
-        const duasSemanasAtras = new Date();
-        duasSemanasAtras.setDate(duasSemanasAtras.getDate() - 14);
-        duasSemanasAtras.setHours(0, 0, 0, 0);
-        
-        const umaSemanaAtras = new Date();
-        umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
-        umaSemanaAtras.setHours(0, 0, 0, 0);
-        
-        return dataAgendamentoCompleta >= duasSemanasAtras && 
-               dataAgendamentoCompleta < umaSemanaAtras;
-                
-    } else if (diaSelecionado === -4) { // 1 MÊS
-        const umMesAtras = new Date();
-        umMesAtras.setDate(umMesAtras.getDate() - 30);
-        umMesAtras.setHours(0, 0, 0, 0);
-        
-        const duasSemanasAtras = new Date();
-        duasSemanasAtras.setDate(duasSemanasAtras.getDate() - 14);
-        duasSemanasAtras.setHours(0, 0, 0, 0);
-        
-        return dataAgendamentoCompleta >= umMesAtras && 
-               dataAgendamentoCompleta < duasSemanasAtras;
-    }
-    
-    return false;
-}
+        if (diaSelecionado >= 0 && diaSelecionado <= 6) {
+            // Dias da semana - mostra FUTURO
+            return dataAgendamento.getDay() === diaSelecionado && 
+                   dataAgendamento >= hoje;
+        } else {
+            // Tabs de tempo - mostra PASSADO
+            const dataAgendamentoCompleta = new Date(`${a.data}T${a.horario}`);
+            const hojeFim = new Date();
+            hojeFim.setHours(23, 59, 59, 999);
+            
+            if (diaSelecionado === -1) { // SEM PASSADA
+                const umaSemanaAtras = new Date();
+                umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
+                return dataAgendamentoCompleta >= umaSemanaAtras && 
+                       dataAgendamentoCompleta <= hojeFim;
+            } else if (diaSelecionado === -2) { // 2 SEMANAS
+                const duasSemanasAtras = new Date();
+                duasSemanasAtras.setDate(duasSemanasAtras.getDate() - 14);
+                return dataAgendamentoCompleta >= duasSemanasAtras;
+            } else if (diaSelecionado === -4) { // 1 MÊS
+                const umMesAtras = new Date();
+                umMesAtras.setDate(umMesAtras.getDate() - 30);
+                return dataAgendamentoCompleta >= umMesAtras;
+            }
+            
+            return true; // Fallback
+        }
     })
     .sort((a,b) => {
         const dateA = new Date(`${a.data}T${a.horario}`);
         const dateB = new Date(`${b.data}T${b.horario}`);
-        return dateA - dateB;
+        return dateB - dateA; // 🔥 Mais recentes primeiro
     });
 
     console.log('✅ Frontend: Agendamentos filtrados:', filtrados.length);
@@ -4346,6 +4329,7 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
                     <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
                 </div>
                 <p class="text-gray-300">Nenhum agendamento encontrado</p>
+                <p class="text-gray-400 text-sm mt-2">Tente mudar o filtro de dia</p>
             </div>
         `;
         feather.replace();
@@ -6138,6 +6122,7 @@ setInterval(async () => {
     </script>
 </body>
 </html>
+
 
 
 
