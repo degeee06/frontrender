@@ -1826,13 +1826,13 @@
         </button>
     </div>
     
-    <!-- 🔥 BOTÃO DE TESTE (opcional) -->
-    <div class="mt-2 text-center">
-        <button onclick="testarNotificacoes()" 
-                class="text-xs bg-yellow-600 hover:bg-yellow-700 px-2 py-1 rounded text-white">
-            🔔 Testar Notificações
-        </button>
-    </div>
+    <!-- 🔥 BOTÃO DE TESTE DE NOTIFICAÇÕES -->
+<div class="mt-2 text-center">
+    <button onclick="testarNotificacoes()" 
+            class="text-xs bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-white">
+        🔔 Testar Notificações
+    </button>
+</div>
     
     <div id="sugestoes-horarios" class="mt-3">
         <!-- Sugestões aparecem aqui -->
@@ -2133,13 +2133,30 @@
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
-    <!-- 🔥 CDN + script normal -->
-    <script src="https://unpkg.com/@capacitor/core/dist/capacitor.js"></script>
+    <!-- ✅ CARREGAMENTO CORRETO DOS PLUGINS -->
+<script src="https://unpkg.com/@capacitor/core/dist/capacitor.js"></script>
 <script src="https://unpkg.com/@capacitor/push-notifications/dist/plugin.js"></script>
 <script src="https://unpkg.com/@capacitor/local-notifications/dist/plugin.js"></script>
-<script src="js/push-notifications.js"></script>
+
+<!-- 🔥 CARREGUE O SERVIÇO DEPOIS DOS PLUGINS -->
+<script>
+// Aguarda os plugins carregarem
+setTimeout(() => {
+    const serviceScript = document.createElement('script');
+    serviceScript.src = 'js/push-notifications.js';
+    document.head.appendChild(serviceScript);
+    
+    serviceScript.onload = () => {
+        console.log('✅ Todos os scripts de notificação carregados!');
+        // 🔥 INICIALIZA AS NOTIFICAÇÕES
+        if (window.pushNotificationService) {
+            window.pushNotificationService.initialize();
+        }
+    };
+}, 2000);
+</script>
     <script>
-// 🔥 FUNÇÃO GLOBAL PARA TESTAR
+// 🔥 FUNÇÃO GLOBAL PARA TESTAR NOTIFICAÇÕES
 window.testarNotificacoes = async function() {
   if (window.pushNotificationService) {
     // Mostra status atual primeiro
@@ -2155,6 +2172,7 @@ window.testarNotificacoes = async function() {
 
 // 🔥 BOTÃO DE DEBUG NO CONSOLE
 console.log('💡 Digite testarNotificacoes() no console para testar');
+
 </script>
 
     <script type="module">
@@ -6113,7 +6131,6 @@ setInterval(async () => {
     </script>
 </body>
 </html>
-
 
 
 
