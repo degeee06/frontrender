@@ -2197,10 +2197,7 @@ window.declineTerms = function() {
     document.getElementById('termsModal').classList.add('hidden');
 };
 
-
-
-// Teste a função getRedirectUrl
-console.log('Redirect URL calculada:', getRedirectUrl());      
+        
         
 function verificarCallbackOAuth() {
     console.log('🔄 Verificando se é callback OAuth...');
@@ -2237,7 +2234,7 @@ async function processarCallbackOAuthWeb() {
         
         let hash = window.location.hash;
         
-        // Remove # duplo se existir
+        // 🔥 CORREÇÃO: Remove hash duplo se existir
         if (hash.startsWith('##')) {
             hash = '#' + hash.substring(2);
             console.log('🔧 Hash duplo corrigido:', hash);
@@ -2253,17 +2250,12 @@ async function processarCallbackOAuthWeb() {
             const refresh_token = refreshTokenMatch ? decodeURIComponent(refreshTokenMatch[1]) : null;
             
             if (access_token) {
-                console.log('🔑 Definindo sessão com token:', access_token.substring(0, 20) + '...');
-                
                 const { data, error } = await supabase.auth.setSession({
                     access_token: access_token,
                     refresh_token: refresh_token
                 });
                 
-                if (error) {
-                    console.error('❌ Erro ao definir sessão:', error);
-                    throw error;
-                }
+                if (error) throw error;
                 
                 console.log('✅ Sessão definida com sucesso!');
                 
@@ -2271,9 +2263,7 @@ async function processarCallbackOAuthWeb() {
                 localStorage.setItem('userToken', userToken);
                 
                 // 🔥 LIMPA A URL COMPLETAMENTE
-                window.history.replaceState(null, '', window.location.pathname);
-                
-                console.log('🔄 Recarregando página...');
+                window.history.replaceState(null, '', '/');
                 
                 // Recarrega para aplicar todas as mudanças
                 setTimeout(() => {
@@ -2288,7 +2278,6 @@ async function processarCallbackOAuthWeb() {
         
     } catch (error) {
         console.error('❌ Erro OAuth na WEB:', error);
-        showToast("Erro ao processar login", "error");
         setTimeout(() => {
             window.location.href = '/';
         }, 2000);
@@ -2824,6 +2813,9 @@ async updateUsageBadge() {
 }
 
         
+console.log('🚀 Script carregado! Iniciando aplicação...');
+
+
         
 // 🔥 ADICIONAR: Alias para manter compatibilidade
 function mostrarToast(message, type = "success") {
@@ -2903,11 +2895,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // 🔥 CORREÇÃO: Função init atualizada para carregar usos imediatamente após login
 async function init() {
     console.log('🚀 Iniciando app...');
-     // 🔥 ADICIONE ESTA VERIFICAÇÃO NO INÍCIO DO INIT
-    if (processarCallbackWeb()) {
-        console.log('⏸️ Parando init - é callback OAuth');
-        return;
-    }
     // No início do init(), adicione:
 console.log('🔍 DEBUG init - URL:', window.location.href);
 console.log('🔍 DEBUG init - Hash:', window.location.hash);
@@ -4252,7 +4239,7 @@ window.criarPerfilAgora = function() {
             },3000);
         }
 
-     function renderAgendamentos() {
+       function renderAgendamentos() {
     console.log('🎨 Frontend: Renderizando agendamentos...');
     console.log('📊 Frontend: agendamentosCache:', agendamentosCache);
     console.log('📊 Frontend: diaSelecionado:', diaSelecionado);
@@ -4277,46 +4264,63 @@ window.criarPerfilAgora = function() {
             return false;
         }
         
-        // 🔥 CORREÇÃO CRÍTICA: Lógica de data SIMPLIFICADA
-        // Se diaSelecionado for >= 0 (dias da semana), mostra FUTURO
-        // Se for negativo (tabs de tempo), mostra PASSADO
-        
+        // 🔥 CORREÇÃO: Lógica de data corrigida para tabs de semana
         const dataAgendamento = new Date(`${a.data}T${a.horario}`);
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
         
-        if (diaSelecionado >= 0 && diaSelecionado <= 6) {
-            // Dias da semana - mostra FUTURO
-            return dataAgendamento.getDay() === diaSelecionado && 
-                   dataAgendamento >= hoje;
-        } else {
-            // Tabs de tempo - mostra PASSADO
-            const dataAgendamentoCompleta = new Date(`${a.data}T${a.horario}`);
-            const hojeFim = new Date();
-            hojeFim.setHours(23, 59, 59, 999);
-            
-            if (diaSelecionado === -1) { // SEM PASSADA
-                const umaSemanaAtras = new Date();
-                umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
-                return dataAgendamentoCompleta >= umaSemanaAtras && 
-                       dataAgendamentoCompleta <= hojeFim;
-            } else if (diaSelecionado === -2) { // 2 SEMANAS
-                const duasSemanasAtras = new Date();
-                duasSemanasAtras.setDate(duasSemanasAtras.getDate() - 14);
-                return dataAgendamentoCompleta >= duasSemanasAtras;
-            } else if (diaSelecionado === -4) { // 1 MÊS
-                const umMesAtras = new Date();
-                umMesAtras.setDate(umMesAtras.getDate() - 30);
-                return dataAgendamentoCompleta >= umMesAtras;
-            }
-            
-            return true; // Fallback
-        }
+        // 🔥 CORREÇÃO COMPLETA - Substitua toda a lógica de data:
+if(diaSelecionado >= 0 && diaSelecionado <= 6) {
+    // Dias da semana (Seg, Ter, Qua, etc.) - FUTURO
+    return dataAgendamento.getDay() === diaSelecionado && 
+           dataAgendamento >= hoje;
+} else {
+    // Tabs de tempo PASSADO - CORREÇÃO CRÍTICA
+    const hoje = new Date();
+    hoje.setHours(23, 59, 59, 999); // Fim do dia de hoje
+    
+    const dataAgendamentoCompleta = new Date(`${a.data}T${a.horario}`);
+    
+    if (diaSelecionado === -1) { // SEM PASSADA
+        const umaSemanaAtras = new Date();
+        umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
+        umaSemanaAtras.setHours(0, 0, 0, 0);
+        
+        return dataAgendamentoCompleta >= umaSemanaAtras && 
+               dataAgendamentoCompleta <= hoje;
+                
+    } else if (diaSelecionado === -2) { // 2 SEMANAS
+        const duasSemanasAtras = new Date();
+        duasSemanasAtras.setDate(duasSemanasAtras.getDate() - 14);
+        duasSemanasAtras.setHours(0, 0, 0, 0);
+        
+        const umaSemanaAtras = new Date();
+        umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
+        umaSemanaAtras.setHours(0, 0, 0, 0);
+        
+        return dataAgendamentoCompleta >= duasSemanasAtras && 
+               dataAgendamentoCompleta < umaSemanaAtras;
+                
+    } else if (diaSelecionado === -4) { // 1 MÊS
+        const umMesAtras = new Date();
+        umMesAtras.setDate(umMesAtras.getDate() - 30);
+        umMesAtras.setHours(0, 0, 0, 0);
+        
+        const duasSemanasAtras = new Date();
+        duasSemanasAtras.setDate(duasSemanasAtras.getDate() - 14);
+        duasSemanasAtras.setHours(0, 0, 0, 0);
+        
+        return dataAgendamentoCompleta >= umMesAtras && 
+               dataAgendamentoCompleta < duasSemanasAtras;
+    }
+    
+    return false;
+}
     })
     .sort((a,b) => {
         const dateA = new Date(`${a.data}T${a.horario}`);
         const dateB = new Date(`${b.data}T${b.horario}`);
-        return dateB - dateA; // 🔥 Mais recentes primeiro
+        return dateA - dateB;
     });
 
     console.log('✅ Frontend: Agendamentos filtrados:', filtrados.length);
@@ -4329,7 +4333,6 @@ window.criarPerfilAgora = function() {
                     <i data-feather="calendar" class="w-8 h-8 text-gray-300"></i>
                 </div>
                 <p class="text-gray-300">Nenhum agendamento encontrado</p>
-                <p class="text-gray-400 text-sm mt-2">Tente mudar o filtro de dia</p>
             </div>
         `;
         feather.replace();
@@ -4637,56 +4640,17 @@ async function logoutSilencioso() {
             }
         }
 
-function getRedirectUrl() {
-    console.log('🔧 Calculando redirect URL...');
-    
-    // 🔥 DETECÇÃO MAIS PRECISA
-    const isCapacitor = window.Capacitor && 
-                        window.Capacitor.isNativePlatform && 
-                        window.Capacitor.isNativePlatform();
-    
-    console.log('📱 Plataforma detectada:', {
-        isCapacitor: isCapacitor,
-        userAgent: navigator.userAgent,
-        hostname: window.location.hostname
-    });
-    
-    if (isCapacitor) {
-        // 📱 APP
-        const appUrl = 'com.oubook.agendamento://auth-callback';
-        console.log('📱 URL do App:', appUrl);
-        return appUrl;
-    } else {
-        // 🌐 WEB - usa a URL atual como base
-        const webUrl = window.location.origin;
-        console.log('🌐 URL da Web:', webUrl);
-        return webUrl;
-    }
-}
-
-
-// 🔥 FUNÇÃO PARA PROCESSAR CALLBACK NA WEB
-function processarCallbackWeb() {
-    console.log('🌐 Verificando callback OAuth na web...');
-    
-    const hash = window.location.hash;
-    console.log('🔍 Hash atual:', hash);
-    
-    if (hash && (hash.includes('access_token') || hash.includes('error'))) {
-        console.log('✅ Callback OAuth detectado na web');
-        
-        // Mostra tela de autenticação
-        document.getElementById('authCallbackScreen').classList.remove('hidden');
-        document.getElementById('mainAppContent').classList.add('hidden');
-        
-        // Processa o callback
-        processarCallbackOAuthWeb();
-        return true;
+  function getRedirectUrl() {
+    if (window.Capacitor && window.Capacitor.isNativePlatform) {
+        return 'com.oubook.agendamento://auth-callback';
     }
     
-    return false;
+    // 🔥 CORREÇÃO: Remove # da URL para evitar hash duplo
+    const baseUrl = 'https://oubook.vercel.app';
+    console.log('🎯 Redirect URL (WEB):', baseUrl);
+    return baseUrl;
 }
-        
+
      // ✅ LOGIN GOOGLE COM WEBVIEW INTERNO (VERSÃO FINAL)
 // ✅ LOGIN GOOGLE DEFINITIVO - FUNCIONA EM AMBOS
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
@@ -6122,12 +6086,6 @@ setInterval(async () => {
     </script>
 </body>
 </html>
-
-
-
-
-
-
 
 
 
