@@ -2,13 +2,15 @@ import { createClient } from '@supabase/supabase-js';
 import type { TrialStatus } from '../types';
 
 // Use Vite environment variables
-const SUPABASE_URL = "https://otyxjcxxqwjotnuyrvmc.supabase.co";
-// Fix: Cast `import.meta` to `any` to resolve TypeScript error when Vite client types are not recognized.
+const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = (import.meta as any).env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error("Supabase URL and Anon Key must be provided in environment variables.");
+}
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Fix: Cast `import.meta` to `any` to resolve TypeScript error when Vite client types are not recognized.
 export const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'https://agendamento-ynxr.onrender.com';
 
 // You would typically move the PremiumManager class here, 
