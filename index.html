@@ -5,141 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oubook | Agenda Inteligente</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link to the centralized stylesheet -->
+    <link rel="stylesheet" href="styles.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    :root {
-        --black-absolute: #000000;
-        --black-deep: #111111;
-        --black-medium: #1A1A1A;
-        --black-light: #333333;
-        --white-pure: #FFFFFF;
-        --white-ice: #E0E0E0;
-        --gray-steel: #5A5A5A;
-        --silver-accent: #C0C0C0;
-        --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
-        --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.5);
-    }
-    
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: var(--black-absolute);
-        color: var(--white-ice);
-        min-height: 100vh;
-        line-height: 1.6;
-    }
-    
-    .glass-card {
-        background-color: var(--black-medium);
-        border: 1px solid var(--black-light);
-        box-shadow: var(--shadow-soft);
-        border-radius: 16px;
-        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .glass-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
-        opacity: 0.3;
-    }
-    
-    .glass-card:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-deep);
-        border-color: var(--gray-steel);
-    }
-    
-    .input-field:focus {
-        outline: none;
-        border-color: var(--silver-accent);
-        box-shadow: 0 0 0 2px rgba(192, 192, 192, 0.1);
-        background-color: var(--black-light);
-    }
-    
-    .loading-spinner, .loading-spinner-premium {
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        border-top: 2px solid var(--white-ice);
-        width: 20px;
-        height: 20px;
-        animation: spin 1s linear infinite;
-    }
-
-    .loading-spinner-premium {
-        border: 2px solid rgba(0, 0, 0, 0.2) !important;
-        border-top: 2px solid #000000 !important;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .success-message {
-        background-color: rgba(34, 197, 94, 0.1);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        color: #4ade80;
-    }
-
-    .error-message {
-        background-color: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        color: #f87171;
-    }
-
-    .title-gradient {
-        background: linear-gradient(135deg, var(--white-pure), var(--white-ice));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    
-    .btn-premium {
-        background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
-        border: 1px solid #E0E0E0 !important;
-        color: #000000 !important;
-        box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3) !important;
-        font-weight: 600 !important;
-        border-radius: 12px !important;
-        transition: all 0.3s ease !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 12px !important;
-    }
-
-    .btn-premium:hover {
-        background: linear-gradient(135deg, #E0E0E0 0%, #C0C0C0 100%) !important;
-        border-color: #FFFFFF !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 16px rgba(192, 192, 192, 0.4) !important;
-    }
-    
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
-    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-<script type="importmap">
+    <!-- Import Map remains for loading modules dynamically -->
+    <script type="importmap">
 {
   "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.7",
+    "react-hook-form": "https://esm.sh/react-hook-form@7.51.0",
+    "react-imask": "https://esm.sh/react-imask@7.6.0",
+    "react-feather": "https://esm.sh/react-feather@2.0.10",
+    "aos": "https://esm.sh/aos@2.3.4",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react-hook-form": "https://aistudiocdn.com/react-hook-form@^7.65.0",
-    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.77.0",
-    "aos": "https://aistudiocdn.com/aos@^2.3.4",
-    "react-imask": "https://aistudiocdn.com/react-imask@^7.6.1",
-    "react-feather": "https://aistudiocdn.com/react-feather@^2.0.10"
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
   }
 }
 </script>
@@ -147,9 +31,11 @@
 </head>
 <body class="min-h-screen">
     <div id="root"></div>
-    <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-[100]"></div>
+    <div id="toast-container"></div>
+    
+    <!-- Scripts loaded at the end of the body -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.2/imask.min.js"></script>
+    <script type="module" src="/index.js"></script>
 <script type="module" src="/index.tsx"></script>
 </body>
 </html>
