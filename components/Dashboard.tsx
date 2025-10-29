@@ -115,7 +115,6 @@ const Dashboard: React.FC = () => {
 
     const handleStatusChange = async (id: number, status: AppointmentStatus) => {
         if (!session) return;
-        // FIX: The API service only accepts 'confirmado' or 'cancelado'. This check narrows the type of 'status' to fix the error.
         if (status === 'pendente') {
             return;
         }
@@ -123,7 +122,7 @@ const Dashboard: React.FC = () => {
             await apiService.updateAppointmentStatus(id, status, session.access_token);
             addToast(`Agendamento ${status === 'confirmado' ? 'confirmado' : 'cancelado'}!`, 'success');
             fetchAppointments();
-        } catch (error) => {
+        } catch (error) {
             addToast('Erro ao atualizar status', 'error');
         }
     };
