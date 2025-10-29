@@ -8,9 +8,10 @@ import Loader from './Loader';
 
 interface SettingsModalProps {
     onClose: () => void;
+    onSaveSuccess: () => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess }) => {
     const { user, session } = useAuth();
     const { addToast } = useToast();
     const [activeTab, setActiveTab] = useState('profile');
@@ -72,6 +73,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         try {
             await apiService.saveProfile({ ...profile, horarios_funcionamento: horariosFuncionamento }, session.access_token);
             addToast('Perfil salvo com sucesso!', 'success');
+            onSaveSuccess();
             onClose();
         } catch (error) {
             addToast('Erro ao salvar perfil', 'error');
@@ -225,7 +227,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     }
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1001] p-4">
             <div className="glass-card rounded-2xl p-4 md:p-6 max-w-2xl w-full mx-2 md:mx-4 animate-fade-in max-h-[90vh] flex flex-col">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg md:text-xl font-semibold">Configurações</h3>
