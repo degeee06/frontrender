@@ -116,7 +116,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     </div>
                      <div>
                         <label className="block text-sm font-medium opacity-80 mb-1">Tipo de Negócio</label>
-                        <select value={profile.tipo_negocio} onChange={e => setProfile({...profile, tipo_negocio: e.target.value})} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm">
+                        <select value={profile.tipo_negocio} onChange={e => setProfile({...profile, tipo_negocio: e.target.value})} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm appearance-none">
                             <option value="barbearia">💈 Barbearia</option>
                             <option value="consultorio">🏥 Consultório</option>
                             <option value="salao">💇 Salão de Beleza</option>
@@ -137,11 +137,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                         <div>
                             <label className="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Abertura</label>
-                            <input type="time" value={openingTime} onChange={e => setOpeningTime(e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm" />
+                            <input type="time" value={openingTime} onChange={e => setOpeningTime(e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm dark-picker" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium opacity-80 mb-1">⏰ Horário de Fechamento</label>
-                            <input type="time" value={closingTime} onChange={e => setClosingTime(e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm" />
+                            <input type="time" value={closingTime} onChange={e => setClosingTime(e.target.value)} className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 focus:outline-none text-white text-sm dark-picker" />
                         </div>
                     </div>
                     <div className="border-t border-white/10 pt-4">
@@ -152,16 +152,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                          <div className="space-y-2 max-h-40 overflow-y-auto">
                             {profile.horarios_bloqueados.map((period, index) => (
                                 <div key={index} className="p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-2 flex-wrap">
-                                    <select value={period.tipo} onChange={e => updateBlockedPeriod(index, 'tipo', e.target.value)} className="bg-black-deep rounded p-1 text-xs">
+                                    <select value={period.tipo} onChange={e => updateBlockedPeriod(index, 'tipo', e.target.value)} className="bg-black-deep rounded p-1 text-xs appearance-none">
                                         <option value="recorrente">Fixo</option>
                                         <option value="data_especifica">Data Específica</option>
                                     </select>
                                     {period.tipo === 'data_especifica' && (
-                                        <input type="date" value={period.data || ''} onChange={e => updateBlockedPeriod(index, 'data', e.target.value)} className="bg-black-deep rounded p-1 text-xs w-full sm:w-auto"/>
+                                        <input type="date" value={period.data || ''} onChange={e => updateBlockedPeriod(index, 'data', e.target.value)} className="bg-black-deep rounded p-1 text-xs w-full sm:w-auto dark-picker"/>
                                     )}
-                                    <input type="time" value={period.inicio} onChange={e => updateBlockedPeriod(index, 'inicio', e.target.value)} className="bg-black-deep rounded p-1 text-xs w-full sm:w-auto flex-grow"/>
+                                    <input type="time" value={period.inicio} onChange={e => updateBlockedPeriod(index, 'inicio', e.target.value)} className="bg-black-deep rounded p-1 text-xs w-full sm:w-auto flex-grow dark-picker"/>
                                     <span>até</span>
-                                    <input type="time" value={period.fim} onChange={e => updateBlockedPeriod(index, 'fim', e.target.value)} className="bg-black-deep rounded p-1 text-xs w-full sm:w-auto flex-grow"/>
+                                    <input type="time" value={period.fim} onChange={e => updateBlockedPeriod(index, 'fim', e.target.value)} className="bg-black-deep rounded p-1 text-xs w-full sm:w-auto flex-grow dark-picker"/>
                                     <button onClick={() => removeBlockedPeriod(index)} className="p-1 text-red-400 hover:text-red-300"><Trash2 size={16}/></button>
                                 </div>
                             ))}

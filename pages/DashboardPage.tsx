@@ -16,8 +16,13 @@ const DashboardPage: React.FC = () => {
             once: true,
         });
 
+        // This effect handles the OAuth callback by checking the URL hash.
+        // It runs only once on component mount.
         const hash = window.location.hash;
         if (hash.includes('access_token') || hash.includes('error')) {
+            // Supabase client's onAuthStateChange listener will handle setting the session.
+            // We just need to wait and clean up the URL.
+            // The loading state from useAuth will cover the UI transition.
             setTimeout(() => {
                 window.history.replaceState(null, '', window.location.pathname + window.location.search);
                 setIsHandlingCallback(false);
@@ -29,14 +34,14 @@ const DashboardPage: React.FC = () => {
 
     if (loading || isHandlingCallback) {
         return (
-            <div className="fixed inset-0 flex justify-center items-center bg-black-absolute">
+            <div className="auth-screen flex justify-center items-center">
                 <Loader />
             </div>
         );
     }
 
     return (
-        <div className="container">
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
             {session ? <Dashboard /> : <AuthComponent />}
         </div>
     );

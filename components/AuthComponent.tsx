@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { supabase, getRedirectUrl } from '../services/supabase';
 import { useToast } from '../contexts/ToastContext';
 import { Lock, Shield } from 'react-feather';
-import Loader from './Loader';
 
 const AuthComponent: React.FC = () => {
     const [termsAccepted, setTermsAccepted] = useState(false);
@@ -31,7 +30,7 @@ const AuthComponent: React.FC = () => {
     };
 
     return (
-        <div className="glass-card rounded-3xl p-6 sm:p-10 mb-8 max-w-md mx-auto" data-aos="fade-up">
+        <div className="glass-card rounded-3xl p-6 sm:p-10 mb-8" data-aos="fade-up">
             <div className="text-center mb-8">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 rounded-2xl bg-black-light border border-gray-steel shadow-2xl flex items-center justify-center">
                     <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-white-ice" />
@@ -40,13 +39,13 @@ const AuthComponent: React.FC = () => {
                 <p className="text-white-ice sm:text-lg">Entre com sua conta Google</p>
             </div>
 
-            <div className="space-y-6">
+            <div className="max-w-sm mx-auto space-y-6">
                 <button 
                     onClick={handleGoogleLogin} 
                     disabled={loading}
-                    className="w-full group py-3 px-4 sm:py-4 sm:px-8 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-4 bg-black-deep border border-black-light hover:bg-black-light hover:border-gray-steel hover:shadow-2xl hover:-translate-y-0.5"
+                    className="w-full group py-3 px-4 sm:py-4 sm:px-8 rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-4 bg-[#000000] border border-[#333333] hover:bg-[#111111] hover:border-[#5A5A5A] hover:shadow-2xl hover:-translate-y-0.5"
                 >
-                    {loading ? <Loader /> : (
+                    {loading ? <div className="loading-spinner"></div> : (
                         <>
                             <svg className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24">
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -62,14 +61,14 @@ const AuthComponent: React.FC = () => {
                 <div className="p-4 bg-black-deep rounded-lg border border-black-light">
                     <label className="flex items-start gap-3 cursor-pointer">
                         <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)}
-                               className="mt-1 h-4 w-4 rounded bg-black-medium border-gray-steel focus:ring-2 focus:ring-offset-0 focus:ring-offset-black-deep focus:ring-silver-accent text-indigo-500" />
+                               className="mt-1 rounded bg-black-medium border-gray-steel focus:ring-2 focus:ring-silver-accent text-indigo-500" />
                         <span className="text-sm text-white-ice">
                             Concordo com os Termos de Uso e Política de Privacidade.
                         </span>
                     </label>
                 </div>
                 
-                <div className="text-center p-4 bg-black-deep rounded-xl border border-black-light">
+                <div className="text-center p-4 bg-black-deep rounded-2xl border border-black-light">
                     <p className="text-white-ice text-sm flex items-center justify-center gap-2">
                         <Shield className="w-4 h-4 text-silver-accent" />
                         <span className="font-medium">Login 100% seguro</span>
