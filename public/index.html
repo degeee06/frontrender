@@ -1664,6 +1664,30 @@
         opacity: 1;
     }
 }
+        @media (max-width: 640px) {
+  #modalPerfilConfig .glass-card {
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    max-height: 100vh !important;
+  }
+
+  #modalPerfilConfig {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  #modalPerfilConfig input,
+  #modalPerfilConfig select {
+    font-size: 16px !important; /* Evita zoom automático no iOS */
+  }
+
+  #modalPerfilConfig button {
+    min-height: 48px; /* Toque confortável */
+  }
+}
+
 </style>        
 </head>
 <body class="min-h-screen">
