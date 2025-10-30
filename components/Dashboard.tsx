@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { usePremium } from '../contexts/PremiumContext';
 import { LogOut, Settings, Link as LinkIcon, Plus, User, Mail, Phone, Calendar, Clock, AlertTriangle } from 'react-feather';
 import { apiService } from '../services/apiService';
 import { Appointment, AppointmentStatus } from '../types';
@@ -12,6 +13,8 @@ import { IMaskInput } from 'react-imask';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import Loader from './Loader';
 import { supabase } from '../services/supabase';
+import PremiumBadge from './PremiumBadge';
+import LimitReachedModal from './LimitReachedModal';
 
 interface IFormInput {
     Nome: string;
@@ -47,18 +50,18 @@ const NoProfileModal: React.FC<{onClose: () => void, onCreateProfile: () => void
 const Dashboard: React.FC = () => {
     const { user, session, logout } = useAuth();
     const { addToast } = useToast();
+    const { status, checkUsage, refreshStatus } = usePremium();
     const { register, handleSubmit, reset } = useForm<IFormInput>();
     
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
-    // State for modals
     const [showSettings, setShowSettings] = useState(false);
     const [showNoProfileModal, setShowNoProfileModal] = useState(false);
+    const [showLimitReachedModal, setShowLimitReachedModal] = useState(false);
     const [shareLinkInfo, setShareLinkInfo] = useState<{link: string; qr_code: string} | null>(null);
 
-    // State for profile status
     const [profileExists, setProfileExists] = useState(false);
 
     const checkProfileStatus = useCallback(async () => {
@@ -94,13 +97,14 @@ const Dashboard: React.FC = () => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'agendamentos' },
         (payload) => {
             fetchAppointments();
+            refreshStatus(); // Refresh usage when a new appointment is made via link
         })
         .subscribe();
         
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [session, user, fetchAppointments, checkProfileStatus]);
+    }, [session, user, fetchAppointments, checkProfileStatus, refreshStatus]);
 
     const handleLogout = async () => {
         await logout();
@@ -129,6 +133,13 @@ const Dashboard: React.FC = () => {
 
     const onFormSubmit: SubmitHandler<IFormInput> = async (data) => {
         if (!session) return;
+
+        const canProceed = checkUsage();
+        if (!canProceed) {
+            setShowLimitReachedModal(true);
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             const appointmentData = {
@@ -143,6 +154,7 @@ const Dashboard: React.FC = () => {
                 addToast('Agendamento criado com sucesso!', 'success');
                 reset();
                 fetchAppointments();
+                refreshStatus(); // Refresh usage after successful creation
             } else {
                 addToast(result.msg || 'Erro ao criar agendamento', 'error');
             }
@@ -179,7 +191,10 @@ const Dashboard: React.FC = () => {
         <>
             <header className="header-gradient text-center mb-8 md:mb-12" data-aos="fade-down">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
-                    <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold title-gradient">Agendamento</h1>
+                     <div className="flex items-center justify-center gap-4">
+                        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold title-gradient">Agendamento</h1>
+                        <PremiumBadge />
+                    </div>
                     <div className="flex gap-2 w-full sm:w-auto">
                         <button onClick={handleGenerateLink} className="text-xs sm:text-sm bg-black-light hover:bg-gray-steel px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto border border-black-light"><LinkIcon className="w-3 h-3 sm:w-4 sm:h-4" /> Gerar Link</button>
                         <button onClick={() => setShowSettings(true)} className="text-xs sm:text-sm bg-black-light hover:bg-gray-steel px-3 py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto border border-black-light">
@@ -264,6 +279,7 @@ const Dashboard: React.FC = () => {
             {showSettings && <SettingsModal onClose={() => setShowSettings(false)} onSaveSuccess={checkProfileStatus} />}
             {shareLinkInfo && <ShareLinkModal link={shareLinkInfo.link} qrCodeUrl={shareLinkInfo.qr_code} onClose={() => setShareLinkInfo(null)} />}
             {showNoProfileModal && <NoProfileModal onClose={() => setShowNoProfileModal(false)} onCreateProfile={() => { setShowNoProfileModal(false); setShowSettings(true); }} />}
+            {showLimitReachedModal && <LimitReachedModal dailyLimit={status.dailyLimit} onClose={() => setShowLimitReachedModal(false)} />}
         </>
     );
 };
