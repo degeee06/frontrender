@@ -96,6 +96,9 @@ const Dashboard: React.FC = () => {
         const channel = supabase.channel(`public:agendamentos:user_id=eq.${user?.id}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'agendamentos' },
         (payload) => {
+            if (payload.eventType === 'INSERT') {
+                addToast("🎉 Novo agendamento recebido via link!", "success");
+            }
             fetchAppointments();
             refreshStatus(); // Refresh usage when a new appointment is made via link
         })
@@ -104,7 +107,7 @@ const Dashboard: React.FC = () => {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [session, user, fetchAppointments, checkProfileStatus, refreshStatus]);
+    }, [session, user, fetchAppointments, checkProfileStatus, refreshStatus, addToast]);
 
     const handleLogout = async () => {
         await logout();
@@ -134,7 +137,7 @@ const Dashboard: React.FC = () => {
     const onFormSubmit: SubmitHandler<IFormInput> = async (data) => {
         if (!session) return;
 
-        const canProceed = checkUsage();
+        const canProceed = await checkUsage();
         if (!canProceed) {
             setShowLimitReachedModal(true);
             return;
@@ -149,6 +152,7 @@ const Dashboard: React.FC = () => {
                 data: data.Data,
                 horario: data.Horario,
             };
+            // The backend now handles usage registration, so we just call create
             const result = await apiService.createAppointment(appointmentData, session.access_token);
             if (result.success) {
                 addToast('Agendamento criado com sucesso!', 'success');

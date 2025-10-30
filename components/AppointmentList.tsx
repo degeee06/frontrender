@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Appointment, AppointmentStatus } from '../types';
 import Loader from './Loader';
@@ -76,30 +75,71 @@ const AppointmentCard: React.FC<{ appointment: Appointment; onStatusChange: Appo
 const AppointmentList: React.FC<AppointmentListProps> = ({ appointments, loading, onStatusChange, onReschedule }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
-    const [dayFilter, setDayFilter] = useState(new Date().getDay()); // Default to today
+    const [activeFilter, setActiveFilter] = useState<string>(`day-${new Date().getDay()}`);
     
     const [reschedulingAppointment, setReschedulingAppointment] = useState<Appointment | null>(null);
 
     const filteredAppointments = useMemo(() => {
+        const [type, value] = activeFilter.split('-');
+        const filterValue = parseInt(value, 10);
+
         return appointments
             .filter(a => {
                 const searchMatch = searchTerm === '' ||
                     a.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     a.email.toLowerCase().includes(searchTerm.toLowerCase());
                 const statusMatch = statusFilter === '' || a.status === statusFilter;
-                const appointmentDate = new Date(a.data + 'T00:00:00'); // Use T00:00:00 to avoid timezone issues
-                const dayMatch = dayFilter === -1 || appointmentDate.getDay() === dayFilter;
+                if (!searchMatch || !statusMatch) return false;
 
-                return searchMatch && statusMatch && dayMatch;
+                const appointmentDate = new Date(`${a.data}T${a.horario}`);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (type === 'day') {
+                    const appointmentDay = new Date(a.data + 'T00:00:00');
+                    return appointmentDay.getDay() === filterValue && appointmentDay >= today;
+                }
+                
+                if (type === 'past') {
+                    const todayEnd = new Date();
+                    todayEnd.setHours(23, 59, 59, 999);
+                    
+                    if (filterValue === 7) { // Last 7 days
+                        const weekAgo = new Date(today);
+                        weekAgo.setDate(today.getDate() - 7);
+                        return appointmentDate >= weekAgo && appointmentDate <= todayEnd;
+                    }
+                     if (filterValue === 14) { // 8-14 days ago
+                        const twoWeeksAgo = new Date(today);
+                        twoWeeksAgo.setDate(today.getDate() - 14);
+                        const oneWeekAgo = new Date(today);
+                        oneWeekAgo.setDate(today.getDate() - 7);
+                        return appointmentDate >= twoWeeksAgo && appointmentDate < oneWeekAgo;
+                    }
+                     if (filterValue === 30) { // 1 month (15-30 days ago)
+                        const oneMonthAgo = new Date(today);
+                        oneMonthAgo.setDate(today.getDate() - 30);
+                        const twoWeeksAgo = new Date(today);
+                        twoWeeksAgo.setDate(today.getDate() - 14);
+                        return appointmentDate >= oneMonthAgo && appointmentDate < twoWeeksAgo;
+                    }
+                }
+
+                return true;
             })
             .sort((a, b) => {
                 const dateA = new Date(`${a.data}T${a.horario}`);
                 const dateB = new Date(`${b.data}T${b.horario}`);
                 return dateA.getTime() - dateB.getTime();
             });
-    }, [appointments, searchTerm, statusFilter, dayFilter]);
+    }, [appointments, searchTerm, statusFilter, activeFilter]);
     
     const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const pastFilters = [
+        { label: 'Sem Passada', value: 7 },
+        { label: '2 Semanas', value: 14 },
+        { label: '1 Mês', value: 30 },
+    ];
 
     return (
         <>
@@ -125,17 +165,23 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ appointments, loading
                 </div>
             </div>
 
-            <div className="flex justify-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-                {daysOfWeek.map((day, index) => (
-                    <button key={index} onClick={() => setDayFilter(index)}
-                            className={`tab-dia px-5 py-2.5 rounded-xl transition-all font-medium whitespace-nowrap ${dayFilter === index ? 'active' : 'bg-black-medium hover:bg-black-light'}`}>
-                        {day}
-                    </button>
-                ))}
-                <button onClick={() => setDayFilter(-1)}
-                        className={`tab-dia px-5 py-2.5 rounded-xl transition-all font-medium whitespace-nowrap ${dayFilter === -1 ? 'active' : 'bg-black-medium hover:bg-black-light'}`}>
-                    Todos
-                </button>
+            <div className="flex flex-col gap-4 mb-6">
+                <div className="flex justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {daysOfWeek.map((day, index) => (
+                        <button key={`day-${index}`} onClick={() => setActiveFilter(`day-${index}`)}
+                                className={`tab-dia px-5 py-2.5 rounded-xl transition-all font-medium whitespace-nowrap ${activeFilter === `day-${index}` ? 'active' : ''}`}>
+                            {day}
+                        </button>
+                    ))}
+                </div>
+                 <div className="flex justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {pastFilters.map(filter => (
+                         <button key={`past-${filter.value}`} onClick={() => setActiveFilter(`past-${filter.value}`)}
+                                className={`tab-semana px-5 py-2.5 rounded-xl transition-all font-medium whitespace-nowrap ${activeFilter === `past-${filter.value}` ? 'active' : ''}`}>
+                            {filter.label}
+                        </button>
+                    ))}
+                </div>
             </div>
         </div>
 

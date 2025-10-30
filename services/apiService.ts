@@ -1,4 +1,3 @@
-
 import { Appointment, UserProfile } from '../types';
 
 const API_BASE_URL = 'https://agendamento-ynxr.onrender.com';
@@ -119,13 +118,4 @@ export const apiService = {
     }
     return response.json();
   },
-
-  // Fix: Add missing getTrialStatus function
-  getTrialStatus: async (token: string) => {
-    const response = await fetch(`${API_BASE_URL}/api/trial-status`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (!response.ok) throw new Error('Failed to get trial status');
-    return response.json();
-  }
 };

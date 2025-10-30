@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { apiService } from '../services/apiService';
 import { UserProfile, BlockedPeriod } from '../types';
-import { X, Save, Plus, Trash2, Star, CheckCircle, AlertTriangle } from 'react-feather';
+import { X, Save, Plus, Trash2, Star, CheckCircle, AlertTriangle, User, Briefcase, Power } from 'react-feather';
 import Loader from './Loader';
 
 interface SettingsModalProps {
@@ -34,6 +34,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
                 const data = await apiService.getMyProfile(session.access_token);
                 if (data.success && data.perfil) {
                     const fetchedProfile = data.perfil;
+                    // Ensure horarios_bloqueados is always an array
+                    fetchedProfile.horarios_bloqueados = fetchedProfile.horarios_bloqueados || [];
                     setProfile(fetchedProfile);
                     if (fetchedProfile.dias_funcionamento.length > 0) {
                         const firstDay = fetchedProfile.dias_funcionamento[0];
@@ -58,7 +60,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
             const newDays = p.dias_funcionamento.includes(day)
                 ? p.dias_funcionamento.filter(d => d !== day)
                 : [...p.dias_funcionamento, day];
-            return { ...p, dias_funcionamento: newDays };
+            return { ...p, dias_funcionamento: newDays.sort() };
         });
     };
 
@@ -90,10 +92,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
     const updateBlockedPeriod = (index: number, field: keyof BlockedPeriod, value: string) => {
         setProfile(p => {
             const newBlocked = [...p.horarios_bloqueados];
-            (newBlocked[index] as any)[field] = value;
+            const periodToUpdate = { ...newBlocked[index] };
+            (periodToUpdate as any)[field] = value;
              if (field === 'tipo' && value === 'recorrente') {
-                delete newBlocked[index].data;
+                delete periodToUpdate.data;
             }
+            newBlocked[index] = periodToUpdate;
             return { ...p, horarios_bloqueados: newBlocked };
         });
     };
@@ -103,6 +107,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
     };
 
     const renderContent = () => {
+        if (loading) {
+            return <div className="flex justify-center items-center h-full"><Loader /></div>;
+        }
+
         switch (activeTab) {
             case 'profile':
                 return (
@@ -117,6 +125,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
                                 <option value="barbearia">💈 Barbearia</option>
                                 <option value="consultorio">🏥 Consultório</option>
                                 <option value="salao">💇 Salão de Beleza</option>
+                                <option value="clinica">🩺 Clínica</option>
+                                <option value="estetica">✨ Clínica de Estética</option>
+                                <option value="massagem">💆 Spa/Massagem</option>
                                 <option value="outros">🏢 Outros</option>
                             </select>
                         </div>
@@ -124,9 +135,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
                             <label className="block text-sm font-medium opacity-80 mb-2">📅 Dias de Funcionamento</label>
                             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1 md:gap-2">
                                {['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'].map(dia => (
-                                   <label key={dia} className="flex items-center gap-2 text-xs md:text-sm cursor-pointer p-2 rounded hover:bg-white/5 transition-all">
+                                   <label key={dia} className={`flex items-center gap-2 text-xs md:text-sm cursor-pointer p-2 rounded hover:bg-white/10 transition-all ${profile.dias_funcionamento.includes(dia) ? 'bg-white/20' : 'bg-white/5'}`}>
                                        <input type="checkbox" checked={profile.dias_funcionamento.includes(dia)} onChange={() => handleDayToggle(dia)} className="dias-checkbox rounded bg-white/10 border-white/20 w-4 h-4 text-indigo-500 focus:ring-indigo-500" />
-                                       <span className="capitalize">{dia}</span>
+                                       <span className="capitalize">{dia.substring(0,3)}</span>
                                    </label>
                                ))}
                             </div>
@@ -146,8 +157,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
                                  <h4 className="text-base font-semibold">🚫 Bloquear Períodos</h4>
                                  <button onClick={addBlockedPeriod} className="p-2 rounded-lg bg-blue-500/80 hover:bg-blue-500 text-sm flex items-center gap-2"><Plus size={16}/> Adicionar</button>
                             </div>
-                             <div className="space-y-2 max-h-40 overflow-y-auto">
-                                {profile.horarios_bloqueados.map((period, index) => (
+                             <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                                {profile.horarios_bloqueados.length > 0 ? profile.horarios_bloqueados.map((period, index) => (
                                     <div key={index} className="p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-2 flex-wrap">
                                         <select value={period.tipo} onChange={e => updateBlockedPeriod(index, 'tipo', e.target.value)} className="bg-black-deep rounded p-1 text-xs appearance-none">
                                             <option value="recorrente">Fixo</option>
@@ -159,15 +170,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
                                         <input type="time" value={period.inicio} onChange={e => updateBlockedPeriod(index, 'inicio', e.target.value)} className="bg-black-deep rounded p-1 text-xs w-full sm:w-auto flex-grow dark-picker"/>
                                         <span>até</span>
                                         <input type="time" value={period.fim} onChange={e => updateBlockedPeriod(index, 'fim', e.target.value)} className="bg-black-deep rounded p-1 text-xs w-full sm:w-auto flex-grow dark-picker"/>
-                                        <button onClick={() => removeBlockedPeriod(index)} className="p-1 text-red-400 hover:text-red-300"><Trash2 size={16}/></button>
+                                        <button onClick={() => removeBlockedPeriod(index)} className="p-1 text-red-400 hover:text-red-300 ml-auto"><Trash2 size={16}/></button>
                                     </div>
-                                ))}
+                                )) : <p className="text-sm text-gray-400 text-center py-4">Nenhum período bloqueado.</p>}
                              </div>
                         </div>
                     </div>
                 );
             case 'plan':
-                return (
+                 return (
                     <div className="space-y-6">
                         <div className="glass-card p-6 border-silver-accent">
                             <div className="flex justify-between items-center">
@@ -178,22 +189,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
                             <ul className="space-y-2 text-sm">
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400"/> Análises e Estatísticas com IA</li>
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400"/> Sugestões Inteligentes de Horários</li>
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400"/> Link de agendamento personalizado</li>
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400"/> Agendamentos ilimitados</li>
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400"/> Suporte prioritário</li>
                             </ul>
-                             <button className="btn-premium w-full mt-6">
+                             <a href="https://pay.hotmart.com/U102480243K?checkoutMode=2" target="_blank" rel="noopener noreferrer" className="hotmart-fb hotmart__button-checkout btn-premium w-full mt-6 text-white no-underline">
                                 <span>Fazer Upgrade Agora</span>
-                            </button>
-                        </div>
-                         <div className="glass-card p-6">
-                            <h3 className="text-lg font-semibold">Plano Gratuito</h3>
-                            <p className="mt-1 mb-3 text-sm text-gray-400">Seu plano atual. Perfeito para começar.</p>
-                             <ul className="space-y-2 text-sm">
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400"/> Até 50 agendamentos/mês</li>
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400"/> Link de agendamento público</li>
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400"/> Gestão de horários</li>
-                            </ul>
+                            </a>
                         </div>
                     </div>
                 );
@@ -201,7 +202,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
                 return (
                     <div className="space-y-6">
                         <div className="flex items-center gap-4 p-4 bg-white/5 rounded-lg">
-                            <img src={user?.user_metadata.avatar_url} alt="Avatar" className="w-16 h-16 rounded-full" />
+                            {user?.user_metadata.avatar_url && <img src={user?.user_metadata.avatar_url} alt="Avatar" className="w-16 h-16 rounded-full" />}
                             <div>
                                 <h4 className="font-semibold text-lg">{user?.user_metadata.full_name}</h4>
                                 <p className="text-sm text-gray-400">{user?.email}</p>
@@ -210,8 +211,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
                         <div className="border border-red-500/30 bg-red-500/10 p-4 rounded-lg">
                             <h4 className="font-semibold text-red-400 flex items-center gap-2"><AlertTriangle size={18}/> Zona de Perigo</h4>
                             <p className="text-sm text-red-400/80 mt-1 mb-3">Ações nesta área são permanentes e não podem ser desfeitas.</p>
-                            <button className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-all">
-                                Excluir Minha Conta
+                            <button className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-all" onClick={() => addToast('Função ainda não implementada', 'info')}>
+                                <Power size={14} className="inline-block mr-1"/> Desativar Minha Conta
                             </button>
                         </div>
                     </div>
@@ -221,37 +222,32 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSaveSuccess })
         }
     };
 
-
-    if(loading) {
-        return <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"><Loader/></div>
-    }
-
     return (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1001] p-4">
             <div className="glass-card rounded-2xl p-4 md:p-6 max-w-2xl w-full mx-2 md:mx-4 animate-fade-in max-h-[90vh] flex flex-col">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center mb-4 flex-shrink-0">
                     <h3 className="text-lg md:text-xl font-semibold">Configurações</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-white p-1"><X size={20} /></button>
                 </div>
 
-                <div className="flex border-b border-white/10 mb-6">
-                    <button onClick={() => setActiveTab('profile')} className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'profile' ? 'text-white border-b-2 border-indigo-500' : 'text-gray-400 hover:text-white'}`}>
-                        Perfil do Negócio
+                <div className="flex border-b border-white/10 mb-6 flex-shrink-0 overflow-x-auto scrollbar-hide">
+                    <button onClick={() => setActiveTab('profile')} className={`px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'profile' ? 'text-white border-b-2 border-indigo-500' : 'text-gray-400 hover:text-white'}`}>
+                       <Briefcase size={14} className="inline-block mr-1"/> Perfil
                     </button>
-                    <button onClick={() => setActiveTab('plan')} className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'plan' ? 'text-white border-b-2 border-indigo-500' : 'text-gray-400 hover:text-white'}`}>
-                        Plano & Assinatura
+                    <button onClick={() => setActiveTab('plan')} className={`px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'plan' ? 'text-white border-b-2 border-indigo-500' : 'text-gray-400 hover:text-white'}`}>
+                       <Star size={14} className="inline-block mr-1"/> Plano
                     </button>
-                    <button onClick={() => setActiveTab('account')} className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'account' ? 'text-white border-b-2 border-indigo-500' : 'text-gray-400 hover:text-white'}`}>
-                        Minha Conta
+                    <button onClick={() => setActiveTab('account')} className={`px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'account' ? 'text-white border-b-2 border-indigo-500' : 'text-gray-400 hover:text-white'}`}>
+                       <User size={14} className="inline-block mr-1"/> Minha Conta
                     </button>
                 </div>
                 
-                <div className="overflow-y-auto flex-1 pr-2 -mr-2 scrollbar-hide">
+                <div className="overflow-y-auto flex-1 pr-2 -mr-2">
                     {renderContent()}
                 </div>
 
                 {activeTab === 'profile' && (
-                    <div className="flex flex-col sm:flex-row gap-2 mt-6 pt-4 border-t border-white/10">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-6 pt-4 border-t border-white/10 flex-shrink-0">
                         <button onClick={onClose} className="flex-1 px-4 py-3 rounded-lg bg-gray-600 hover:bg-gray-700 transition-all text-white order-2 sm:order-1">Cancelar</button>
                         <button onClick={handleSave} disabled={saving} className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:opacity-90 transition-all text-white font-medium flex items-center justify-center gap-2 order-1 sm:order-2">
                             {saving ? <Loader /> : <><Save size={16} /> Salvar Alterações</>}
