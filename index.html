@@ -1,356 +1,100 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Oubook | Agenda Inteligente</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              'black-absolute': '#000000',
+              'black-deep': '#111111',
+              'black-medium': '#1A1A1A',
+              'black-light': '#333333',
+              'white-pure': '#FFFFFF',
+              'white-ice': '#E0E0E0',
+              'gray-steel': '#5A5A5A',
+              'silver-accent': '#C0C0C0',
+            },
+            boxShadow: {
+              'soft': '0 4px 20px rgba(0, 0, 0, 0.3)',
+              'deep': '0 8px 40px rgba(0, 0, 0, 0.5)',
+            },
+            keyframes: {
+              'fade-in': {
+                '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+               'pulse-glow': {
+                '0%, 100%': { boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)' },
+                '50%': { boxShadow: '0 0 20px rgba(192, 192, 192, 0.1)' },
+              }
+            },
+            animation: {
+              'fade-in': 'fade-in 0.4s ease-out forwards',
+              'pulse-glow': 'pulse-glow 2s infinite',
+            }
+          },
+        },
+      }
+    </script>
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-  :root {
-        --black-absolute: #000000;
-        --black-deep: #111111;
-        --black-medium: #1A1A1A;
-        --black-light: #333333;
-        --white-pure: #FFFFFF;
-        --white-ice: #E0E0E0;
-        --gray-steel: #5A5A5A;
-        --silver-accent: #C0C0C0;
-        --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
-        --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.5);
-        --inner-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    }
-    
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: var(--black-absolute);
-        color: var(--white-ice);
-        min-height: 100vh;
-        line-height: 1.6;
-    }
-    
-    .auth-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: var(--black-absolute) !important;
-        color: var(--white-ice);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
-
-    .spinner, .loading-spinner, .loading-spinner-premium {
-        border: 4px solid rgba(255,255,255,0.1);
-        border-radius: 50%;
-        border-top: 4px solid var(--white-ice);
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto;
-    }
-    .loading-spinner, .loading-spinner-premium {
-      width: 20px;
-      height: 20px;
-      border-width: 2px;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    .hidden {
-        display: none !important;
-    }
-    
-    .assistente-ia-section,
-    .agendamento-ia-section,
-    .sugestoes-ia-section {
-        background-color: var(--black-medium);
-        border: 1px solid var(--black-light);
-        border-radius: 16px;
-        padding: 24px;
-        margin: 20px 0;
-        box-shadow: var(--shadow-soft);
-        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .assistente-ia-section::before,
-    .agendamento-ia-section::before,
-    .sugestoes-ia-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
-        opacity: 0.3;
-    }
-
-    .assistente-ia-section:hover,
-    .agendamento-ia-section:hover,
-    .sugestoes-ia-section:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-deep);
-        border-color: var(--gray-steel);
-    }
-    
-    .glass-card {
-        background-color: var(--black-medium);
-        border: 1px solid var(--black-light);
-        box-shadow: var(--shadow-soft);
-        border-radius: 16px;
-        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .glass-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
-        opacity: 0.3;
-    }
-    
-    .glass-card:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-deep);
-        border-color: var(--gray-steel);
-    }
-
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-    .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-    
-    .animate-fade-in {
-        animation: fadeIn 0.4s ease-out forwards;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .input-field {
-        transition: all 0.3s ease-out;
-        font-size: 16px;
-        background-color: var(--black-medium);
-        border: 1px solid var(--black-light);
-        color: var(--white-ice);
-    }
-    
-    .input-field:focus {
-        outline: none;
-        border-color: var(--silver-accent);
-        box-shadow: 0 0 0 2px rgba(192, 192, 192, 0.1);
-        background-color: var(--black-light);
-    }
-    
-    .tab-dia, .tab-semana {
-        transition: all 0.3s ease-out;
-        font-weight: 500;
+      body {
+        background-color: #000000;
+        color: #E0E0E0;
+      }
+       /* Custom scrollbar for webkit browsers */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #111111;
         border-radius: 10px;
-        padding: 10px 16px;
-        background-color: var(--black-medium);
-        border: 1px solid var(--black-light);
-        color: var(--white-ice);
-    }
-    
-    .tab-dia.active, .tab-semana.active {
-        background: linear-gradient(135deg, #C0C0C0 0%, #9E9E9E 100%) !important;
-        border: 1px solid #E0E0E0 !important;
-        color: #000000 !important;
-        box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4) !important;
-        font-weight: 600 !important;
-    }
-        
-    .tab-dia:not(.active):hover, .tab-semana:not(.active):hover {
-        background: #1A1A1A !important;
-        border: 1px solid #333333 !important;
-        transform: translateY(-1px) !important;
-    }
-
-    .agendamento-card {
-        transition: all 0.3s ease-out;
-        background-color: var(--black-medium);
-        border: 1px solid var(--black-light);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
-        position: relative;
-    }
-    
-    .agendamento-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
-        opacity: 0.2;
-    }
-    
-    .agendamento-card:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-soft);
-        background-color: var(--black-light);
-        border-color: var(--gray-steel);
-    }
-
-    .animate-pulse-slow {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-
-    .btn-premium {
-        background-color: var(--black-light) !important;
-        color: var(--white-pure) !important;
-        padding: 16px 32px !important;
-        border: 1px solid var(--gray-steel) !important;
-        border-radius: 12px !important;
-        font-weight: 600 !important;
-        font-size: 16px !important;
-        cursor: pointer !important;
-        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-        box-shadow: var(--shadow-soft) !important;
-        position: relative !important;
-        overflow: hidden !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 12px !important;
-        min-height: 56px !important;
-        text-decoration: none !important;
-        font-family: 'Inter', sans-serif !important;
-    }
-
-    .btn-premium:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: var(--shadow-deep) !important;
-        background-color: var(--gray-steel) !important;
-        border-color: var(--silver-accent) !important;
-    }
-
-    .btn-premium:disabled {
-        background-color: var(--black-medium) !important;
-        cursor: not-allowed !important;
-        transform: none !important;
-        box-shadow: none !important;
-        opacity: 0.5 !important;
-        border-color: var(--black-light) !important;
-    }
-
-    .header-gradient {
-        background-color: var(--black-medium);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
-        border: 1px solid var(--black-light);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .header-gradient::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--silver-accent), transparent);
-        opacity: 0.3;
-    }
-    
-    .title-gradient {
-        background: linear-gradient(135deg, var(--white-pure), var(--white-ice));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-        
-    select {
-        background-color: var(--black-medium) !important;
-        color: var(--white-ice) !important;
-    }
-    select option {
-        background-color: var(--black-deep) !important;
-        color: var(--white-ice) !important;
-    }
-
-    .dark-picker::-webkit-calendar-picker-indicator {
-        filter: invert(1);
-    }
-    
-    @media (max-width: 640px) {
-        .container {
-            padding-left: 16px;
-            padding-right: 16px;
-        }
-        .glass-card {
-            padding: 20px;
-        }
-        .input-field {
-            font-size: 16px !important;
-        }
-    }
-    </style>        
-<script type="importmap">
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #5A5A5A;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #C0C0C0;
+      }
+      /* Custom scrollbar for firefox */
+      .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #5A5A5A #111111;
+      }
+    </style>
+  <script type="importmap">
 {
   "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
-    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.77.0",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-    "react-feather": "https://aistudiocdn.com/react-feather@^2.0.10",
-    "aos": "https://aistudiocdn.com/aos@^2.3.4",
-    "react-hook-form": "https://aistudiocdn.com/react-hook-form@^7.65.0",
-    "react-imask": "https://aistudiocdn.com/react-imask@^7.6.1"
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.547.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.76.1",
+    "@capacitor/cli": "https://aistudiocdn.com/@capacitor/cli@^7.4.4",
+    "@capacitor/core": "https://aistudiocdn.com/@capacitor/core@^7.4.4"
   }
 }
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-<body class="min-h-screen">
+  <body>
     <div id="root"></div>
-    <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-[1001]"></div>
-    
-    <script>
-      // This script ensures Feather Icons are replaced whenever the DOM changes (e.g., after React renders).
-      const observer = new MutationObserver(() => {
-          feather.replace();
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-
-      document.addEventListener('DOMContentLoaded', () => {
-          feather.replace();
-      });
-    </script>
     <script type="module" src="/index.tsx"></script>
-</body>
+    <!-- Dependencies from original script that might be needed globally -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.2/imask.min.js"></script>
+  </body>
 </html>
