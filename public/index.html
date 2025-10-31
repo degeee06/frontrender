@@ -5355,17 +5355,23 @@ form.addEventListener('submit', async (e)=>{
             }
         }
 
-        // ---------------- CONFIRMAR AGENDAMENTO ----------------
-    async function confirmarAgendamento(id) {
+    // ---------------- CONFIRMAR AGENDAMENTO COM FEEDBACK VISUAL ----------------
+async function confirmarAgendamento(id) {
     if (!userToken) {
         showToast("Faça login para confirmar um agendamento.", "warning");
         return;
     }
 
+    // 🔥 FEEDBACK VISUAL IMEDIATO
+    const btn = event.target;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div>';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+
     try {
         console.log('✅ Confirmando agendamento ID:', id);
         
-        // 🔥 PRIMEIRO: Pega o email do usuário logado
         const { data: { user } } = await supabase.auth.getUser();
         if (!user || !user.email) {
             showToast("Erro: usuário não encontrado", "error");
@@ -5373,9 +5379,7 @@ form.addEventListener('submit', async (e)=>{
         }
 
         const userEmail = user.email;
-        console.log('📧 Usuário:', userEmail);
         
-        // 🔥 CORREÇÃO: Endpoint com email na URL
         const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/confirmar/${id}`, {
             method: "POST",
             headers: {
@@ -5388,44 +5392,66 @@ form.addEventListener('submit', async (e)=>{
             })
         });
 
-        console.log('📨 Status resposta:', res.status);
-        
         if (!res.ok) {
             const errorText = await res.text();
-            console.error('❌ Erro HTTP:', res.status, errorText);
             throw new Error(`Erro ${res.status}: ${errorText}`);
         }
 
         const data = await res.json();
-        console.log('📨 Resposta confirmação:', data);
 
-        if (data.msg) {
-            showToast(data.msg, "success");
+        // 🔥 FEEDBACK DE SUCESSO
+        btn.innerHTML = '<i data-feather="check" class="w-4 h-4"></i> Confirmado!';
+        btn.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+        
+        setTimeout(() => {
+            if (data.msg) {
+                showToast(data.msg, "success");
+            } else {
+                showToast("Agendamento confirmado com sucesso!", "success");
+            }
             listarAgendamentos();
             limparCacheEstatisticas();
-        } else {
-            showToast("Agendamento confirmado com sucesso!", "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-        }
+        }, 500);
 
     } catch (e) {
         console.error('❌ Erro confirmar:', e);
-        showToast("Erro ao confirmar agendamento", "error");
+        
+        // 🔥 FEEDBACK DE ERRO
+        btn.innerHTML = '<i data-feather="x" class="w-4 h-4"></i> Erro';
+        btn.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
+        
+        setTimeout(() => {
+            showToast("Erro ao confirmar agendamento", "error");
+        }, 500);
+    } finally {
+        // 🔥 RESTAURA BOTÃO APÓS 1.5 SEGUNDOS
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.background = '';
+            feather.replace();
+        }, 1500);
     }
 }
 
-        // ---------------- CANCELAR AGENDamento ----------------
-     async function cancelarAgendamento(id) {
+// ---------------- CANCELAR AGENDAMENTO COM FEEDBACK VISUAL ----------------
+async function cancelarAgendamento(id) {
     if (!userToken) {
         showToast("Faça login para cancelar um agendamento.", "warning");
         return;
     }
 
+    // 🔥 FEEDBACK VISUAL IMEDIATO
+    const btn = event.target;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div>';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+
     try {
         console.log('❌ Cancelando agendamento ID:', id);
         
-        // 🔥 PRIMEIRO: Pega o email do usuário logado
         const { data: { user } } = await supabase.auth.getUser();
         if (!user || !user.email) {
             showToast("Erro: usuário não encontrado", "error");
@@ -5433,93 +5459,138 @@ form.addEventListener('submit', async (e)=>{
         }
 
         const userEmail = user.email;
-        console.log('📧 Usuário:', userEmail);
         
-        // 🔥 CORREÇÃO: Endpoint com email na URL
         const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/cancelar/${id}`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${userToken}`,
                 "Content-Type": "application/json"
             }
-            // 🔥 NOTA: Seu backend não espera body no cancelar
         });
 
-        console.log('📨 Status resposta:', res.status);
-        
         if (!res.ok) {
             const errorText = await res.text();
-            console.error('❌ Erro HTTP:', res.status, errorText);
             throw new Error(`Erro ${res.status}: ${errorText}`);
         }
 
         const data = await res.json();
-        console.log('📨 Resposta cancelamento:', data);
 
-        if (data.msg) {
-            showToast(data.msg, "success");
+        // 🔥 FEEDBACK DE SUCESSO
+        btn.innerHTML = '<i data-feather="check" class="w-4 h-4"></i> Cancelado!';
+        btn.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+        
+        setTimeout(() => {
+            if (data.msg) {
+                showToast(data.msg, "success");
+            } else {
+                showToast("Agendamento cancelado com sucesso!", "success");
+            }
             listarAgendamentos();
             limparCacheEstatisticas();
-        } else {
-            showToast("Agendamento cancelado com sucesso!", "success");
-            listarAgendamentos();
-            limparCacheEstatisticas();
-        }
+        }, 500);
 
     } catch (e) {
         console.error('❌ Erro cancelar:', e);
-        showToast("Erro ao cancelar agendamento", "error");
+        
+        // 🔥 FEEDBACK DE ERRO
+        btn.innerHTML = '<i data-feather="x" class="w-4 h-4"></i> Erro';
+        btn.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
+        
+        setTimeout(() => {
+            showToast("Erro ao cancelar agendamento", "error");
+        }, 500);
+    } finally {
+        // 🔥 RESTAURA BOTÃO APÓS 1.5 SEGUNDOS
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.background = '';
+            feather.replace();
+        }, 1500);
     }
 }
 
-        // ---------------- REAGENDAR AGENDAMENTO ----------------
-        async function reagendarAgendamento(id, novaData, novoHorario) {
-            if (!userToken) {
-                showToast("Faça login para reagendar um agendamento.", "warning");
-                return;
-            }
+// ---------------- REAGENDAR AGENDAMENTO COM FEEDBACK VISUAL ----------------
+async function reagendarAgendamento(id, novaData, novoHorario) {
+    if (!userToken) {
+        showToast("Faça login para reagendar um agendamento.", "warning");
+        return;
+    }
 
-            try {
-                const userEmail = await getUserEmail();
-                if (!userEmail) {
-                    showToast("Erro ao obter email do usuário.", "error");
-                    return;
-                }
+    // 🔥 FEEDBACK VISUAL IMEDIATO
+    const btn = event.target;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div>';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
 
-                const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/reagendar/${id}`, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${userToken}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ 
-                        novaData, 
-                        novoHorario
-                    })
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    showToast("Agendamento reagendado com sucesso!", "success");
-                    listarAgendamentos();
-                    limparCacheEstatisticas();
-                } else {
-                    // Detecta conflito de horário (erro do índice único)
-                    if (data.code === "23505") {
-                        showToast("Já existe um agendamento nesse horário!", "error");
-                    } else {
-                        showToast("Erro ao reagendar: " + (data.msg || data.message), "error");
-                    }
-                }
-
-            } catch (e) {
-                console.error(e);
-                showToast("Erro de conexão ao reagendar.", "error");
-            }
+    try {
+        const userEmail = await getUserEmail();
+        if (!userEmail) {
+            showToast("Erro ao obter email do usuário.", "error");
+            return;
         }
 
-       // 🔥 ATUALIZE a função configurarEventListenersModal para esta versão:
+        const res = await fetch(`${API_BASE_URL}/agendamentos/${userEmail}/reagendar/${id}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${userToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ 
+                novaData, 
+                novoHorario
+            })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            // 🔥 FEEDBACK DE SUCESSO
+            btn.innerHTML = '<i data-feather="check" class="w-4 h-4"></i> Reagendado!';
+            btn.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+            
+            setTimeout(() => {
+                showToast("Agendamento reagendado com sucesso!", "success");
+                listarAgendamentos();
+                limparCacheEstatisticas();
+            }, 500);
+        } else {
+            // 🔥 FEEDBACK DE ERRO ESPECÍFICO
+            btn.innerHTML = '<i data-feather="x" class="w-4 h-4"></i> Erro';
+            btn.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
+            
+            setTimeout(() => {
+                if (data.code === "23505") {
+                    showToast("Já existe um agendamento nesse horário!", "error");
+                } else {
+                    showToast("Erro ao reagendar: " + (data.msg || data.message), "error");
+                }
+            }, 500);
+        }
+
+    } catch (e) {
+        console.error(e);
+        
+        // 🔥 FEEDBACK DE ERRO
+        btn.innerHTML = '<i data-feather="x" class="w-4 h-4"></i> Erro';
+        btn.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
+        
+        setTimeout(() => {
+            showToast("Erro de conexão ao reagendar.", "error");
+        }, 500);
+    } finally {
+        // 🔥 RESTAURA BOTÃO APÓS 1.5 SEGUNDOS
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.background = '';
+            feather.replace();
+        }, 1500);
+    }
+}
 
 // 🔧 ATUALIZAR: Função configurarEventListenersModal - VERSÃO SIMPLIFICADA
 function configurarEventListenersModal() {
