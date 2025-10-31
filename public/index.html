@@ -1687,7 +1687,22 @@
     min-height: 48px; /* Toque confortável */
   }
 }
+/* 🔥 DESTAQUE PARA NOVOS AGENDAMENTOS */
+.agendamento-novo {
+    animation: pulseSuave 2s ease-in-out 3;
+    border-left: 3px solid #10B981;
+}
 
+@keyframes pulseSuave {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: rgba(16, 185, 129, 0.05); }
+}
+
+/* 🔥 ESTILO PARA LOADING NAS TABS */
+.tab-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
 </style>        
 </head>
 <body class="min-h-screen">
@@ -4263,8 +4278,17 @@ window.criarPerfilAgora = function() {
             },3000);
         }
 
-       function renderAgendamentos() {
+       ffunction renderAgendamentos() {
     console.log('🎨 Frontend: Renderizando agendamentos...');
+    
+    // 🔥 PLACEHOLDER DINÂMICO NA BUSCA
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        const totalAgendamentos = agendamentosCache.length;
+        searchInput.placeholder = totalAgendamentos > 0 
+            ? `🔍 Buscar entre ${totalAgendamentos} agendamentos...`
+            : "🔍 Pesquisar por nome ou email";
+    }
     console.log('📊 Frontend: agendamentosCache:', agendamentosCache);
     console.log('📊 Frontend: diaSelecionado:', diaSelecionado);
     
@@ -4367,6 +4391,8 @@ if(diaSelecionado >= 0 && diaSelecionado <= 6) {
 
     filtrados.forEach(a => {
         const div = document.createElement("div");
+          // 🔥 APLICA DESTAQUE SE FOR NOVO AGENDAMENTO
+    const classeNovo = a._novo ? 'agendamento-novo' : '';
         div.className = `agendamento-card glass-card rounded-xl p-5 mb-4 transition-all duration-300 ${a.status}`;
         
         div.innerHTML = `
@@ -5090,40 +5116,64 @@ form.addEventListener('submit', async (e)=>{
         }
 
         // ---------------- TABS ----------------
-        function initTabsDias(){
-            const tabsDia = document.querySelectorAll(".tab-dia");
-            const tabsSemana = document.querySelectorAll(".tab-semana");
+      function initTabsDias(){
+    const tabsDia = document.querySelectorAll(".tab-dia");
+    const tabsSemana = document.querySelectorAll(".tab-semana");
+    
+    tabsDia.forEach(btn => {
+        btn.addEventListener("click", function() {
+            const textoOriginal = this.innerHTML;
             
-            tabsDia.forEach(btn => {
-                btn.addEventListener("click", () => {
-                    tabsDia.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
-                    tabsDia.forEach(b => b.classList.add("bg-white/10", "hover:bg-white/20"));
-                    tabsSemana.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
-                    tabsSemana.forEach(b => b.classList.add("bg-white/5", "hover:bg-white/10"));
-                    
-                    btn.classList.remove("bg-white/10", "hover:bg-white/20");
-                    btn.classList.add("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active");
-                    diaSelecionado = parseInt(btn.dataset.dia);
-                    renderAgendamentos();
-                });
-            });
+            // 🔥 FEEDBACK VISUAL
+            this.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div>';
+            this.style.opacity = '0.7';
+            
+            tabsDia.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
+            tabsDia.forEach(b => b.classList.add("bg-white/10", "hover:bg-white/20"));
+            tabsSemana.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
+            tabsSemana.forEach(b => b.classList.add("bg-white/5", "hover:bg-white/10"));
+            
+            this.classList.remove("bg-white/10", "hover:bg-white/20");
+            this.classList.add("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active");
+            diaSelecionado = parseInt(this.dataset.dia);
+            
+            // 🔥 RESTAURA BOTÃO E RENDERIZA
+            setTimeout(() => {
+                this.innerHTML = textoOriginal;
+                this.style.opacity = '1';
+                renderAgendamentos();
+            }, 300);
+        });
+    });
 
-            tabsSemana.forEach(btn => {
-                btn.addEventListener("click", () => {
-                    tabsDia.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
-                    tabsDia.forEach(b => b.classList.add("bg-white/10", "hover:bg-white/20"));
-                    tabsSemana.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
-                    tabsSemana.forEach(b => b.classList.add("bg-white/5", "hover:bg-white/10"));
-                    
-                    btn.classList.remove("bg-white/5", "hover:bg-white/10");
-                    btn.classList.add("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active");
-                    
-                    const semanas = parseInt(btn.dataset.semana);
-                    diaSelecionado = semanas; 
-                    renderAgendamentos();
-                });
-            });
-            } 
+    tabsSemana.forEach(btn => {
+        btn.addEventListener("click", function() {
+            const textoOriginal = this.innerHTML;
+            
+            // 🔥 FEEDBACK VISUAL
+            this.innerHTML = '<div class="loading-spinner" style="width:16px;height:16px;border-width:2px;"></div>';
+            this.style.opacity = '0.7';
+            
+            tabsDia.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
+            tabsDia.forEach(b => b.classList.add("bg-white/10", "hover:bg-white/20"));
+            tabsSemana.forEach(b => b.classList.remove("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active"));
+            tabsSemana.forEach(b => b.classList.add("bg-white/5", "hover:bg-white/10"));
+            
+            this.classList.remove("bg-white/5", "hover:bg-white/10");
+            this.classList.add("bg-gradient-to-r", "from-indigo-500", "to-cyan-500", "active");
+            
+            const semanas = parseInt(this.dataset.semana);
+            diaSelecionado = semanas; 
+            
+            // 🔥 RESTAURA BOTÃO E RENDERIZA
+            setTimeout(() => {
+                this.innerHTML = textoOriginal;
+                this.style.opacity = '1';
+                renderAgendamentos();
+            }, 300);
+        });
+    });
+}
            
 
         // ---------------- FUNÇÃO AUXILIAR: Converter blob para base64 ----------------
@@ -6073,7 +6123,6 @@ function forcarAtualizacaoAgendamentos() {
 
 
 
-// 🆕 FUNÇÃO: Ouvir mudanças em tempo real nos agendamentos (VERSÃO CORRIGIDA)
 function iniciarOuvinteAgendamentos() {
   if (!userToken || agendamentosSubscription) return;
   
@@ -6087,7 +6136,7 @@ function iniciarOuvinteAgendamentos() {
       .on(
         'postgres_changes',
         {
-          event: '*', // INSERT, UPDATE, DELETE
+          event: '*',
           schema: 'public',
           table: 'agendamentos',
           filter: `user_id=eq.${user.id}`
@@ -6098,15 +6147,20 @@ function iniciarOuvinteAgendamentos() {
           if (payload.eventType === 'INSERT') {
             showToast("🎉 Novo agendamento recebido via link!", "success");
             
-            // ✅ ATUALIZAÇÃO IMEDIATA - SEM DELAY
-            listarAgendamentos(); // Chama DIRETO
+            // 🔥 MARCA COMO NOVO PARA DESTAQUE VISUAL
+            if (payload.new && payload.new.id) {
+              payload.new._novo = true;
+            }
+            
+            // ✅ ATUALIZAÇÃO IMEDIATA
+            listarAgendamentos();
             
             if (premiumManager) {
               premiumManager.updateUsageBadge();
-            } // ✅ FECHOU O if do premiumManager
-          } // ✅ FECHOU O if do payload.eventType
-        } // ✅ FECHOU a função do payload
-      ) // ✅ FECHOU o .on()
+            }
+          }
+        }
+      )
       .subscribe((status) => {
         console.log('📡 Status Realtime:', status);
         if (status === 'SUBSCRIBED') {
